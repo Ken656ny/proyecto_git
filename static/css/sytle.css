@@ -1,0 +1,39 @@
+/* general (barra de navegacion) */
+:root{
+    /* fondo de contenidos */
+    --color--fondos:#D9D9D9;
+    /* color de letras cuando esta en el fondo del contenido  */
+    --color--letra:#60836A;
+    /* tipogrrafia en titulos */
+    --fuente-titulos: 'Times New Roman', Times, serif;
+    /* color de los botones */
+    --color--btn:#83997F;
+}
+
+body{
+    overflow-y: hidden;
+    height: 100vh;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+}
+/* el ancho es de 90 porque asi esta en el figma, ya despues se pone responsive */
+nav {
+    width: 90px;
+    height: 100vh;
+    background-color: #60836A;
+    color: white;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 7px;
+    padding-top: 20px;
+    
+}
+
+nav a {
+    color: white;
+    padding: 15px 20px;
+    text-decoration: none;
+}
