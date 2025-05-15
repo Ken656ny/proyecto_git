@@ -6,8 +6,12 @@
     --color--letra:#60836A;
     /* tipogrrafia en titulos */
     --fuente-titulos: 'Times New Roman', Times, serif;
-    /* color de los botones */
-    --color--btn:#83997F;
+    /*tipografia en contenido*/
+    --fuente--contenido: 'Inter';
+    /* color de los botones sin hover*/
+    --color--btn--sin--hover:#83997F;
+    /* color de los botones con hover*/
+    --color--btn--hover: #215718;
 }
 
 body{
@@ -16,23 +20,29 @@ body{
     width: 100%;
     margin: 0;
     padding: 0;
+    box-sizing: border-box;
 }
 /* el ancho es de 90 porque asi esta en el figma, ya despues se pone responsive */
-nav {
+.nav__bar{
     width: 90px;
     height: 100vh;
     background-color: #60836A;
     color: white;
     display: flex;
     flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    gap: 7px;
-    padding-top: 20px;
-    
+    justify-content: center; /*Sirve para centrar el ul*/
 }
 
-nav a {
+.nav__list{
+    display: flex;
+    flex-direction: column;
+    align-items: center; /*sirve para que los elementos del ul se alinien todos*/
+    padding: 0;
+    list-style: none;
+    gap: 3em;
+}
+
+.nav__bar a {
     color: white;
     padding: 15px 20px;
     text-decoration: none;
