@@ -3,9 +3,58 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/static/css/sytle.css">
     <title>Edupork</title>
 </head>
-<body>
-    <h1>Registro</h1>
+<body class="body-r">
+    <section>
+        <img class="nubes" src="iconos/Group 7.svg" alt="nubes">
+        <img class="nubes2" src="iconos/Group 8.svg" alt="nubes2">
+        <img class="rancho" src="iconos/163 sin título_20240826101944 1 (2).svg" alt="rancho">
+    </section>
+    <div class="container-form">
+        <button class="button-r"> <img class="icon-google" src="iconos/image 25 (1).svg" alt="icon-google">Registrarse con google</button>
+        <form onsubmit="ConfirmarContraseña(event)">
+            <fieldset>
+                <legend>O correo electronico</legend>
+            </fieldset>
+            <div class="form-input">
+                <label for="fname">Nombre Completo</label>
+                    <input type="text" id="fname" placeholder="Escriba su Nombre Completo" required>
+            </div>
+            <div class="form-input">
+                <label for="t.i">Tipo de identificacion</label>
+                <select name="type-of-ide" id="t.i" required>
+                    <option value="" disabled selected>Seleccione el tipo de identificacion</option>
+                    <option value="T.I">Tarjeta de identidad</option>
+                    <option value="C.D">Cedula de Ciudadania</option>
+                </select>
+            </div>
+            <div class="form-input">
+                <label for="n.i">Número de identificación</label>
+                    <input type="number" id="n.i" placeholder="Digite su identificacion" required>
+            </div>
+            <div class="form-input">
+                <label for="Correo">Correo electrónico</label>
+                    <input type="email" id="Correo" placeholder="example@gmail.com" required>
+            </div>
+            <div class="form-input">
+                <label for="password">Contraseña</label>
+                    <input type="password" id="password" placeholder="Digite su contraseña" required minlength="8">
+            </div>
+            <div class="form-input">
+                <label for="confirmPassword">Confirmar contraseña</label>
+                    <input type="password" id="confirmPassword" placeholder="Confirme su contraseña" required minlength="8">
+            </div>
+            <div id="mensaje" class="alerta"></div>
+            <button type="submit" class="button-rr">Registrarse</button>
+        </form>
+    </div>
+    <section>
+        <img class="logoedupork" src="iconos/264 sin título_20250427121754 2.svg" alt="logoedupork">
+        <img class="pasto" src="iconos/Group 23.svg" alt="pasto">
+        <img class="porcino" src="iconos/image 18.svg" alt="porcino">
+    </section>
+    <script src="/static/js/script.js"></script>
 </body>
 </html>
