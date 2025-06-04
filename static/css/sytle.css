@@ -148,7 +148,7 @@ SECCION DE REGISTROS
     box-shadow: 0 0 25px rgba(80, 129, 84, 0.7);
 }
 
-.Label__registro {
+.label__registro {
     font-size: 15px;
     line-height: 1.5em;
 }
