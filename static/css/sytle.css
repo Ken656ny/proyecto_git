@@ -148,14 +148,15 @@ SECCION DE REGISTROS
     box-shadow: 0 0 25px rgba(80, 129, 84, 0.7);
 }
 
-label {
-    font-size: 14px;
+.Label__registro {
+    font-size: 15px;
     line-height: 1.5em;
 }
 
 .form-input {
     margin: 0px 10px 3px;
     padding: 0 70px;
+    font-family: var(--fuente--contenido);
 }
 
 input, select {
@@ -176,7 +177,7 @@ input:focus, select:focus {
 legend {
     padding: 0px 8px;
     text-align: center;
-    font-size: 0.8em;
+    font-size: 0.9em;
 }
 
 fieldset {
@@ -312,6 +313,7 @@ SECCION DE HOME
     display: grid;
     grid-template-rows: 85px auto;
     gap: 15px;
+    font-family: var(--fuente--contenido);
 }
 
 .titulo__home{
@@ -319,7 +321,7 @@ SECCION DE HOME
     display: flex;
     justify-content: center;
     align-items: center;
-    margin: 65px auto 35px;
+    margin: 50px auto 35px;
     width: 750px;
 }
 
