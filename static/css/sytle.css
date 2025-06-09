@@ -43,12 +43,14 @@ body{
 /* el ancho es de 90 porque asi esta en el figma, ya despues se pone responsive */
 .nav__bar{
     width: 90px;
-    height: 100vh;
+    height: 100dvh;
     background-color: #60836A;
     color: white;
     display: flex;
     flex-direction: column;
-    justify-content: center; /*Sirve para centrar el ul*/
+    justify-content: center;
+    position: sticky; /*Sirve para centrar el ul*/
+    left: 0;
 }
 
 .nav__bar ul{
@@ -94,36 +96,36 @@ body{
 
 }
 
-.indicador::before{
-    content: '';
-    left: 22px;
-    top: -27px;
-    position: absolute;
-    width: 23px;
-    height: 23px;
-    border-bottom-right-radius: 20px;
-    box-shadow: 12.2px 4px 0 0 #fff;
-    background-color: var(--color--letra);
-}
-
-.indicador::after{
-    content: '';
-    right: 20px;
-    bottom: -30px;
-    position: absolute;
-    width: 23px;
-    height: 23.3px;
-    border-top-right-radius: 20px;
-    box-shadow: 8px -7px 0 0 #fff;
-    background-color: var(--color--letra);
-}
 
 .nav__bar ul li:nth-child(1).active ~ .indicador{
-    transform: translateY(cal(70px*0));
+    transform: translateY(0);
 }
 .nav__bar ul li:nth-child(2).active ~ .indicador{
-    transform: translateY(cal(70*2));
+    transform: translateY(5.3em);
 }
+.nav__bar ul li:nth-child(3).active ~ .indicador{
+    transform: translateY(10.6em);
+}
+.nav__bar ul li:nth-child(4).active ~ .indicador{
+    transform: translateY(16.2em);
+}
+.nav__bar ul li:nth-child(5).active ~ .indicador{
+    transform: translateY(21.7em);
+}
+.nav__bar ul li:nth-child(6).active ~ .indicador{
+    transform: translateY(27em);
+}
+.nav__bar ul li:nth-child(7).active ~ .indicador{
+    transform: translateY(32.7em);
+}
+.nav__bar ul li:nth-child(8).active ~ .indicador{
+    transform: translateY(38.5em);
+    border: 6px solid #4faa3c;
+}
+
+
+
+
 
 /* -------------------
 SECCION DE PORCINOS
@@ -131,10 +133,14 @@ SECCION DE PORCINOS
 
 /* CODIGO DE LA SECCION QUE CONTIENE EL ICONO DE REGRESAR EL LOGO Y EL USUARIO REGISTRADO */
 
+.container{
+    background-color: var(--color--fondos);
+}
+
 .body__porcinos{
     display: grid;
     grid-template-columns: 117px auto;
-    background-image: url(/iconos/background\ svg.svg);
+    background-image: url(/iconos/pasto.svg);
     background-repeat: no-repeat;
     background-position: bottom;
     background-size: 100%;
@@ -159,6 +165,7 @@ SECCION DE PORCINOS
 .icon__back{
     width: 3rem;
     height: 4rem;
+    cursor: pointer;
 }
 
 .logo{
@@ -198,12 +205,12 @@ SECCION DE PORCINOS
 /* CODIGO DE LA SECCION DEL TITULO */
 
 .container__title{
-    background-color: var(--color--fondos);
     color: var(--color--letra);
     display: flex;
     justify-content: center;
     align-items: center;
     margin: auto;
+    padding: 6px 0;
     font-size: 30px;
     width: 750px;
     border: 1px solid var(--color-bor-contain);
@@ -213,7 +220,6 @@ SECCION DE PORCINOS
 /* CODIGO DE LA BARRA DE BUSQUEDA */
 
 .container__search__bar{
-    background-color: var(--color--fondos);
     border: 1px solid var(--color-bor-contain);
     border-radius: 14px;
     display: flex;
@@ -305,12 +311,15 @@ SECCION DE PORCINOS
     margin: auto;
     border: 1px solid var(--color-bor-contain);
     border-radius: 40px;
+    overflow-y: scroll;
+}
+.container__registros::-webkit-scrollbar{
+    display: none;
 }
 
 .table__registros{
     width: 1150px ;
     margin: auto;
-    margin-top: 15px;
     border-collapse: collapse;
     font-family: var(--fuente--contenido);
     color: var(--color-letra-predeter);
@@ -319,6 +328,7 @@ SECCION DE PORCINOS
 .registro{
     background-color: var(--color-bg-registros);
     text-align: center;
+    border: 5px solid var(--color--fondos);
 }
 
 .svg__pig{
@@ -331,13 +341,17 @@ SECCION DE PORCINOS
 }
 
 .td__border__l{
-    border-top-left-radius: 15px;
-    border-bottom-left-radius: 15px;
+    border-top-left-radius: 25px;
+    border-bottom-left-radius: 25px;
 }
 
 .td__border__r{
-    border-top-right-radius: 15px;
-    border-bottom-right-radius: 15px;
+    border-top-right-radius: 25px;
+    border-bottom-right-radius: 25px;
+}
+
+th{
+    padding: 20px 0;
 }
 
 /* CODIGO DE LAS ACCIONES VER, EDITAR Y ELIMINAR */
