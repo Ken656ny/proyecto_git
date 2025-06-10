@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="static/css/sytle.css">
+    <script src="static/js/script.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11.17.2/dist/sweetalert2.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <title>Edupork</title>
+</head>
+<body class="body__porcinos">
+    <nav class="nav__bar">
+        <ul class="nav__list">
+            <li class="nav__item">
+                <a href="index.html" onclick="redirectWithDelay(event, 'index.html')"><img src="/iconos/home icon.svg" alt=""></a>
+            </li>
+            <li class="nav__item">
+                <a href="#"><img src="iconos/notificacions.svg" alt=""></a>
+            </li>
+            <li class="nav__item active">
+                <a href="porcinos.html" onclick="redirectWithDelay(event, 'porcinos.html')"><img src="/iconos/icon pig.svg" alt=""></a>
+            </li>
+            <li class="nav__item"> 
+                <a href="#"><img src="iconos/icon wheate.svg" alt=""></a>
+            </li>
+            <li class="nav__item">
+                <a href="#"><img src="iconos/icon plate.svg" alt=""></a>
+            </li>
+            <li class="nav__item">
+                <a href="#"><img src="iconos/icon page.svg" alt=""></a>
+            </li>
+            <li class="nav__item">
+                <a href="#"><img src="/iconos/icon user.svg" alt=""></a>
+            </li>
+            <li class="nav__item">
+                <a href="#"><img src="/iconos/icon setting.svg" alt=""></a>
+            </li>
+            <div class="indicador"></div>
+        </ul>
+    </nav>
+    <section class="section__porcinos" >
+
+        <section class="container__logo__user">
+            <div class="container__back__logo" >
+                <img src="/iconos/back icon.svg" alt="icon back" class="icon__back" onclick="location.href='porcinos.html'">
+                <a href="index.html">
+                    <img src="/iconos/Logo.svg" alt="Logo Edupork" class="logo">
+                </a>
+            </div>
+            <div class="container__user__btn">
+                <img src="/iconos/icon user.svg" alt="" class="svg__user">
+                <button type="button" class="btn__perfil">Juan Tovar</button>
+            </div>
+        </section>
+
+        <header class="container container__title">
+            <h1>Agregar porcinos</h1>
+        </header>
+
+        <section class="container container__ingresar">
+            <div class="container__label__input">
+                <label for="id_porcino"> ID del porcino </label>
+                <input type="number" name="id_porcino" id="id_porcino" min="1" oninput = "this.value = Math.abs(this.value)">
+            </div>
+
+            <div class="container__label__input">
+                <label for="peso_inicial"> Peso inicial </label>
+                <input type="number" name="peso_inicial" id="peso_inicial" min="1" oninput = "this.value = Math.abs(this.value)">
+            </div>
+
+            <div class="container__label__input">
+                <label for="peso_inicial"> Peso inicial </label>
+                <input type="number" name="peso_inicial" id="peso_inicial" min="1" oninput = "this.value = Math.abs(this.value)">
+            </div>
+
+            <div class="container__label__input">
+                <label for="peso_inicial"> Peso inicial </label>
+                <input type="number" name="peso_inicial" id="peso_inicial" min="1" oninput = "this.value = Math.abs(this.value)">
+            </div>
+            <div class="container__label__input">
+                <label for="peso_final"> Peso final </label>
+                <input type="number" name="peso_final" id="peso_final" min="1" oninput = "this.value = Math.abs(this.value)">
+            </div>
+            
+            <div class="container__label__input">
+                <label for="sexo"> Sexo </label>
+                <select name="" id="sexo">
+                    <option value="" disabled selected>Seleccione el sexo...</option>
+                    <option value="Macho">Macho</option>
+                    <option value="Hembra">Hembra</option>
+                </select>
+            </div>
+
+            <div class="container__label__input">
+                <label for="raza"> Raza </label>
+                <select name="" id="raza">
+                    <option value="" disabled selected>Seleccione la raza...</option>
+                    <option value="Macho">Landrace</option>
+                    <option value="Hembra">Duroc</option>
+                    <option value="Hembra">Pietrain</option>
+                    <option value="Hembra">Large white</option>
+                </select>
+            </div>
+
+            <div class="container__label__input">
+                <label for="etapa"> Etapa de vida </label>
+                <select name="" id="etapa">
+                    <option value="" disabled selected>Seleccione la Etapa de vida...</option>
+                    <option value="Macho">Pre-inicial</option>
+                    <option value="Hembra">Inicial</option>
+                    <option value="Hembra">Crecimiento</option>
+                    <option value="Hembra">Desarrollador</option>
+                    <option value="Hembra">Finalizador</option>
+                </select>
+            </div>
+
+            <div class="container__label__input">
+                <label for="descripcion"> Descripción </label>
+                <textarea name="" id="descripcion"></textarea>
+            </div>
+
+
+
+        </section>
+
+
+    </section>
+</body>
+</html>
