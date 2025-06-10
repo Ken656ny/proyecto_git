@@ -136,6 +136,7 @@ SECCION DE REGISTROS
     background-color: hsl(183, 100%, 93%);
     color: white;
     overflow: hidden;
+    font-family: var(--fuente--contenido);
 }
 
 /* CONTENEDOR */
@@ -156,7 +157,6 @@ SECCION DE REGISTROS
 .form-input {
     margin: 0px 10px 3px;
     padding: 0 70px;
-    font-family: var(--fuente--contenido);
 }
 
 input, select {
@@ -167,6 +167,7 @@ input, select {
     border-radius: 20px;
     padding: 9px;
     transition: all 0.3s ease;
+    font-family: var(--fuente--contenido);
 }
 
 input:focus, select:focus {
@@ -201,6 +202,7 @@ fieldset {
     background-color: white;
     cursor: pointer;
     transition: background-color 0.3s ease;
+    font-family: var(--fuente--contenido);
 }
 
 .button-rr {
@@ -213,6 +215,7 @@ fieldset {
     background-color: white;
     cursor: pointer;
     transition: background-color 0.3s ease;
+    font-family: var(--fuente--contenido);
 }
 
 .button-rr:hover,
