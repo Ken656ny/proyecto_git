@@ -128,6 +128,232 @@ body{
 
 
 /* -------------------
+SECCION DE REGISTROS
+------------------- */
+.body__registro {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background-color: hsl(183, 100%, 93%);
+    color: white;
+    overflow: hidden;
+    font-family: var(--fuente--contenido);
+}
+
+/* CONTENEDOR */
+.container-form {
+    background-color: #60836a;
+    padding: 0px 10px 25px 10px;
+    border-radius: 35px;
+    width: 566px;
+    overflow: hidden;
+    box-shadow: 0 0 25px rgba(80, 129, 84, 0.7);
+}
+
+.label__registro {
+    font-size: 15px;
+    line-height: 1.5em;
+}
+
+.form-input {
+    margin: 0px 10px 3px;
+    padding: 0 70px;
+}
+
+input, select {
+    color: #434242;
+    background-color: #f1f1f1;
+    width: 100%;
+    border: none;
+    border-radius: 20px;
+    padding: 9px;
+    transition: all 0.3s ease;
+    font-family: var(--fuente--contenido);
+}
+
+input:focus, select:focus {
+    outline: 2px solid rgba(80, 129, 84, 0.7);
+    background-color: #ffffff;
+}
+
+legend {
+    padding: 0px 8px;
+    text-align: center;
+    font-size: 0.9em;
+}
+
+fieldset {
+    border: 1px solid white;
+    border-left: none;
+    border-right: none;
+    border-bottom: none;
+    width: 70%;
+    display: block;
+    margin: 1px auto;
+    padding: 10px;
+}
+
+.button-r {
+    width: 50%;
+    margin: 15px auto;
+    padding: 13px;
+    display: block;
+    border: none;
+    border-radius: 20px;
+    background-color: white;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    font-family: var(--fuente--contenido);
+}
+
+.button-rr {
+    display: block;
+    width: 25%;
+    margin: 25px auto 5px;
+    padding: 8px;
+    border: none;
+    border-radius: 60px;
+    background-color: white;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    font-family: var(--fuente--contenido);
+}
+
+.button-rr:hover,
+.button-r:hover {
+    background-color: rgb(186, 187, 186);
+}
+
+img {
+    max-width: 100%;
+    height: auto;
+}
+
+.icon-google {
+    position: sticky;
+    width: 1.6vw;
+    height: auto;
+    top: 100vh;
+    bottom: 50vh;
+}
+
+/* ALERTAS */
+.alerta {
+    padding: 3px;
+    color: red;
+    display: none;
+    margin: 8px;
+}
+
+.success {
+    color: rgb(108, 232, 108);
+    margin: 10px;
+}
+
+#mensaje {
+    font-size: 0.8em;
+    text-align: center;
+    padding: 5px;
+}
+
+/* FONDO DE LA PÁGINA */
+.logoedupork {
+    position: absolute;
+    width: 20vw;
+    right: 75%;
+    bottom: 83vh;
+}
+
+.rancho {
+    position: absolute;
+    right: 72%;
+    width: 28vw;
+    height: auto;
+    bottom: 1vh;
+    z-index: -1;
+    overflow: hidden;
+}
+
+.pasto {
+    position: absolute;
+    width: 100vw;
+    height: auto;
+    right: 0%;
+    bottom: 0vh;
+    z-index: -1;
+    overflow: hidden;
+}
+
+.nubes {
+    position: absolute;
+    width: 24vw;
+    height: auto;
+    right: 72%;
+    bottom: 75vh;
+    z-index: -1;
+}
+
+.nubes2 {
+    position: absolute;
+    width: 25vw;
+    left: 73%;
+    bottom: 71vh;
+    z-index: -1;
+}
+
+.porcino {
+    position: absolute;
+    width: 25vh;
+    height: auto;
+    left: 79%;
+    bottom: 10vh;
+    z-index: -1;
+}
+
+/* -------------------
+SECCION DE HOME
+------------------- */
+.section__home{
+    display: grid;
+    grid-template-rows: 85px auto;
+    gap: 15px;
+    font-family: var(--fuente--contenido);
+}
+
+.titulo__home{
+    font-size: 1.5em;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 50px auto 35px;
+    width: 750px;
+}
+
+.Parrafo__home{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 800px;
+    text-align: center;
+    font-size: 1.8em;
+    margin: 10px auto 40px;
+}
+
+.PorcinoTwo{
+    position: relative;
+    z-index: 1;
+    left: 45%;
+}
+
+.logoedupork__home {
+    position: absolute;
+    width: 20vw;
+    right: 70%;
+    bottom: 89vh;
+}
+
+/* -------------------
 SECCION DE PORCINOS
 ------------------- */
 
