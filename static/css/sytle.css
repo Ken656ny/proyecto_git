@@ -512,7 +512,7 @@ html, body {
 
 .content_configuracion {
     position: relative;
-    top: -60px; /* Sube título y menú juntos */
+    top:-10px; /* Sube título y menú juntos */
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -522,9 +522,8 @@ html, body {
 
 
 
-
 .title_configuracion {
-    font-size: 38px;
+    font-size: 45px;
     color: #60836A;
     background: #D9D9D9;
     padding: 5px 50px;
@@ -532,19 +531,18 @@ html, body {
     text-align: center;
     font-weight: bold;
     border: 2px solid #808080;
-    min-width: 580px;
-    max-width: 300px;
-    margin: top -40px; 
-       margin-bottom: 20px;
+    min-width: 600px;
+    max-width: 00px;
+    margin-bottom: 25px;
     
 }
 .title_configuracion {
     position: relative;
-    top: -40px;
+    top: -50px;
 }
 .menu_configuracion {
     background: #e0e0e0;
- padding: 35px 30px 20px 40px; 
+ padding: 35px 40px 500px 40px; 
     border-radius: 41px;
     display: flex;
     flex-direction: column;
@@ -560,7 +558,7 @@ html, body {
     background: #bdbdbd;
     color:#3F5947;
     font-size: 21px;
-   padding: 10px 15px;
+   padding: 15px 15px;
     border-radius: 15px;
     display: flex;
     align-items: center;
@@ -571,7 +569,7 @@ html, body {
     font-weight: bold;
     border: 1px solid #272727;
     width: 100%;
-    height: 52px;
+    height: 62px;
     top: 100px;
     
     box-sizing: border-box;
@@ -680,7 +678,7 @@ SECCION DE Perfil
 
 
 .title_perfil {
-  font-size: 32px;
+  font-size: 42px;
   color: #60836A;
    background: #D9D9D9;
    padding: 10px 40px;
@@ -688,11 +686,11 @@ SECCION DE Perfil
     text-align: center;
     font-weight: bold;
     border: 2px solid #808080;
- min-width: 620px;
-  margin-top: 60px;
-margin-bottom: -20px;
-margin-left: auto;
-margin-right: auto;
+  min-width: 700px;
+   margin-top: 60px;
+  margin-bottom: -20px;
+ margin-left: auto;
+  margin-right: auto;
 
 }
 
@@ -705,7 +703,7 @@ margin-right: auto;
 }
 .content_perfil {
     position: relative;
-    top: -100px; /* Sube título y menú juntos */
+    top: -50px; /* Sube título y menú juntos */
     display: flex;
     flex-direction: column;
     align-items: center;
