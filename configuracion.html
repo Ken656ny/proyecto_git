@@ -13,17 +13,17 @@
 <body class="body__porcinos">
     <nav class="nav__bar">
         <ul class="nav__list">
-            <li class="nav__item active">
-                <a href="#"><img src="/iconos/home icon.svg" alt=""></a>
+            <li class="nav__item">
+                <a href="index.html" onclick="redirectWithDelay(event, 'index.html')" ><img src="/iconos/home icon.svg" alt=""></a>
             </li>
             <li class="nav__item">
-                <a href="#"><img src="/iconos/notificacions.svg" alt=""></a>
+                <a href="#"><img src="iconos/notificacions.svg" alt=""></a>
             </li>
             <li class="nav__item">
-                <a href="#"><img src="/iconos/icon pig.svg" alt=""></a>
+                <a href="porcinos.html" onclick="redirectWithDelay(event, 'porcinos.html')" ><img src="/iconos/icon pig.svg" alt=""></a>
             </li>
             <li class="nav__item"> 
-                <a href="#"><img src="/iconos/icon wheate.svg" alt=""></a>
+                <a href="alimentos.html" onclick="redirectWithDelay(event, 'alimentos.html')"><img src="/iconos/icon wheate.svg" alt=""></a>
             </li>
             <li class="nav__item">
                 <a href="#"><img src="/iconos/icon plate.svg" alt=""></a>
@@ -32,59 +32,55 @@
                 <a href="#"><img src="/iconos/icon page.svg" alt=""></a>
             </li>
             <li class="nav__item">
-                <a href="perfil.html"><img src="/iconos/icon user.svg" alt=""></a>
+                <a href="perfil.html" onclick="redirectWithDelay(event, 'perfil.html')" ><img src="/iconos/icon user.svg" alt=""></a>
             </li>
-            <li class="nav__item">
-                <a href="configuracion.html"><img src="/iconos/icon setting.svg" alt=""></a>
+            <li class="nav__item active">
+                <a href="configuracion.html" onclick="redirectWithDelay(event, 'configuracion.html')" ><img src="/iconos/icon setting.svg" alt=""></a>
             </li>
             <div class="indicador"></div>
         </ul>
     </nav>
-        <section class="section__porcinos" >
 
-        <section class="container__logo__user">
-            <div class="container__back__logo" >
-                <img src="/iconos/back icon.svg" alt="icon back" class="icon__back">
-                <a href="index.html">
-                    <img src="/iconos/Logo.svg" alt="Logo Edupork" class="logo">
-                </a>
+    <section class="section__porcinos" >
+    <section class="container__logo__user">
+        <div class="container__back__logo" >
+            <img src="/iconos/back icon.svg" alt="icon back" class="icon__back">
+            <a href="index.html">
+                <img src="/iconos/Logo.svg" alt="Logo Edupork" class="logo">
+            </a>
+        </div>
+        <div class="container__user__btn">
+            <img src="/iconos/icon user.svg" alt="" class="svg__user">
+            <button type="button" class="btn__perfil">Juan Tovar</button>
+        </div>
+    </section>
+
+    <div class="content_configuracion">
+        
+        <h1 class="title_configuracion">Configuración</h1>
+
+        <div class="menu_configuracion">
+            <div class="menu-item_configuracion" onclick="abrirPanel('cuenta')">
+                <img src="iconos/cuenta.svg" alt="Cuenta" class="icono_configuracion"> Cuenta
             </div>
-            <div class="container__user__btn">
-                <img src="/iconos/icon user.svg" alt="" class="svg__user">
-                <button type="button" class="btn__perfil">Juan Tovar</button>
+            <div class="menu-item_configuracion" onclick="abrirPanel('ajustar')">
+                <img src="iconos/ajustes.svg" alt="Ajustar" class="icono_configuracion"> Ajustar campos
             </div>
-        </section>
-
-    
-
-
-
-<div class="content_configuracion">
-     
-    <h2 class="title_configuracion">Configuración</h2>
-
-    <div class="menu_configuracion">
-        <div class="menu-item_configuracion" onclick="abrirPanel('cuenta')">
-            <img src="iconos/cuenta.svg" alt="Cuenta" class="icono_configuracion"> Cuenta
-        </div>
-        <div class="menu-item_configuracion" onclick="abrirPanel('ajustar')">
-            <img src="iconos/ajustes.svg" alt="Ajustar" class="icono_configuracion"> Ajustar campos
-        </div>
-        <div class="menu-item_configuracion" onclick="abrirPanel('notificaciones')">
-            <img src="iconos/notificacion_2.svg" alt="Notificaciones" class="icono_configuracion"> Notificaciones
-        </div>
-        <div class="menu-item_configuracion" onclick="abrirPanel('ayuda')">
-            <img src="iconos/signo_interrogacion.svg" alt="Ayuda" class="icono_configuracion"> Ayuda
-        </div>
-        <div class="menu-item_configuracion" onclick="abrirPanel('terminos')">
-            <img src="iconos/incono_exclamacion.svg" alt="Términos" class="icono_configuracion"> Términos y condiciones
-        </div>
-        <div class="menu-item_configuracion" onclick="abrirPanel('cambiar')">
-            <img src="iconos/incono_cambiar.svg" alt="Cambiar cuenta" class="icono_configuracion"> Cambiar cuenta
-        </div>
-       <div class="menu-item_configuracion" data-bs-toggle="modal" data-bs-target="#modalCerrarSesion">
-    <img src="iconos/incono_salida.svg" alt="Cerrar sesión" class="icono_configuracion"> Cerrar sesión
-</div>
+            <div class="menu-item_configuracion" onclick="abrirPanel('notificaciones')">
+                <img src="iconos/notificacion_2.svg" alt="Notificaciones" class="icono_configuracion"> Notificaciones
+            </div>
+            <div class="menu-item_configuracion" onclick="abrirPanel('ayuda')">
+                <img src="iconos/signo_interrogacion.svg" alt="Ayuda" class="icono_configuracion"> Ayuda
+            </div>
+            <div class="menu-item_configuracion" onclick="abrirPanel('terminos')">
+                <img src="iconos/incono_exclamacion.svg" alt="Términos" class="icono_configuracion"> Términos y condiciones
+            </div>
+            <div class="menu-item_configuracion" onclick="abrirPanel('cambiar')">
+                <img src="iconos/incono_cambiar.svg" alt="Cambiar cuenta" class="icono_configuracion"> Cambiar cuenta
+            </div>
+        <div class="menu-item_configuracion" data-bs-toggle="modal" data-bs-target="#modalCerrarSesion">
+        <img src="iconos/incono_salida.svg" alt="Cerrar sesión" class="icono_configuracion"> Cerrar sesión
+    </div>
 
 <!-- al final de tu HTML -->
 <script src="static/js/script.js"></script>
