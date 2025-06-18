@@ -723,7 +723,6 @@ hr{
 SECCION DE configuracion
 ------------------- */
 
-
 .body_configuracion {
     font-family: 'Times New Roman';
     background-size: cover;
@@ -736,11 +735,7 @@ SECCION DE configuracion
     align-items: center;
     justify-content: center;
     overflow: hidden;
-    
 }
-
-
-
 
 .content_configuracion {
     position: relative;
@@ -749,8 +744,6 @@ SECCION DE configuracion
     flex-direction: column;
     align-items: center;
 }
-
-
 
 .title_configuracion {
     font-size: 45px;
@@ -772,6 +765,7 @@ SECCION DE configuracion
     position: relative;
     top: -50px;
 }
+
 .menu_configuracion {
     background: #e0e0e0;
     padding: 35px 30px 20px 40px; 
@@ -780,11 +774,10 @@ SECCION DE configuracion
     flex-direction: column;
     gap: 8px;
     margin-top:-47px ;
-    width: 793px; /* ← define un ancho fijo coherente */
-    height:483px; /* ← ahora sí se aplicará correctamente */
+    width: 800px; /* ← define un ancho fijo coherente */
+    height: 530px; /* ← ahora sí se aplicará correctamente */
     border: 1px solid #1b1b1b;
 }
-
 
 .menu-item_configuracion {
     background: #bdbdbd;
@@ -806,6 +799,7 @@ SECCION DE configuracion
     
     box-sizing: border-box;
 }
+
 .menu-item_configuracion img {
     max-width: 40px;
     height: auto;
@@ -900,22 +894,21 @@ SECCION DE Perfil
 ------------------- */
 
 .title_perfil {
-  font-size: 42px;
-  color: #60836A;
-   background: #D9D9D9;
-   padding: 10px 40px;
+    font-size: 42px;
+    color: #60836A;
+    background: #D9D9D9;
+    padding: 10px 40px;
     border-radius: 18px;
     text-align: center;
     font-weight: bold;
     border: 2px solid #808080;
-  min-width: 700px;
-   margin-top: 60px;
-  margin-bottom: -20px;
- margin-left: auto;
-  margin-right: auto;
+    min-width: 700px;
+    margin-top: 60px;
+    margin-bottom: -20px;
+    margin-left: auto;
+    margin-right: auto;
 
 }
-
 
 .perfil-wrapper {
     display: flex;
