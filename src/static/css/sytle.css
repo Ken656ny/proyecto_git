@@ -389,7 +389,7 @@ SECCION DE PORCINOS
 .body__porcinos{
     display: grid;
     grid-template-columns: 117px auto;
-    background-image: url(/iconos/pasto.svg);
+    background-image: url(/src/static/iconos/pasto.svg);
     background-repeat: no-repeat;
     background-position: bottom;
     background-size: 100%;

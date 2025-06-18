@@ -3,40 +3,52 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="static/css/sytle.css">
-    <title>Document</title>
+    <link rel="stylesheet" href="/src/static/css/sytle.css">
+    <title>Edupork</title>
 
 </head>
 <body>
     <nav class="nav__bar">
         <ul class="nav__list">
             <li class="nav__item">
-                <a href="index.html" onclick="redirectWithDelay(event, 'index.html')" ><img src="/iconos/home icon.svg" alt=""></a>
+                <a href="/src/templates/index.html" onclick="redirectWithDelay(event, 'index.html')" ><img src="/src/static/iconos/home icon.svg" alt=""></a>
             </li>
             <li class="nav__item">
-                <a href="#"><img src="iconos/notificacions.svg" alt=""></a>
+                <a href="#"><img src="/src/static/iconos/notificacions.svg" alt=""></a>
             </li>
             <li class="nav__item">
-                <a href="porcinos.html" onclick="redirectWithDelay(event, 'porcinos.html')" ><img src="/iconos/icon pig.svg" alt=""></a>
+                <a href="/src/templates/porcinos.html" onclick="redirectWithDelay(event, 'porcinos.html')" ><img src="/src/static/iconos/icon pig.svg" alt=""></a>
             </li>
             <li class="nav__item active"> 
-                <a href="alimentos.html" onclick="redirectWithDelay(event, 'alimentos.html')"><img src="/iconos/icon wheate.svg" alt=""></a>
+                <a href="/src/templates/alimentos.html" onclick="redirectWithDelay(event, 'alimentos.html')"><img src="/src/static/iconos/icon wheate.svg" alt=""></a>
             </li>
             <li class="nav__item">
-                <a href="#"><img src="/iconos/icon plate.svg" alt=""></a>
+                <a href="#"><img src="/src/static/iconos/icon plate.svg" alt=""></a>
             </li>
             <li class="nav__item">
-                <a href="#"><img src="/iconos/icon page.svg" alt=""></a>
+                <a href="#"><img src="/src/static/iconos/icon page.svg" alt=""></a>
             </li>
             <li class="nav__item">
-                <a href="perfil.html" onclick="redirectWithDelay(event, 'perfil.html')" ><img src="/iconos/icon user.svg" alt=""></a>
+                <a href="/src/templates/perfil.html" onclick="redirectWithDelay(event, 'perfil.html')" ><img src="/src/static/iconos/icon user.svg" alt=""></a>
             </li>
             <li class="nav__item">
-                <a href="configuracion.html" onclick="redirectWithDelay(event, 'configuracion.html')" ><img src="/iconos/icon setting.svg" alt=""></a>
+                <a href="/src/templates/configuracion.html" onclick="redirectWithDelay(event, 'configuracion.html')" ><img src="/src/static/iconos/icon setting.svg" alt=""></a>
             </li>
             <div class="indicador"></div>
         </ul>
     </nav>
-    <script src="static/js/script.js"></script>
+    <section class="container__logo__user">
+            <div class="container__back__logo" >
+                <img src="/src/static/iconos/back icon.svg" alt="icon back" class="icon__back">
+                <a href="/src/templates/index.html">
+                    <img src="/src/static/iconos/Logo.svg" alt="Logo Edupork" class="logo">
+                </a>
+            </div>
+            <div class="container__user__btn">
+                <img src="/src/static/iconos/icon user.svg" alt="" class="svg__user">
+                <button type="button" class="btn__perfil">Juan Tovar</button>
+            </div>
+        </section>
+    <script src="/src/static/js/script.js"></script>
 </body>
 </html>

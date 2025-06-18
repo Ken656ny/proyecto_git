@@ -80,7 +80,7 @@ function mostrar_porcinos(porcinos){
         info += `
             <tr class="registro" porcino-id = "${item.id_porcino}">
                 <td class="td__border__l">
-                    <img src="iconos/registro pig.svg" alt="" class="svg__pig">
+                    <img src="/src/static/iconos/registro pig.svg" alt="" class="svg__pig">
                 </td>
                 
                 <td>${item.id_porcino}</td>
@@ -90,11 +90,11 @@ function mostrar_porcinos(porcinos){
                 <td>${item.peso_final} KG</td>
                 <td>${item.estado}</td>
                 <td class="td__border__r">
-                    <img src="iconos/icono eye.svg" alt="" class="icon-eye" id="abrir-dieye" onclick="dialog_eye()">
+                    <img src="/src/static/iconos/icono eye.svg" alt="" class="icon-eye" id="abrir-dieye" onclick="dialog_eye()">
 
-                    <img src="iconos/edit icon.svg" alt="" class="icon-edit" id="abrir-diedit" onclick="dialog_edit()">
+                    <img src="/src/static/iconos/edit icon.svg" alt="" class="icon-edit" id="abrir-diedit" onclick="dialog_edit()">
                     
-                    <img src="iconos/delete icon.svg" alt="" class="icon-delete" id="abrir-didele" onclick="dialog_delete()">
+                    <img src="/src/static/iconos/delete icon.svg" alt="" class="icon-delete" id="abrir-didele" onclick="dialog_delete()">
                 </td>
                 <!-- VENTANA MODAL DEL ICON EYE -->
 
@@ -235,7 +235,7 @@ function mostrar_porcinos(porcinos){
         info += `
             <tr class="registro" porcino-id = "${item.id_porcino}">
                 <td class="td__border__l">
-                    <img src="iconos/registro pig.svg" alt="" class="svg__pig">
+                    <img src="/src/static/iconos/registro pig.svg" alt="" class="svg__pig">
                 </td>
                 
                 <td>${item.id_porcino}</td>
@@ -245,11 +245,11 @@ function mostrar_porcinos(porcinos){
                 <td>${item.peso_final} KG</td>
                 <td>${item.estado}</td>
                 <td class="td__border__r">
-                    <img src="iconos/icono eye.svg" alt="" class="icon-eye" id="abrir-dieye" onclick="dialog_eye()">
+                    <img src="/src/static/iconos/icono eye.svg" alt="" class="icon-eye" id="abrir-dieye" onclick="dialog_eye()">
 
-                    <img src="iconos/edit icon.svg" alt="" class="icon-edit" id="abrir-diedit" onclick="dialog_edit()">
+                    <img src="/src/static/iconos/edit icon.svg" alt="" class="icon-edit" id="abrir-diedit" onclick="dialog_edit()">
                     
-                    <img src="iconos/delete icon.svg" alt="" class="icon-delete" id="abrir-didele" onclick="dialog_delete()">
+                    <img src="/src/static/iconos/delete icon.svg" alt="" class="icon-delete" id="abrir-didele" onclick="dialog_delete()">
                 </td>
                 <!-- VENTANA MODAL DEL ICON EYE -->
 
