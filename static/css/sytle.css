@@ -96,6 +96,29 @@ body{
 
 }
 
+.indicador::before{
+    content: '';
+    left: 24px;
+    top: -29.8px;
+    position: absolute;
+    width: 25px;
+    height: 25px;
+    border-bottom-right-radius: 20px;
+    box-shadow: 13px 4px 0 0 #ffffff;
+    background-color: var(--color--letra);
+}
+
+.indicador::after{
+    content: '';
+    right: 19.8px;
+    bottom: -29.8px;
+    position: absolute;
+    width: 25px;
+    height: 25px;
+    border-top-right-radius: 20px;
+    box-shadow: 13px -4px 0 0 #fff;
+    background-color: var(--color--letra);
+}
 
 .nav__bar ul li:nth-child(1).active ~ .indicador{
     transform: translateY(0);
