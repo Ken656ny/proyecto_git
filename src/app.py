@@ -1,18 +1,124 @@
+#ACCEDER A LAS FUNCIONES DE FLASK
 from flask import Flask, jsonify, request
+
+#PARA FACILITAR EL CONSUMO DE LA API GENERADA
 from flask_cors import CORS
+
+#PARA DOCUMENTAR LAS RUTAS DEL CODIGO
 from flasgger import Swagger
-import pymysql
+
+# IMPORTO EL DICCIONARIO CONFIG EN LA POSICION DEVELOPMENT PARA ACCEDER LA INFORMACION DE CONEXION DE LA
+# BASE DE DATOS, DENTRO DE ESA CLASE HAY UN CLASSMETHOD QUE RETORNA LA CONEXION CON LA BASE DE DATOS
+from config import config
 
 app = Flask(__name__)
+app.secret_key = 'secretkey'
 CORS(app)
 Swagger(app)
 
-def conexion(vhost, vuser, vpass, vdb):
-    return pymysql.connect(host=vhost, user=vuser, passwd=vpass, db=vdb, charset='utf8mb4')
 
 @app.route('/', methods=['GET'])
 def ruta_principal():
     return jsonify({'Mensaje':'App funcionnando correctamente'})
+
+
+@app.route('/login', methods = ['POST'])
+def login():
+  """
+  Validacion de credenciales para iniciar sesion
+  ---
+  parameters: 
+    - name: body
+      in: body
+      required: true
+      schema:
+        type: object
+        properties:
+          correo:
+            type: string
+          contraseña:
+            type: string
+  responses:
+    200:
+      description: Las credenciales coiciden 
+  """
+  try:
+    data = request.get_json()
+    correo = data['correo']
+    constraseña = data['contraseña']
+    
+    conex = config['development'].conn()
+    cursor = conex.cursor()
+    cursor.execute('SELECT correo, contrasena FROM usuario WHERE correo = %s', (correo))
+    user = cursor.fetchone()
+    cursor.close()
+    conex.close()
+    
+    if user:
+      if user[1] == constraseña:
+        return jsonify({'Mensaje': 'Las crendenciales son correctas'})
+      else:
+        return jsonify({'Mensaje': 'Contraseña incorrecta'})
+    else:
+      return jsonify({'Mensaje': 'Usuario no encontrado'})
+    
+  except Exception as err:
+    print(err)
+    return jsonify({'Mensaje': 'Error al consultar Usuario'})
+
+
+
+@app.route('/users', methods = ['POST'])
+def registro_usuarios():
+  """
+  Registrar nuevo usuario en la base de datos
+  ---
+  parameters: 
+    - name: body
+      in: body
+      required: true
+      schema:
+        type: object
+        properties:
+          id_usuario:
+            type: integer
+          nombre:
+            type: string
+          apelldio:
+            type: string
+          correo:
+            type: string
+          contraseña:
+            type: string
+          estado:
+            type: enum('Activo','Inactivo')
+          id_tipo_identificacion:
+            type: integer
+  responses:
+    200:
+      description: Usuario agregado
+  """
+  try:
+    user = request.get_json()
+    id_usuario = user['id_usuario']
+    nom = user['nombre']
+    correo = user['correo']
+    contra = user['contraseña']
+    estado = user['estado']
+    id_tipo_iden = user['id_tipo_identificacion']
+    
+    conex = config['development'].conn()
+    cursor = conex.cursor()
+    cursor.execute('INSERT INTO usuario (id_usuario,nombre,correo,contrasena,estado,id_tipo_identificacion) values (%s,%s,%s,%s,%s,%s)',
+                  (id_usuario,nom,correo,contra,estado,id_tipo_iden))
+    conex.commit()
+    cursor.close()
+    conex.close()
+    return jsonify({'Mensaje': f'Usuario registrado'})
+  
+  except Exception as err:
+    print(err)
+    return jsonify({'Mensaje':'Error el usuario no pudo ser registrado'})
 
 
 @app.route('/porcinos', methods=['GET'])
@@ -25,7 +131,7 @@ def consulta_general_porcinos():
       descripcion: Lista de los porcinos registrados
   """
   try:
-    conex = conexion('localhost','root','290307','edupork')
+    conex = config['development'].conn()
     cursor = conex.cursor()
     cursor.execute('SELECT * FROM porcinos')
     informacion = cursor.fetchall()
@@ -69,7 +175,7 @@ def consulta_individual_porcinos(id):
       description: Registro encontrado
   """
   try:
-    conex = conexion('localhost','root','290307','edupork')
+    conex = config['development'].conn()
     cursor = conex.cursor()
     cursor.execute('SELECT * FROM porcinos WHERE id_porcino = %s', (id,))
     porcino = cursor.fetchone()
@@ -141,7 +247,7 @@ def registrar_porcinos():
     estado = porcino['estado']
     descripcion = porcino['descripcion']
     
-    conex = conexion('localhost','root','290307','edupork')
+    conex = config['development'].conn()
     cursor = conex.cursor()
     cursor.execute('INSERT INTO porcinos (peso_inicial,peso_final,fecha_nacimiento,sexo,id_raza,id_etapa,estado,descripcion,id_porcino) values (%s,%s,%s,%s,%s,%s,%s,%s,%s)',
                   (p_ini,p_fin,fec_nac,sexo,id_ra,id_eta,estado,descripcion,id))
@@ -153,7 +259,6 @@ def registrar_porcinos():
   except Exception as err:
     print(err)
     return jsonify({'Mensaje':'Error el porcino no pudo ser registrado'})
-
 
 # ACTUALIZAR LA INFORMACION DE UN PORCINO
 
@@ -205,7 +310,7 @@ def actualizar_porcino(id):
     estado = porcino['estado']
     descripcion = porcino['descripcion']
     
-    conex = conexion('localhost','root','290307','edupork')
+    conex = config['development'].conn()
     cursor = conex.cursor()
     cursor.execute('UPDATE porcinos SET peso_inicial = %s, peso_final = %s, fecha_nacimiento = %s, sexo = %s, id_raza = %s, id_etapa = %s, estado = %s, descripcion = %s WHERE id_porcino = %s',
                   (p_ini,p_fin,fec_nac,sexo,id_ra,id_eta,estado,descripcion,id))
@@ -235,7 +340,7 @@ def eliminar_porcino(id):
   """
   try:
     id = int(id)
-    conex = conexion('localhost','root','290307','edupork')
+    conex = config['development'].conn()
     cursor = conex.cursor()
     cursor.execute('DELETE FROM porcinos WHERE id_porcino = %s', (id))
     conex.commit()

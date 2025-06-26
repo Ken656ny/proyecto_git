@@ -6,57 +6,59 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/static/css/sytle.css">
+    <link rel="stylesheet" href="/src/static/css/sytle.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="/src/static/js/script.js"></script>
     <title>Edupork</title>
 </head>
 <body class="body__registro">
     <section>
-        <img class="nubes" src="iconos/NubeOne.svg" alt="nubes">
-        <img class="nubes2" src="iconos/NubeTwo.svg" alt="nubes2">
-        <img class="rancho" src="iconos/Rancho.svg" alt="rancho">
+        <img class="nubes" src="/src/static/iconos/NubeOne.svg" alt="nubes">
+        <img class="nubes2" src="/src/static/iconos/NubeTwo.svg" alt="nubes2">
+        <img class="rancho" src="/src/static/iconos/Rancho.svg" alt="rancho">
     </section>
     <div class="container-form">
-        <button class="button-r"> <img class="icon-google" src="iconos/icon google.svg" alt="icon-google">Registrarse con google</button>
-        <form onsubmit="ConfirmarContraseña(event)">
+        <button class="button-r"> <img class="icon-google" src="/src/static/iconos/icon google.svg" alt="icon-google">Registrarse con google</button>
+        <form class="form__registro">
             <fieldset>
                 <legend>O correo electronico</legend>
             </fieldset>
             <div class="form-input">
                 <label class="label__registro" for="fname">Nombre Completo</label>
-                    <input type="text" id="fname" placeholder="Escriba su Nombre Completo" required>
+                    <input class='input_register' type="text" id="fname" placeholder="Escriba su Nombre Completo" required>
             </div>
             <div class="form-input">
-                <label class="label__registro" for="t.i">Tipo de identificacion</label>
-                <select name="type-of-ide" id="t.i" required>
+                <label class="label__registro" for="tipo_identificacion">Tipo de identificacion</label>
+                <select name="type-of-ide" id="tipo_identificacion" required>
                     <option value="" disabled selected>Seleccione el tipo de identificacion</option>
-                    <option value="T.I">Tarjeta de identidad</option>
-                    <option value="C.D">Cedula de Ciudadania</option>
+                    <option value="2">Tarjeta de identidad</option>
+                    <option value="1">Cedula de Ciudadania</option>
                 </select>
             </div>
             <div class="form-input">
                 <label class="label__registro" for="n.i">Número de identificación</label>
-                    <input type="number" id="n.i" placeholder="Digite su identificacion" required>
+                    <input class='input_register' type="number" id="n.i" placeholder="Digite su identificacion" required>
             </div>
             <div class="form-input">
-                <label class="label__registro" for="Correo">Correo electrónico</label>
-                    <input type="email" id="Correo" placeholder="example@gmail.com" required>
+                <label class="label__registro" for="correo">Correo electrónico</label>
+                    <input class='input_register' type="email" id="correo" placeholder="example@gmail.com" required>
             </div>
             <div class="form-input">
                 <label class="label__registro" for="password">Contraseña</label>
-                    <input type="password" id="password" placeholder="Digite su contraseña" required minlength="8">
+                    <input class='input_register'type="password" id="password" placeholder="Digite su contraseña" required minlength="8">
             </div>
             <div class="form-input">
                 <label class="label__registro" for="confirmPassword">Confirmar contraseña</label>
-                    <input type="password" id="confirmPassword" placeholder="Confirme su contraseña" required minlength="8">
+                    <input class='input_register'type="password" id="confirmPassword" placeholder="Confirme su contraseña" required minlength="8">
             </div>
             <div id="mensaje" class="alerta"></div>
-            <button type="submit" class="button-rr">Registrarse</button>
+            <button class='input_register'type="button" class="btn btn__registro" onclick="registro_usuarios()">Registrarse</button>
         </form>
     </div>
     <section>
-        <img class="logoedupork" src="iconos/Logo.svg" alt="logoedupork">
-        <img class="pasto" src="iconos/Pasto.svg" alt="pasto">
-        <img class="porcino" src="iconos/Porcino.svg" alt="porcino">
+        <img class="logoedupork" src="/src/static/iconos/Logo.svg" alt="logoedupork">
+        <img class="pasto" src="/src/static/iconos/Pasto.svg" alt="pasto">
+        <img class="porcino" src="/src/static/iconos/Porcino.svg" alt="porcino">
     </section>
     <script src="/static/js/script.js"></script>
 </body>

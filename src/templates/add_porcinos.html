@@ -6,7 +6,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="static/css/sytle.css">
+    <link rel="stylesheet" href="/src/static/css/sytle.css">
     <script src="/src/static/js/script.js"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11.17.2/dist/sweetalert2.min.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -16,7 +16,7 @@
     <nav class="nav__bar">
         <ul class="nav__list">
             <li class="nav__item">
-                <a href="/src/templates/index.html" onclick="redirectWithDelay(event, 'index.html')" ><img src="/src/static/iconos/home icon.svg" alt=""></a>
+                <a href="/src/templates/home.html" onclick="redirectWithDelay(event, 'home.html')" ><img src="/src/static/iconos/home icon.svg" alt=""></a>
             </li>
             <li class="nav__item">
                 <a href="#"><img src="/src/static/iconos/notificacions.svg" alt=""></a>
@@ -42,12 +42,12 @@
             <div class="indicador"></div>
         </ul>
     </nav>
-    <section class="section__porcinos" >
+    <section class="section__add__por" >
 
         <section class="container__logo__user">
             <div class="container__back__logo" >
                 <img src="/src/static/iconos/back icon.svg" alt="icon back" class="icon__back">
-                <a href="/src/templates/index.html">
+                <a href="/src/templates/home.html">
                     <img src="/src/static/iconos/Logo.svg" alt="Logo Edupork" class="logo">
                 </a>
             </div>
@@ -61,43 +61,30 @@
             <h1>Agregar porcinos</h1>
         </header>
 
-        <section class="container container__ingresar">
+        <section class="container container__add__por">
             <div class="container__label__input">
                 <label for="id_porcino"> ID del porcino </label>
-                <input type="number" name="id_porcino" id="id_porcino" min="1" oninput = "this.value = Math.abs(this.value)">
+                <input class="input__add__por" type="number" name="id_porcino" id="id_porcino" min="1" oninput = "this.value = Math.abs(this.value)" placeholder="Ingrese el id del porcino">
             </div>
 
             <div class="container__label__input">
                 <label for="peso_inicial"> Peso inicial </label>
-                <input type="number" name="peso_inicial" id="peso_inicial" min="1" oninput = "this.value = Math.abs(this.value)">
+                <input class="input__add__por" type="number" name="peso_inicial" id="peso_inicial" min="1" oninput = "this.value = Math.abs(this.value)" placeholder="Ingrese el peso inicial">
             </div>
 
-            <div class="container__label__input">
-                <label for="peso_inicial"> Peso inicial </label>
-                <input type="number" name="peso_inicial" id="peso_inicial" min="1" oninput = "this.value = Math.abs(this.value)">
-            </div>
-
-            <div class="container__label__input">
-                <label for="peso_inicial"> Peso inicial </label>
-                <input type="number" name="peso_inicial" id="peso_inicial" min="1" oninput = "this.value = Math.abs(this.value)">
-            </div>
             <div class="container__label__input">
                 <label for="peso_final"> Peso final </label>
-                <input type="number" name="peso_final" id="peso_final" min="1" oninput = "this.value = Math.abs(this.value)">
+                <input class="input__add__por" type="number" name="peso_final" id="peso_final" min="1" oninput = "this.value = Math.abs(this.value)" placeholder="Ingrese el peso final">
+            </div>
+
+            <div class="container__label__input">
+                <label for="fecha"> Fecha de nacimiento </label>
+                <input type="date" name="fecha" id="fecha">
             </div>
             
             <div class="container__label__input">
-                <label for="sexo"> Sexo </label>
-                <select name="" id="sexo">
-                    <option value="" disabled selected>Seleccione el sexo...</option>
-                    <option value="Macho">Macho</option>
-                    <option value="Hembra">Hembra</option>
-                </select>
-            </div>
-
-            <div class="container__label__input">
                 <label for="raza"> Raza </label>
-                <select name="" id="raza">
+                <select name="" id="raza" class="input__add__por">
                     <option value="" disabled selected>Seleccione la raza...</option>
                     <option value="Macho">Landrace</option>
                     <option value="Hembra">Duroc</option>
@@ -107,8 +94,18 @@
             </div>
 
             <div class="container__label__input">
+                <label for="sexo"> Sexo </label>
+                <select name="" id="sexo" class="input__add__por">
+                    <option value="" disabled selected>Seleccione el sexo...</option>
+                    <option value="Macho">Macho</option>
+                    <option value="Hembra">Hembra</option>
+                </select>
+            </div>
+
+
+            <div class="container__label__input">
                 <label for="etapa"> Etapa de vida </label>
-                <select name="" id="etapa">
+                <select name="" id="etapa" class="input__add__por">
                     <option value="" disabled selected>Seleccione la Etapa de vida...</option>
                     <option value="Macho">Pre-inicial</option>
                     <option value="Hembra">Inicial</option>

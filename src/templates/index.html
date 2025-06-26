@@ -1,3 +1,4 @@
+<!-- Aqui inicio la página html-->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -5,65 +6,41 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet">
     <title>Edupork</title>
+    <script src="/src/static/js/script.js"></script>
     <link rel="stylesheet" href="/src/static/css/sytle.css">
 </head>
-<body class="body__porcinos">
-    <nav class="nav__bar">
-        <ul class="nav__list">
-            <li class="nav__item active">
-                <a href="/src/templates/index.html" onclick="redirectWithDelay(event, 'index.html')" ><img src="/src/static/iconos/home icon.svg" alt=""></a>
-            </li>
-            <li class="nav__item">
-                <a href="#"><img src="/src/static/iconos/notificacions.svg" alt=""></a>
-            </li>
-            <li class="nav__item">
-                <a href="/src/templates/porcinos.html" onclick="redirectWithDelay(event, 'porcinos.html')" ><img src="/src/static/iconos/icon pig.svg" alt=""></a>
-            </li>
-            <li class="nav__item"> 
-                <a href="/src/templates/alimentos.html" onclick="redirectWithDelay(event, 'alimentos.html')"><img src="/src/static/iconos/icon wheate.svg" alt=""></a>
-            </li>
-            <li class="nav__item">
-                <a href="#"><img src="/src/static/iconos/icon plate.svg" alt=""></a>
-            </li>
-            <li class="nav__item">
-                <a href="#"><img src="/src/static/iconos/icon page.svg" alt=""></a>
-            </li>
-            <li class="nav__item">
-                <a href="/src/templates/perfil.html" onclick="redirectWithDelay(event, 'perfil.html')" ><img src="/src/static/iconos/icon user.svg" alt=""></a>
-            </li>
-            <li class="nav__item">
-                <a href="/src/templates/configuracion.html" onclick="redirectWithDelay(event, 'configuracion.html')" ><img src="/src/static/iconos/icon setting.svg" alt=""></a>
-            </li>
-            <div class="indicador"></div>
-        </ul>
-    </nav>
-    <section class="section__home">
-        <section class="container__logo__user">
-            <div class="container__back__logo" >
-                <a href="/src/templates/index.html" onclick="redirectWithDelay(event, 'index.html')">
-                    <img src="/src/static/iconos/Logo.svg" alt="Logo Edupork" class="logo">
-                </a>
-            </div>
-            <div class="container__user__btn">
-                <img src="/src/static/iconos/icon user.svg" alt="" class="svg__user">
-                <button type="button" class="btn__perfil">Juan Tovar</button>
-            </div>
-        </section>
-        <div class="titulo__home">
-            <h1>BIENVENIDOS A EDUPORK!</h1>
+<body class="body_login">
+<!--Creo el body que me sirve para controlar el container-->
+<div class="body_overlay">
+    <div class="container__form__login">
+        <div class="perfil"> 
+            <img src="https://cdn-icons-png.flaticon.com/128/15678/15678795.png" class="icon" alt="">
         </div>
-        <div class="Parrafo__home">
-            <p>El programa que estás utilizando fue creado con el fin de ayudarte 
-                a aprender lo necesario en la creación de dietas que cumplan con los requerimientos nutricionales de los porcinos</p>
+        <div class="InicioGoogle">
+            <img src="https://cdn-icons-png.flaticon.com/128/281/281764.png" alt="google" class="gicon">
+            <a href="https://accounts.google.com/v3/signin/identifier?hl=es&ifkv=ASSHykqW0uSkUyBJ3FNckyFuruBc91gHrmwkPaw1r0qzusnwRqmbRhhndqyo-xdG_lznStnk9txnqA&flowName=GlifWebSignIn&flowEntry=ServiceLogin&dsh=S-601952507%3A1741881072575268" class="link">Iniciar sesión con google</a>
         </div>
-        <section>
-            <img class="PorcinoTwo" src="/src/static/iconos/PorcinoTwo.svg" alt="PorcinoTwo">
-        </section>
-    </section>
-    <script src="/src/static/js/script.js">
-        ValidarPassword()
-    </script>
+        <form class="formulario">
+            <div class="user">
+                <label for="entrada1" class="label_input">Ingresar correo</label><br>
+                <input type="email" class="entrada"  id="entrada1" placeholder="  Ingrese su correo" required>
+            </div>
+            <div class="password">
+                <label for="entrada2" class="label_input">Contraseña</label><br>
+                <input type="password" class="entrada" id="entrada2" placeholder="  Ingrese su contraseña" required>
+            </div>
+            <div class="container_boton">
+                <button class=" btn bIniciarSesion" type="button" onclick="login()">Iniciar Sesion</button>
+            </div>
+            <a href="/src/templates/registro.html" class="Registrarse">¿No tienes cuenta? Registrarme ahora</a>
+        </form>    
+    </div>
+</div>
+<img src="/src/static/iconos/logo_login.png" alt="LogoEdupork" class="LogoEdupork">
+<img src="/src/static/iconos/cologo.png" alt="dsa" class="logBot">
+<img src="/src/static/iconos/senlogo.png" alt="ads" class="logBot logobot2">
 </body>
 </html>

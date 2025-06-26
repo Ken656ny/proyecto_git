@@ -3,15 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="/src/static/css/sytle.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet">
     <title>Edupork</title>
-
+    <link rel="stylesheet" href="/src/static/css/sytle.css">
 </head>
-<body>
+<body class="body__porcinos">
     <nav class="nav__bar">
         <ul class="nav__list">
-            <li class="nav__item">
-                <a href="/src/templates/home.html" onclick="redirectWithDelay(event, 'home.html')" ><img src="/src/static/iconos/home icon.svg" alt=""></a>
+            <li class="nav__item active">
+                <a href="/src/templates/home.html" onclick="redirectWithDelay(event, 'index.html')" ><img src="/src/static/iconos/home icon.svg" alt=""></a>
             </li>
             <li class="nav__item">
                 <a href="#"><img src="/src/static/iconos/notificacions.svg" alt=""></a>
@@ -19,7 +21,7 @@
             <li class="nav__item">
                 <a href="/src/templates/porcinos.html" onclick="redirectWithDelay(event, 'porcinos.html')" ><img src="/src/static/iconos/icon pig.svg" alt=""></a>
             </li>
-            <li class="nav__item active"> 
+            <li class="nav__item"> 
                 <a href="/src/templates/alimentos.html" onclick="redirectWithDelay(event, 'alimentos.html')"><img src="/src/static/iconos/icon wheate.svg" alt=""></a>
             </li>
             <li class="nav__item">
@@ -37,10 +39,10 @@
             <div class="indicador"></div>
         </ul>
     </nav>
-    <section class="container__logo__user">
+    <section class="section__home">
+        <section class="container__logo__user">
             <div class="container__back__logo" >
-                <img src="/src/static/iconos/back icon.svg" alt="icon back" class="icon__back">
-                <a href="/src/templates/home.html">
+                <a href="/src/templates/home.html" onclick="redirectWithDelay(event, 'index.html')">
                     <img src="/src/static/iconos/Logo.svg" alt="Logo Edupork" class="logo">
                 </a>
             </div>
@@ -49,6 +51,19 @@
                 <button type="button" class="btn__perfil">Juan Tovar</button>
             </div>
         </section>
-    <script src="/src/static/js/script.js"></script>
+        <div class="titulo__home">
+            <h1>BIENVENIDOS A EDUPORK!</h1>
+        </div>
+        <div class="Parrafo__home">
+            <p>El programa que estás utilizando fue creado con el fin de ayudarte 
+                a aprender lo necesario en la creación de dietas que cumplan con los requerimientos nutricionales de los porcinos</p>
+        </div>
+        <section>
+            <img class="PorcinoTwo" src="/src/static/iconos/PorcinoTwo.svg" alt="PorcinoTwo">
+        </section>
+    </section>
+    <script src="/src/static/js/script.js">
+        ValidarPassword()
+    </script>
 </body>
 </html>

@@ -1,3 +1,5 @@
+const URL_BASE = 'http://127.0.0.1:5000'
+
 // REDIRECCION DE FORMA LENTA HACIA LOS HTML
 
 function redirectWithDelay(event, url) {
@@ -12,8 +14,6 @@ function redirectWithDelay(event, url) {
     }, 1000);
 }
 
-
-
 // FUCNIONALIDAD PARA LA BARRA DE NAVEGACION
 
 const nav_bar = document.querySelectorAll('.nav__item')
@@ -25,6 +25,107 @@ function bar_funct(){
     this.classList.add('active');
 }
 nav_bar.forEach((item) => item.addEventListener('click',bar_funct));
+
+// MANEJO DE RUTAS DEL LOGIN Y REGISTRO DE USUARIOS
+
+async function registro_usuarios() {
+    try {
+        const nombre = document.getElementById('fname').value
+        const tipo_identificacion = document.getElementById('tipo_identificacion').value
+        const numero_identificacion = document.getElementById('n.i').value
+        const correo = document.getElementById('correo').value
+        const contraseña = document.getElementById('password').value
+        const constraseña_confirm = document.getElementById('confirmPassword').value
+
+        if (constraseña_confirm == contraseña){
+            const user = {
+                "id_usuario" : numero_identificacion,
+                "nombre" : nombre,
+                "correo" : correo,
+                "contraseña" : contraseña,
+                "estado" : "Activo",
+                "id_tipo_identificacion" : tipo_identificacion,
+            }
+
+            fetch(`${URL_BASE}/users`, 
+                {
+                    method: 'POST',
+                    body: JSON.stringify(user),
+                    headers : {
+                        "Content-type" : "application/json"
+                    }
+                }).then(response => {
+                    console.log(response)
+                    return response.json()
+                }).then(() => {
+                    Swal.fire({
+                        title: "Mensaje",
+                        text: `Usuario registrado correctamente`,
+                        icon: "success"
+                    });
+                })
+        } else{
+            Swal.fire({
+                title: "Mensaje",
+                text: `Las constraseñas no coinciden`,
+                icon: "error"
+            });
+        }
+
+    } catch (error) {
+        console.error(error)
+    }
+}
+
+async function login() {
+    try {
+        const correo  = document.getElementById('entrada1').value;
+        const contraseña  = document.getElementById('entrada2').value;
+
+        const user = {
+            "correo" : correo,
+            "contraseña" : contraseña
+        }
+
+        fetch(`${URL_BASE}/login`,
+            {
+                method: 'POST',
+                body: JSON.stringify(user),
+                headers : {
+                    "Content-type" : "application/json"
+                }
+            }).then(response => {
+                return response.json()
+            }).then(response => {
+                console.log(response.Mensaje)
+                if (response.Mensaje === 'Las crendenciales son correctas'){
+                    location.href = 'home.html'
+                } else if (response.Mensaje === 'Contraseña incorrecta'){
+                    Swal.fire({
+                        title: "Mensaje",
+                        text: `Constraseña incorrecta`,
+                        icon: "error"
+                    });
+                } else if (response.Mensaje === 'Usuario no encontrado'){
+                    Swal.fire({
+                        title: "Mensaje",
+                        text: `Usuario no encontrado`,
+                        icon: "error"
+                    });
+                } else{
+                    Swal.fire({
+                        text: `Error en la base de datos`,
+                        title: "Mensaje",
+                        icon: "error"
+                    });
+                }
+            })
+
+    } catch (error) {
+        console.error(error)
+    }
+}
+
 
 // DIALOGS DE LO BOTONES DE LOS REGISTROS DE LOS PORCINOS
 
@@ -71,7 +172,6 @@ function dialog_delete(){
 }
 
 // CONSUMO DE DATOS DE LOS PORCINOS REGISTRADOS
-const URL_BASE = 'http://127.0.0.1:5000'
 
 function mostrar_porcinos(porcinos){
     let info = "";

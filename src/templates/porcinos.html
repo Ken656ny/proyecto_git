@@ -15,7 +15,7 @@
     <nav class="nav__bar">
         <ul class="nav__list">
             <li class="nav__item">
-                <a href="/src/templates/index.html" onclick="redirectWithDelay(event, 'index.html')" ><img src="/src/static/iconos/home icon.svg" alt=""></a>
+                <a href="/src/templates/home.html" onclick="redirectWithDelay(event, 'home.html')" ><img src="/src/static/iconos/home icon.svg" alt=""></a>
             </li>
             <li class="nav__item">
                 <a href="#"><img src="/src/static/iconos/notificacions.svg" alt=""></a>
@@ -46,7 +46,7 @@
         <section class="container__logo__user">
             <div class="container__back__logo" >
                 <img src="/src/static/iconos/back icon.svg" alt="icon back" class="icon__back">
-                <a href="/src/templates/index.html">
+                <a href="/src/templates/home.html">
                     <img src="/src/static/iconos/Logo.svg" alt="Logo Edupork" class="logo">
                 </a>
             </div>
@@ -62,10 +62,10 @@
 
         <section class="container container__search__bar">
 
-            <img src="/iconos/icon lupa.svg" alt="">
+            <img src="/src/static/iconos/icon lupa.svg" alt="">
             <input type = "number" class = "input__id" id="input_id" placeholder = "Ingrese el ID del porcino" min="0" oninput = "this.value = Math.abs(this.value)">
             <div class="container__filtro">
-                <img src="/iconos/icon filter.svg" alt="" id="svg__filter">
+                <img src="/src/static/iconos/icon filter.svg" alt="" id="svg__filter">
                 <select name="" id="" class="filter">
                     <option value="" disabled selected >Filtrar por...</option>
                     <option value="">Sexo</option>
@@ -80,7 +80,7 @@
             <button type="button" class="btn" onclick="consulta_individual_porcino()">Consultar</button>
         </section>
         <div class="container__btn__agregar">
-            <img src="/iconos/icon add.svg" alt="" class="svg__add">
+            <img src="/src/static/iconos/icon add.svg" alt="" class="svg__add">
             <button type="button" class="btn btn--agregar" onclick="location.href = 'add_porcinos.html' ">Agregar</button>
         </div>
 
