@@ -202,7 +202,7 @@ SECCION REGISTROS
     padding: 0 70px;
 }
 
-input, select {
+input, select, textarea {
     color: #434242;
     background-color: #f1f1f1;
     width: 100%;
@@ -401,7 +401,6 @@ SECCION DE HOME
     border-radius: 50%;
     border: 6px solid #fff;
     background-color: var(--color--letra);
-
 }
 
 .indicador::before{
@@ -676,23 +675,53 @@ SECCION DE PORCINOS
 
 /* CODIGO DE LA SECCION DEL BOTON DE AGREGAR */
 
-.container__btn__agregar{
-    position: relative;
+.container__btn__options{
+    width: 1100px;
+    margin: auto;
     display: flex;
-    font-family: var(--fuente--contenido);
-    margin-left: 155px;
+    flex-direction: row;
+    justify-content: space-between;
 }
 
-.svg__add{
+.container__btn__agregar{
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    position: relative;
+    font-family: var(--fuente--contenido);
+}
+
+.svg__add, .svg__btn{
     position: absolute;
     top: 11px;
     left: 15px;
 }
 
-.btn--agregar{
-    width: 120px;
-    padding-left: 20px;
+.svg--gesti{
+    top: 14px;
+    padding-right: 8px;
 }
+
+.btn--options{
+    width: 165px;
+    padding-left: 35px;
+    font-size: 14px;
+
+}
+
+.btn--options--actua{
+    width: 155px;
+    padding-left: 35px;
+    font-size: 14px;
+}
+
+.btn--agregar{
+    width: 165px;
+    padding-left: 20px;
+    font-size: 14px;
+}
+
+
 
 /* CODIGO DE LA SECCION DE LOS REGISTROS DE LOS PORCINOS */
 
@@ -750,7 +779,7 @@ th{
 
 /* LO USO PAR OSCURECER EL FONDO */
 
-.dialog-icon-eye::backdrop, .dialog-icon-edit::backdrop, .dialog-icon-dele::backdrop{
+.dialog-icon-eye::backdrop, .dialog-icon-edit::backdrop, .dialog-icon-dele::backdrop, .dialog__ges__raz::backdrop{
     background-color: #000b;
 }
 
@@ -772,19 +801,18 @@ th{
     margin: auto;
     border-radius: 34px;
     border: 1px solid #000;
-
 }
 
 /* TUTULO DE LA VENTANA MODAL */
 
 .title-dialog{
-    color: #60836A ;
+    color: #60836A;
     font-size: 25px;
     font-family: 'Times New Roman', Times, serif;
     display: flex;
     flex-direction: column;
     align-items: center;
-    margin: 15px 8px;
+
 }
 
 /* GRID CON LOS INPUTS */
@@ -870,7 +898,7 @@ hr{
     font-weight: 600;
     font-family: var(--fuente--contenido);
 }
-
+nav
 .dialog-icon-dele .title-dialog{
     font-size: 20px;
 }
@@ -914,11 +942,107 @@ hr{
     line-height: 3;
 }
 
+.container__label__input > label{
+    font-weight: bolder;
+    color: #2C3D31;
+}
+
+.container__label__input > textarea{
+    width: 224px;
+    height: 40px;
+    resize: none;
+
+}
+
 .input__add__por{
     width: 224px;
     border: 1px solid var(--color-bor-contain);
 }
 
+.btn--guardar{
+    grid-column: 2/4;
+    margin: auto;
+}
+
+/* GESTIONAR RAZAS MODAL */
+.dialog__ges__raz{
+    margin: auto;
+    background-color: #ececec;
+    width: 882px;
+    height: 490px;
+    border-radius: 34px;
+    border: 1px solid var(--color-bor-contain);
+}
+
+.container__items__dialogs{
+    display: grid;
+    grid-template-rows: auto auto auto auto auto;
+    justify-content: center;
+    gap: 15px;
+}
+
+.container__btn__close{
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: end;
+}
+
+.btn__close{
+    background-color:  #ececec;
+    color: var(--color--letra);
+    width: 50px;
+    padding: 10px;
+    border: none;
+    font-family: var(--fuente--contenido);
+    font-size: 20px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.bar--gestion{
+    background-color: var(--color--fondos);
+    width: 735px;
+    height: 55px;
+    padding: 0 20px;
+    gap: 0;
+    justify-content: space-between;
+}
+
+.conta__lupa__inp{
+    display: flex;
+    flex-direction: row;
+    gap: 2em;
+}
+
+.container__btn{
+    position: relative;
+}
+
+.svg__add__dial{
+    position: absolute;
+    top: 11px;
+    left: 15px;
+}
+
+.btn__add__dial{
+    font-family: var(--fuente--contenido);
+}
+
+.container__registros__dia{
+    width: 735px;
+    height: 200px;
+    place-self: center;
+}
+
+.table__regis__dia{
+    width: 700px;
+}
+
+.registro__dia{
+    width: 700px;
+
+}
 
 /* -------------------
 SECCION DE configuracion
@@ -1037,7 +1161,7 @@ SECCION DE configuracion
 
 .section__porcinos{
     display: grid;
-    grid-template-rows: 85px 70px 60px 40px auto;
+    grid-template-rows: 85px 70px 60px 40px 80px;
     gap: 30px;
 }
 

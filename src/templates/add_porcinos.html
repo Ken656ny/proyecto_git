@@ -46,7 +46,9 @@
 
         <section class="container__logo__user">
             <div class="container__back__logo" >
-                <img src="/src/static/iconos/back icon.svg" alt="icon back" class="icon__back">
+                <a href="/src/templates/porcinos.html">
+                    <img src="/src/static/iconos/back icon.svg" alt="icon back" class="icon__back">
+                </a>
                 <a href="/src/templates/home.html">
                     <img src="/src/static/iconos/Logo.svg" alt="Logo Edupork" class="logo">
                 </a>
@@ -79,7 +81,7 @@
 
             <div class="container__label__input">
                 <label for="fecha"> Fecha de nacimiento </label>
-                <input type="date" name="fecha" id="fecha">
+                <input type="date" name="fecha" id="fecha" class="input__add__por">
             </div>
             
             <div class="container__label__input">
@@ -114,17 +116,12 @@
                     <option value="Hembra">Finalizador</option>
                 </select>
             </div>
-
             <div class="container__label__input">
                 <label for="descripcion"> Descripción </label>
-                <textarea name="" id="descripcion"></textarea>
+                <textarea name="" id="descripcion" class="input__add__por" placeholder="Descripcion del animal."></textarea>
             </div>
-
-
-
+            <button type="button" class="btn btn--guardar">Guardar</button>
         </section>
-
-
     </section>
 </body>
 </html>

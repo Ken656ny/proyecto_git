@@ -100,7 +100,9 @@ def registro_usuarios():
   """
   try:
     user = request.get_json()
-    id_usuario = user['id_usuario']
+    print(user)
+    num_identi = user['numero_identificacion']
+    print(num_identi)
     nom = user['nombre']
     correo = user['correo']
     contra = user['contraseña']
@@ -109,8 +111,8 @@ def registro_usuarios():
     
     conex = config['development'].conn()
     cursor = conex.cursor()
-    cursor.execute('INSERT INTO usuario (id_usuario,nombre,correo,contrasena,estado,id_tipo_identificacion) values (%s,%s,%s,%s,%s,%s)',
-                  (id_usuario,nom,correo,contra,estado,id_tipo_iden))
+    cursor.execute('INSERT INTO usuario (nombre,correo,contrasena,estado,id_tipo_identificacion,numero_identificacion) values (%s,%s,%s,%s,%s,%s)',
+                  (nom,correo,contra,estado,id_tipo_iden,num_identi))
     conex.commit()
     cursor.close()
     conex.close()
@@ -179,23 +181,26 @@ def consulta_individual_porcinos(id):
     cursor = conex.cursor()
     cursor.execute('SELECT * FROM porcinos WHERE id_porcino = %s', (id,))
     porcino = cursor.fetchone()
-    
-    dato = {
-      'id_porcino' : porcino[0],
-      'peso_inicial' : porcino[1],
-      'peso_final' : porcino[2],
-      'fecha_nacimiento' : porcino[3],
-      'sexo' : porcino[4],
-      'id_raza' : porcino[5],
-      'id_etapa' : porcino[6],
-      'estado' : porcino[7],
-      'descripcion' : porcino[8]
-      }
-    
-    cursor.close()
-    conex.close()
-    
-    return jsonify({'Porcinos': dato, 'Mensaje': f'Porcino con {id} consultado'})
+    if porcino:
+      dato = {
+        'id_porcino' : porcino[0],
+        'peso_inicial' : porcino[1],
+        'peso_final' : porcino[2],
+        'fecha_nacimiento' : porcino[3],
+        'sexo' : porcino[4],
+        'id_raza' : porcino[5],
+        'id_etapa' : porcino[6],
+        'estado' : porcino[7],
+        'descripcion' : porcino[8]
+        }
+      
+      cursor.close()
+      conex.close()
+      
+      return jsonify({'Porcinos': dato, 'Mensaje': f'Porcino con {id} consultado'})
+    else:
+      print('Porcino no encontrado')
+      return jsonify({'Mensaje':'Porcino no encontrado'})
   except Exception as err:
     print(err)
     return jsonify({'Mensaje': 'Error al consultar porcino'})
