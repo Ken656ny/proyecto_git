@@ -518,6 +518,62 @@ SECCION DE HOME
 }
 
 /* -------------------
+SECCION DE NOTIFICACIONES
+------------------- */
+
+.section__noti{
+    display: grid;
+    grid-template-rows: 85px 75px auto;
+    gap: 15px;
+}
+
+.container__noti{
+    background-color: var(--color--fondos);
+    width: 985px;
+    height: 425px;
+    margin: auto;
+    border: 1px solid var(--color-bor-contain);
+    border-radius: 40px;
+    display: grid;
+    grid-template-rows: 50px 75px 85px 50px 75px 75px auto;
+}
+
+.titulo__noti{
+    font-family: var(--fuente--contenido);
+    color: #60836A;
+    margin: 24px 53px auto;
+}
+
+.menssage__noti{
+    width: 925px;
+    height: auto;
+    margin: auto;
+    padding: 15px;
+    background-color: #AFAEAE;
+    color: #ffffff;
+    border: 1px solid var(--color-bor-contain);
+    border-radius: 15px;
+    box-shadow: 0px 4px 4px 0px rgba(0, 0, 0, 0.25);
+    font-family: var(--fuente--contenido);
+}
+
+
+.btn--noti{
+    background-color: var(--color--btn--sin--hover);
+    color: var(--color-white);
+    width: 280px;
+    height: 40px;
+    margin: auto;
+    border: 1px solid var(--color-bor-btn);
+    font-family: var(--fuente--contenido);
+    font-size: 15px;
+    font-weight: 600;
+    border-radius: 20px;
+    transition: background-color 0.5s ease-in-out;
+    cursor: pointer;
+}
+
+/* -------------------
 SECCION DE PORCINOS
 ------------------- */
 
