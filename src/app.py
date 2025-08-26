@@ -11,6 +11,7 @@ from flasgger import Swagger
 # BASE DE DATOS, DENTRO DE ESA CLASE HAY UN CLASSMETHOD QUE RETORNA LA CONEXION CON LA BASE DE DATOS
 from config import config
 
+
 app = Flask(__name__)
 app.secret_key = 'secretkey'
 CORS(app)
@@ -113,7 +114,7 @@ def registro_usuarios():
     
     conex = config['development'].conn()
     cursor = conex.cursor()
-    cursor.execute('INSERT INTO usuario (nombre,correo,contrasena,estado,id_tipo_identificacion,numero_identificacion) values (%s,%s,%s,%s,%s,%s)',
+    cursor.execute('INSERT INTO usuario (nombre,correo,contrasena,estado,id_tipo_identificacion,id_usuario) values (%s,%s,%s,%s,%s,%s)',
                   (nom,correo,contra,estado,id_tipo_iden,num_identi))
     conex.commit()
     cursor.close()
@@ -141,25 +142,11 @@ def consulta_general_porcinos():
     cursor = conex.cursor()
     cursor.execute('SELECT * FROM porcinos')
     informacion = cursor.fetchall()
-    porcinos = []
-    
-    for porcino in informacion:
-      dato = {
-        'id_porcino' : porcino[0],
-        'peso_inicial' : porcino[1],
-        'peso_final' : porcino[2],
-        'fecha_nacimiento' : porcino[3],
-        'sexo' : porcino[4],
-        'id_raza' : porcino[5],
-        'id_etapa' : porcino[6],
-        'estado' : porcino[7],
-        'descripcion' : porcino[8]
-      }
-      porcinos.append(dato)
+    print(informacion)    
     cursor.close()
     conex.close()
     
-    return jsonify({'Porcinos': porcinos, 'Mensaje':'Listado de porcinos'})
+    return jsonify({'Porcinos': informacion, 'Mensaje':'Listado de porcinos'})
     
   except Exception as err:
     print(err)
@@ -187,23 +174,10 @@ def consulta_individual_porcinos(id):
     cursor = conex.cursor()
     cursor.execute('SELECT * FROM porcinos WHERE id_porcino = %s', (id,))
     porcino = cursor.fetchone()
+    cursor.close()
+    conex.close()
     if porcino:
-      dato = {
-        'id_porcino' : porcino[0],
-        'peso_inicial' : porcino[1],
-        'peso_final' : porcino[2],
-        'fecha_nacimiento' : porcino[3],
-        'sexo' : porcino[4],
-        'id_raza' : porcino[5],
-        'id_etapa' : porcino[6],
-        'estado' : porcino[7],
-        'descripcion' : porcino[8]
-        }
-      
-      cursor.close()
-      conex.close()
-      
-      return jsonify({'Porcinos': dato, 'Mensaje': f'Porcino con {id} consultado'})
+      return jsonify({'Porcinos': porcino, 'Mensaje': f'Porcino con {id} consultado'})
     else:
       print('Porcino no encontrado')
       return jsonify({'Mensaje':'Porcino no encontrado'})
@@ -682,6 +656,145 @@ def eliminar_etapa_vida(id):
   except Exception as err:
     print(err)
     return jsonify({'Mesaje':'Error en la base de datos'})
+
+# ------------------
+# BACKEND CRISTIAN
+# ------------------
+
+@app.route("/alimentos", methods=["GET"])
+
+def consulta_alimento():
+  try:
+      with config['development'].conn() as conn:
+          with conn.cursor() as cur:
+              cur.execute("""
+                  SELECT 
+                      a.id_alimento, 
+                      a.nombre AS nombre_alimento, 
+                      e.nombre AS nombre_elemento, 
+                      a.estado AS estado_alimento,
+                      ate.valor 
+                  FROM alimentos a
+                  JOIN alimento_tiene_elemento ate ON a.id_alimento = ate.id_alimento
+                  JOIN elementos e ON e.id_elemento = ate.id_elemento
+              """)
+              filas = cur.fetchall()
+
+      if not filas:
+          return jsonify({"mensaje": "No encontrado"})
+
+      agrupado = {}
+      for fila in filas:
+          id_alimento = fila["id_alimento"]
+          if id_alimento not in agrupado:
+              agrupado[id_alimento] = {
+                  "id_alimento": id_alimento,
+                  "nombre": fila["nombre_alimento"],
+                  "estado": fila["estado_alimento"], 
+                  "elementos": []
+              }
+          agrupado[id_alimento]["elementos"].append({
+              "nombre": fila["nombre_elemento"],
+              "valor": float(fila["valor"])
+          })
+
+      resultado = list(agrupado.values())
+      return jsonify({"mensaje": resultado})
+
+  except Exception as e:
+      return jsonify({"error": str(e)})
+
+  
+@app.route("/eliminar_alimento/<int:id>", methods=["DELETE"])
+def eliminar_alimento(id):
+  try:
+      with config['development'].conn() as conn:
+          with conn.cursor() as cur:
+              cur.execute("DELETE FROM alimento_tiene_elemento WHERE id_alimento = %s", (id,))
+              cur.execute("DELETE FROM alimentos WHERE id_alimento = %s", (id,))
+              conn.commit()
+      return jsonify({"mensaje": f"Alimento con id {id} eliminado correctamente"})
+  except Exception as e:
+      return jsonify({"error": str(e)})
+
+@app.route("/registrar_alimento/", methods=["POST"])
+def registrar_alimento():
+  data = request.get_json()
+  if not data:
+      return jsonify({"error": "No se recibió ningún dato"}), 400
+
+  nombre = data.get("nombre_alimento")
+  elementos = data.get("elementos", [])
+
+  if not nombre:
+      return jsonify({"error": "El nombre del alimento es obligatorio"}), 400
+
+  try:
+      with config['development'].conn() as conn:
+          with conn.cursor() as cur:
+              
+              id_usuario = 1022357255
+
+              cur.execute(
+                  "INSERT INTO alimentos (nombre, estado, descripcion, id_usuario) VALUES (%s, %s, %s, %s)",
+                  (nombre, "activo", "", id_usuario)
+              )
+              id_alimento = cur.lastrowid
+
+              for elem in elementos:
+                  cur.execute(
+                      """
+                      INSERT INTO alimento_tiene_elemento 
+                      (id_alimento, id_elemento, valor) 
+                      VALUES (%s, %s, %s)
+                      """,
+                      (id_alimento, elem["id"], elem["valor"])
+                  )
+              conn.commit()
+      return jsonify({"mensaje": "Alimento creado correctamente", "id_alimento": id_alimento})
+  except Exception as e:
+      return jsonify({"error": str(e)}), 500
+  
+@app.route("/consulta_indi_alimento/<nombre>", methods=["GET"])
+def consulta_individual_alimento(nombre):
+  try:
+      with config['development'].conn() as conn:
+          with conn.cursor() as cur:
+              cur.execute("""
+                  SELECT 
+                      a.id_alimento, 
+                      a.nombre AS nombre_alimento, 
+                      e.nombre AS nombre_elemento, 
+                      ate.valor 
+                  FROM alimentos a
+                  JOIN alimento_tiene_elemento ate ON a.id_alimento = ate.id_alimento
+                  JOIN elementos e ON e.id_elemento = ate.id_elemento
+                  WHERE a.nombre = %s
+              """, (nombre,))
+              
+              filas = cur.fetchall()
+              
+              if not filas:
+                  return jsonify({"mensaje": None})
+              
+              alimento = {
+                  "id_alimento": filas[0]["id_alimento"],
+                  "nombre": filas[0]["nombre_alimento"],
+                  "elementos": []
+              }
+              
+              for fila in filas:
+                  alimento["elementos"].append({
+                      "nombre": fila["nombre_elemento"],
+                      "valor": float(fila["valor"])
+                  })
+              
+              return jsonify({"mensaje": alimento})
+  except Exception as e:
+      return jsonify({"error": str(e)})
+
+
+
 
 
 if __name__ == '__main__':

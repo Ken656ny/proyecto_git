@@ -1554,3 +1554,93 @@ SECCION DE Perfil
 .perfil-estadistica span {
     color: white;
 }
+
+/* ----------------------------------
+SI SALE MAL ES CULPA DE CRISTIAN
+---------------------------------- */
+
+  .contenedor {
+      display: inline-flex;
+      align-items: center;
+      padding: 10px 20px;
+      background-color: #f1f1f1; /* Color del fondo */
+      border: 1px solid var(--color-bor-contain);
+
+      border-radius: 20px;
+      font-family: sans-serif;
+      gap: 10px;
+      cursor: pointer;
+    }
+
+    .contenedor input[type="checkbox"] {
+      display: none;
+    }
+
+    .custom-checkbox {
+      width: 16px;
+      height: 16px;
+      border: 1px solid #000;
+      border-radius: 4px;
+      background-color: #aee9c6; /* Verde claro */
+    }
+
+    .contenedor input[type="checkbox"]:checked + .custom-checkbox {
+      background-color: #7ed6a3;
+    }
+
+    .color_p{
+        color:#8D8D8D;
+    }
+    .nuevo{
+        text-align: center;
+    }
+    .eliminar{
+        cursor: pointer;
+
+    }
+
+
+    .nuevo1{
+    background-color: var(--color-bg-registros);
+    border: 5px solid var(--color--fondos);
+    }
+
+    .container div p{
+        text-align: center;
+        color: #2C3D31;
+        font-weight:600;
+        margin-bottom: 4%;
+        margin-top: 4%;
+    }
+    .input_add{
+        border: 1px solid black;
+        background-color: #ECE6F0;
+        text-align: center;
+        
+    }
+    .input_add1{
+        width: 60%;
+        position: relative;
+        border: 1px solid black;
+        text-align: center;
+        margin-left: 170%;
+        font-weight: bolder;
+            background-color: var(--color--btn--sin--hover);
+    color: var(--color-white);
+    width: 130px;
+    height: 40px;
+    border: 1px solid var(--color-bor-btn);
+    font-family: inherit;
+    font-size: 15px;
+    font-weight: 600;
+    border-radius: 20px;
+    transition: background-color 0.5s ease-in-out;
+    cursor: pointer;
+    }
+.input_add1:hover{
+    background-color: var(--color--btn--hover);
+    border: 1px solid var(--color-bor-btn-hover);
+}
+    .seccion1{
+        margin: 0% 5%;
+    }

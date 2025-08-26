@@ -375,7 +375,7 @@ function mostrar_porcinos(porcinos){
     document.getElementById('info_porcinos').innerHTML = info ;
     
     }else{
-        const item = porcinos.Porcinos
+        let item = porcinos.Porcinos
         info += `
             <tr class="registro" porcino-id = "${item.id_porcino}">
                 <td class="td__border__l">
@@ -537,8 +537,11 @@ function consulta_general_porcinos(){
             if (!response.ok) throw new Error(`Error: ${response.status}`); // Manejo de errores HTTP
             return response.json();
         })
-        .then( porcinos => mostrar_porcinos(porcinos)) // Muestra los datos en la tabla
-        .catch(error => console.error('Error:', error)); // Captura y muestra los errores en la pantalla
+        .then( porcinos => {
+            console.log(porcinos)
+            mostrar_porcinos(porcinos);
+        }) // Muestra los datos en la tabla
+        .catch(error => console.error('Error:', `${error}`)); // Captura y muestra los errores en la pantalla
 }
 
 function refrescar_porcinos(id_porcino){
@@ -637,6 +640,108 @@ function consulta_individual_porcino(){
     })
     .catch(error => console.error('Error', error));
 }
+
+function consulta_alimentos(){
+    const contenido = document.getElementById("contenido");
+    fetch(`${URL_BASE}/alimentos`,{method: "GET"})
+    .then(res=>res.json())
+    .then(data=>{
+        console.log(data)
+        contenido.innerHTML=""; 
+        data.mensaje.forEach(element => {
+                const mapa = {};
+                element.elementos.forEach(e => {
+                mapa[e.nombre] = e.valor;
+                });
+
+            contenido.innerHTML+=`
+            <tr class="nuevo1">
+                <td class="nuevo td__border__l"><img class="svg__pig" src="/src/static/iconos/logo alimentospng.png"></td>
+                <td class="nuevo">${element.id_alimento}</td>
+                <td class="nuevo">${element.nombre}</td>
+                <td class="nuevo">${mapa["Materia_seca"]}</td>
+                <td class="nuevo">${mapa["Energia_metabo"]}</td>
+                <td class="nuevo">${mapa["Proteina_cruda"]}</td>
+                <td class="nuevo">${mapa["Fibra_cruda"]}</td>
+                <td class="nuevo">${element.estado}</td>
+                <td class="nuevo td__border__r">
+
+                <img src="/src/static/iconos/icon eye.svg " class="icon-eye">
+
+                <img src="/src/static/iconos/edit icon.svg" class="icon-edit">
+
+                <img class="eliminar" onclick="eliminar_alimento(${element.id_alimento})" src="/src/static/iconos/delete icon.svg" class="icon-edit">
+                </td>
+            </tr>
+            `
+        });
+    })
+}
+
+function eliminar_alimento(id){
+    fetch(`${URL_BASE}/eliminar_alimento/${id}`,{method:"delete"})
+    .then(res=>res.json())
+    .then(data=>{
+        console.log("eliminado correctamente")
+        alert("eliminado correctamente")
+        window.location.reload()
+    })
+}
+
+function consulta_individual_alimento(){
+    const nombre = document.getElementById("id_alimento").value;
+    contenido.innerHTML = "";
+
+    fetch(`${URL_BASE}/consulta_indi_alimento/${nombre}`)
+    .then(res => res.json())
+    .then(data => {
+        if (!data.mensaje) {
+            contenido.innerHTML = `
+                <tr>
+                    <td colspan="9" class="nuevo td__border__l"> No se encontró ningún alimento con ese nombre, por favor digite el nombre completo</td>
+                </tr>
+            `;
+            return;
+        }
+
+        let alimentos = [];
+
+        if (Array.isArray(data.mensaje)) {
+            alimentos = data.mensaje;
+        } else {
+            alimentos = [data.mensaje];
+        }
+
+        alimentos.forEach(element => {
+            const mapa = {};
+            element.elementos.forEach(e => {
+                mapa[e.nombre] = e.valor;
+            });
+
+            contenido.innerHTML += `
+                <tr class="nuevo1">
+                    <td class="nuevo td__border__l"><img class="svg__pig" src="/comida.png"></td>
+                    <td class="nuevo">${element.id_alimento}</td>
+                    <td class="nuevo">${element.nombre}</td>
+                    <td class="nuevo">${mapa["Materia_seca"]}</td>
+                    <td class="nuevo">${mapa["Energia_metabo"]}</td>
+                    <td class="nuevo">${mapa["Proteina_cruda"]}</td>
+                    <td class="nuevo">${mapa["Fibra_cruda"]}</td>
+                    <td class="nuevo">${alimentos.estado}</td>
+                    <td class="nuevo td__border__r">
+                        <img src="/src/static/iconos/icon eye.svg" class="icon-eye">
+                        <img src="/src/static/iconos/edit icon.svg" class="icon-edit">
+                        <img class="eliminar" onclick="eliminar(${element.id_alimento})" src="/src/static/iconos/delete icon.svg" class="icon-edit">
+                    </td>
+                </tr>
+            `;
+        });
+    });
+}
+
+
+
+
 
 
 // //CONFIRMACION DE CONTRASEÑA EN EL APARTADO DE REGISTRO

@@ -1,5 +1,6 @@
 from decouple import config
 import pymysql
+import pymysql.cursors
 import secrets
 
 class Config():
@@ -11,11 +12,12 @@ class DevelopmentConfig(Config):
     USER = 'root'
     PASSWORD = '290307'
     DATABASE = 'edupork'
+    CURSOR_CLASS = pymysql.cursors.DictCursor
     SQLALCHEMY_DATABASE_URI = config('SQLALCHEMY_DATABASE_URI')
 
     @classmethod
     def conn(self):
-        return pymysql.connect(host=self.HOST,user=self.USER,passwd=self.PASSWORD,db=self.DATABASE) 
+        return pymysql.connect(host=self.HOST,user=self.USER,passwd=self.PASSWORD,db=self.DATABASE, cursorclass=self.CURSOR_CLASS) 
 
 config = {
     'development' : DevelopmentConfig
