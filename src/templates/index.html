@@ -1,0 +1,46 @@
+<!-- Aqui inicio la página html-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet">
+    <title>Edupork</title>
+    <script src="/src/static/js/script.js"></script>
+    <link rel="stylesheet" href="/src/static/css/sytle.css">
+</head>
+<body class="body_login">
+<!--Creo el body que me sirve para controlar el container-->
+<div class="body_overlay">
+    <div class="container__form__login">
+        <div class="perfil"> 
+            <img src="https://cdn-icons-png.flaticon.com/128/15678/15678795.png" class="icon" alt="">
+        </div>
+        <div class="InicioGoogle">
+            <img src="https://cdn-icons-png.flaticon.com/128/281/281764.png" alt="google" class="gicon">
+            <a href="https://accounts.google.com/v3/signin/identifier?hl=es&ifkv=ASSHykqW0uSkUyBJ3FNckyFuruBc91gHrmwkPaw1r0qzusnwRqmbRhhndqyo-xdG_lznStnk9txnqA&flowName=GlifWebSignIn&flowEntry=ServiceLogin&dsh=S-601952507%3A1741881072575268" class="link">Iniciar sesión con google</a>
+        </div>
+        <form class="formulario">
+            <div class="user">
+                <label for="entrada1" class="label_input">Ingresar correo</label><br>
+                <input type="email" class="entrada"  id="entrada1" placeholder="  Ingrese su correo" required>
+            </div>
+            <div class="password">
+                <label for="entrada2" class="label_input">Contraseña</label><br>
+                <input type="password" class="entrada" id="entrada2" placeholder="  Ingrese su contraseña" required>
+            </div>
+            <div class="container_boton">
+                <button class=" btn bIniciarSesion" type="button" onclick="login()">Iniciar Sesion</button>
+            </div>
+            <a href="/src/templates/registro.html" class="Registrarse">¿No tienes cuenta? Registrarme ahora</a>
+        </form>    
+    </div>
+</div>
+<img src="/src/static/iconos/logo_login.png" alt="LogoEdupork" class="LogoEdupork">
+<img src="/src/static/iconos/cologo.png" alt="dsa" class="logBot">
+<img src="/src/static/iconos/senlogo.png" alt="ads" class="logBot logobot2">
+</body>
+</html>

@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/src/static/css/sytle.css">
+    <script src="/src/static/js/script.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11.17.2/dist/sweetalert2.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <title>Edupork</title>
+</head>
+<body class="body__porcinos">
+    <nav class="nav__bar">
+        <ul class="nav__list">
+            <li class="nav__item">
+                <a href="/src/templates/home.html" onclick="redirectWithDelay(event, 'home.html')" ><img src="/src/static/iconos/home icon.svg" alt=""></a>
+            </li>
+            <li class="nav__item">
+                <a href="/src/templates/notificaciones.html"><img src="/src/static/iconos/notificacions.svg" alt=""></a>
+            </li>
+            <li class="nav__item active">
+                <a href="/src/templates/porcinos.html" onclick="redirectWithDelay(event, 'porcinos.html')" ><img src="/src/static/iconos/icon pig.svg" alt=""></a>
+            </li>
+            <li class="nav__item"> 
+                <a href="/src/templates/alimentos.html" onclick="redirectWithDelay(event, 'alimentos.html')"><img src="/src/static/iconos/icon wheate.svg" alt=""></a>
+            </li>
+            <li class="nav__item">
+                <a href="#"><img src="/src/static/iconos/icon plate.svg" alt=""></a>
+            </li>
+            <li class="nav__item">
+                <a href="#"><img src="/src/static/iconos/icon page.svg" alt=""></a>
+            </li>
+            <li class="nav__item">
+                <a href="/src/templates/perfil.html" onclick="redirectWithDelay(event, 'perfil.html')" ><img src="/src/static/iconos/icon user.svg" alt=""></a>
+            </li>
+            <li class="nav__item">
+                <a href="/src/templates/configuracion.html" onclick="redirectWithDelay(event, 'configuracion.html')" ><img src="/src/static/iconos/icon setting.svg" alt=""></a>
+            </li>
+            <div class="indicador"></div>
+        </ul>
+    </nav>
+    <section class="section__add__por" >
+
+        <section class="container__logo__user">
+            <div class="container__back__logo" >
+                <a href="/src/templates/porcinos.html">
+                    <img src="/src/static/iconos/back icon.svg" alt="icon back" class="icon__back">
+                </a>
+                <a href="/src/templates/home.html">
+                    <img src="/src/static/iconos/Logo.svg" alt="Logo Edupork" class="logo">
+                </a>
+            </div>
+            <div class="container__user__btn">
+                <img src="/src/static/iconos/icon user.svg" alt="" class="svg__user">
+                <button type="button" class="btn__perfil">Juan Tovar</button>
+            </div>
+        </section>
+
+        <header class="container container__title">
+            <h1>Agregar porcinos</h1>
+        </header>
+
+        <section class="container container__add__por">
+            <div class="container__label__input">
+                <label for="id_porcino"> ID del porcino </label>
+                <input class="input__add__por" type="number" name="id_porcino" id="id_porcino" min="1" oninput = "this.value = Math.abs(this.value)" placeholder="Ingrese el id del porcino" required>
+            </div>
+
+            <div class="container__label__input">
+                <label for="peso_inicial"> Peso inicial </label>
+                <input class="input__add__por" type="number" name="peso_inicial" id="peso_inicial" min="1" oninput = "this.value = Math.abs(this.value)" placeholder="Ingrese el peso inicial" required>
+            </div>
+
+            <div class="container__label__input">
+                <label for="peso_final"> Peso final </label>
+                <input class="input__add__por" type="number" name="peso_final" id="peso_final" min="1" oninput = "this.value = Math.abs(this.value)" placeholder="Ingrese el peso final" required>
+            </div>
+
+            <div class="container__label__input">
+                <label for="fecha"> Fecha de nacimiento </label>
+                <input type="date" name="fecha" id="fecha" class="input__add__por" required>
+            </div>
+            
+            <div class="container__label__input">
+                <label for="raza"> Raza </label>
+                <select name="" id="raza" class="input__add__por" required>
+                    <option value="" disabled selected>Seleccione la raza...</option>
+                    <option value="1">Landrace</option>
+                    <option value="2">Duroc</option>
+                    <option value="3">Pietrain</option>
+                    <option value="4">Large white</option>
+                </select>
+            </div>
+
+            <div class="container__label__input">
+                <label for="sexo"> Sexo </label>
+                <select name="" id="sexo" class="input__add__por" required>
+                    <option value="" disabled selected>Seleccione el sexo...</option>
+                    <option value="Macho">Macho</option>
+                    <option value="Hembra">Hembra</option>
+                </select>
+            </div>
+
+
+            <div class="container__label__input">
+                <label for="etapa"> Etapa de vida </label>
+                <select name="" id="etapa" class="input__add__por" required>
+                    <option value="" disabled selected>Seleccione la Etapa de vida...</option>
+                    <option value="3">Pre-inicial</option>
+                    <option value="4">Inicial</option>
+                    <option value="2">Crecimiento</option>
+                    <option value="1">Desarrollador</option>
+                    <option value="5">Finalizador</option>
+                </select>
+            </div>
+            <div class="container__label__input">
+                <label for="descripcion"> Descripción </label>
+                <textarea name="" id="descripcion" class="input__add__por" placeholder="Descripcion del animal."></textarea>
+            </div>
+            <button type="button" class="btn btn--guardar" onclick="agregar_porcino()">Agregar Porcino</button>
+        </section>
+    </section>
+</body>
+</html>
