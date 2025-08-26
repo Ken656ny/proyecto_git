@@ -201,10 +201,7 @@ function dialog__ges__eta(){
     });
 }
 
-
-
 // CONSUMO DE DATOS DE LOS PORCINOS REGISTRADOS
-
 function mostrar_porcinos(porcinos){
     let info = "";
     if (porcinos.Porcinos.length > 1){
@@ -552,6 +549,56 @@ function refrescar_porcinos(id_porcino){
     }
 }
 
+async function agregar_porcino(){
+    try {
+        const id_porcino = document.getElementById('id_porcino').value;
+        const peso_inicial = document.getElementById('peso_inicial').value;
+        const peso_final = document.getElementById('peso_final').value;
+        const fecha = document.getElementById('fecha').value;
+        const raza = document.getElementById('raza').value;
+        const sexo = document.getElementById('sexo').value;
+        const etapa = document.getElementById('etapa').value;
+        const descripcion = document.getElementById('descripcion').value;
+        
+        const porcino = {
+            "id_porcino" : id_porcino,
+            "peso_inicial" : peso_inicial,
+            "peso_final" : peso_final,
+            "fecha_nacimiento" : fecha,
+            "id_raza" : raza,
+            "sexo" : sexo,
+            "id_etapa" : etapa,
+            "estado" : "Activo",
+            "descripcion" : descripcion 
+        }
+
+        const promesa = await fetch(`${URL_BASE}/porcino`, {
+            method : 'POST',
+            body : JSON.stringify(porcino),
+            headers : {
+                "Content-type" : "application/json"
+            }
+        })
+        const response = await promesa.json()
+        console.log(response)
+        if (response.Mensaje == `Porcino con id ${id_porcino} registrado`){
+            Swal.fire({
+            title: "Mensaje",
+            text: `${response.Mensaje}`,
+            icon: "success"
+        });
+        }else{
+            Swal.fire({
+            title: "Mensaje",
+            text: `LLene todos los campos`,
+            icon: "error"
+        });
+        }
+    } catch (error) {
+        console.error(error)
+    }
+}
+
 function eliminar_porcino(id_porcino){
     fetch(`${URL_BASE}/porcino/${id_porcino}`, {method: 'DELETE'})
     .then( response => {
@@ -590,6 +637,7 @@ function consulta_individual_porcino(){
     })
     .catch(error => console.error('Error', error));
 }
+
 
 // //CONFIRMACION DE CONTRASEÑA EN EL APARTADO DE REGISTRO
 

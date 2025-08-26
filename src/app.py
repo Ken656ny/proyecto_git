@@ -27,6 +27,8 @@ def login():
   """
   Validacion de credenciales para iniciar sesion
   ---
+  tags:
+    - login
   parameters: 
     - name: body
       in: body
@@ -66,13 +68,13 @@ def login():
     print(err)
     return jsonify({'Mensaje': 'Error al consultar Usuario'})
 
-
-
 @app.route('/users', methods = ['POST'])
 def registro_usuarios():
   """
   Registrar nuevo usuario en la base de datos
   ---
+  tags:
+    - usuario
   parameters: 
     - name: body
       in: body
@@ -128,6 +130,8 @@ def consulta_general_porcinos():
   """
   Consulta general de kos porcinos registrados en la base de datos
   ---
+  tags:
+    - Porcinos
   responses:
     200:
       descripcion: Lista de los porcinos registrados
@@ -167,6 +171,8 @@ def consulta_individual_porcinos(id):
   """
   Consulta individual por ID de los porcinos registrados en la base de datos
   ---
+  tags:
+    - Porcinos
   parameters:
     - name: codigo
       in: path
@@ -213,6 +219,8 @@ def registrar_porcinos():
   """
   Registrar nuevo porcino en la base de datos
   ---
+  tags:
+    - Porcinos
   parameters: 
     - name: body
       in: body
@@ -263,6 +271,7 @@ def registrar_porcinos():
   
   except Exception as err:
     print(err)
+    
     return jsonify({'Mensaje':'Error el porcino no pudo ser registrado'})
 
 # ACTUALIZAR LA INFORMACION DE UN PORCINO
@@ -273,6 +282,8 @@ def actualizar_porcino(id):
   """
   Actualizar registro por ID
   ---
+  tags:
+    - Porcinos
   parameters:
     - name: id_porcino
       in: path
@@ -334,6 +345,8 @@ def eliminar_porcino(id):
   """
   Eliminar registro por ID de un porcino registrado en la base de datos
   ---
+  tags:
+    - Porcinos
   parameters:
     - name: codigo
       in: path
@@ -357,6 +370,318 @@ def eliminar_porcino(id):
   except Exception as err:
     print(err)
     return jsonify({'Mensaje': f'Error al eliminar el porcino con id {id}'})
+
+
+@app.route('/raza', methods = ['GET'])
+def consulta_gen_raza():
+  """
+  Consulta general de las razas registradas en la base de datos
+  ---
+  tags:
+    - Raza
+  responses:
+    200:
+      descripcion: Lista de las razas registradas
+  """
+  try:
+    conn = config['development'].conn()
+    cur = conn.cursor()
+    cur.execute('SELECT * FROM raza')
+    info = cur.fetchall()
+    conn.close()
+    cur.close()
+    if info:
+      razas = []
+      for i in info:
+        raza = {
+          "id_raza" : i[0],
+          "nombre" : i[1],
+          "descripcion" : i[2]
+        }
+        razas.append(raza)
+      return jsonify({'Mensaje': 'Listado de razas', 'razas': razas})
+    else:
+      return jsonify({'Mensaje': 'No hay razas registradas'})
+  except Exception as err:
+    print(err)
+    return jsonify({'Mesaje':'Error en la base de datos'})
+
+@app.route('/raza', methods = ['POST'])
+def registrar_raza():
+  """
+  Registrar nueva raza en la base de datos
+  ---
+  tags:
+    - Raza
+  parameters: 
+    - name: body
+      in: body
+      required: true
+      schema:
+        type: object
+        properties:
+          nombre:
+            type: string
+          descripcion:
+            type: string
+  responses:
+    200:
+      description: Raza registada correctamente
+  """
+  try:
+    data = request.get_json()
+    nombre = data['nombre']
+    desc = data['descripcion']
+    
+    conn = config['development'].conn()
+    cur = conn.cursor()
+    cur.execute('INSERT INTO raza VALUES (null,%s,%s)',
+                (nombre,desc))
+    conn.commit()
+    conn.close()
+    cur.close()
+    return jsonify({'Mensaje': 'Raza registrada correctamente'})
+  except Exception as err:
+    print(err)
+    return jsonify({'Mesaje':'Error en la base de datos'})
+
+@app.route('/raza/<int:id>', methods = ['PUT'])
+def actualizar_raza(id):
+  """
+  Actualizar raza por id
+  ---
+  tags:
+    - Raza
+  parameters:
+    - name: id_raza
+      in: path
+      required: true
+      type: integer
+    - name: body
+      in: body
+      required: true
+      schema:
+        type: object
+        properties:
+          nombre:
+            type: string
+          descripcion:
+            type: string
+  responses:
+    200:
+      description: Raza actualizada correctamente
+  """
+  try:
+    data = request.get_json()
+    nombre = data['nombre']
+    desc = data['descripcion']
+    
+    conn = config['development'].conn()
+    cur = conn.cursor()
+    cur.execute('UPDATE raza SET nombre = %s, descripcion = %s WHERE id_raza = %s',
+                (nombre,desc,id))
+    conn.commit()
+    conn.close()
+    cur.close()
+    return jsonify({'Mensaje': 'Raza actulizada correctamente'})
+  except Exception as err:
+    print(err)
+    return jsonify({'Mesaje':'Error en la base de datos'})
+
+@app.route('/raza/<int:id>', methods = ['DELETE'])
+def eliminar_raza(id):
+  """
+  Eliminar registro por ID de una raza registrado en la base de datos
+  ---
+  tags:
+    - Raza
+  parameters:
+    - name: id_raza
+      in: path
+      required: true
+      type: integer
+  responses:
+    200:
+      description: Raza eliminada correctamente
+    400:
+      description: Opcion no existente
+    500:
+      description: Error en la base de datos
+      
+  """
+  try:
+    conn = config['development'].conn()
+    cur = conn.cursor()
+    cur.execute('DELETE FROM raza WHERE id_raza = %s',
+                (id))
+    conn.commit()
+    conn.close()
+    cur.close()
+    return jsonify({'Mensaje': 'Raza eliminada correctamente'})
+  except Exception as err:
+    print(err)
+    return jsonify({'Mesaje':'Error en la base de datos'})
+
+@app.route('/etapa_vida', methods = ['GET'])
+def consulta_gen_etapa():
+  """
+  Consulta de etapas de vida
+  ---
+  tags:
+    - Etapa de vida
+  responses:
+    200:
+      description: Lista de etapas de vida registradas
+    400:
+      description: Opcion no existentes
+    500:
+      description: Error en la base de datos
+  """
+  try:
+    conn = config['development'].conn()
+    cur = conn.cursor()
+    cur.execute('SELECT * FROM etapa_vida')
+    info = cur.fetchall()
+    conn.close()
+    cur.close()
+    if info:
+      etapas = []
+      for i in info:
+        etapa = {
+          "id_etapa" : i[0],
+          "nombre" : i[1],
+          "descripcion" : i[2]
+        }
+        etapas.append(etapa)
+      return jsonify({'Mensaje': 'Lista de etapas registradas', 'etapas': etapas})
+    else:
+      return jsonify({'Mensaje': 'No hay etapas registradas'})
+  except Exception as err:
+    print(err)
+    return jsonify( {'Mensaje': 'Error en la base de datos'} )
+
+@app.route('/etapa_vida', methods = ['POST'])
+def registrar_etapa():
+  """
+  Registrar nueva etapa de vida en la base de datos
+  ---
+  tags:
+    - Etapa de vida
+  parameters:
+    - name: body
+      in: body
+      required: true
+      schema:
+        type: object
+        properties:
+          nombre:
+            type: string
+          descripcion:
+            type: string
+        required:
+          - nombre
+          - descripcion
+  responses:
+    200:
+      description: Etapa de vida registrada correctamente
+    400:
+      description: Opcion no existentes
+    500:
+      description: Error en la base de datos
+  """
+  try:
+    data = request.get_json()
+    nombre = data['nombre']
+    desc = data['descripcion']
+    
+    conn = config['development'].conn()
+    cur = conn.cursor()
+    cur.execute('INSERT INTO etapa_vida VALUES (null,%s,%s)',
+                (nombre,desc))
+    conn.commit()
+    conn.close()
+    cur.close()
+    return jsonify({'Mensaje': 'Etapa de vida registrada correctamente'})
+  except Exception as err:
+    print(err)
+    return jsonify({'Mesaje':'Error en la base de datos'})
+
+@app.route('/etapa_vida/<int:id>', methods = ['PUT'])
+def actualizar_etapa_vida(id):
+  """
+  Actualizar etapa de vida por id
+  ---
+  tags:
+    - Etapa de vida
+  parameters:
+    - name: id_etapa
+      in: path
+      required: true
+      type: integer
+    - name: body
+      in: body
+      required: true
+      schema:
+        type: object
+        properties:
+          nombre:
+            type: string
+          descripcion:
+            type: string
+  responses:
+    200:
+      description: Etapa de vida actualizada correctamente
+  """
+  try:
+    data = request.get_json()
+    nombre = data['nombre']
+    desc = data['descripcion']
+    
+    conn = config['development'].conn()
+    cur = conn.cursor()
+    cur.execute('UPDATE etapa_vida SET nombre = %s, descripcion = %s WHERE id_etapa = %s',
+                (nombre,desc,id))
+    conn.commit()
+    conn.close()
+    cur.close()
+    return jsonify({'Mensaje': 'Raza actulizada correctamente'})
+  except Exception as err:
+    print(err)
+    return jsonify({'Mesaje':'Error en la base de datos'})
+
+@app.route('/etapa_vida/<int:id>', methods = ['DELETE'])
+def eliminar_etapa_vida(id):
+  """
+  Eliminar registro por ID de una etapa de vida registrado en la base de datos
+  ---
+  tags:
+    - Etapa de vida
+  parameters:
+    - name: id_etapa
+      in: path
+      required: true
+      type: integer
+  responses:
+    200:
+      description: Etapa de vida eliminada correctamente
+    400:
+      description: Opcion no existente
+    500:
+      description: Error en la base de datos
+      
+  """
+  try:
+    conn = config['development'].conn()
+    cur = conn.cursor()
+    cur.execute('DELETE FROM etapa_vida WHERE id_etapa = %s',
+                (id))
+    conn.commit()
+    conn.close()
+    cur.close()
+    return jsonify({'Mensaje': 'Etapa de vida eliminada correctamente'})
+  except Exception as err:
+    print(err)
+    return jsonify({'Mesaje':'Error en la base de datos'})
 
 
 if __name__ == '__main__':

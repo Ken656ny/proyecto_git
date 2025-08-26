@@ -2,6 +2,8 @@
 :root{
     /* fondo de contenidos */
     --color--fondos:#D9D9D9;
+    /* color predeterminado */
+    --color--prede: #60836a;
     /* color de letras cuando esta en el fondo del contenido  */
     --color--letra:#60836A;
     /* color letra predeterminada */
@@ -40,7 +42,7 @@ body{
     margin: 0;
 }
 
-/* -------------------h
+/* -------------------
 SECCION DE LOGIN
 ------------------- */
 .body_login{
@@ -352,7 +354,7 @@ SECCION DE HOME
 .nav__bar{
     width: 90px;
     height: 100dvh;
-    background-color: #60836A;
+    background-color: var(--color--prede);
     color: white;
     display: flex;
     flex-direction: column;
@@ -842,6 +844,7 @@ th{
 .icon-eye , .icon-edit, .icon-delete{
     cursor: pointer;
     transition: scale 0.5s;
+    
 }
 
 .icon-eye:hover, .icon-edit:hover, .icon-delete:hover{
