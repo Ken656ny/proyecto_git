@@ -58,7 +58,7 @@ def login():
     conex.close()
     
     if user:
-      if user[1] == constraseña:
+      if user['contrasena'] == constraseña:
         return jsonify({'Mensaje': 'Las crendenciales son correctas'})
       else:
         return jsonify({'Mensaje': 'Contraseña incorrecta'})
@@ -664,6 +664,16 @@ def eliminar_etapa_vida(id):
 @app.route("/alimentos", methods=["GET"])
 
 def consulta_alimento():
+  """
+  Consultar de Alimentos
+  ---
+  tags:
+    - Gestion de Alimentos
+  responses:
+    200:
+      description: Lista de alimentos
+  """
+  
   try:
       with config['development'].conn() as conn:
           with conn.cursor() as cur:
@@ -792,10 +802,6 @@ def consulta_individual_alimento(nombre):
               return jsonify({"mensaje": alimento})
   except Exception as e:
       return jsonify({"error": str(e)})
-
-
-
-
 
 if __name__ == '__main__':
     app.run(debug=True)

@@ -99,6 +99,7 @@ async function login() {
             }).then(response => {
                 return response.json()
             }).then(response => {
+                console.log(response)
                 console.log(response.Mensaje)
                 if (response.Mensaje === 'Las crendenciales son correctas'){
                     location.href = 'home.html'
