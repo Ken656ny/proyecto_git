@@ -17,12 +17,14 @@ app.secret_key = 'secretkey'
 CORS(app)
 Swagger(app)
 
+# RUTA PRINCIPAL PARA VISUALIZAR SI EL SERVIDOR ESTA CORRIENDO CON NORMALIDAD
 
 @app.route('/', methods=['GET'])
 def ruta_principal():
     return jsonify({'Mensaje':'App funcionnando correctamente'})
 
 
+# RUTA PARA VALIDACION DE LOGIN
 @app.route('/login', methods = ['POST'])
 def login():
   """
@@ -50,12 +52,11 @@ def login():
     correo = data['correo']
     constraseña = data['contraseña']
     
-    conex = config['development'].conn()
-    cursor = conex.cursor()
-    cursor.execute('SELECT correo, contrasena FROM usuario WHERE correo = %s', (correo))
-    user = cursor.fetchone()
-    cursor.close()
-    conex.close()
+    with config['development'].conn() as conn:
+      with conn.cursor() as cur:
+        cur.execute('SELECT correo, contrasena FROM usuario WHERE correo = %s', (correo))
+    
+    user = cur.fetchone()
     
     if user:
       if user['contrasena'] == constraseña:
@@ -69,6 +70,8 @@ def login():
     print(err)
     return jsonify({'Mensaje': 'Error al consultar Usuario'})
 
+
+# RUTA PARA REGISTRAR USUARIOS NUEVOS
 @app.route('/users', methods = ['POST'])
 def registro_usuarios():
   """
@@ -103,22 +106,19 @@ def registro_usuarios():
   """
   try:
     user = request.get_json()
-    print(user)
     num_identi = user['numero_identificacion']
-    print(num_identi)
     nom = user['nombre']
     correo = user['correo']
     contra = user['contraseña']
     estado = user['estado']
     id_tipo_iden = user['id_tipo_identificacion']
     
-    conex = config['development'].conn()
-    cursor = conex.cursor()
-    cursor.execute('INSERT INTO usuario (nombre,correo,contrasena,estado,id_tipo_identificacion,id_usuario) values (%s,%s,%s,%s,%s,%s)',
+    with config['development'].conn() as conn:
+      with conn.cursor() as cur:
+        cur.execute('INSERT INTO usuario (nombre,correo,contrasena,estado,id_tipo_identificacion,id_usuario) values (%s,%s,%s,%s,%s,%s)',
                   (nom,correo,contra,estado,id_tipo_iden,num_identi))
-    conex.commit()
-    cursor.close()
-    conex.close()
+        conn.commit()
+    
     return jsonify({'Mensaje': f'Usuario registrado'})
   
   except Exception as err:
@@ -126,7 +126,14 @@ def registro_usuarios():
     return jsonify({'Mensaje':'Error el usuario no pudo ser registrado'})
 
 
-@app.route('/porcinos', methods=['GET'])
+
+# ------------------------------
+# SECCION DE GESTIONAR PORCINOS
+# ------------------------------
+
+
+# RUTA PARA CONSULTAR TODOS LOS PORCINOS
+@app.route('/porcino', methods=['GET'])
 def consulta_general_porcinos():
   """
   Consulta general de kos porcinos registrados en la base de datos
@@ -138,21 +145,18 @@ def consulta_general_porcinos():
       descripcion: Lista de los porcinos registrados
   """
   try:
-    conex = config['development'].conn()
-    cursor = conex.cursor()
-    cursor.execute('SELECT * FROM porcinos')
-    informacion = cursor.fetchall()
-    print(informacion)    
-    cursor.close()
-    conex.close()
+    with config['development'].conn() as conn:
+      with conn.cursor() as cur:
+        cur.execute('SELECT id_porcino,peso_inicial,peso_final,fecha_nacimiento,sexo,r.nombre as raza,e.nombre as etapa,estado,p.descripcion FROM porcinos p JOIN raza r ON p.id_raza = r.id_raza JOIN etapa_vida e ON p.id_etapa = e.id_etapa')
     
+    informacion = cur.fetchall()
     return jsonify({'Porcinos': informacion, 'Mensaje':'Listado de porcinos'})
     
   except Exception as err:
     print(err)
     return jsonify({'Mensaje':'Error'})
 
-
+# RUTA PARA CONSULTAR UN PORCINO POR SU ID
 @app.route('/porcino/<int:id>', methods=['GET'])
 def consulta_individual_porcinos(id):
   """
@@ -170,14 +174,14 @@ def consulta_individual_porcinos(id):
       description: Registro encontrado
   """
   try:
-    conex = config['development'].conn()
-    cursor = conex.cursor()
-    cursor.execute('SELECT * FROM porcinos WHERE id_porcino = %s', (id,))
-    porcino = cursor.fetchone()
-    cursor.close()
-    conex.close()
+    with config['development'].conn() as conn:
+      with conn.cursor() as cur:
+        cur.execute('SELECT * FROM porcinos WHERE id_porcino = %s', (id,))
+    
+    porcino = cur.fetchone()
+    
     if porcino:
-      return jsonify({'Porcinos': porcino, 'Mensaje': f'Porcino con {id} consultado'})
+      return jsonify({'Porcinos': {porcino}, 'Mensaje': f'Porcino con {id} consultado'})
     else:
       print('Porcino no encontrado')
       return jsonify({'Mensaje':'Porcino no encontrado'})
@@ -185,10 +189,8 @@ def consulta_individual_porcinos(id):
     print(err)
     return jsonify({'Mensaje': 'Error al consultar porcino'})
 
-# REGISTRAR A UN PORCINO
-
+# RUTA PARA REGISTRAR A UN PORCINO
 @app.route('/porcino', methods=['POST'])
-
 def registrar_porcinos():
   """
   Registrar nuevo porcino en la base de datos
@@ -224,23 +226,22 @@ def registrar_porcinos():
   """
   try:
     porcino = request.get_json()
-    id = porcino['id_porcino']
-    p_ini = porcino['peso_inicial']
-    p_fin = porcino['peso_final']
+    id =      porcino['id_porcino']
+    p_ini =   porcino['peso_inicial']
+    p_fin =   porcino['peso_final']
     fec_nac = porcino['fecha_nacimiento']
-    sexo = porcino['sexo']
-    id_ra = porcino['id_raza']
-    id_eta = porcino['id_etapa']
-    estado = porcino['estado']
+    sexo =    porcino['sexo']
+    id_ra =   porcino['id_raza']
+    id_eta =  porcino['id_etapa']
+    estado =  porcino['estado']
     descripcion = porcino['descripcion']
     
-    conex = config['development'].conn()
-    cursor = conex.cursor()
-    cursor.execute('INSERT INTO porcinos (peso_inicial,peso_final,fecha_nacimiento,sexo,id_raza,id_etapa,estado,descripcion,id_porcino) values (%s,%s,%s,%s,%s,%s,%s,%s,%s)',
+    with config['development'].conn() as conn:
+      with conn.cursor() as cur:
+        cur.execute('INSERT INTO porcinos (peso_inicial,peso_final,fecha_nacimiento,sexo,id_raza,id_etapa,estado,descripcion,id_porcino) values (%s,%s,%s,%s,%s,%s,%s,%s,%s)',
                   (p_ini,p_fin,fec_nac,sexo,id_ra,id_eta,estado,descripcion,id))
-    conex.commit()
-    cursor.close()
-    conex.close()
+        conn.commit()
+    
     return jsonify({'Mensaje': f'Porcino con id {id} registrado'})
   
   except Exception as err:
@@ -248,8 +249,8 @@ def registrar_porcinos():
     
     return jsonify({'Mensaje':'Error el porcino no pudo ser registrado'})
 
-# ACTUALIZAR LA INFORMACION DE UN PORCINO
 
+# RUTA PARA ACTUALIZAR LA INFORMACION DE UN PORCINO POR SU ID
 @app.route('/porcino/<int:id>', methods=['PUT'])
 def actualizar_porcino(id):
   
@@ -291,29 +292,28 @@ def actualizar_porcino(id):
   """
   try:
     porcino = request.get_json()
-    p_ini = porcino['peso_inicial']
-    p_fin = porcino['peso_final']
-    fec_nac = porcino['fecha_nacimiento']
-    sexo = porcino['sexo']
-    id_ra = porcino['id_raza']
-    id_eta = porcino['id_etapa']
-    estado = porcino['estado']
+    p_ini =       porcino['peso_inicial']
+    p_fin =       porcino['peso_final']
+    fec_nac =     porcino['fecha_nacimiento']
+    sexo =        porcino['sexo']
+    id_ra =       porcino['id_raza']
+    id_eta =      porcino['id_etapa']
+    estado =      porcino['estado']
     descripcion = porcino['descripcion']
     
-    conex = config['development'].conn()
-    cursor = conex.cursor()
-    cursor.execute('UPDATE porcinos SET peso_inicial = %s, peso_final = %s, fecha_nacimiento = %s, sexo = %s, id_raza = %s, id_etapa = %s, estado = %s, descripcion = %s WHERE id_porcino = %s',
+    with config['development'].conn() as conn:
+      with conn.cursor() as cur:
+        cur.execute('UPDATE porcinos SET peso_inicial = %s, peso_final = %s, fecha_nacimiento = %s, sexo = %s, id_raza = %s, id_etapa = %s, estado = %s, descripcion = %s WHERE id_porcino = %s',
                   (p_ini,p_fin,fec_nac,sexo,id_ra,id_eta,estado,descripcion,id))
-    conex.commit()
-    cursor.close()
-    conex.close()
+        conn.commit()
+    
     return jsonify({'Mensaje': f'Informacion del porcino con id {id} actualizada'})
   except Exception as err:
     print(err)
     return jsonify({'Mensaje':'Error informacion del porcino no actualizada'})
 
-# RUTA PARA ELIMINAR PORCINO POR ID
 
+# RUTA PARA ELIMINAR PORCINO POR ID
 @app.route('/porcino/<int:id>', methods=['DELETE'])
 def eliminar_porcino(id):
   """
@@ -331,21 +331,17 @@ def eliminar_porcino(id):
       description: Registro del porcino eliminado
   """
   try:
-    id = int(id)
-    conex = config['development'].conn()
-    cursor = conex.cursor()
-    cursor.execute('DELETE FROM porcinos WHERE id_porcino = %s', (id))
-    conex.commit()
-    cursor.close()
-    conex.close()
-    
+    with config['development'].conn() as conn:
+      with conn.cursor() as cur:
+        cur.execute('DELETE FROM porcinos WHERE id_porcino = %s', (id))
+        conn.commit()
     return jsonify({'Mensaje': f'El porcino con id {id} ha sido eliminado correctamente'})
     
   except Exception as err:
     print(err)
     return jsonify({'Mensaje': f'Error al eliminar el porcino con id {id}'})
 
-
+# RUTA PARA CONSULTAR TODAS LAS RAZAS
 @app.route('/raza', methods = ['GET'])
 def consulta_gen_raza():
   """
@@ -358,32 +354,59 @@ def consulta_gen_raza():
       descripcion: Lista de las razas registradas
   """
   try:
-    conn = config['development'].conn()
-    cur = conn.cursor()
-    cur.execute('SELECT * FROM raza')
+    with config['development'].conn() as conn:
+      with conn.cursor() as cur:
+        cur.execute('SELECT * FROM raza')
+    
     info = cur.fetchall()
-    conn.close()
-    cur.close()
     if info:
-      razas = []
-      for i in info:
-        raza = {
-          "id_raza" : i[0],
-          "nombre" : i[1],
-          "descripcion" : i[2]
-        }
-        razas.append(raza)
-      return jsonify({'Mensaje': 'Listado de razas', 'razas': razas})
+      return jsonify({'Mensaje': 'Listado de razas', 'razas': info})
     else:
       return jsonify({'Mensaje': 'No hay razas registradas'})
   except Exception as err:
     print(err)
     return jsonify({'Mesaje':'Error en la base de datos'})
 
+
+# RUTA PARA CONSULTAR UNA RAZA POR SU ID
+@app.route('/raza/<int:id>', methods = ['GET'])
+def consulta_indi_raza(id):
+  """
+  Consulta individual por ID de las razas registradas en la base de datos
+  ---
+  tags:
+    - Raza
+  parameters:
+    - name: codigo
+      in: path
+      required: true
+      type: integer
+  responses:
+    200:
+      description: Raza consultada
+  """
+  try:
+    with config['development'].conn() as conn:
+      with conn.cursor() as cur:
+        cur.execute('SELECT * FROM etapa WHERE id_raza = %s',
+                    (id))
+    etapa = cur.fetchone()
+    print(etapa)
+    if etapa:
+      return jsonify({'Raza': etapa, 'Mensaje': 'Raza consultada'})
+    else:
+      return jsonify({'Mensaje': 'Error al consultar la etapa'})
+      
+  except Exception as err:
+    print(err)
+    return jsonify({'Mesaje':'Error en la base de datos'})
+
+
+# RUTA PARA REGISTRAR RAZAS
 @app.route('/raza', methods = ['POST'])
 def registrar_raza():
   """
-  Registrar nueva raza en la base de datos
+  Registrar nueva etapa en la base de datos
   ---
   tags:
     - Raza
@@ -407,22 +430,23 @@ def registrar_raza():
     nombre = data['nombre']
     desc = data['descripcion']
     
-    conn = config['development'].conn()
-    cur = conn.cursor()
-    cur.execute('INSERT INTO raza VALUES (null,%s,%s)',
+    with config['development'].conn() as conn:
+      with conn.cursor() as cur:
+        cur.execute('INSERT INTO etapa VALUES (null,%s,%s)',
                 (nombre,desc))
-    conn.commit()
-    conn.close()
-    cur.close()
+        conn.commit()
+
     return jsonify({'Mensaje': 'Raza registrada correctamente'})
   except Exception as err:
     print(err)
     return jsonify({'Mesaje':'Error en la base de datos'})
 
+
+# RUTA PARA ACTUALIZAR LA INFORMACION DE UNA RAZA POR SU ID
 @app.route('/raza/<int:id>', methods = ['PUT'])
 def actualizar_raza(id):
   """
-  Actualizar raza por id
+  Actualizar etapa por id
   ---
   tags:
     - Raza
@@ -450,22 +474,23 @@ def actualizar_raza(id):
     nombre = data['nombre']
     desc = data['descripcion']
     
-    conn = config['development'].conn()
-    cur = conn.cursor()
-    cur.execute('UPDATE raza SET nombre = %s, descripcion = %s WHERE id_raza = %s',
+    with config['development'].conn() as conn:
+      with conn.cursor() as cur:
+        cur.execute('UPDATE etapa SET nombre = %s, descripcion = %s WHERE id_raza = %s',
                 (nombre,desc,id))
-    conn.commit()
-    conn.close()
-    cur.close()
+        conn.commit()
+
     return jsonify({'Mensaje': 'Raza actulizada correctamente'})
   except Exception as err:
     print(err)
     return jsonify({'Mesaje':'Error en la base de datos'})
 
+
+# RUTA PARA ELIMINAR UNA RAZA POR SU ID
 @app.route('/raza/<int:id>', methods = ['DELETE'])
 def eliminar_raza(id):
   """
-  Eliminar registro por ID de una raza registrado en la base de datos
+  Eliminar registro por ID de una etapa registrado en la base de datos
   ---
   tags:
     - Raza
@@ -484,20 +509,21 @@ def eliminar_raza(id):
       
   """
   try:
-    conn = config['development'].conn()
-    cur = conn.cursor()
-    cur.execute('DELETE FROM raza WHERE id_raza = %s',
+    with config['development'].conn() as conn:
+      with conn.cursor() as cur:
+        cur.execute('DELETE FROM etapa WHERE id_raza = %s',
                 (id))
-    conn.commit()
-    conn.close()
-    cur.close()
+      conn.commit()
+
     return jsonify({'Mensaje': 'Raza eliminada correctamente'})
   except Exception as err:
     print(err)
     return jsonify({'Mesaje':'Error en la base de datos'})
 
+
+#RUTA PARA CONSULTAR TODAS LAS ETAPAS DE VIDA
 @app.route('/etapa_vida', methods = ['GET'])
-def consulta_gen_etapa():
+def consulta_gen_etapa(): 
   """
   Consulta de etapas de vida
   ---
@@ -512,28 +538,54 @@ def consulta_gen_etapa():
       description: Error en la base de datos
   """
   try:
-    conn = config['development'].conn()
-    cur = conn.cursor()
-    cur.execute('SELECT * FROM etapa_vida')
+    
+    with config['development'].conn() as conn:
+      with conn.cursor() as cur:
+        cur.execute('SELECT * FROM etapa_vida')
+    
     info = cur.fetchall()
-    conn.close()
-    cur.close()
     if info:
-      etapas = []
-      for i in info:
-        etapa = {
-          "id_etapa" : i[0],
-          "nombre" : i[1],
-          "descripcion" : i[2]
-        }
-        etapas.append(etapa)
-      return jsonify({'Mensaje': 'Lista de etapas registradas', 'etapas': etapas})
+      return jsonify({'Mensaje': 'Lista de etapas registradas', 'etapas': info})
     else:
       return jsonify({'Mensaje': 'No hay etapas registradas'})
   except Exception as err:
     print(err)
     return jsonify( {'Mensaje': 'Error en la base de datos'} )
 
+# RUTA PARA CONSULTAR UN ETAPA DE VIDA POR SU ID
+@app.route('/etapa_vida/<int:id>', methods = ['GET'])
+def consulta_indi_etapa(id):
+  """
+  Consulta individual por ID de los porcinos registrados en la base de datos
+  ---
+  tags:
+    - Etapa de vida
+  parameters:
+    - name: codigo
+      in: path
+      required: true
+      type: integer
+  responses:
+    200:
+      description: Raza consultada
+  """
+  try:
+    with config['development'].conn() as conn:
+      with conn.cursor() as cur:
+        cur.execute('SELECT * FROM etapa_vida WHERE id_etapa = %s',
+                    (id))
+    etapa = cur.fetchone()
+    print(etapa)
+    if etapa:
+      return jsonify({'Etapa_vida': etapa, 'Mensaje': 'Etapa de vida consultada'})
+    else:
+      return jsonify({'Mensaje': 'Error al consultar la etapa'})
+  except Exception as err:
+    print(err)
+    return jsonify( {'Mensaje': 'Error en la base de datos'} )
+
+
+# RUTA PARA REGISTRAR UNA ETAPA DE VIDA
 @app.route('/etapa_vida', methods = ['POST'])
 def registrar_etapa():
   """
@@ -568,18 +620,19 @@ def registrar_etapa():
     nombre = data['nombre']
     desc = data['descripcion']
     
-    conn = config['development'].conn()
-    cur = conn.cursor()
-    cur.execute('INSERT INTO etapa_vida VALUES (null,%s,%s)',
-                (nombre,desc))
-    conn.commit()
-    conn.close()
-    cur.close()
+    with config['development'].conn() as conn:
+      with conn.cursor() as cur:
+        cur.execute('INSERT INTO etapa_vida VALUES (null,%s,%s)',
+                    (nombre,desc))
+        conn.commit()
+
     return jsonify({'Mensaje': 'Etapa de vida registrada correctamente'})
   except Exception as err:
     print(err)
     return jsonify({'Mesaje':'Error en la base de datos'})
 
+
+# RUTA PARA ACTUALIZAR LA INFORMACION DE UNA ETAPA DE VIDA POR SU ID
 @app.route('/etapa_vida/<int:id>', methods = ['PUT'])
 def actualizar_etapa_vida(id):
   """
@@ -611,18 +664,19 @@ def actualizar_etapa_vida(id):
     nombre = data['nombre']
     desc = data['descripcion']
     
-    conn = config['development'].conn()
-    cur = conn.cursor()
-    cur.execute('UPDATE etapa_vida SET nombre = %s, descripcion = %s WHERE id_etapa = %s',
-                (nombre,desc,id))
-    conn.commit()
-    conn.close()
-    cur.close()
+    with config['development'].conn() as conn:
+      with conn.cursor() as cur:
+        cur.execute('UPDATE etapa_vida SET nombre = %s, descripcion = %s WHERE id_etapa = %s',
+                    (nombre,desc,id))
+        conn.commit()
+
     return jsonify({'Mensaje': 'Raza actulizada correctamente'})
   except Exception as err:
     print(err)
     return jsonify({'Mesaje':'Error en la base de datos'})
 
+
+# RUTA PARA ELIMINAR UNA ETAPA DE VIDA POR SU ID
 @app.route('/etapa_vida/<int:id>', methods = ['DELETE'])
 def eliminar_etapa_vida(id):
   """
@@ -645,24 +699,22 @@ def eliminar_etapa_vida(id):
       
   """
   try:
-    conn = config['development'].conn()
-    cur = conn.cursor()
-    cur.execute('DELETE FROM etapa_vida WHERE id_etapa = %s',
-                (id))
-    conn.commit()
-    conn.close()
-    cur.close()
+    with config['development'].conn() as conn:
+      with conn.cursor() as cur:
+        cur.execute('DELETE FROM etapa_vida WHERE id_etapa = %s',
+                    (id))
     return jsonify({'Mensaje': 'Etapa de vida eliminada correctamente'})
   except Exception as err:
     print(err)
     return jsonify({'Mesaje':'Error en la base de datos'})
 
-# ------------------
-# BACKEND CRISTIAN
-# ------------------
 
+# ----------------------------
+# SECCION GESTIONAR ALIMENTOS
+# ----------------------------
+
+# RUTA PARA CONSULTAR TODOS LOS ALIMENTOS
 @app.route("/alimentos", methods=["GET"])
-
 def consulta_alimento():
   """
   Consultar de Alimentos
@@ -714,57 +766,8 @@ def consulta_alimento():
   except Exception as e:
       return jsonify({"error": str(e)})
 
-  
-@app.route("/eliminar_alimento/<int:id>", methods=["DELETE"])
-def eliminar_alimento(id):
-  try:
-      with config['development'].conn() as conn:
-          with conn.cursor() as cur:
-              cur.execute("DELETE FROM alimento_tiene_elemento WHERE id_alimento = %s", (id,))
-              cur.execute("DELETE FROM alimentos WHERE id_alimento = %s", (id,))
-              conn.commit()
-      return jsonify({"mensaje": f"Alimento con id {id} eliminado correctamente"})
-  except Exception as e:
-      return jsonify({"error": str(e)})
 
-@app.route("/registrar_alimento/", methods=["POST"])
-def registrar_alimento():
-  data = request.get_json()
-  if not data:
-      return jsonify({"error": "No se recibió ningún dato"}), 400
-
-  nombre = data.get("nombre_alimento")
-  elementos = data.get("elementos", [])
-
-  if not nombre:
-      return jsonify({"error": "El nombre del alimento es obligatorio"}), 400
-
-  try:
-      with config['development'].conn() as conn:
-          with conn.cursor() as cur:
-              
-              id_usuario = 1022357255
-
-              cur.execute(
-                  "INSERT INTO alimentos (nombre, estado, descripcion, id_usuario) VALUES (%s, %s, %s, %s)",
-                  (nombre, "activo", "", id_usuario)
-              )
-              id_alimento = cur.lastrowid
-
-              for elem in elementos:
-                  cur.execute(
-                      """
-                      INSERT INTO alimento_tiene_elemento 
-                      (id_alimento, id_elemento, valor) 
-                      VALUES (%s, %s, %s)
-                      """,
-                      (id_alimento, elem["id"], elem["valor"])
-                  )
-              conn.commit()
-      return jsonify({"mensaje": "Alimento creado correctamente", "id_alimento": id_alimento})
-  except Exception as e:
-      return jsonify({"error": str(e)}), 500
-  
+# RUTA PARA CONSULTAR UN ALIMENTO POR SU ID
 @app.route("/consulta_indi_alimento/<nombre>", methods=["GET"])
 def consulta_individual_alimento(nombre):
   try:
@@ -800,6 +803,78 @@ def consulta_individual_alimento(nombre):
                   })
               
               return jsonify({"mensaje": alimento})
+  except Exception as e:
+      return jsonify({"error": str(e)})
+
+
+# RUTA PARA REGISTRAR UN ALIMENTO
+@app.route("/registrar_alimento/", methods=["POST"])
+def registrar_alimento():
+  """
+  Consultar de Alimentos
+  ---
+  tags:
+    - Gestion de Alimentos
+  responses:
+    200:
+      description: Lista de alimentos
+  """
+  data = request.get_json()
+  if not data:
+      return jsonify({"error": "No se recibió ningún dato"}), 400
+
+  nombre = data.get("nombre_alimento")
+  elementos = data.get("elementos", [])
+
+  if not nombre:
+      return jsonify({"error": "El nombre del alimento es obligatorio"}), 400
+
+  try:
+      with config['development'].conn() as conn:
+          with conn.cursor() as cur:
+              
+              id_usuario = 1022357255
+
+              cur.execute(
+                  "INSERT INTO alimentos (nombre, estado, descripcion, id_usuario) VALUES (%s, %s, %s, %s)",
+                  (nombre, "activo", "", id_usuario)
+              )
+              id_alimento = cur.lastrowid
+
+              for elem in elementos:
+                  cur.execute(
+                      """
+                      INSERT INTO alimento_tiene_elemento 
+                      (id_alimento, id_elemento, valor) 
+                      VALUES (%s, %s, %s)
+                      """,
+                      (id_alimento, elem["id"], elem["valor"])
+                  )
+              conn.commit()
+      return jsonify({"mensaje": "Alimento creado correctamente", "id_alimento": id_alimento})
+  except Exception as e:
+      return jsonify({"error": str(e)}), 500
+
+
+# RUTA PARA ELIMINAR UN ALIMENTO POR SU ID
+@app.route("/eliminar_alimento/<int:id>", methods=["DELETE"])
+def eliminar_alimento(id):
+  """
+  Consultar de Alimentos
+  ---
+  tags:
+    - Gestion de Alimentos
+  responses:
+    200:
+      description: Lista de alimentos
+  """
+  try:
+      with config['development'].conn() as conn:
+          with conn.cursor() as cur:
+              cur.execute("DELETE FROM alimento_tiene_elemento WHERE id_alimento = %s", (id,))
+              cur.execute("DELETE FROM alimentos WHERE id_alimento = %s", (id,))
+              conn.commit()
+      return jsonify({"mensaje": f"Alimento con id {id} eliminado correctamente"})
   except Exception as e:
       return jsonify({"error": str(e)})
 

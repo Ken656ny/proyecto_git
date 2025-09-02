@@ -26,6 +26,11 @@
     --color-bg-registros: #AFAEAE;
     /* color del borde de los registros */
     --color-bor-registros: #918D8D;
+    /* color del fondo de los modales */
+    --color-fondo-modal: #d4d4d4;
+    /* color de fondo modal cruds */
+    --color-fondo-modal-cruds: #ececec;
+
     --color-white: #fff;
     --color-black: #000;
 }
@@ -86,7 +91,7 @@ SECCION DE LOGIN
 }
 .icon{
     width: 98px;
-    filter: invert(54%) sepia(5%) saturate(1904%) hue-rotate(85deg) brightness(87%) contrast(93%);  ;
+    filter: invert(54%) sepia(5%) saturate(1904%) hue-rotate(85deg) brightness(87%) contrast(93%); 
 }
 
 .formulario{
@@ -796,6 +801,13 @@ SECCION DE PORCINOS
     display: none;
 }
 
+thead{
+    position: sticky;
+    top:  0;
+    z-index: 2;
+    background-color: var(--color--fondos);
+}
+
 .table__registros{
     width: 1150px ;
     margin: auto;
@@ -813,6 +825,7 @@ SECCION DE PORCINOS
 .svg__pig{
     position: relative;
     top: 5px;
+    z-index: 1;
 }
 
 .icon-edit{
@@ -832,6 +845,7 @@ SECCION DE PORCINOS
 th{
     padding: 20px 0;
 }
+
 
 /* CODIGO DE LAS ACCIONES VER, EDITAR Y ELIMINAR */
 
@@ -854,7 +868,7 @@ th{
 /* DIALOG ICON EYE */
 
 .dialog-icon-eye, .dialog-icon-edit, .dialog-icon-dele{
-    background-color: #d4d4d4;
+    background-color: var(--color-fondo-modal);
     width: 882px;
     height: 490px;
     margin: auto;
@@ -882,6 +896,7 @@ th{
     grid-template-rows: repeat(6, 1fr);
     place-items: center;
     font-family: var(--fuente--contenido);
+    gap: 0 1rem;
 }
 
 .info-porcino > input, .info-porcino > div > input{
@@ -913,19 +928,13 @@ th{
 }
 
 .button-cerrar, .button-guardar, .button-eliminar{
-    background-color: #fff;
-    color: #215718;
+    background-color: var(--color--btn--hover);
+    color: var(--color-white);
     width: 150px;
     height: 40px;
     font-weight: 900;
-    border: 1px solid #215718;
     border-radius: 27px;
-    transition: background-color .5s, color .5s;
-}
-
-.button-cerrar:hover, .button-guardar:hover, .button-eliminar:hover{
-    background-color: #215718;
-    color: #fff;
+    border: none;
 }
 
 /* DIALOG ICON EDIT */
@@ -939,6 +948,7 @@ th{
     right: 0;
     bottom: 9px;
     margin-right: 14px;
+    z-index: 2;
 }
 
 hr{
@@ -957,7 +967,7 @@ hr{
     font-weight: 600;
     font-family: var(--fuente--contenido);
 }
-nav
+
 .dialog-icon-dele .title-dialog{
     font-size: 20px;
 }
@@ -1026,7 +1036,7 @@ nav
 /* GESTIONAR RAZAS MODAL */
 .dialog__ges__raz{
     margin: auto;
-    background-color: #ececec;
+    background-color: var(--color-fondo-modal-cruds);
     width: 882px;
     height: 490px;
     border-radius: 34px;
@@ -1047,8 +1057,9 @@ nav
     align-items: end;
 }
 
+
 .btn__close{
-    background-color:  #ececec;
+    background-color:  var(--color-fondo-modal);
     color: var(--color--letra);
     width: 50px;
     padding: 10px;
@@ -1057,6 +1068,10 @@ nav
     font-size: 20px;
     font-weight: bold;
     cursor: pointer;
+}
+
+.btn__close__cruds{
+    background-color: var(--color-fondo-modal-cruds);
 }
 
 .bar--gestion{
@@ -1559,73 +1574,73 @@ SECCION DE Perfil
 SI SALE MAL ES CULPA DE CRISTIAN
 ---------------------------------- */
 
-  .contenedor {
-      display: inline-flex;
-      align-items: center;
-      padding: 10px 20px;
-      background-color: #f1f1f1; /* Color del fondo */
-      border: 1px solid var(--color-bor-contain);
+.contenedor {
+    display: inline-flex;
+    align-items: center;
+    padding: 10px 20px;
+    background-color: #f1f1f1; /* Color del fondo */
+    border: 1px solid var(--color-bor-contain);
 
-      border-radius: 20px;
-      font-family: sans-serif;
-      gap: 10px;
-      cursor: pointer;
-    }
+    border-radius: 20px;
+    font-family: sans-serif;
+    gap: 10px;
+    cursor: pointer;
+}
 
-    .contenedor input[type="checkbox"] {
-      display: none;
-    }
+.contenedor input[type="checkbox"] {
+    display: none;
+}
 
-    .custom-checkbox {
-      width: 16px;
-      height: 16px;
-      border: 1px solid #000;
-      border-radius: 4px;
-      background-color: #aee9c6; /* Verde claro */
-    }
+.custom-checkbox {
+    width: 16px;
+    height: 16px;
+    border: 1px solid #000;
+    border-radius: 4px;
+    background-color: #aee9c6; /* Verde claro */
+}
 
-    .contenedor input[type="checkbox"]:checked + .custom-checkbox {
-      background-color: #7ed6a3;
-    }
+.contenedor input[type="checkbox"]:checked + .custom-checkbox {
+    background-color: #7ed6a3;
+}
 
-    .color_p{
-        color:#8D8D8D;
-    }
-    .nuevo{
-        text-align: center;
-    }
-    .eliminar{
-        cursor: pointer;
+.color_p{
+    color:#8D8D8D;
+}
+.nuevo{
+    text-align: center;
+}
+.eliminar{
+    cursor: pointer;
 
-    }
+}
 
 
-    .nuevo1{
-    background-color: var(--color-bg-registros);
-    border: 5px solid var(--color--fondos);
-    }
+.nuevo1{
+background-color: var(--color-bg-registros);
+border: 5px solid var(--color--fondos);
+}
 
-    .container div p{
-        text-align: center;
-        color: #2C3D31;
-        font-weight:600;
-        margin-bottom: 4%;
-        margin-top: 4%;
-    }
-    .input_add{
-        border: 1px solid black;
-        background-color: #ECE6F0;
-        text-align: center;
-        
-    }
-    .input_add1{
-        width: 60%;
-        position: relative;
-        border: 1px solid black;
-        text-align: center;
-        margin-left: 170%;
-        font-weight: bolder;
-            background-color: var(--color--btn--sin--hover);
+.container div p{
+    text-align: center;
+    color: #2C3D31;
+    font-weight:600;
+    margin-bottom: 4%;
+    margin-top: 4%;
+}
+.input_add{
+    border: 1px solid black;
+    background-color: #ECE6F0;
+    text-align: center;
+    
+}
+.input_add1{
+    width: 60%;
+    position: relative;
+    border: 1px solid black;
+    text-align: center;
+    margin-left: 170%;
+    font-weight: bolder;
+    background-color: var(--color--btn--sin--hover);
     color: var(--color-white);
     width: 130px;
     height: 40px;
@@ -1636,7 +1651,8 @@ SI SALE MAL ES CULPA DE CRISTIAN
     border-radius: 20px;
     transition: background-color 0.5s ease-in-out;
     cursor: pointer;
-    }
+}
+
 .input_add1:hover{
     background-color: var(--color--btn--hover);
     border: 1px solid var(--color-bor-btn-hover);
