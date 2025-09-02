@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="static/css/sytle.css">
+    <title>Edupork</title>
+</head>
+<body class="body__informes">
+    <nav class="nav__bar">
+        <ul class="nav__list">
+            <li class="nav__item active">
+                <a href="#"><img src="/iconos/home icon.svg" alt=""></a>
+            </li>
+            <li class="nav__item"><a href="#"><img src="/iconos/notificacions.svg" alt=""></a></li>
+            <li class="nav__item"><a href="#"><img src="/iconos/icon pig.svg" alt=""></a></li>
+            <li class="nav__item"><a href="#"><img src="/iconos/icon wheate.svg" alt=""></a></li>
+            <li class="nav__item"><a href="#"><img src="/iconos/icon plate.svg" alt=""></a></li>
+            <li class="nav__item"><a href="#"><img src="/iconos/icon page.svg" alt=""></a></li>
+            <li class="nav__item"><a href="#"><img src="/iconos/icon user.svg" alt=""></a></li>
+            <li class="nav__item"><a href="#"><img src="/iconos/icon setting.svg" alt=""></a></li>
+            <div class="indicador"></div>
+        </ul>
+    </nav>
+
+    <section class="section__informes">
+        <!-- Logo y usuario -->
+        <section class="container__logo__user">
+            <div class="container__back__logo">
+                <img src="/iconos/back icon.svg" alt="icon back" class="icon__back">
+                <a href="index.html">
+                    <img src="/iconos/Logo.svg" alt="Logo Edupork" class="logo">
+                </a>
+            </div>
+            <div class="container__user__btn">
+                <img src="/iconos/icon user.svg" alt="" class="svg__user">
+                <button type="button" class="btn__perfil">Juan Tovar</button>
+            </div>
+        </section>
+
+        <!-- Título -->
+        <header class="container__title">
+            <h1>Generar Informes</h1>
+        </header>
+
+        <!-- Barra de selección -->
+        <section class="container__filters">
+            <!-- Tipo de informe -->
+            <div class="filter__group">
+                <img src="/iconos/document_sgv.svg" alt="icon informe">
+                <select class="select__filter">
+                    <option selected disabled>Escoja el tipo de informe...</option>
+                    <option value="crecimiento">Crecimiento</option>
+                    <option value="alimentacion">Alimentación</option>
+                    <option value="salud">Salud</option>
+                </select>
+            </div>
+
+            <!-- Rango de fechas -->
+            <div class="filter__group">
+               
+                <select class="select__filter">
+                    <option selected disabled>Escoja el rango de fecha...</option>
+                    <option value="semana">Última semana</option>
+                    <option value="mes">Último mes</option>
+                    <option value="anio">Último año</option>
+                </select>
+            </div>
+
+            <!-- Botón generar -->
+            <div class="filter__actions">
+                <button type="button" class="btn__generar">Generar</button>
+            </div>
+        </section>
+    </section>
+
+    <script src="static/js/script.js"></script>
+</body>
+</html>
+    

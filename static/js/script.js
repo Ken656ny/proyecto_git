@@ -157,3 +157,25 @@ document.getElementById('porcId').addEventListener('keydown', (e)=>{
     }
   }
 });
+document.getElementById("reporteGenerarBtn").addEventListener("click", () => {
+  const tipo = document.getElementById("reporteTipo").value;
+  const resultado = document.getElementById("reportesResultado");
+  const contenido = document.getElementById("reporteContenido");
+
+  if (!tipo) {
+    alert("Seleccione un tipo de informe");
+    return;
+  }
+
+  resultado.classList.remove("oculto");
+
+  if (tipo === "alimentos") {
+    contenido.innerHTML = `
+      <p>📦 Aquí irán los filtros y la tabla de <b>Alimentos</b>.</p>
+    `;
+  } else if (tipo === "pesos") {
+    contenido.innerHTML = `
+      <p>⚖️ Aquí irán los filtros y la tabla de <b>Pesos</b>.</p>
+    `;
+  }
+});
