@@ -874,6 +874,7 @@ th{
     margin: auto;
     border-radius: 34px;
     border: 1px solid #000;
+    overflow-y: hidden;
 }
 
 /* TUTULO DE LA VENTANA MODAL */
@@ -893,13 +894,22 @@ th{
 .info-porcino{
     display: grid;
     grid-template-columns: repeat( 3 , 1fr);
-    grid-template-rows: repeat(6, 1fr);
+    grid-template-rows: repeat(3, 1fr);
     place-items: center;
     font-family: var(--fuente--contenido);
-    gap: 0 1rem;
+    gap: 0.5rem 1rem;
+    
 }
 
-.info-porcino > input, .info-porcino > div > input{
+.info-delete{
+    
+    display: flex;
+    flex-direction: column;
+    grid-column-start: 1;
+    grid-column-end: 4;
+}
+
+.info-porcino > div > input, .info-porcino > div > div > input{
     background-color: #ece6f0;
     width: 200px;
     height: 40px;
@@ -910,10 +920,10 @@ th{
     padding: 10px 8px;
 }
 
-.info-porcino > label{
+.info-porcino > div > label{
     margin-top: 10px;
     margin-bottom: 2px;
-    line-height: 0.5;
+    line-height: 1.5;
     color: #2C3D31;
     font-weight: 700;
 }
@@ -921,7 +931,7 @@ th{
 /* CONTAINER DEL BOTTON CERRAR */
 
 .container-button-close, .container-button-guardar, .container-button-dele{
-    margin-top: 3em;
+    margin-top: 2.5em;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -935,6 +945,7 @@ th{
     font-weight: 900;
     border-radius: 27px;
     border: none;
+    cursor: pointer;
 }
 
 /* DIALOG ICON EDIT */
@@ -943,10 +954,10 @@ th{
     position: relative;
 }
 
-.vector-edit{
+.info-porcino > div > div > .vector-edit{
     position: absolute;
     right: 0;
-    bottom: 9px;
+    bottom: -2px;
     margin-right: 14px;
     z-index: 2;
 }
@@ -1659,4 +1670,4 @@ border: 5px solid var(--color--fondos);
 }
     .seccion1{
         margin: 0% 5%;
-    }
+}
