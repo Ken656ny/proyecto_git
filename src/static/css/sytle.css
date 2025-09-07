@@ -1671,3 +1671,287 @@ border: 5px solid var(--color--fondos);
     .seccion1{
         margin: 0% 5%;
 }
+
+
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&display=swap');
+:root{
+    --color-barra-lateral:#60836a;
+    --color-texto:rgb(0, 0, 0);
+    --color-texto-menu:#ffffff;
+    --color-boton:#33493b;
+    --color-texto-boton:white;
+    --boton-despues:#233128;
+    --navegacion-despues:#75927c;
+    --fondo:#f3f6f4;
+    --luz:rgb(255, 255, 255);
+    --oscuridad:rgb(88, 88, 88);
+}
+
+
+
+.section-contenido{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2rem;
+    padding: 1rem;
+
+}
+
+.container-user{
+    display: none;
+}
+
+.container-user-bar{
+    display: block;
+}
+
+.btn__perfil{
+    background-color: var(--color-boton);
+    color: #fff;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    height: 45px;
+    padding: 0 0.8rem;
+    margin-top: 0.8rem;
+    font-family: var();
+    font-size: 15px;
+    font-weight: 500;
+    border-radius: 8px;
+    border: none;
+}
+
+.barra-lateral{
+    position: fixed;
+    display: flex;
+    flex-direction: column;
+    width: 250px;
+    height: 100vh;
+    padding: 2rem 1rem;
+    background-color: var(--color-barra-lateral);
+    transition: width 0.3s ease, background-color 0.3s ease,left 0.3s ease;
+    overflow: hidden;
+    z-index: 3;
+    font-family: var(--fuente--contenido);
+}
+
+.mini-barra-lateral{
+    width: 80px;
+} 
+
+/* -----------------------------------------------------------------nombre de la paginaaa */
+
+.barra-lateral .logo-edupork{
+    margin-bottom: 40px;
+    width: 100%;
+    height: 45px;
+    display: flex;
+    align-items: center;
+    color: var(--color-texto-menu);
+}
+
+.barra-lateral .logo-edupork span{
+    margin-left: 5px;
+    font-size: 25px;
+}
+.barra-lateral .logo-edupork img{
+    min-width: 50px;
+    font-size: 40px;
+    cursor: pointer;
+}
+
+.barra-lateral  span{
+    font-size: 18px;
+    text-align: left;
+    transition: opacity 0.1s ease;
+}
+
+.barra-lateral span.oculto{
+    opacity: 0;
+    width: 0;
+}
+
+/* -------------------------------------------------------------------------boton */
+
+.barra-lateral .boton{
+    width: 100%;
+    height: 45px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    border-radius: 10px;
+    background-color: var(--color-boton);
+    color: var(--color-texto-boton);
+    margin-bottom: 20px;
+    transition: background-color 0.5s ease, transform 0.2s ease-in;
+    cursor: pointer;
+}
+
+.barra-lateral .boton:hover{
+    background-color: var(--boton-despues);
+    transform: scale(1.05);
+}
+
+.barra-lateral .boton .menu-icons{
+    min-width: 50px;
+    font-size: 25px;
+}
+
+/* -------------------------------------------------------------menu de navegacion */
+
+.barra-lateral .navegacion{
+    height: 100%;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
+.barra-lateral .navegacion ul{
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+}
+
+.barra-lateral .navegacion li{
+    list-style: none;
+    display: flex;
+    justify-content: center;
+}
+
+.barra-lateral .navegacion a{
+    width: 100%;
+    height: 45px;
+    display: flex;
+    justify-content: start;
+    align-items: center;
+    gap: 20px;
+    text-decoration: none;
+    border-radius: 10px;
+    color: var(--color-texto-menu);
+    transition: background-color 0.2s ease, font-weight 0.2s ease;
+    text-align: left;
+}
+
+.barra-lateral .navegacion a:hover{
+    background-color: var(--navegacion-despues);
+    font-weight: bold;
+}
+
+.barra-lateral .navegacion img{
+    margin-left: 0.2rem;
+    min-width: 38px;
+    font-size: 10px;
+    transition: transform 0.2s ease;
+}
+
+.barra-lateral .navegacion img:hover{
+    transform: scale(1.05);
+}
+
+/* ------------------------------------------------------------menu */
+
+.menu{
+    width: 50px;
+    height: 50px;
+    font-size: 30px;
+    display: none;
+    justify-content: center;
+    align-items: center;
+    border-radius: 50%;
+    right: 10px;
+    top: 10px;
+    background-color: var(--color-boton);
+    color: var(--color-texto-boton);
+    cursor: pointer;
+    z-index: 100;
+}
+
+/* -----------------------------------------------------------linea */
+
+.barra-lateral .linea{
+    width: 100%;
+    height: 1px;
+    background-color: var(--navegacion-despues);
+}
+
+/* ----------------------------contenido */
+
+.contenido {
+    color: var(--color-texto);
+    display: flex;
+    flex-direction: column; /* Organiza los elementos en columna */
+    justify-content: center; /* Centra verticalmente */
+    align-items: center; /* Centra horizontalmente */
+    height: 100vh; /* Usa toda la altura de la pantalla */
+    text-align: center; /* Centra el texto */
+    padding: 20px;
+}
+
+/* ---------------------responsive */
+
+@media(max-height: 660px){
+    .barra-lateral .nombre-pagina{
+        margin-bottom: 5px;
+    }
+
+}
+
+@media(max-width: 600px){
+    .body__porcinos{
+        display: flex;
+        flex-direction: column;
+    }
+
+    .container__user__btn{
+        display: none;
+    }
+
+    .container__back__logo{
+        width: 100%;
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+        gap: 4rem;
+    }
+
+
+    .barra-lateral{
+        position: absolute;
+        left: -250px;
+
+    }
+    .menu{
+        display: flex;
+    }
+    .max-barra-lateral{
+        left: 0;
+    } 
+    .menu ion-icon:nth-child(2){
+        display: none;
+    }
+
+    .barra-lateral .btn__perfil{
+        display: none;
+    }
+    .barra-lateral .btn__perfil span, .barra-lateral .btn__perfil img, hr{
+        display: none;
+    }
+    .container-user{
+        background-color: var(--color-barra-lateral);
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+        height: 55px;
+        padding: 1rem;
+        width: 100%;
+    }
+
+    
+    .btn__perfil{
+        margin-top: 0 ;
+    }
+}
