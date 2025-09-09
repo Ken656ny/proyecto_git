@@ -11,6 +11,9 @@ from flasgger import Swagger
 # BASE DE DATOS, DENTRO DE ESA CLASE HAY UN CLASSMETHOD QUE RETORNA LA CONEXION CON LA BASE DE DATOS
 from config import config
 
+#LIBRERIAS PARA LA FUNCIONALIDAD DE AUTENTICACION DE GOOGLE
+from google.oauth2 import id_token
+from google.auth.transport import requests as google_requests
 
 app = Flask(__name__)
 app.secret_key = 'secretkey'
@@ -124,6 +127,53 @@ def registro_usuarios():
   except Exception as err:
     print(err)
     return jsonify({'Mensaje':'Error el usuario no pudo ser registrado'})
+
+
+@app.route('/api/auth/google', methods=['POST'])
+def google_login():
+
+    if not request.is_json:
+        return jsonify({"status": "error", "message": "Formato JSON requerido"}), 400
+
+    data = request.get_json()
+    token = data.get('token')
+
+    if not token:
+        return jsonify({"status": "error", "message": "Token no recibido"}), 400
+
+    try:
+        # VERIFICA EL TOKEN DE GOOGLE
+        idinfo = id_token.verify_oauth2_token(
+            token,
+            google_requests.Request(),
+            "887853903603-sbo2ffg27v2o12navndev9okvno8t4fn.apps.googleusercontent.com"
+        )
+
+        email = idinfo['email']
+        name = idinfo.get('name', '')
+        proveedor = 'Google'
+
+        conn = config['development'].conn()
+        cursor = conn.cursor()
+        cursor.execute("SELECT * FROM usuario_externo WHERE correo = %s", (email,))
+        user = cursor.fetchone()
+
+        if not user:
+            cursor.execute("""
+                INSERT INTO usuario_externo (correo, nombre, proveedor)
+                VALUES (%s, %s, %s)
+            """, (email, name, proveedor))
+            conn.commit()
+
+        return jsonify({
+            "status": "success",
+            "correo": email,
+            "nombre": name,
+            "proveedor": proveedor
+        })
+
+    except ValueError:
+        return jsonify({"status": "error", "message": "Token inválido"}), 400
 
 
 @app.route('/porcinos', methods=['GET'])

@@ -246,7 +246,7 @@ fieldset {
     align-items: center;
     border: none;
     border-radius: 20px;
-    background-color: white;
+    background-color: transparent;
     cursor: pointer;
     transition: background-color 0.3s ease;
     font-family: var(--fuente--contenido);

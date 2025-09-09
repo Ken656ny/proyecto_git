@@ -741,6 +741,54 @@ function consulta_individual_alimento(){
 }
 
 
+// FUNCIONAMIENTO DE LA API DE GOOGLE//
+
+  window.onload = function () {
+    google.accounts.id.initialize({
+      client_id: "887853903603-sbo2ffg27v2o12navndev9okvno8t4fn.apps.googleusercontent.com",
+      callback: handleCredentialResponse
+    });
+
+    google.accounts.id.renderButton(
+      document.getElementById("google-btn-container"),
+      {
+        theme: "outline",
+        size: "large",
+        shape: "pill",
+        text: "signup_with",
+        logo_alignment: "left"
+      }
+    );
+  };
+
+
+  function handleCredentialResponse(response) {
+    const idToken = response.credential;
+    console.log("Token recibido:", idToken);
+
+    fetch("http://localhost:5000/api/auth/google", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ token: idToken })
+    })
+    .then(res => res.json())
+    .then(data => {
+      console.log("Respuesta del backend:", data);
+      Swal.fire({
+        icon: "success",
+        title: "¡Bienvenido a Edupork!",
+        text: `Hola ${data.nombre}, tu acceso con Google fue exitoso.`
+      });
+    })
+    .catch(err => {
+      console.error("Error en el login:", err);
+      Swal.fire({
+        icon: "error",
+        title: "Error de conexión",
+        text: err.message || "No se pudo conectar con el servidor."
+      });
+    });
+  }
 
 
 
