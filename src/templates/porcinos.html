@@ -124,7 +124,7 @@
     <!-- DIALOG DE GESTIONAR RAZA -->
     <dialog class="dialog__ges__raz" id="dialog__ges__raz">
         <div class="container__btn__close">
-            <button type="button" id="cerrar__digraz" class="btn__close">X</button>
+            <button type="button" id="cerrar__digraz" class="btn__close btn__close__cruds">X</button>
         </div>
         <div class="container__items__dialogs">
             <div class="title-dialog">
@@ -134,7 +134,7 @@
             <div class="container__search__bar bar--gestion">
                 <div class="conta__lupa__inp">
                     <img src="/src/static/iconos/icon lupa.svg" alt="">
-                    <input type = "number" class = "input__id" id="input_id" placeholder = "Ingrese el ID del porcino" min="0" oninput = "this.value = Math.abs(this.value)">
+                    <input type = "number" class = "input__id" id="input_id" placeholder = "Ingrese el ID de la raza" min="0" oninput = "this.value = Math.abs(this.value)">
                 </div>
                 <div>
                     <button type="button" class="btn">Consultar</button>
@@ -142,7 +142,7 @@
             </div>
             <div class="container__btn__agregar">
                 <img src="/src/static/iconos/icon add.svg" alt="" class="svg__add">
-                <button type="button" class="btn btn--agregar">Agregar Raza</button>
+                <button type="button" class="btn btn--agregar" onclick="abrirDialog('dialog-registrar-raza')">Agregar Raza</button>
             </div>
             <div class="container container__registros container__registros__dia">
                 <table class="table__registros table__regis__dia">
@@ -154,17 +154,8 @@
                             <th>Acciones</th>
                         </tr>
                     </thead>
-                    <tbody class="registros">
-                        <tr class="registro registro__dia">
-                            <td class="td__border__l">1</td>
-                            <td>Landrace</td>
-                            <td>Cerdos con buena genetica</td>
-                            <td class="td__border__r">
-                                <img src="/src/static/iconos/icono eye.svg" alt="" class="icon-eye" id="abrir-dieye" onclick="dialog_eye()">
-                                <img src="/src/static/iconos/edit icon.svg" alt="" class="icon-edit" id="abrir-diedit" onclick="dialog_edit()">
-                                <img src="/src/static/iconos/delete icon.svg" alt="" class="icon-delete" id="abrir-didele" onclick="dialog_delete()">
-                            </td>
-                        </tr>
+                    <tbody class="registros" id="razas">
+                        
                     </tbody>
                 </table>
             </div>
@@ -172,7 +163,7 @@
     </dialog>
     <dialog class="dialog__ges__raz" id="dialog__ges__eta">
         <div class="container__btn__close">
-            <button type="button" id="cerrar__digeta" class="btn__close">X</button>
+            <button type="button" id="cerrar__digeta" class="btn__close btn__close__cruds">X</button>
         </div>
         <div class="container__items__dialogs">
             <div class="title-dialog">
@@ -182,7 +173,7 @@
             <div class="container__search__bar bar--gestion">
                 <div class="conta__lupa__inp">
                     <img src="/src/static/iconos/icon lupa.svg" alt="">
-                    <input type = "number" class = "input__id" id="input_id" placeholder = "Ingrese el ID del porcino" min="0" oninput = "this.value = Math.abs(this.value)">
+                    <input type = "number" class = "input__id" id="input_id" placeholder = "Ingrese el ID de la etapa" min="0" oninput = "this.value = Math.abs(this.value)">
                 </div>
                 <div>
                     <button type="button" class="btn">Consultar</button>
@@ -190,7 +181,7 @@
             </div>
             <div class="container__btn__agregar">
                 <img src="/src/static/iconos/icon add.svg" alt="" class="svg__add">
-                <button type="button" class="btn btn--agregar">Agregar Etapas</button>
+                <button type="button" class="btn btn--agregar" onclick="abrirDialog('dialog-registrar-etapa')" >Agregar Etapas</button>
             </div>
             <div class="container container__registros container__registros__dia">
                 <table class="table__registros table__regis__dia">
@@ -202,17 +193,8 @@
                             <th>Acciones</th>
                         </tr>
                     </thead>
-                    <tbody class="registros">
-                        <tr class="registro registro__dia">
-                            <td class="td__border__l">1</td>
-                            <td>Pre_inicial</td>
-                            <td>Primera etapa de los cerdos</td>
-                            <td class="td__border__r">
-                                <img src="/src/static/iconos/icono eye.svg" alt="" class="icon-eye" id="abrir-dieye" onclick="dialog_eye()">
-                                <img src="/src/static/iconos/edit icon.svg" alt="" class="icon-edit" id="abrir-diedit" onclick="dialog_edit()">
-                                <img src="/src/static/iconos/delete icon.svg" alt="" class="icon-delete" id="abrir-didele" onclick="dialog_delete()">
-                            </td>
-                        </tr>
+                    <tbody class="registros" id="etapas_vida">
+                        
                     </tbody>
                 </table>
             </div>
@@ -226,6 +208,8 @@
     <script src="/src/static/js/script.js"></script>
     <script>
         consulta_general_porcinos();
+        consultar_razas();
+        consultar_etapas();
     </script>
 </body>
 </html>
