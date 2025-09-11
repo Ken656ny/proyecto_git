@@ -240,7 +240,7 @@ fieldset {
 .button-r {
     width: 50%;
     margin: 15px auto;
-    padding: 13px;
+    padding: 9px;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -256,9 +256,6 @@ fieldset {
     margin: auto;
 }
 
-.button-r:hover {
-    background-color: #f0f0f0;
-}
 
 img {
     max-width: 100%;
