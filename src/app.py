@@ -429,17 +429,20 @@ def registrar_raza():
     data = request.get_json()
     nombre = data['nombre']
     desc = data['descripcion']
-    
-    with config['development'].conn() as conn:
-      with conn.cursor() as cur:
-        cur.execute('INSERT INTO etapa VALUES (null,%s,%s)',
-                (nombre,desc))
-        conn.commit()
+    print(data)
+    if nombre == '' or desc == '':
+      return jsonify({'Mensaje':'LLena todos los campos'})
+    else:
+      with config['development'].conn() as conn:
+        with conn.cursor() as cur:
+          cur.execute('INSERT INTO raza VALUES (null,%s,%s)',
+                  (nombre,desc))
+          conn.commit()
 
-    return jsonify({'Mensaje': 'Raza registrada correctamente'})
+      return jsonify({'Mensaje': 'Raza registrada correctamente'})
   except Exception as err:
     print(err)
-    return jsonify({'Mesaje':'Error en la base de datos'})
+    return jsonify({'Mensaje':'Error en la base de datos'})
 
 
 # RUTA PARA ACTUALIZAR LA INFORMACION DE UNA RAZA POR SU ID
@@ -476,7 +479,7 @@ def actualizar_raza(id):
     
     with config['development'].conn() as conn:
       with conn.cursor() as cur:
-        cur.execute('UPDATE etapa SET nombre = %s, descripcion = %s WHERE id_raza = %s',
+        cur.execute('UPDATE raza SET nombre = %s, descripcion = %s WHERE id_raza = %s',
                 (nombre,desc,id))
         conn.commit()
 
@@ -511,7 +514,7 @@ def eliminar_raza(id):
   try:
     with config['development'].conn() as conn:
       with conn.cursor() as cur:
-        cur.execute('DELETE FROM etapa WHERE id_raza = %s',
+        cur.execute('DELETE FROM raza WHERE id_raza = %s',
                 (id))
       conn.commit()
 
