@@ -1007,7 +1007,7 @@ function consulta_individual_alimento(){
     const idToken = response.credential;
     console.log("Token recibido:", idToken);
 
-    fetch("http://localhost:5000/api/auth/google", {
+    fetch(`${URL_BASE}/api/auth/google`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ token: idToken })
