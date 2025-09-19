@@ -997,7 +997,8 @@ function consulta_individual_alimento(){
             size: "large",
             shape: "pill",
             text: "signup_with",
-            logo_alignment: "left"
+            logo_alignment: "center",
+            width: "400px"
         } 
     );
 };
