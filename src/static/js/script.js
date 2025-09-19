@@ -1037,21 +1037,19 @@ function consulta_individual_alimento(){
 
 //SIRVE PARA MOSTRAR EL NOMBRE DE LA SESION
 
-
 document.addEventListener("DOMContentLoaded", () => {
-  const nombre = localStorage.getItem("nombreUsuario");
-  if (nombre) {
-    document.getElementById("btnPerfil").textContent = nombre;
-  }
+    const nombre = localStorage.getItem("nombreUsuario");
+    if (nombre) {
+        document.getElementById("btnPerfil").textContent = nombre;
+    }
 
   //SIRVE PARA CERRAR SESION 
 
-
-  const btnLogout = document.getElementById("btnLogout");
-  if (btnLogout) {
-    btnLogout.addEventListener("click", () => {
-      localStorage.removeItem("nombreUsuario"); 
-      location.href = "index.html"; 
-    });
-  }
+    const btnLogout = document.getElementById("btnLogout");
+        if (btnLogout) {
+            btnLogout.addEventListener("click", () => {
+            localStorage.removeItem("nombreUsuario"); 
+        location.href = "index.html"; 
+        });
+    }
 });
