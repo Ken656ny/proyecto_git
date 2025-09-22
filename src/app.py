@@ -192,7 +192,7 @@ def google_login():
 @app.route('/porcino', methods=['GET'])
 def consulta_general_porcinos():
   """
-  Consulta general de kos porcinos registrados en la base de datos
+  Consulta general de los porcinos registrados en la base de datos
   ---
   tags:
     - Porcinos
