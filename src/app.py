@@ -148,9 +148,8 @@ def consulta_general_porcinos():
     with config['development'].conn() as conn:
       with conn.cursor() as cur:
         cur.execute('SELECT id_porcino,peso_inicial,peso_final,fecha_nacimiento,sexo,r.nombre as raza,e.nombre as etapa,estado,p.descripcion FROM porcinos p JOIN raza r ON p.id_raza = r.id_raza JOIN etapa_vida e ON p.id_etapa = e.id_etapa')
-    
     informacion = cur.fetchall()
-    return jsonify({'Porcinos': informacion, 'Mensaje':'Listado de porcinos'})
+    return jsonify(informacion)
     
   except Exception as err:
     print(err)
@@ -176,12 +175,12 @@ def consulta_individual_porcinos(id):
   try:
     with config['development'].conn() as conn:
       with conn.cursor() as cur:
-        cur.execute('SELECT * FROM porcinos WHERE id_porcino = %s', (id,))
+        cur.execute('SELECT * FROM porcinos WHERE id_porcino = %s', (id))
     
     porcino = cur.fetchone()
-    
+    print(porcino)
     if porcino:
-      return jsonify({'Porcinos': {porcino}, 'Mensaje': f'Porcino con {id} consultado'})
+      return jsonify({'Porcinos': porcino, 'Mensaje': f'Porcino con id {id} consultado'})
     else:
       print('Porcino no encontrado')
       return jsonify({'Mensaje':'Porcino no encontrado'})
@@ -429,15 +428,11 @@ def registrar_raza():
     data = request.get_json()
     nombre = data['nombre']
     desc = data['descripcion']
-    print(data)
-    if nombre == '' or desc == '':
-      return jsonify({'Mensaje':'LLena todos los campos'})
-    else:
-      with config['development'].conn() as conn:
-        with conn.cursor() as cur:
-          cur.execute('INSERT INTO raza VALUES (null,%s,%s)',
-                  (nombre,desc))
-          conn.commit()
+    with config['development'].conn() as conn:
+      with conn.cursor() as cur:
+        cur.execute('INSERT INTO raza VALUES (null,%s,%s)',
+                (nombre,desc))
+        conn.commit()
 
       return jsonify({'Mensaje': 'Raza registrada correctamente'})
   except Exception as err:
@@ -706,6 +701,7 @@ def eliminar_etapa_vida(id):
       with conn.cursor() as cur:
         cur.execute('DELETE FROM etapa_vida WHERE id_etapa = %s',
                     (id))
+        conn.commit()
     return jsonify({'Mensaje': 'Etapa de vida eliminada correctamente'})
   except Exception as err:
     print(err)

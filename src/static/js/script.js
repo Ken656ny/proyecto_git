@@ -57,7 +57,6 @@ async function registro_usuarios() {
                 "estado" : "Activo",
                 "id_tipo_identificacion" : tipo_identificacion,
             }
-            console.log(user)
             fetch(`${URL_BASE}/users`, 
                 {
                     method: 'POST',
@@ -67,7 +66,6 @@ async function registro_usuarios() {
                     }
                 }).then(response => {
                     console.log(response)
-                    return response.json()
                 }).then(() => {
                     Swal.fire({
                         title: "Mensaje",
@@ -187,10 +185,9 @@ function dialog__ges__eta(){
     });
 }
 
-
 // CONSUMO DE DATOS DE LOS PORCINOS REGISTRADOS
 function mostrar_porcinos(porcinos) {
-    const info = porcinos.Porcinos.map(item => crearFilaPorcino(item)).join('');
+    const info = porcinos.map(item => crearFilaPorcino(item)).join('');
     document.getElementById('info_porcinos').innerHTML = info;
 }
 
@@ -514,14 +511,14 @@ function crearIconosAccionesRaza(id) {
 
 function crearDialogRegistrarRaza(){
     const campos = [
-        {label: 'Nombre', id: 'nombre_raza'},
-        {label: 'Descripcion', id: 'descripcion_raza'},
+        {label: 'Nombre', id: 'nombre_raza', required: false},
+        {label: 'Descripcion', id: 'descripcion_raza', required: true},
     ]
 
     const camposHTML = campos.map(campo => `
         <div class = "container__label__input">
             <label for="${campo.id}">${campo.label}</label>
-            <input type="text" class="campo-info" id="${campo.id}">
+            <input type="text" class="campo-info" id="${campo.id}" ${campo.required ? '' : 'required'}>
         </div>
         `).join('');
 
@@ -554,7 +551,7 @@ function crearDialogEditRaza(item, uniqueId){
     ]
 
     const camposHTML = camposEditables.map(campo => {
-        const fieldId = campo.id.replace(/\s+/g, '-') + '-' + uniqueId;
+        const fieldId = campo.id.replace(/\s+/g, '-') + '-' + 'actualizar' + '-' +uniqueId;
         return `
         <div class = "container__label__input">
             <label for="${fieldId}">${campo.label}</label>
@@ -566,7 +563,7 @@ function crearDialogEditRaza(item, uniqueId){
         `;
     }).join('');
 
-    return crearDialogBaseRaza(`dialog-edit-raza-${uniqueId}`, 'dialog-icon-eye', 'Actualizar datos de la Raza', camposHTML, 'Guardar', 'button-guardar', uniqueId)
+    return crearDialogBaseRaza(`dialog-edit-raza-${uniqueId}`, 'dialog-icon-eye', 'Actualizar datos de la Raza', camposHTML, 'Guardar', 'button-guardar', uniqueId, 'actualizar_raza','')
 }
 
 function crearDialogtDeleteRaza(item, uniqueId){
@@ -584,26 +581,37 @@ function crearDialogtDeleteRaza(item, uniqueId){
 }
 
 
-function crearDialogBaseRaza(id, clase, titulo, contenido, textoBoton, claseBoton, uniqueId, funct,params) {
+function crearDialogBaseRaza(id, clase, titulo, contenido, textoBoton, claseBoton, uniqueId, funct, params) {
+    // Crear el dialogo
+    const dialog = document.createElement("dialog");
+    document.body.appendChild(dialog)
+    dialog.className = clase;
+    dialog.id = id;
+    // Armar contenido interno
+    dialog.innerHTML = `
+        <div class="container__btn__close">
+            <button type="button" class="btn__close" onclick="cerrarDialog('${id}')">X</button>
+        </div>
+        <form onsubmit="event.preventDefault(); ${funct}('${uniqueId}')">
+            <div class="title-dialog">
+                <h2>${titulo}</h2>
+                <hr>
+            </div>
+            <div class="info_raza_etapa">${contenido}</div>
+            ${textoBoton ? `
+            <div class="container-button-${claseBoton.includes('cerrar') ? 'close' : 'guardar'}">
+                <button type="${textoBoton.toLowerCase() === 'cerrar' ? 'button' : 'submit'}" 
+                        class="${claseBoton}" 
+                        ${textoBoton.toLowerCase() === 'cerrar' ? `onclick="cerrarDialog('${id}')"` : ""}>
+                    ${textoBoton}
+                </button>
+            </div>` : ""}
+        </form>
+    `;
+    return ''
 
-    return `
-        <dialog class="${clase}" id="${id}">
-            <div class="container__btn__close">
-                <button type="button" class="btn__close" onclick="cerrarDialog('${id}')">X</button>
-            </div>
-            <div class="container__items__dialogs">
-                <div class="title-dialog">
-                    <h2>${titulo}</h2>
-                    <hr>
-                </div>
-                <div class="info_raza_etapa">${contenido}</div>
-                ${textoBoton ? `
-                <div class="container-button-${claseBoton.includes('cerrar') ? 'close' : 'guardar'}">
-                    <button class="${claseBoton}" onclick="${funct}('${params}')">${textoBoton}</button>
-                </div>` : ''}
-            </div>
-        </dialog>`;
 }
+
 
 async function consultar_razas() {
     try {
@@ -644,7 +652,7 @@ async function registrar_raza() {
             icon: "success"
             
             });
-            location.reload()
+            consultar_razas();
         } else{
             Swal.fire({
             title: "Mensaje",
@@ -658,17 +666,20 @@ async function registrar_raza() {
     }
 }
 
-async function actualizar_raza() {
+async function actualizar_raza(id) {
     try {
-        const nombre = document.getElementById('nombre_raza').value;
-        const descri = document.getElementById('descripcion_raza').value;
+        const nombre = document.getElementById(`nombre-raza-actualizar-${id}`).value;
+        const descri = document.getElementById(`descripcion-raza-actualizar-${id}`).value;
+
+        console.log(document.getElementById(`nombre-raza-actualizar-${id}`))
+        console.log(document.getElementById(`descripcion-actualizar-raza-${id}`))
 
         const raza = {
             nombre: nombre,
             descripcion: descri
         }
 
-        const promesa = await fetch(`${URL_BASE}/raza`, {
+        const promesa = await fetch(`${URL_BASE}/raza/${id}`, {
             method : 'PUT',
             body : JSON.stringify(raza),
             headers: {
@@ -687,7 +698,7 @@ async function eliminar_raza(id){
     try {
         const promesa = await fetch(`${URL_BASE}/raza/${id}`, {method : 'DELETE'});
         const response = await promesa.json();
-        location.reload();
+        consultar_razas()
         return response
     } catch (error) {
         console.log(error)
@@ -736,18 +747,18 @@ function crearIconosAccionesEtapa(id){
 
 function crearDialogRegistrarEtapa(){
     const campos = [
-        {label: "Nombre", id: "nombre_etapa",},
-        {label: "Descripcion", id: "descripcion_etapa"}
+        {label: "Nombre", id: "nombre_etapa", required: false},
+        {label: "Descripcion", id: "descripcion_etapa", required: true}
     ]
     const camposHTML = campos.map(campo => {
         return `
                 <div class = "container__label__input">
                     <label for="${campo.id}">${campo.label}</label>
-                    <input type="text" class="campo-info" id="${campo.id}">
+                    <input type="text" class="campo-info" id="${campo.id}" ${campo.required ? '' : 'required'}>
                 </div>
             `
     }).join('');
-    return crearDialogBaseRaza('dialog-registrar-etapa', 'dialog-icon-eye', 'Registar Etapa de vida', camposHTML, "Guardar", 'button-guardar', '')
+    return crearDialogBaseRaza('dialog-registrar-etapa', 'dialog-icon-eye', 'Registar Etapa de vida', camposHTML, "Guardar", 'button-guardar', '','registrar_etapas','')
 }
 
 function crearDialogEyeEtapa(item, uniqueId){
@@ -773,7 +784,7 @@ function crearDialogEditEtapa(item, uniqueId){
     ]
 
     const camposHTML = camposEditables.map(campo => {
-        const fieldId = campo.id.replace(/\s+/g, '-') + '-' + uniqueId;
+        const fieldId = campo.id.replace(/\s+/g, '-') + '-' + 'actualizar' + '-' +uniqueId;
         return `
         <div class = "container__label__input">
             <label for="${fieldId}">${campo.label}</label>
@@ -785,7 +796,7 @@ function crearDialogEditEtapa(item, uniqueId){
         `;
     }).join('');
 
-    return crearDialogBaseRaza(`dialog-edit-etapa-${uniqueId}`, 'dialog-icon-eye', 'Actualizar datos de la Etapa de Vida', camposHTML, 'Guardar', 'button-guardar', uniqueId)
+    return crearDialogBaseRaza(`dialog-edit-etapa-${uniqueId}`, 'dialog-icon-eye', 'Actualizar datos de la Etapa de Vida', camposHTML, 'Guardar', 'button-guardar', uniqueId,'actualizar_etapa','')
 }
 
 function crearDialogDeleteEtapa(item, uniqueId){
@@ -813,7 +824,7 @@ async function consultar_etapas() {
     }
 }
 
-async function registar_etapas(){
+async function registrar_etapas(){
     try {
         const nombre = document.getElementById('nombre_etapa').value;
         const descri = document.getElementById('descripcion_etapa').value;
@@ -823,7 +834,7 @@ async function registar_etapas(){
             descripcion : descri
         }
 
-        const promesa = await fetch(`${URL_BASE}etapa_vida`, {
+        const promesa = await fetch(`${URL_BASE}/etapa_vida`, {
             method : 'POST',
             body: JSON.stringify(etapa),
             headers : {
@@ -832,6 +843,20 @@ async function registar_etapas(){
         })
         const response = await promesa.json()
         console.log(response)
+        if (response.Mensaje == "Etapa de vida registrada correctamente"){
+            Swal.fire({
+            title: "Mensaje",
+            text: `${response.Mensaje}`,
+            icon: "success"
+            });
+            consultar_etapas();
+        } else{
+            Swal.fire({
+            title: "Mensaje",
+            text: `${response.Mensaje}`,
+            icon: "error"
+        });
+        }
         return response
     } catch (error) {
         console.error(error)
@@ -840,8 +865,8 @@ async function registar_etapas(){
 
 async function actualizar_etapa(id) {
     try {
-        const nombre = document.getElementById(`nombre-etapa-${id}`).value;
-        const descri = document.getElementById(`descripcion-etapa-${id}`).value;
+        const nombre = document.getElementById(`nombre-etapa-actualizar-${id}`).value;
+        const descri = document.getElementById(`descripcion-etapa-actualizar-${id}`).value;
 
         const etapa = {
             nombre : nombre,
@@ -869,8 +894,8 @@ async function eliminar_etapa(id) {
         const promesa = await fetch(`${URL_BASE}/etapa_vida/${id}`, {
             method: 'DELETE',
         })
-        const response = promesa.json();
-
+        const response = await promesa.json();
+        consultar_etapas()
         console.log(response);
         return response
     } catch (error) {

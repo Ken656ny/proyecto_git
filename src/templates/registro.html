@@ -19,7 +19,7 @@
     </section>
     <div class="container-form">
         <button class="button-r"> <img class="icon-google" src="/src/static/iconos/icon google.svg" alt="icon-google">Registrarse con google</button>
-        <form class="form__registro" id="form__registro" action="../static/js/script.js">
+        <form class="form__registro" id="form__registro" onsubmit="event.preventDefault(); registro_usuarios()">
             <fieldset>
                 <legend>O correo electronico</legend>
             </fieldset>
@@ -52,7 +52,7 @@
                     <input class='input_register'type="password" id="confirmPassword" placeholder="Confirme su contraseña" required minlength="8">
             </div>
             <div id="mensaje" class="alerta"></div>
-            <button type="submit" class="btn btn__registro" value="Registrar" onclick="registro_usuarios()">Registrar</button>
+            <button type="submit" class="btn btn__registro" value="Registrar">Registrar</button>
         </form>
     </div>
     <section>

@@ -877,6 +877,7 @@ th{
     overflow-y: hidden;
     position: relative;
     z-index: 2;
+    padding: 0 4rem;
 }
 
 /* TUTULO DE LA VENTANA MODAL */
@@ -1065,6 +1066,7 @@ hr{
     grid-template-rows: auto auto auto auto auto;
     justify-content: center;
     gap: 15px;
+    height: 0;
 }
 
 .container__btn__close{

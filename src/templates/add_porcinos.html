@@ -62,7 +62,7 @@
             <h1>Agregar porcinos</h1>
         </header>
 
-        <section class="container container__add__por">
+        <form class="container container__add__por" onsubmit="event.preventDefault(); agregar_porcino()">
             <div class="container__label__input">
                 <label for="id_porcino"> ID del porcino </label>
                 <input class="input__add__por" type="number" name="id_porcino" id="id_porcino" min="1" oninput = "this.value = Math.abs(this.value)" placeholder="Ingrese el id del porcino" required>
@@ -118,8 +118,8 @@
                 <label for="descripcion"> Descripción </label>
                 <textarea name="" id="descripcion" class="input__add__por" placeholder="Descripcion del animal."></textarea>
             </div>
-            <button type="button" class="btn btn--guardar" onclick="agregar_porcino()">Agregar Porcino</button>
-        </section>
+            <button type="submit" class="btn btn--guardar">Agregar Porcino</button>
+        </form>
     </section>
     <script src="/src/static/js/script.js"></script>
 </body>
