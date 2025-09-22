@@ -65,6 +65,7 @@ async function registro_usuarios() {
                         text: `Usuario registrado correctamente`,
                         icon: "success"
                     });
+
                 })
         } else{
             Swal.fire({
@@ -641,7 +642,6 @@ function consulta_individual_porcino(){
     })
     .catch(error => console.error('Error', error));
 }
-
 function consulta_alimentos(){
     const contenido = document.getElementById("contenido");
     fetch(`${URL_BASE}/alimentos`,{method: "GET"})
@@ -650,14 +650,15 @@ function consulta_alimentos(){
         console.log(data)
         contenido.innerHTML=""; 
         data.mensaje.forEach(element => {
-                const mapa = {};
-                element.elementos.forEach(e => {
+            const mapa = {};
+            element.elementos.forEach(e => {
                 mapa[e.nombre] = e.valor;
-                });
-
+            });
             contenido.innerHTML+=`
             <tr class="nuevo1">
-                <td class="nuevo td__border__l"><img class="svg__pig" src="/src/static/iconos/logo alimentospng.png"></td>
+                <td class="nuevo td__border__l">
+                    <img class="svg__alimento" src="/src/static/iconos/logo alimentospng.png">
+                </td>
                 <td class="nuevo">${element.id_alimento}</td>
                 <td class="nuevo">${element.nombre}</td>
                 <td class="nuevo">${mapa["Materia_seca"]}</td>
@@ -667,16 +668,189 @@ function consulta_alimentos(){
                 <td class="nuevo">${element.estado}</td>
                 <td class="nuevo td__border__r">
 
-                <img src="/src/static/iconos/icon eye.svg " class="icon-eye">
+                    <!-- Abrir modal ver -->
+                    <img src="/src/static/iconos/icon eye.svg" 
+                         onclick="abrirModal('eye', ${element.id_alimento})" 
+                         class="icon-eye">
 
-                <img src="/src/static/iconos/edit icon.svg" class="icon-edit">
+                    <img src="/src/static/iconos/edit icon.svg"  class="icon-edit">
 
-                <img class="eliminar" onclick="eliminar_alimento(${element.id_alimento})" src="/src/static/iconos/delete icon.svg" class="icon-edit">
+                    <!-- Abrir modal eliminar -->
+                    <img src="/src/static/iconos/delete icon.svg" 
+                         onclick="abrirModal('dele', ${element.id_alimento})" 
+                         class="icon-delete">
+
                 </td>
             </tr>
+
+            <!-- Modal ver -->
+            <dialog active class="dialog-icon-eye" id="modal-eye-${element.id_alimento}">
+                <div class="title-dialog">
+                    <h2>Información del alimento</h2>
+                    <hr>
+                </div>
+                <div class="contenido-modal">
+                    <section class="seccion_modal">
+                        <p>nombre</p>
+                        <input class="input_add" value="${element.nombre}" readonly>
+                        <p>proteina cruda</p>
+                        <input class="input_add" value="${mapa["Proteina_cruda"]}" readonly>
+                        <p>proteina cruda</p>
+                        <input class="input_add" value="${mapa["Proteina_cruda"]}" readonly>
+
+                        
+                    </section>
+                    <section class="seccion_modal"></section>
+                    <section class="seccion_modal"></section>
+                    <section class="seccion_modal"></section>
+                
+                
+                </div>
+                <div class="container-button-close">
+                    <button onclick="cerrarModal('eye', ${element.id_alimento})" class="button-cerrar">Cerrar</button>
+                </div>
+            </dialog>
+
+            <!-- Modal eliminar -->
+            <dialog class="dialog-icon-dele" id="modal-dele-${element.id_alimento}">
+                <div class="title-dialog">
+                    <h2>Eliminar registro del alimento</h2>
+                </div>
+                <hr>
+                <p>
+                    Eliminar el registro sin saber si el alimento tiene trazabilidad puede alterar el sistema.  
+                    Es preferible cambiar el estado del alimento a inactivo.
+                </p>
+                <span>¿Está seguro que quiere eliminar este registro?</span>
+                <div class="container-button-dele1">
+                    <button class="button-eliminar" 
+                            onclick="eliminar_alimento(${element.id_alimento})">
+                        Eliminar
+                    </button>
+                    <button class="button-cerrar" 
+                            onclick="cerrarModal('dele', ${element.id_alimento})">
+                        Cancelar
+                    </button>
+                </div>
+            </dialog>
             `
         });
     })
+}
+
+
+function consulta_individual_alimento() {
+    const nombre = document.getElementById("id_alimento").value;
+    const contenido = document.getElementById("contenido");
+    contenido.innerHTML = "";
+
+    fetch(`${URL_BASE}/consulta_indi_alimento/${nombre}`)
+        .then(res => res.json())
+        .then(data => {
+            if (!data.mensaje) {
+                Swal.fire({
+                    title: "Mensaje",
+                    text: "Alimento no encontrado",
+                    icon: "error",
+                    confirmButtonText: "OK"
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        window.location.reload();
+                    }
+                });
+                return;
+            }
+
+            // Convertir en array aunque sea un solo alimento
+            let alimentos = Array.isArray(data.mensaje) ? data.mensaje : [data.mensaje];
+
+            alimentos.forEach(element => {
+                const mapa = {};
+                element.elementos.forEach(e => {
+                    mapa[e.nombre] = e.valor;
+                });
+
+                contenido.innerHTML += `
+                    <tr class="nuevo1">
+                        <td class="nuevo td__border__l"><img class="svg__alimento" src="/src/static/iconos/logo alimentospng.png"></td>
+                        <td class="nuevo">${element.id_alimento}</td>
+                        <td class="nuevo">${element.nombre}</td>
+                        <td class="nuevo">${mapa["Materia_seca"] || ''}</td>
+                        <td class="nuevo">${mapa["Energia_metabo"] || ''}</td>
+                        <td class="nuevo">${mapa["Proteina_cruda"] || ''}</td>
+                        <td class="nuevo">${mapa["Fibra_cruda"] || ''}</td>
+                        <td class="nuevo">${element.estado}</td>
+                        <td class="nuevo td__border__r">
+                            <img src="/src/static/iconos/icon eye.svg" onclick="abrirModal('eye', ${element.id_alimento})" class="icon-eye">
+                            <img src="/src/static/iconos/edit icon.svg" class="icon-edit">
+                            <img src="/src/static/iconos/delete icon.svg" onclick="abrirModal('dele', ${element.id_alimento})" class="icon-delete">
+                        </td>
+                    </tr>
+
+                    <!-- Modal ver -->
+                    <dialog class="dialog-icon-eye" id="modal-eye-${element.id_alimento}">
+                        <div class="title-dialog">
+                            <h2>Información del alimento</h2>
+                            <hr>
+                        </div>
+                        <div class="contenido-modal">
+                            <section class="seccion_modal">
+                                <p>Nombre</p>
+                                <input class="input_add" value="${element.nombre}" readonly>
+                                <p>Proteína Cruda</p>
+                                <input class="input_add" value="${mapa["Proteina_cruda"] || ''}" readonly>
+                                <p>Materia Seca</p>
+                                <input class="input_add" value="${mapa["Materia_seca"] || ''}" readonly>
+                                <p>Energía Metabolizable</p>
+                                <input class="input_add" value="${mapa["Energia_metabo"] || ''}" readonly>
+                            </section>
+                        </div>
+                        <div class="container-button-close">
+                            <button onclick="cerrarModal('eye', ${element.id_alimento})" class="button-cerrar">Cerrar</button>
+                        </div>
+                    </dialog>
+
+                    <!-- Modal eliminar -->
+                    <dialog class="dialog-icon-dele" id="modal-dele-${element.id_alimento}">
+                        <div class="title-dialog">
+                            <h2>Eliminar registro del alimento</h2>
+                        </div>
+                        <hr>
+                        <p>
+                            Eliminar el registro sin saber si el alimento tiene trazabilidad puede alterar el sistema.  
+                            Es preferible cambiar el estado del alimento a inactivo.
+                        </p>
+                        <span>¿Está seguro que quiere eliminar este registro?</span>
+                        <div class="container-button-dele1">
+                            <button class="button-eliminar" onclick="eliminar_alimento(${element.id_alimento})">Eliminar</button>
+                            <button class="button-cerrar" onclick="cerrarModal('dele', ${element.id_alimento})">Cancelar</button>
+                        </div>
+                    </dialog>
+                `;
+            });
+        })
+        .catch(err => {
+            console.error(err);
+            Swal.fire({
+                title: "Error",
+                text: "Hubo un problema al consultar el alimento",
+                icon: "error",
+                confirmButtonText: "OK"
+            }).then((result) => {
+                    if (result.isConfirmed) {
+                        window.location.reload();
+                    }
+                });
+                return;
+        });
+}
+
+
+function abrirModal(tipo, id){
+    document.getElementById(`modal-${tipo}-${id}`).showModal();
+}
+function cerrarModal(tipo, id){
+    document.getElementById(`modal-${tipo}-${id}`).close();
 }
 
 function eliminar_alimento(id){
@@ -684,60 +858,39 @@ function eliminar_alimento(id){
     .then(res=>res.json())
     .then(data=>{
         console.log("eliminado correctamente")
-        alert("eliminado correctamente")
         window.location.reload()
     })
 }
 
-function consulta_individual_alimento(){
-    const nombre = document.getElementById("id_alimento").value;
-    contenido.innerHTML = "";
 
-    fetch(`${URL_BASE}/consulta_indi_alimento/${nombre}`)
-    .then(res => res.json())
-    .then(data => {
-        if (!data.mensaje) {
-            contenido.innerHTML = `
-                <tr>
-                    <td colspan="9" class="nuevo td__border__l"> No se encontró ningún alimento con ese nombre, por favor digite el nombre completo</td>
-                </tr>
-            `;
-            return;
-        }
-
-        let alimentos = [];
-
-        if (Array.isArray(data.mensaje)) {
-            alimentos = data.mensaje;
-        } else {
-            alimentos = [data.mensaje];
-        }
-
-        alimentos.forEach(element => {
+function dietas(){
+    const alimentos_en_dieta = document.getElementById("alimentos_en_dieta");
+    fetch(`${URL_BASE}/alimentos`,{method: "GET"})
+    .then(res=>res.json())
+    .then(data=>{
+        console.log(data)
+        alimentos_en_dieta.innerHTML=""; 
+        data.mensaje.forEach(element => {
             const mapa = {};
             element.elementos.forEach(e => {
                 mapa[e.nombre] = e.valor;
             });
-
-            contenido.innerHTML += `
-                <tr class="nuevo1">
-                    <td class="nuevo td__border__l"><img class="svg__pig" src="/comida.png"></td>
-                    <td class="nuevo">${element.id_alimento}</td>
-                    <td class="nuevo">${element.nombre}</td>
-                    <td class="nuevo">${mapa["Materia_seca"]}</td>
-                    <td class="nuevo">${mapa["Energia_metabo"]}</td>
-                    <td class="nuevo">${mapa["Proteina_cruda"]}</td>
-                    <td class="nuevo">${mapa["Fibra_cruda"]}</td>
-                    <td class="nuevo">${alimentos.estado}</td>
-                    <td class="nuevo td__border__r">
-                        <img src="/src/static/iconos/icon eye.svg" class="icon-eye">
-                        <img src="/src/static/iconos/edit icon.svg" class="icon-edit">
-                        <img class="eliminar" onclick="eliminar(${element.id_alimento})" src="/src/static/iconos/delete icon.svg" class="icon-edit">
-                    </td>
-                </tr>
-            `;
+            alimentos_en_dieta.innerHTML+=`
+            <div class="alimentos_dietas">
+    <div class="imagen_alimento_dieta">
+        <img src="${element.imagen}" alt="no hay imagen">
+    </div>
+    <div class="descripcion_dietas">
+        <p><strong>Nombre: ${element.nombre}</strong> </p>
+        <p><strong>Cantidad (Kg):</strong></p>
+    </div>
+</div>
+</html>
+            
+            
+            `
         });
-    });
+    })
 }
 
 

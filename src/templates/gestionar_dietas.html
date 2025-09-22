@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="/src/static/css/sytle.css">
+    <script src="/src/static/js/script.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11.17.2/dist/sweetalert2.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <title>Edupork</title>
+</head>
+
+<body class="body_dietas">
+    <nav class="nav__bar">
+        <ul class="nav__list">
+            <li class="nav__item">
+                <a href="/src/templates/home.html" onclick="redirectWithDelay(event, 'home.html')"><img
+                        src="/src/static/iconos/home icon.svg" alt=""></a>
+            </li>
+            <li class="nav__item">
+                <a href="#"><img src="/src/static/iconos/notificacions.svg" alt=""></a>
+            </li>
+            <li class="nav__item ">
+                <a href="/src/templates/alimento.html" onclick="redirectWithDelay(event, 'alimento.html')"><img
+                        src="/src/static/iconos/icon pig.svg" alt=""></a>
+            </li>
+            <li class="nav__item ">
+                <a href="/src/templates/alimentos.html" onclick="redirectWithDelay(event, 'alimentos.html')"><img
+                        src="/src/static/iconos/icon wheate.svg" alt=""></a>
+            </li>
+            <li class="nav__item active" >
+                <a href="/src/templates/dietas.html"><img src="/src/static/iconos/icon plate.svg" alt=""></a>
+            </li>
+            <li class="nav__item">
+                <a href="#"><img src="/src/static/iconos/icon page.svg" alt=""></a>
+            </li>
+            <li class="nav__item">
+                <a href="/src/templates/perfil.html" onclick="redirectWithDelay(event, 'perfil.html')"><img
+                        src="/src/static/iconos/icon user.svg" alt=""></a>
+            </li>
+            <li class="nav__item">
+                <a href="/src/templates/configuracion.html"
+                    onclick="redirectWithDelay(event, 'configuracion.html')"><img
+                        src="/src/static/iconos/icon setting.svg" alt=""></a>
+            </li>
+            <div class="indicador"></div>
+        </ul>
+    </nav>
+    <section class="contenido_dietas">
+        <header class= "container container__title_dietas">
+            <h1>Crear dietas</h1>
+        </header>
+            <section class="container container__search__bar_dietas">
+                <img src="/src/static/iconos/icon lupa.svg" alt="">
+                <input type = "number" class = "input__id" id="input_id" placeholder = "Ingrese el ID del alimento" min="0" oninput = "this.value = Math.abs(this.value)">
+                <button type="button" class="btn" onclick="consulta_individual_porcino()">Consultar</button>
+            </section>
+            <section id="contenedor_dietas" class="container container_dietas">
+           <label class="contenedor1">
+              <input type="checkbox" id="check1">
+              <span class="custom-checkbox"></span>
+              <p class="color_p">ver alimentos seleccionados</p>
+            </label>
+                <div class="alimentos_en_dieta" id="alimentos_en_dieta">
+<!-- <div class="alimentos_dietas">
+    <div class="imagen_alimento_dieta">
+        <img src="/static/imagenes/arroz.jpeg" alt="Maíz">
+    </div>
+    <div class="descripcion_dietas">
+        <p><strong>Nombre:</strong> </p>
+        <p><strong>Cantidad (Kg):</strong>1</p>
+    </div>
+</div> -->
+
+
+
+                </div>
+                <button type="button" class="btn1" onclick="consulta_individual_porcino()">Guardar</button>
+            </section>
+    </section>
+<script src="/src/static/js/script.js"></script>
+<script>
+    dietas();
+</script>
+</body>
+</html>

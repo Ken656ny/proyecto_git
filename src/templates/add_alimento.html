@@ -68,50 +68,46 @@
             <section class="container container_alimento container__add__por">
                 <div class="seccion1">
                     <p>inserte una imagen</p>
-                    <input class="input_add" placeholder="ingrese una imagen" type="file">
+                    <input id="imagen"  class="input_add" tabindex="1" placeholder="ingrese una imagen" type="file" accept=".png, .jpeg, .jpg">
                     <p>proteina cruda(%)</p>
-                    <input class="input_add" type="number" required step="any" placeholder="ingrese la proteina cruda" id="proteina_cruda">
+                    <input class="input_add" tabindex="5" type="number" required step="any" placeholder="ingrese la proteina cruda" id="proteina_cruda">
                     <p>fosforo (%)</p>
-                    <input class="input_add" type="number" required step="any" placeholder="ingrese el fosforo" id="fosforo">
+                    <input class="input_add" tabindex="9" type="number" required step="any" placeholder="ingrese el fosforo" id="fosforo">
                     <p>treitona(%)</p>
-                    <input class="input_add" type="number" required step="any" placeholder="ingrese la treitona" id="treitona">
-    
+                    <input class="input_add" tabindex="13" type="number" required step="any" placeholder="ingrese la treitona" id="treitona">
                 </div>
                 <div class="seccion1">
                     <p>nombre del alimento</p>
-                    <input class="input_add" type="text" placeholder="ingrese el nombre" id="nombre">
+                    <input class="input_add" tabindex="2" type="text" placeholder="ingrese el nombre" id="nombre">
                     <p>fibra cruda(%)</p>
-                    <input class="input_add" type="number" required step="any" placeholder="ingrese la fibra cruda" id="fibra_cruda">
+                    <input class="input_add" tabindex="6" type="number" required step="any" placeholder="ingrese la fibra cruda" id="fibra_cruda">
                     <p>sodio(%)</p>
-                    <input class="input_add" type="number" required step="any" placeholder="ingrese el sodio" id="sodio">
+                    <input class="input_add" tabindex="10" type="number" required step="any" placeholder="ingrese el sodio" id="sodio">
                     <p>metionina(%)</p>
-                    <input class="input_add" type="number" required step="any" placeholder="ingrese la metionina" id="metionina">
-    
+                    <input class="input_add" tabindex="14" type="number" required step="any" placeholder="ingrese la metionina" id="metionina">
                 </div>
                 <div class="seccion1">
                     <p>materia seca(%)</p>
-                    <input class="input_add" type="number" required step="any" placeholder="ingrese la materia seca" id="materia_seca">
+                    <input class="input_add" tabindex="3" type="number" required step="any" placeholder="ingrese la materia seca" id="materia_seca">
                     <p>extracto etereo(%)</p>
-                    <input class="input_add" type="number" required step="any" placeholder="ingrese el extracto etereo" id="extracto_etereo">
+                    <input class="input_add" tabindex="7" type="number" required step="any" placeholder="ingrese el extracto etereo" id="extracto_etereo">
                     <p>arginina(%)</p>
-                    <input class="input_add" type="number" required step="any" placeholder="ingrese la arginina" id="arginina">
+                    <input class="input_add" tabindex="11" type="number" required step="any" placeholder="ingrese la arginina" id="arginina">
                     <p>metionina + cisteina(%)</p>
-                    <input class="input_add" type="number" required step="any" placeholder="ingrese la metionina + cisteina" id="metionina_cistenina">
-    
-    
+                    <input class="input_add" tabindex="15" type="number" required step="any" placeholder="ingrese la metionina + cisteina" id="metionina_cistenina">
                 </div>
                 <div class="seccion1">
                     <p>Energia M(Kcal/kg)</p>
-                    <input class="input_add" type="number" required step="any" placeholder="ingrese la energia_metabolizable" id="energia_m">
+                    <input class="input_add" tabindex="4" type="number" required step="any" placeholder="ingrese la energia_metabolizable" id="energia_m">
                     <p>calcio(%)</p>
-                    <input class="input_add" type="number" required step="any" placeholder="ingrese el calcio" id="calcio">
+                    <input class="input_add" tabindex="8" type="number" required step="any" placeholder="ingrese el calcio" id="calcio">
                     <p>lisina(%)</p>
-                    <input class="input_add" type="number" required step="any" placeholder="ingrese la lisina" id="lisina">
+                    <input class="input_add" tabindex="12" type="number" required step="any" placeholder="ingrese la lisina" id="lisina">
                     <p>triptofano(%)</p>
-                    <input class="input_add" type="number" required step="any" placeholder="ingrese el triptofano" id="triptofano">
+                    <input class="input_add" tabindex="16" type="number" required step="any" placeholder="ingrese el triptofano" id="triptofano">
     
                 </div>
-                <input class="input_add1" value="guardar" type="submit">
+                <input class="input_add1" tabindex="17" value="guardar" type="submit">
             </section>
                 
                 
@@ -120,56 +116,55 @@
 
     </section>
     <script>
-        document.querySelector("form").addEventListener("submit", function (e) {
+document.querySelector("form").addEventListener("submit", function (e) {
   e.preventDefault();
 
+  const formData = new FormData();
+
+  const imagen = document.getElementById("imagen").files[0];
+  formData.append("imagen", imagen);
+
   const nombre = document.getElementById("nombre").value;
+  formData.append("nombre_alimento", nombre);
 
- const elementos = [
-  { id: 1, valor: parseFloat(document.getElementById("proteina_cruda").value) || 0 },
-  { id: 2, valor: parseFloat(document.getElementById("treitona").value) || 0 },
-  { id: 3, valor: parseFloat(document.getElementById("fosforo").value) || 0 },
-  { id: 4, valor: parseFloat(document.getElementById("fibra_cruda").value) || 0 },
-  { id: 5, valor: parseFloat(document.getElementById("sodio").value) || 0 },
-  { id: 6, valor: parseFloat(document.getElementById("metionina").value) || 0 },
-  { id: 7, valor: parseFloat(document.getElementById("materia_seca").value) || 0 },
-  { id: 8, valor: parseFloat(document.getElementById("extracto_etereo").value) || 0 },
-  { id: 9, valor: parseFloat(document.getElementById("arginina").value) || 0 },
-  { id: 10, valor: parseFloat(document.getElementById("metionina_cistenina").value) || 0 },
-  { id: 11, valor: parseFloat(document.getElementById("calcio").value) || 0 },
-  { id: 12, valor: parseFloat(document.getElementById("lisina").value) || 0 },
-  { id: 13, valor: parseFloat(document.getElementById("triptofano").value) || 0 },
-  { id: 14, valor: parseFloat(document.getElementById("energia_m").value) || 0 }
-];
+  const elementos = [
+    { id: 1, valor: parseFloat(document.getElementById("proteina_cruda").value) || 0 },
+    { id: 2, valor: parseFloat(document.getElementById("treitona").value) || 0 },
+    { id: 3, valor: parseFloat(document.getElementById("fosforo").value) || 0 },
+    { id: 4, valor: parseFloat(document.getElementById("fibra_cruda").value) || 0 },
+    { id: 5, valor: parseFloat(document.getElementById("sodio").value) || 0 },
+    { id: 6, valor: parseFloat(document.getElementById("metionina").value) || 0 },
+    { id: 7, valor: parseFloat(document.getElementById("materia_seca").value) || 0 },
+    { id: 8, valor: parseFloat(document.getElementById("extracto_etereo").value) || 0 },
+    { id: 9, valor: parseFloat(document.getElementById("arginina").value) || 0 },
+    { id: 10, valor: parseFloat(document.getElementById("metionina_cistenina").value) || 0 },
+    { id: 11, valor: parseFloat(document.getElementById("calcio").value) || 0 },
+    { id: 12, valor: parseFloat(document.getElementById("lisina").value) || 0 },
+    { id: 13, valor: parseFloat(document.getElementById("triptofano").value) || 0 },
+    { id: 14, valor: parseFloat(document.getElementById("energia_m").value) || 0 }
+  ];
+  formData.append("elementos", JSON.stringify(elementos));
 
-
-  const datos = {
-    nombre_alimento: nombre,
-    elementos: elementos
-  };
-  console.log(datos)
-fetch("http://127.0.0.1:5000/registrar_alimento/", {
+  fetch("http://127.0.0.1:5000/registrar_alimento/", {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(datos)
-})
-.then(async res => {
-    const text = await res.text();
-    if (!text) throw new Error("Respuesta vacía del servidor");
-    return JSON.parse(text);
-})
-.then(res => {
-    if (res.mensaje) {
-        Swal.fire("Éxito", res.mensaje, "success");
-        window.location.href="alimentos.html"
-    } else if (res.error) {
-        Swal.fire("Error", res.error, "error");
-    }
-})
-.catch(err => Swal.fire("Error", err.message, "error"));
-
+    body: formData  
+  })
+  .then(async res => {
+      const text = await res.text();
+      if (!text) throw new Error("Respuesta vacía del servidor");
+      return JSON.parse(text);
+  })
+  .then(res => {
+      if (res.mensaje) {
+          Swal.fire("Éxito", res.mensaje, "success");
+          window.location.href="alimentos.html";
+      } else if (res.error) {
+          Swal.fire("Error", res.error, "error");
+      }
+  })
+  .catch(err => Swal.fire("Error", err.message, "error"));
 });
+</script>
 
-    </script>
 </body>
 </html>

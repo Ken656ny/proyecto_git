@@ -593,11 +593,25 @@ SECCION DE PORCINOS
     background-position: bottom;
     background-size: 100%;
 }
+.body_dietas{
+    display: grid;
+    grid-template-columns: 117px auto;
+    background-image: url(/src/static/iconos/pasto.svg);
+    background-repeat: no-repeat;
+    background-position: bottom;
+    background-size: 100%;
+    overflow-y: hidden;
+}
 
 .section__porcinos{
     display: grid;
     grid-template-rows: 85px 70px 60px 40px auto;
     gap: 30px;
+}
+.contenido_dietas{
+    display: grid;
+    grid-template-columns: repeat(10,1fr);
+    grid-template-rows: repeat(10,1fr);
 }
 
 .container__logo__user{
@@ -661,8 +675,53 @@ SECCION DE PORCINOS
     padding: 6px 0;
     font-size: 30px;
     width: 750px;
-    border: 1px solid var(--color-bor-contain);
+    border: 2px solid var(--color-bor-contain);
     border-radius: 14px;
+}
+.container__title_dietas{
+    grid-column: 4/8;
+    color: var(--color--letra);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 30px;
+    width: 550px;
+    border: 1px solid black;
+    border-radius: 14px;
+    margin-top: 20px;
+}
+
+.alimentos_en_dieta{
+    display: grid;
+    grid-template-columns: repeat(3,1fr);
+    grid-template-rows: repeat(2,1fr);
+    gap: 10px; /* espacio entre tarjetas */
+    padding: 10px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    max-height: 100%;
+    scrollbar-width: none;
+}
+.alimentos_dietas::-webkit-scrollbar{
+    display: none;
+}
+
+
+.alimentos_dietas{
+    display: flex;
+    flex-direction: column;
+    width: 180px;
+    height: 200px;
+    border: 1px solid black;
+    padding: 10px;
+    background-color: #ECE6F0;
+    border-radius: 10px;
+}
+
+.imagen_alimento_dieta img{
+    border-radius: 5px;
+    max-width: 158px;
+    max-height: 104px;
 }
 
 /* CODIGO DE LA BARRA DE BUSQUEDA */
@@ -679,6 +738,41 @@ SECCION DE PORCINOS
     gap: 7em;
     font-family: var(--fuente--contenido);
 }
+.container__search__bar_dietas{
+    grid-column: 1/5;
+    grid-row: 2;
+    border: 1px solid black;
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 2%;
+    width: 115%;
+    height: 60px;
+    margin: auto;
+    margin-left: 2%;
+    font-family: var(--fuente--contenido);
+    border: 1px solid black;
+}
+.container_dietas{
+    grid-column: 1/5;
+    grid-row: 3/10;
+    border: 1px solid black;
+    border-radius: 14px;
+    gap: 2%;
+    width: 115%;
+    height: 100%;
+    margin: auto;
+    margin-top: 1%;
+    margin-left: 2%;
+    font-family: var(--fuente--contenido);
+    display: grid;
+    grid-template-rows: 30px 400px 100px;
+    grid-template-columns: 100%;
+    justify-content: center;
+
+}
+
 
 .input__id{
     width: 220px;
@@ -725,8 +819,27 @@ SECCION DE PORCINOS
     transition: background-color 0.5s ease-in-out;
     cursor: pointer;
 }
+.btn1{
+    background-color: var(--color--btn--sin--hover);
+    color: var(--color-white);
+    width: 130px;
+    height: 40px;
+    border: 1px solid var(--color-bor-btn);
+    font-family: inherit;
+    font-size: 15px;
+    font-weight: 600;
+    border-radius: 20px;
+    transition: background-color 0.5s ease-in-out;
+    cursor: pointer;
+    justify-self: center;
+    align-self: center;
+}
 
 .btn:hover{
+    background-color: var(--color--btn--hover);
+    border: 1px solid var(--color-bor-btn-hover);
+}
+.btn1:hover{
     background-color: var(--color--btn--hover);
     border: 1px solid var(--color-bor-btn-hover);
 }
@@ -813,6 +926,10 @@ SECCION DE PORCINOS
 .svg__pig{
     position: relative;
     top: 5px;
+}
+.svg__alimento{
+    position: relative;
+    top: 2px;
 }
 
 .icon-edit{
@@ -909,6 +1026,12 @@ th{
     margin-top: 3em;
     display: flex;
     flex-direction: column;
+    align-items: center;
+}
+container-button-dele1{
+    margin-top: 7em;
+    display: flex;
+    flex-direction: row;
     align-items: center;
 }
 
@@ -1579,13 +1702,40 @@ SI SALE MAL ES CULPA DE CRISTIAN
     .custom-checkbox {
       width: 16px;
       height: 16px;
-      border: 1px solid #000;
+      border: 2px solid #000;
       border-radius: 4px;
       background-color: #aee9c6; /* Verde claro */
     }
 
     .contenedor input[type="checkbox"]:checked + .custom-checkbox {
       background-color: #7ed6a3;
+    }
+  .contenedor1 {
+      display: inline-flex;
+      align-items: center;
+      padding: 10px 20px;
+      background-color: #ECE6F0;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: bold;
+      gap: 10px;
+      cursor: pointer;
+      justify-self: start;
+      align-self:flex-start ;
+      height: 100%;
+      margin-top: 1%;
+      margin-left:1%;
+      border: 1px solid black;
+      width: 40%;
+    }
+
+    .contenedor1 input[type="checkbox"] {
+      display: none;
+    }
+
+
+    .contenedor1 input[type="checkbox"]:checked + .custom-checkbox {
+      background-color:#60836A;
     }
 
     .color_p{
@@ -1625,17 +1775,17 @@ SI SALE MAL ES CULPA DE CRISTIAN
         text-align: center;
         margin-left: 170%;
         font-weight: bolder;
-            background-color: var(--color--btn--sin--hover);
-    color: var(--color-white);
-    width: 130px;
-    height: 40px;
-    border: 1px solid var(--color-bor-btn);
-    font-family: inherit;
-    font-size: 15px;
-    font-weight: 600;
-    border-radius: 20px;
-    transition: background-color 0.5s ease-in-out;
-    cursor: pointer;
+        background-color: var(--color--btn--sin--hover);
+        color: var(--color-white);
+        width: 130px;
+        height: 40px;
+        border: 1px solid var(--color-bor-btn);
+        font-family: inherit;
+        font-size: 15px;
+        font-weight: 600;
+        border-radius: 20px;
+        transition: background-color 0.5s ease-in-out;
+        cursor: pointer;
     }
 .input_add1:hover{
     background-color: var(--color--btn--hover);
@@ -1644,3 +1794,18 @@ SI SALE MAL ES CULPA DE CRISTIAN
     .seccion1{
         margin: 0% 5%;
     }
+
+
+
+/* MODAL VER ALIMENTOS */
+.contenido-modal{
+    display: flex;
+    flex-direction: column;
+    gap: 25px;
+    width: fit-content;
+    height: fit-content;
+}
+
+/* ----------------------
+DIETASSSSSSSS 
+--------------------- */

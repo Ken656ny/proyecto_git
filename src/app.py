@@ -11,11 +11,22 @@ from flasgger import Swagger
 # BASE DE DATOS, DENTRO DE ESA CLASE HAY UN CLASSMETHOD QUE RETORNA LA CONEXION CON LA BASE DE DATOS
 from config import config
 
+import os
+import json
+from werkzeug.utils import secure_filename
+
+
+
 
 app = Flask(__name__)
 app.secret_key = 'secretkey'
-CORS(app)
+CORS(app, origins=["http://localhost:63802/","http://10.4.212.212"], supports_credentials=True)
 Swagger(app)
+
+cargar_imagenes = os.path.join(os.getcwd(), "static", "imagenes")
+os.makedirs(cargar_imagenes, exist_ok=True)  
+app.config["cargar_imagenes"] = cargar_imagenes
+
 
 
 @app.route('/', methods=['GET'])
@@ -660,59 +671,58 @@ def eliminar_etapa_vida(id):
 # ------------------
 # BACKEND CRISTIAN
 # ------------------
-
 @app.route("/alimentos", methods=["GET"])
-
 def consulta_alimento():
-  """
-  Consultar de Alimentos
-  ---
-  tags:
-    - Gestion de Alimentos
-  responses:
-    200:
-      description: Lista de alimentos
-  """
-  
-  try:
-      with config['development'].conn() as conn:
-          with conn.cursor() as cur:
-              cur.execute("""
-                  SELECT 
-                      a.id_alimento, 
-                      a.nombre AS nombre_alimento, 
-                      e.nombre AS nombre_elemento, 
-                      a.estado AS estado_alimento,
-                      ate.valor 
-                  FROM alimentos a
-                  JOIN alimento_tiene_elemento ate ON a.id_alimento = ate.id_alimento
-                  JOIN elementos e ON e.id_elemento = ate.id_elemento
-              """)
-              filas = cur.fetchall()
+    """
+    Consultar de Alimentos
+    ---
+    tags:
+      - Gestion de Alimentos
+    responses:
+      200:
+        description: Lista de alimentos
+    """
+    try:
+        with config['development'].conn() as conn:
+            with conn.cursor() as cur:
+                cur.execute("""
+                    SELECT 
+                        a.id_alimento,
+                        a.nombre AS nombre_alimento,
+                        a.imagen AS imagen_alimento,  
+                        e.nombre AS nombre_elemento,
+                        a.estado AS estado_alimento,
+                        ate.valor
+                    FROM alimentos a
+                    JOIN alimento_tiene_elemento ate ON a.id_alimento = ate.id_alimento
+                    JOIN elementos e ON e.id_elemento = ate.id_elemento
+                """)
+                filas = cur.fetchall()
 
-      if not filas:
-          return jsonify({"mensaje": "No encontrado"})
+        if not filas:
+            return jsonify({"mensaje": "No encontrado"})
 
-      agrupado = {}
-      for fila in filas:
-          id_alimento = fila["id_alimento"]
-          if id_alimento not in agrupado:
-              agrupado[id_alimento] = {
-                  "id_alimento": id_alimento,
-                  "nombre": fila["nombre_alimento"],
-                  "estado": fila["estado_alimento"], 
-                  "elementos": []
-              }
-          agrupado[id_alimento]["elementos"].append({
-              "nombre": fila["nombre_elemento"],
-              "valor": float(fila["valor"])
-          })
+        agrupado = {}
+        for fila in filas:
+            id_alimento = fila["id_alimento"]
+            if id_alimento not in agrupado:
+                agrupado[id_alimento] = {
+                    "id_alimento": id_alimento,
+                    "nombre": fila["nombre_alimento"],
+                    "imagen": fila["imagen_alimento"],  
+                    "estado": fila["estado_alimento"], 
+                    "elementos": []
+                }
+            agrupado[id_alimento]["elementos"].append({
+                "nombre": fila["nombre_elemento"],
+                "valor": float(fila["valor"])
+            })
 
-      resultado = list(agrupado.values())
-      return jsonify({"mensaje": resultado})
+        resultado = list(agrupado.values())
+        return jsonify({"mensaje": resultado})
 
-  except Exception as e:
-      return jsonify({"error": str(e)})
+    except Exception as e:
+        return jsonify({"error": str(e)})
 
   
 @app.route("/eliminar_alimento/<int:id>", methods=["DELETE"])
@@ -726,82 +736,98 @@ def eliminar_alimento(id):
       return jsonify({"mensaje": f"Alimento con id {id} eliminado correctamente"})
   except Exception as e:
       return jsonify({"error": str(e)})
-
+    
 @app.route("/registrar_alimento/", methods=["POST"])
 def registrar_alimento():
-  data = request.get_json()
-  if not data:
-      return jsonify({"error": "No se recibió ningún dato"}), 400
+    try:
+        nombre = request.form.get("nombre_alimento")
+        elementos = request.form.get("elementos")
+        imagen_file = request.files.get("imagen")
 
-  nombre = data.get("nombre_alimento")
-  elementos = data.get("elementos", [])
+        if not nombre:
+            return jsonify({"error": "El nombre del alimento es obligatorio"}), 400
 
-  if not nombre:
-      return jsonify({"error": "El nombre del alimento es obligatorio"}), 400
+        if imagen_file and imagen_file.filename != "":
+            filename = secure_filename(imagen_file.filename)
+            ruta = os.path.join(app.config["cargar_imagenes"], filename)
+            imagen_file.save(ruta)
+            imagen_web = f"/static/imagenes/{filename}"
+        else:
+            imagen_web = None
 
-  try:
-      with config['development'].conn() as conn:
-          with conn.cursor() as cur:
-              
-              id_usuario = 1022357255
+        with config['development'].conn() as conn:
+            with conn.cursor() as cur:
+                id_usuario = 1066872759
 
-              cur.execute(
-                  "INSERT INTO alimentos (nombre, estado, descripcion, id_usuario) VALUES (%s, %s, %s, %s)",
-                  (nombre, "activo", "", id_usuario)
-              )
-              id_alimento = cur.lastrowid
+                cur.execute(
+                    """
+                    INSERT INTO alimentos (nombre, estado, imagen, id_usuario)
+                    VALUES (%s, %s, %s, %s)
+                    """,
+                    (nombre, "activo", imagen_web, id_usuario)
+                )
+                id_alimento = cur.lastrowid
 
-              for elem in elementos:
-                  cur.execute(
-                      """
-                      INSERT INTO alimento_tiene_elemento 
-                      (id_alimento, id_elemento, valor) 
-                      VALUES (%s, %s, %s)
-                      """,
-                      (id_alimento, elem["id"], elem["valor"])
-                  )
-              conn.commit()
-      return jsonify({"mensaje": "Alimento creado correctamente", "id_alimento": id_alimento})
-  except Exception as e:
-      return jsonify({"error": str(e)}), 500
-  
+                if elementos:
+                    elementos = json.loads(elementos)
+                    for elem in elementos:
+                        cur.execute(
+                            """
+                            INSERT INTO alimento_tiene_elemento (id_alimento, id_elemento, valor)
+                            VALUES (%s, %s, %s)
+                            """,
+                            (id_alimento, elem["id"], elem["valor"])
+                        )
+
+                conn.commit()
+
+        return jsonify({
+            "mensaje": "Alimento creado correctamente",
+            "id_alimento": id_alimento,
+            "imagen": imagen_web
+        })
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 @app.route("/consulta_indi_alimento/<nombre>", methods=["GET"])
 def consulta_individual_alimento(nombre):
-  try:
-      with config['development'].conn() as conn:
-          with conn.cursor() as cur:
-              cur.execute("""
-                  SELECT 
-                      a.id_alimento, 
-                      a.nombre AS nombre_alimento, 
-                      e.nombre AS nombre_elemento, 
-                      ate.valor 
-                  FROM alimentos a
-                  JOIN alimento_tiene_elemento ate ON a.id_alimento = ate.id_alimento
-                  JOIN elementos e ON e.id_elemento = ate.id_elemento
-                  WHERE a.nombre = %s
-              """, (nombre,))
-              
-              filas = cur.fetchall()
-              
-              if not filas:
-                  return jsonify({"mensaje": None})
-              
-              alimento = {
-                  "id_alimento": filas[0]["id_alimento"],
-                  "nombre": filas[0]["nombre_alimento"],
-                  "elementos": []
-              }
-              
-              for fila in filas:
-                  alimento["elementos"].append({
-                      "nombre": fila["nombre_elemento"],
-                      "valor": float(fila["valor"])
-                  })
-              
-              return jsonify({"mensaje": alimento})
-  except Exception as e:
-      return jsonify({"error": str(e)})
+    try:
+        with config['development'].conn() as conn:
+            with conn.cursor() as cur:
+                cur.execute("""
+                    SELECT 
+                        a.id_alimento, 
+                        a.nombre AS nombre_alimento, 
+                        e.nombre AS nombre_elemento,
+                        a.estado,
+                        ate.valor 
+                    FROM alimentos a
+                    JOIN alimento_tiene_elemento ate ON a.id_alimento = ate.id_alimento
+                    JOIN elementos e ON e.id_elemento = ate.id_elemento
+                    WHERE a.nombre = %s
+                """, (nombre,))
+                
+                filas = cur.fetchall()
+                
+                if not filas:
+                    return jsonify({"mensaje": None})
+                
+                alimento = {
+                    "id_alimento": filas[0]["id_alimento"],
+                    "nombre": filas[0]["nombre_alimento"],
+                    "estado": filas[0]["estado"],  # ✅ corregido
+                    "elementos": []
+                }
+                
+                for fila in filas:
+                    alimento["elementos"].append({
+                        "nombre": fila["nombre_elemento"],
+                        "valor": float(fila["valor"])
+                    })
+                
+                return jsonify({"mensaje": alimento})
+    except Exception as e:
+        return jsonify({"error": str(e)})
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(host="0.0.0.0",port=5000,debug=True)
