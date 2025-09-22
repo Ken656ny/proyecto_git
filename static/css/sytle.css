@@ -487,7 +487,7 @@ SECCION DE configuracion
  .body_configuracion {
   font-family: 'Times New Roman';
   background-size: cover;
-  background-position: bottom; /* Esto hace que el fondo se "pegue" abajo */
+  background-position: bottom; 
   background-repeat: no-repeat;
   background-attachment: fixed;
   margin: 0;
@@ -512,7 +512,7 @@ html, body {
 
 .content_configuracion {
     position: relative;
-    top:40px; /* Sube título y menú juntos */
+    top:40px; 
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -542,14 +542,14 @@ html, body {
 }
 .menu_configuracion {
     background: #e0e0e0;
- padding: 40px 50px 320px 50px; 
+ padding: 40px 40px 420px 50px; 
     border-radius: 41px;
     display: flex;
     flex-direction: column;
     gap: 20px;
     margin-top:-57px ;
-    width: 793px; /* ← define un ancho fijo coherente */
-    height:100px; /* ← ahora sí se aplicará correctamente */
+    width: 800px; 
+    height:200px; 
     border: 1px solid #1b1b1b;
 }
 
@@ -578,8 +578,8 @@ html, body {
     max-width: 50px;
     height: auto;
     object-fit: contain;
-    filter: drop-shadow(0 0 0 transparent); /* Elimina sombras raras */
-    background-color: transparent; /* evita fondos blancos si los tuviera */
+    filter: drop-shadow(0 0 0 transparent);
+    background-color: transparent; 
     stroke: none;
     filter: none;
 
@@ -675,7 +675,7 @@ html, body {
 
 .modal-content {
   background-color: #F0F5F1;         /* Fondo claro verdoso */
-  border: 2px solid #2e6035;         /* Borde verde oscuro */
+  border: 2px solid #3b1575;         /* Borde verde oscuro */
   border-radius: 25px;
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
 }
@@ -1862,4 +1862,114 @@ body {
 
 @media(max-width:880px){
   .main{padding:12px;margin-left:72px}
+}
+/* Importa la fuente */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap');
+
+/* Reset básico */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Poppins', sans-serif;
+}
+
+body {
+  background: #f4f6f9;
+  color: #333;
+}
+
+/* Contenedor principal */
+.container {
+  max-width: 800px;
+  margin: 40px auto;
+  padding: 25px;
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+}
+
+/* Encabezado */
+.container h2 {
+  font-size: 22px;
+  font-weight: 600;
+  margin-bottom: 20px;
+  color: #222;
+  text-align: center;
+}
+
+/* Grupo de filtros */
+.container__filtro {
+  margin-bottom: 18px;
+}
+
+.container__filtro label {
+  display: block;
+  margin-bottom: 6px;
+  font-weight: 600;
+  font-size: 14px;
+  color: #444; /* 🔹 color bacano de letra */
+}
+
+/* Inputs y selects */
+.input__id, .select__id {
+  width: 100%;
+  height: 42px;
+  padding: 0 14px;
+  border: 1px solid #ccc;
+  border-radius: 10px;
+  font-size: 14px;
+  outline: none;
+  background: #fafafa;
+  color: #222;
+  transition: border 0.3s ease, box-shadow 0.3s ease;
+}
+
+/* Efecto focus */
+.input__id:focus, .select__id:focus {
+  border-color: #6c63ff;
+  box-shadow: 0 0 6px rgba(108, 99, 255, 0.3);
+}
+
+/* Placeholder estilizado */
+.input__id::placeholder {
+  color: #999;
+  font-weight: 500;
+}
+
+/* Quitar flechas en number */
+.input__id::-webkit-inner-spin-button,
+.input__id::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+
+
+/* Quitar flechas en select */
+.select__id {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  background: #fafafa url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D'http://www.w3.org/2000/svg'%20width%3D'12'%20height%3D'12'%20fill%3D'%23666'%20viewBox%3D'0%200%2024%2024'%3E%3Cpath%20d%3D'M7%2010l5%205%205-5z'/%3E%3C/svg%3E") no-repeat right 12px center;
+  background-size: 14px;
+}
+
+/* Botón */
+.btn {
+  display: inline-block;
+  margin-top: 12px;
+  padding: 10px 20px;
+  background: #6c63ff;
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.btn:hover {
+  background: #5850ec;
 }

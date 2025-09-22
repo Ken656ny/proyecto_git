@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="static/css/sytle.css">
+    <title>Edupork</title>
+</head>
+   <body class="body__porcinos">
+        <nav class="nav__bar">
+            <ul class="nav__list">
+                <li class="nav__item active">
+                    <a href="#"><img src="/iconos/home icon.svg" alt=""></a>
+                </li>
+                <li class="nav__item">
+                    <a href="#"><img src="/iconos/notificacions.svg" alt=""></a>
+                </li>
+                <li class="nav__item">
+                    <a href="#"><img src="/iconos/icon pig.svg" alt=""></a>
+                </li>
+                <li class="nav__item"> 
+                    <a href="#"><img src="/iconos/icon wheate.svg" alt=""></a>
+                </li>
+                <li class="nav__item">
+                    <a href="#"><img src="/iconos/icon plate.svg" alt=""></a>
+                </li>
+                <li class="nav__item">
+                    <a href="reportes.html"><img src="/iconos/icon page.svg" alt=""></a>
+                </li>
+                <li class="nav__item">
+                    <a href="perfil.html"><img src="/iconos/icon user.svg" alt=""></a>
+                </li>
+                <li class="nav__item">
+                    <a href="configuracion.html"><img src="/iconos/icon setting.svg" alt=""></a>
+                </li>
+                <div class="indicador"></div>
+            </ul>
+    </nav>
+
+    <!-- Sección principal -->
+    <section class="section__porcinos">
+        <!-- Logo y usuario -->
+        <section class="container__logo__user">
+            <div class="container__back__logo">
+                <img src="/iconos/back icon.svg" alt="icon back" class="icon__back">
+                <a href="index.html">
+                    <img src="/iconos/Logo.svg" alt="Logo Edupork" class="logo">
+                </a>
+            </div>
+            <div class="container__user__btn">
+                <img src="/iconos/icon user.svg" alt="" class="svg__user">
+                <button type="button" class="btn__perfil">Juan Tovar</button>
+            </div>
+        </section>
+
+        <!-- Título -->
+        <div class="contenedor-informes">
+            <h2>Generar Informe</h2>
+        </div>
+
+        <!-- Barra de filtros -->
+        <div class="barra-filtros">
+            <div class="grupo-izquierda">
+                <div class="icono">
+                    <img src="iconos/documento.svg" alt="icono informe">
+                </div>
+                <select id="tipo-informe" class="custom-select">
+                    <option disabled selected>Escoja el tipo de informe...</option>
+                    <option value="alimentos">Alimentos</option>
+                    <option value="pesos">Pesos</option>
+                </select>
+            </div>
+
+            <select id="rango-fecha" class="custom-select">
+                <option disabled selected>Escoja el rango de fecha...</option>
+                <option value="semana">Última semana</option>
+                <option value="15">Últimos 15 días</option>
+                <option value="mes">Último mes</option>
+                <option value="6meses">Últimos 6 meses</option>
+                <option value="anio">Último año</option>
+            </select>
+        </div>
+
+        <!-- Botón generar -->
+        <div class="contenedor-informes">
+            <button id="btn-generar" class="btn-generar">Generar</button>
+        </div>
+    </section>
+
+
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+    const btnGenerar = document.getElementById("btn-generar");
+    const tipoInforme = document.getElementById("tipo-informe");
+    const rangoFecha = document.getElementById("rango-fecha");
+
+    btnGenerar.addEventListener("click", () => {
+        const opcion = tipoInforme.value;
+        const rango = rangoFecha.value;
+
+        if (!opcion) {
+            alert("⚠️ Por favor selecciona un tipo de informe.");
+            return;
+        }
+
+        // Ruta según opción
+        let destino = "";
+        if (opcion === "alimentos") {
+            destino = "reportes_alimentos.html";
+        } else if (opcion === "pesos") {
+            destino = "pesos_reporte.html";
+        }
+
+        // Paso el rango si fue seleccionado
+        if (rango) {
+            destino += `?rango=${rango}`;
+        }
+
+        console.log("Redirigiendo a:", destino); // 👀 Ver en consola
+        window.location.href = destino;
+    });
+});
+</script>
+
+
+
+</body>
+</html>

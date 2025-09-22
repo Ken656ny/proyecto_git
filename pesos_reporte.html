@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="static/css/sytle.css">
+    <title>Edupork - Reporte Alimentos</title>
+</head>
+   <body class="body__porcinos">
+        <nav class="nav__bar">
+            <ul class="nav__list">
+                <li class="nav__item active">
+                    <a href="#"><img src="/iconos/home icon.svg" alt=""></a>
+                </li>
+                <li class="nav__item">
+                    <a href="#"><img src="/iconos/notificacions.svg" alt=""></a>
+                </li>
+                <li class="nav__item">
+                    <a href="#"><img src="/iconos/icon pig.svg" alt=""></a>
+                </li>
+                <li class="nav__item"> 
+                    <a href="#"><img src="/iconos/icon wheate.svg" alt=""></a>
+                </li>
+                <li class="nav__item">
+                    <a href="#"><img src="/iconos/icon plate.svg" alt=""></a>
+                </li>
+                <li class="nav__item">
+                    <a href="reportes.html"><img src="/iconos/icon page.svg" alt=""></a>
+                </li>
+                <li class="nav__item">
+                    <a href="perfil.html"><img src="/iconos/icon user.svg" alt=""></a>
+                </li>
+                <li class="nav__item">
+                    <a href="configuracion.html"><img src="/iconos/icon setting.svg" alt=""></a>
+                </li>
+                <div class="indicador"></div>
+            </ul>
+    </nav>
+
+    <section class="section__alimentos">
+
+        <!-- Logo y usuario -->
+        <section class="container__logo__user">
+            <div class="container__back__logo">
+                <img src="/iconos/back icon.svg" alt="icon back" class="icon__back">
+                <a href="index.html">
+                    <img src="/iconos/Logo.svg" alt="Logo Edupork" class="logo">
+                </a>
+            </div>
+            <div class="container__user__btn">
+                <img src="/iconos/icon user.svg" alt="" class="svg__user">
+                <button type="button" class="btn__perfil">Juan Tovar</button>
+            </div>
+        </section>
+
+        <!-- Título -->
+        <div class="container__title alimentos">
+            <h2>Generar informe de los alimentos más y menos usados</h2>
+        </div>
+
+   <!-- Barra de búsqueda / filtros -->
+<!-- Barra de búsqueda / filtros -->
+<div class="container__search__bar">
+    <!-- Select con icono -->  <img src="iconos/document_sgv.svg" alt="icono" class="icon-left">
+   <div class="container__filtro2">
+       
+        <select class="filter">
+            <option value="">Escoja tipo de informe</option>
+            <option value="hoy">Alimento</option>
+            <option value="semana">Pesos</option>
+            
+        </select>
+
+</div>
+
+
+    <!-- Input ID alimento (SIN ICONO) -->
+    <div class="container__filtro">
+       <img src="/iconos/icon filter.svg" alt="icono">
+        <input type="text" class="input__id" placeholder="     peso más bajo... ">
+        
+    </div>
+
+   
+    <!-- Select con icono -->
+    <div class="container__filtro">
+       
+        <select class="filter">
+            <option value="">Escoja el rango de fecha...</option>
+            <option value="hoy">Hoy</option>
+            <option value="semana">Última semana</option>
+            <option value="mes">Último mes</option>
+        </select>
+    </div>
+</div>
+<div class="container__registros">
+
+    <!-- Etiquetas arriba del cuadro (sin línea) -->
+    <div class="registros-header">
+        <span>ID del porcino</span>
+        <span>Rango de peso (KG)</span>
+        <span>Pesos más bajos (KG)</span>
+        <span>Acción</span>
+    </div>
+
+    <!-- Tabla solo con datos -->
+    <table class="table__registros">
+        <tr class="registro">
+            <td><img src="/iconos/pig icon.svg" class="svg__food"> 321</td>
+            <td>16 - 30 KG</td>
+            <td>14 KG</td>
+            <td><img src="/iconos/tele.svg" class="icon-edit"></td>
+        </tr>
+    </table>
+
+</div>
+
+
+    <!-- 🔽 Botón imprimir dentro del contenedor -->
+    <div class="print-section">
+        <p>Presione para 
+            <a href="#" onclick="window.print()">Imprimir</a>
+        </p>
+    </div>
+</div>
+
+    <script src="static/js/script.js"></script>
+</body>
+</html>
