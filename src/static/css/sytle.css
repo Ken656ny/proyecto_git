@@ -606,6 +606,7 @@ SECCION DE PORCINOS
 }
 
 .container__logo__user{
+    width: 100%;
     display: flex;
     justify-content: space-between;
 }
@@ -648,7 +649,6 @@ SECCION DE PORCINOS
     width: 150px;
     height: 45px;
     padding-left: 40px;
-    font-family: var(--fuente--contenido);
     font-size: 15PX;
     font-weight: 500;
     border-radius: 8px;
@@ -1286,19 +1286,6 @@ SECCION DE configuracion
     left: 15px;
 }
 
-.btn__perfil{
-    background-color: var(--color--letra);
-    color: var(--color-white);
-    width: 150px;
-    height: 45px;
-    padding-left: 40px;
-    font-family: var(--fuente--contenido);
-    font-size: 15PX;
-    font-weight: 500;
-    border-radius: 8px;
-    border: none;
-}
-
 /* -------------------
 SECCION DE Perfil
 ------------------- */
@@ -1689,14 +1676,7 @@ border: 5px solid var(--color--fondos);
 
 
 
-.section-contenido{
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 2rem;
-    padding: 1rem;
 
-}
 
 .container-user{
     display: none;
@@ -1704,24 +1684,6 @@ border: 5px solid var(--color--fondos);
 
 .container-user-bar{
     display: block;
-}
-
-.btn__perfil{
-    background-color: var(--color-boton);
-    color: #fff;
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    justify-content: center;
-    gap: 0.5rem;
-    height: 45px;
-    padding: 0 0.8rem;
-    margin-top: 0.8rem;
-    font-family: var();
-    font-size: 15px;
-    font-weight: 500;
-    border-radius: 8px;
-    border: none;
 }
 
 .barra-lateral{
