@@ -1657,11 +1657,9 @@ SI SALE MAL ES CULPA DE CRISTIAN
 
 
 
-
-
-
-
-/* ---------------------responsive */
+/* ---------------------
+RESPONSIVE BAR
+--------------------- */
 
 @media(max-height: 660px){
     .barra-lateral .nombre-pagina{
