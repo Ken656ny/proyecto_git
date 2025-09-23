@@ -1010,7 +1010,6 @@ function consulta_individual_alimento(){
 const cerdo = document.getElementById("cerdo");
 const barralateral = document.querySelector(".barra-lateral");
 const spans = document.querySelectorAll("span");
-const circulo = document.querySelector(".circulo")
 const menu=document.querySelector(".menu")
 
 menu.children[1].style.display="none"
