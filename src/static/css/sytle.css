@@ -12,8 +12,12 @@
     --fuente-titulos: 'Times New Roman', Times, serif;
     /*tipografia en contenido*/
     --fuente--contenido: 'Inter';
+    /* color para hover de la barra de navegacion */
+    --navegacion-despues:#75927c;
     /* color de los botones sin hover*/
     --color--btn--sin--hover:#99A69A;
+    /* color de los botones de la barra sup resposive */
+    --color--btn--resposive: #33493b;
     /* color de los botones con hover*/
     --color--btn--hover: #215718;
     /* color de los border de los containers */
@@ -185,7 +189,7 @@ SECCION REGISTROS
 
 /* CONTENEDOR */
 .container-form {
-    background-color: #60836a;
+    background-color: var(--color--prede);
     padding: 0px 10px 25px 10px;
     border-radius: 35px;
     width: 566px;
@@ -547,7 +551,7 @@ SECCION DE NOTIFICACIONES
 
 .titulo__noti{
     font-family: var(--fuente--contenido);
-    color: #60836A;
+    color: var(--color--letra);
     margin: 24px 53px auto;
 }
 
@@ -880,7 +884,7 @@ th{
 /* TUTULO DE LA VENTANA MODAL */
 
 .title-dialog{
-    color: #60836A;
+    color: var(--color--letra);
     font-size: 25px;
     font-family: 'Times New Roman', Times, serif;
     display: flex;
@@ -965,7 +969,7 @@ th{
 hr{
     width: 550px;
     margin: auto;
-    border: 1px solid #60836A;
+    border: 1px solid var(--color--prede);
 }
 
 /* DIALOG ICON DELETE */
@@ -1157,7 +1161,7 @@ SECCION DE configuracion
 
 .title_configuracion {
     font-size: 45px;
-    color: #60836A;
+    color: var(--color--letra);
     background: #D9D9D9;
     padding: 5px 50px;
     border-radius: 18px;
@@ -1278,13 +1282,6 @@ SECCION DE configuracion
     margin-right: 2%;
 }
 
-.svg__user{
-    position: absolute;
-    width: 30px;
-    height: 30px;
-    top: 28px;
-    left: 15px;
-}
 
 /* -------------------
 SECCION DE Perfil
@@ -1292,7 +1289,7 @@ SECCION DE Perfil
 
 .title_perfil {
     font-size: 42px;
-    color: #60836A;
+    color: var(--color--letra);
     background: #D9D9D9;
     padding: 10px 40px;
     border-radius: 18px;
@@ -1382,7 +1379,7 @@ SECCION DE Perfil
 
 .perfil-texto {
     font-weight: 700;
-    color: #60836A; 
+    color: var(--color--letra); 
     font-size: 23px;
     font-weight: 200px ;
     margin-left: 12px;/* o blanco si prefieres */
@@ -1529,7 +1526,7 @@ SECCION DE Perfil
 .perfil-photo {
     width: 120px;
     height: 120px;
-    background-color: #60836A;
+    background-color: var(--color--letra);
     border-radius: 50%;
     display: flex;
     justify-content: center;
@@ -1612,10 +1609,9 @@ SI SALE MAL ES CULPA DE CRISTIAN
 
 }
 
-
 .nuevo1{
-background-color: var(--color-bg-registros);
-border: 5px solid var(--color--fondos);
+    background-color: var(--color-bg-registros);
+    border: 5px solid var(--color--fondos);
 }
 
 .container div p{
@@ -1659,25 +1655,6 @@ border: 5px solid var(--color--fondos);
         margin: 0% 5%;
 }
 
-
-@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&display=swap');
-:root{
-    --color-barra-lateral:#60836a;
-    --color-texto:rgb(0, 0, 0);
-    --color-texto-menu:#ffffff;
-    --color-boton:#33493b;
-    --color-texto-boton:white;
-    --boton-despues:#233128;
-    --navegacion-despues:#75927c;
-    --fondo:#f3f6f4;
-    --luz:rgb(255, 255, 255);
-    --oscuridad:rgb(88, 88, 88);
-}
-
-
-
-
-
 .container-user{
     display: none;
 }
@@ -1686,6 +1663,10 @@ border: 5px solid var(--color--fondos);
     display: block;
 }
 
+
+
+
+
 .barra-lateral{
     position: fixed;
     display: flex;
@@ -1693,7 +1674,7 @@ border: 5px solid var(--color--fondos);
     width: 250px;
     height: 100vh;
     padding: 2rem 1rem;
-    background-color: var(--color-barra-lateral);
+    background-color: var(--color--prede);
     transition: width 0.3s ease, background-color 0.3s ease,left 0.3s ease;
     overflow: hidden;
     z-index: 3;
@@ -1712,7 +1693,8 @@ border: 5px solid var(--color--fondos);
     height: 45px;
     display: flex;
     align-items: center;
-    color: var(--color-texto-menu);
+    color: var(--color-white);
+    font-family: var(--fuente--contenido);
 }
 
 .barra-lateral .logo-edupork span{
@@ -1736,33 +1718,6 @@ border: 5px solid var(--color--fondos);
     width: 0;
 }
 
-/* -------------------------------------------------------------------------boton */
-
-.barra-lateral .boton{
-    width: 100%;
-    height: 45px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border: none;
-    border-radius: 10px;
-    background-color: var(--color-boton);
-    color: var(--color-texto-boton);
-    margin-bottom: 20px;
-    transition: background-color 0.5s ease, transform 0.2s ease-in;
-    cursor: pointer;
-}
-
-.barra-lateral .boton:hover{
-    background-color: var(--boton-despues);
-    transform: scale(1.05);
-}
-
-.barra-lateral .boton .menu-icons{
-    min-width: 50px;
-    font-size: 25px;
-}
-
 /* -------------------------------------------------------------menu de navegacion */
 
 .barra-lateral .navegacion{
@@ -1781,6 +1736,7 @@ border: 5px solid var(--color--fondos);
     list-style: none;
     display: flex;
     justify-content: center;
+    font-family: var(--fuente--contenido);
 }
 
 .barra-lateral .navegacion a{
@@ -1792,7 +1748,7 @@ border: 5px solid var(--color--fondos);
     gap: 20px;
     text-decoration: none;
     border-radius: 10px;
-    color: var(--color-texto-menu);
+    color: var(--color-white);
     transition: background-color 0.2s ease, font-weight 0.2s ease;
     text-align: left;
 }
@@ -1825,31 +1781,10 @@ border: 5px solid var(--color--fondos);
     border-radius: 50%;
     right: 10px;
     top: 10px;
-    background-color: var(--color-boton);
-    color: var(--color-texto-boton);
+    background-color: var(--color--btn--resposive);
+    color: var(--color-white);
     cursor: pointer;
     z-index: 100;
-}
-
-/* -----------------------------------------------------------linea */
-
-.barra-lateral .linea{
-    width: 100%;
-    height: 1px;
-    background-color: var(--navegacion-despues);
-}
-
-/* ----------------------------contenido */
-
-.contenido {
-    color: var(--color-texto);
-    display: flex;
-    flex-direction: column; /* Organiza los elementos en columna */
-    justify-content: center; /* Centra verticalmente */
-    align-items: center; /* Centra horizontalmente */
-    height: 100vh; /* Usa toda la altura de la pantalla */
-    text-align: center; /* Centra el texto */
-    padding: 20px;
 }
 
 /* ---------------------responsive */
@@ -1876,15 +1811,29 @@ border: 5px solid var(--color--fondos);
         display: flex;
         flex-direction: row;
         justify-content: space-between;
-        gap: 4rem;
     }
 
+    .container__btn__perfil{
+        position: relative;
+        display: flex;
+        align-items: center;
+        
+    }
+
+    .btn__perfil{
+        background-color: var(--color--btn--resposive);
+    }
+
+    .svg__user__2{
+        position: absolute;
+        left: 1rem;
+    }
 
     .barra-lateral{
         position: absolute;
         left: -250px;
-
     }
+
     .menu{
         display: flex;
     }
@@ -1895,14 +1844,8 @@ border: 5px solid var(--color--fondos);
         display: none;
     }
 
-    .barra-lateral .btn__perfil{
-        display: none;
-    }
-    .barra-lateral .btn__perfil span, .barra-lateral .btn__perfil img, hr{
-        display: none;
-    }
     .container-user{
-        background-color: var(--color-barra-lateral);
+        background-color: var(--color--prede);
         display: flex;
         flex-direction: row;
         align-items: center;
@@ -1912,8 +1855,7 @@ border: 5px solid var(--color--fondos);
         width: 100%;
     }
 
-    
-    .btn__perfil{
-        margin-top: 0 ;
+    .barra-lateral .navegacion ul{
+        gap: 1.2rem;
     }
 }
