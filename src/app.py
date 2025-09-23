@@ -15,6 +15,7 @@ from config import config
 from google.oauth2 import id_token
 from google.auth.transport import requests as google_requests
 
+
 app = Flask(__name__)
 app.secret_key = 'secretkey'
 CORS(app)

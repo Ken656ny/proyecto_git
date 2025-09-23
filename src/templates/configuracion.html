@@ -59,37 +59,31 @@
             </div>
         </section>
 
-        <div class="content_configuracion">
+    <div class="content_configuracion">
+      <h2 class="title_configuracion">Configuración</h2>
 
-            <h1 class="title_configuracion">Configuración</h1>
+      <div class="menu_configuracion">
+        <div class="menu-item_configuracion" onclick="window.location.href='cuenta.html'">
+          <img src="/src/static/iconos/cuenta.svg" alt="Cuenta" class="icono_configuracion"> Cuenta
+        </div>
 
-            <div class="menu_configuracion">
-                <div class="menu-item_configuracion" onclick="abrirPanel('cuenta')">
-                    <img src="/src/static/iconos/cuenta.svg" alt="Cuenta" class="icono_configuracion"> Cuenta
-                </div>
-                <div class="menu-item_configuracion" onclick="abrirPanel('ajustar')">
-                    <img src="/src/static/iconos/ajustes.svg" alt="Ajustar" class="icono_configuracion"> Ajustar campos
-                </div>
-                <div class="menu-item_configuracion" onclick="abrirPanel('notificaciones')">
-                    <img src="/src/static/iconos/notificacions.svg" alt="Notificaciones" class="icono_configuracion">
-                    Notificaciones
-                </div>
-                <div class="menu-item_configuracion" onclick="abrirPanel('ayuda')">
-                    <img src="/src/static/iconos/signo_interrogacion.svg" alt="Ayuda" class="icono_configuracion"> Ayuda
-                </div>
-                <div class="menu-item_configuracion" onclick="abrirPanel('terminos')">
-                    <img src="/src/static/iconos/incono_exclamacion.svg" alt="Términos" class="icono_configuracion"> Términos y
-                    condiciones
-                </div>
-                <div class="menu-item_configuracion" onclick="abrirPanel('cambiar')">
-                    <img src="/src/static/iconos/incono_cambiar.svg" alt="Cambiar cuenta" class="icono_configuracion"> Cambiar
-                    cuenta
-                </div>
-                <div class="menu-item_configuracion" data-bs-toggle="modal" data-bs-target="#modalCerrarSesion">
-                    <button type="button" id="btnLogout" class="">Cerrar sesión</button>
-                </div>
+        <div class="menu-item_configuracion" onclick="window.location.href='centro_de_ayuda.html'">
+          <img src="/src/static/iconos/signo_interrogacion.svg" alt="Ayuda" class="icono_configuracion"> Ayuda
+        </div>
 
-                <!-- al final de tu HTML -->
+        <div class="menu-item_configuracion" onclick="window.location.href='terminos_y_condiciones.html'">
+          <img src="/src/static/iconos/incono_exclamacion.svg" alt="Términos" class="icono_configuracion"> Términos y condiciones
+        </div>
+        <div class="menu-item_configuracion" onclick="window.location.href='terminos_y_condiciones.html'">
+          <img src="/src/static/iconos/cuenta.svg" alt="Términos" class="icono_configuracion"> Usuarios
+        </div>
+        <div >
+           <button id="btnLogout" class="menu-item_configuracion"><img src="/src/static/iconos/incono_salida.svg" alt="Cerrar sesión" class="icono_configuracion"> Cerrar sesion</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
                 <script src="/src/static/js/script.js"></script>
             </div>
         </div>

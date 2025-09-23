@@ -39,54 +39,66 @@ nav_bar.forEach((item) => item.addEventListener('click',bar_funct));
 // MANEJO DE RUTAS DEL LOGIN Y REGISTRO DE USUARIOS
 
 
-async function registro_usuarios() {
-    try {
-        const nombre = document.getElementById('fname').value;
-        const tipo_identificacion = document.getElementById('tipo_identificacion').value;
-        const numero_identificacion = document.getElementById('n.i').value;
-        const correo = document.getElementById('correo').value;
-        const contraseña = document.getElementById('password').value;
-        const constraseña_confirm = document.getElementById('confirmPassword').value;
+    async function registro_usuarios(event) {
+        event.preventDefault(); 
 
-        if ((constraseña_confirm == contraseña) && (contraseña != '')){
+        try {
+            const nombre = document.getElementById('fname').value;
+            const tipo_identificacion = document.getElementById('tipo_identificacion').value;
+            const numero_identificacion = document.getElementById('n.i').value;
+            const correo = document.getElementById('correo').value;
+            const contraseña = document.getElementById('password').value;
+            const constraseña_confirm = document.getElementById('confirmPassword').value;
+
+        if ((constraseña_confirm == contraseña) && (contraseña != '')) {
             const user = {
-                "numero_identificacion" : numero_identificacion,
-                "nombre" : nombre,
-                "correo" : correo,
-                "contraseña" : contraseña,
-                "estado" : "Activo",
-                "id_tipo_identificacion" : tipo_identificacion,
-            }
-            console.log(user)
-            fetch(`${URL_BASE}/users`, 
-                {
-                    method: 'POST',
-                    body: JSON.stringify(user),
-                    headers : {
-                        "Content-type" : "application/json"
-                    }
-                }).then(response => {
-                    console.log(response)
-                    return response.json()
+                numero_identificacion: numero_identificacion,
+                nombre: nombre,
+                correo: correo,
+                contraseña: contraseña,
+                estado: "Activo",
+                id_tipo_identificacion: tipo_identificacion,
+            };
+
+            console.log(user);
+
+            fetch(`${URL_BASE}/users`, {
+                method: 'POST',
+                body: JSON.stringify(user),
+                headers: {
+                    "Content-type": "application/json"
+                }
+            })
+            .then(response => response.json())
+            .then(() => {
+                Swal.fire({
+                    title: "Mensaje",
+                    text: `Usuario registrado correctamente`,
+                    icon: "success",
+                    confirmButtonText: "Ir al panel"
                 }).then(() => {
-                    Swal.fire({
-                        title: "Mensaje",
-                        text: `Usuario registrado correctamente`,
-                        icon: "success"
-                    });
-                })
-        } else{
+                    localStorage.setItem("usuario", JSON.stringify({
+                        nombre: nombre,
+                        numero_identificacion: numero_identificacion,
+                        correo: correo
+                    }));
+                    location.href = "home.html";
+                });
+            });
+        } else {
             Swal.fire({
                 title: "Mensaje",
-                text: `Las constraseñas no coinciden`,
+                text: `Las contraseñas no coinciden`,
                 icon: "error"
             });
         }
 
-    } catch (error) {
-        console.error(error)
+        } catch (error) {
+            console.error(error);
+        }
     }
-}
+
+
 
 async function login() {
     try {
@@ -111,6 +123,11 @@ async function login() {
                 console.log(response)
                 console.log(response.Mensaje)
                 if (response.Mensaje === 'Las crendenciales son correctas'){
+                    localStorage.setItem("usuario", JSON.stringify({
+                        nombre: data.nombre,
+                        numero_identificacion: data.numero_identificacion,
+                        correo: data.correo
+                    }));
                     location.href = 'home.html'
                 } else if (response.Mensaje === 'Contraseña incorrecta'){
                     Swal.fire({
@@ -1023,7 +1040,10 @@ function consulta_individual_alimento(){
         text: `Hola ${data.nombre}, tu acceso con Google fue exitoso.`,
         confirmButtonText: "Ir a la pagina"
     }).then(() => {
-        localStorage.setItem("nombreUsuario", data.nombre); 
+        localStorage.setItem("usuario", JSON.stringify({
+            nombre: data.nombre,
+            correo: data.correo
+        }));
             location.href = "home.html"; 
         })
     .catch(err => {
@@ -1036,21 +1056,36 @@ function consulta_individual_alimento(){
     });
 })}
 
-//SIRVE PARA MOSTRAR EL NOMBRE DE LA SESION
+//SIRVE PARA MOSTRAR EL NOMBRE DE LA SESION Y PERFIL 
 
 document.addEventListener("DOMContentLoaded", () => {
-    const nombre = localStorage.getItem("nombreUsuario");
-    if (nombre) {
-        document.getElementById("btnPerfil").textContent = nombre;
+    const usuario = JSON.parse(localStorage.getItem("usuario"));
+
+    if (usuario) {
+
+        const nombreEl = document.getElementById("nombreUsuario");
+        const idEl = document.getElementById("identificacionUsuario");
+        const correoEl = document.getElementById("correoUsuario");
+
+        if (nombreEl) nombreEl.textContent = usuario.nombre;
+        if (idEl) idEl.textContent = usuario.numero_identificacion;
+        if (correoEl) correoEl.textContent = usuario.correo;
+
+
+        const btnPerfil = document.getElementById("btnPerfil");
+        if (btnPerfil) btnPerfil.textContent = usuario.nombre;
+
+    } else {
+        console.warn("No se encontró el objeto 'usuario' en localStorage");
     }
+});
 
   //SIRVE PARA CERRAR SESION 
 
     const btnLogout = document.getElementById("btnLogout");
         if (btnLogout) {
             btnLogout.addEventListener("click", () => {
-            localStorage.removeItem("nombreUsuario"); 
+            localStorage.removeItem("usuario"); 
         location.href = "index.html"; 
         });
     }
-});
