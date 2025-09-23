@@ -11,9 +11,9 @@
     <title>Edupork</title>
 </head>
 <body class="body__porcinos">
-  <section class="section-nav-bar" >
-        <div class="barra-lateral">
-            <div>
+    <section class="section-nav-bar" >
+        <div id="barra_lateral" class="barra-lateral">
+            <div id="abrirnav">
                 <div class="logo-edupork">
                     <img id="cerdo" class="nombre" src="../static/iconos/cerdo.png" width="20px" alt="">
                     <span>Edupork</span>
@@ -28,7 +28,8 @@
                         </a>
                     </li>
                     <li>
-                        <a href="/src/templates/notificaciones.html" onclick="redirectWithDelay(event, 'notificaciones.html')">
+                                                <a href="/src/templates/notificaciones.html" onclick="redirectWithDelay(event, 'notificaciones.html')">
+
                             <img src="../static/iconos/notificacions.svg" width="20px" alt="" class="icons-bar">
                             <span>Notificaciones </span>
                         </a>
@@ -40,14 +41,15 @@
                         </a>
                     </li>
                     <li>
-                        <a href="/src/templates/alimentos.html" class="flex-icons" onclick="redirectWithDelay(event, 'alimentos.html')">
+                        <a href="/src/templates/alimentos.html" onclick="redirectWithDelay(event, 'alimentos.html')" class="flex-icons">
+
                             <img src="../static/iconos/icon wheate.svg" title="alimentos" width="20px" alt="" class="icons-bar">
                             <span>Alimentos</span>
                         </a>
                     </li>
                     <li>
-                        <a href="/src//templates/gestionar_dietas.html" onclick="redirectWithDelay(event, 'gestionar_dietas.html')" >
-                            <img src="../static/iconos/icon plate.svg"  width="20px" alt="" class="icons-bar">
+                        <a href="#">
+                            <img src="../static/iconos/icon plate.svg" width="20px" alt="" class="icons-bar">
                             <span>Dietas</span>
                         </a>
                     </li>
@@ -83,7 +85,7 @@
             </div>
             <div class="container__user__btn">
                 <img src="/src/static/iconos/icon user.svg" alt="" class="svg__user">
-                <button type="button" class="btn__perfil">Juan Tovar</button>
+                <button type="button" class="btn__perfil">Cristhian</button>
             </div>
         </section>
         <header class="container container__title">

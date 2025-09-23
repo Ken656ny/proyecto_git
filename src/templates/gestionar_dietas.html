@@ -10,16 +10,15 @@
         href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap"
         rel="stylesheet">
     <link rel="stylesheet" href="/src/static/css/sytle.css">
-    <script src="/src/static/js/script.js"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11.17.2/dist/sweetalert2.min.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <title>Edupork</title>
 </head>
 
 <body class="body_dietas">
- <section class="section-nav-bar" >
-        <div class="barra-lateral">
-            <div>
+  <section class="section-nav-bar" >
+        <div id="barra_lateral" class="barra-lateral">
+            <div id="abrirnav">
                 <div class="logo-edupork">
                     <img id="cerdo" class="nombre" src="../static/iconos/cerdo.png" width="20px" alt="">
                     <span>Edupork</span>
@@ -34,7 +33,8 @@
                         </a>
                     </li>
                     <li>
-                        <a href="/src/templates/notificaciones.html" onclick="redirectWithDelay(event, 'notificaciones.html')">
+                                                <a href="/src/templates/notificaciones.html" onclick="redirectWithDelay(event, 'notificaciones.html')">
+
                             <img src="../static/iconos/notificacions.svg" width="20px" alt="" class="icons-bar">
                             <span>Notificaciones </span>
                         </a>
@@ -46,19 +46,20 @@
                         </a>
                     </li>
                     <li>
-                        <a href="/src/templates/alimentos.html" class="flex-icons" onclick="redirectWithDelay(event, 'alimentos.html')">
+                        <a href="/src/templates/alimentos.html" onclick="redirectWithDelay(event, 'alimentos.html')" class="flex-icons">
+
                             <img src="../static/iconos/icon wheate.svg" title="alimentos" width="20px" alt="" class="icons-bar">
                             <span>Alimentos</span>
                         </a>
                     </li>
                     <li>
-                        <a href="/src//templates/gestionar_dietas.html" onclick="redirectWithDelay(event, 'gestionar_dietas.html')" >
-                            <img src="../static/iconos/icon plate.svg"  width="20px" alt="" class="icons-bar">
+                        <a href="/src/templates/gestionar_dietas.html" onclick="redirectWithDelay(event, 'gestionar_dietas.html')" >
+                            <img src="../static/iconos/icon plate.svg" width="20px" alt="" class="icons-bar">
                             <span>Dietas</span>
                         </a>
                     </li>
                     <li>
-                        <a href="#">
+                        <a href="">
                             <img src="../static/iconos/icon page.svg" alt="" class="icons-bar">
                             <span>Informes</span>
                         </a>

@@ -12,12 +12,8 @@
     --fuente-titulos: 'Times New Roman', Times, serif;
     /*tipografia en contenido*/
     --fuente--contenido: 'Inter';
-    /* color para hover de la barra de navegacion */
-    --navegacion-despues:#75927c;
     /* color de los botones sin hover*/
     --color--btn--sin--hover:#99A69A;
-    /* color de los botones de la barra sup resposive */
-    --color--btn--resposive: #33493b;
     /* color de los botones con hover*/
     --color--btn--hover: #215718;
     /* color de los border de los containers */
@@ -111,17 +107,16 @@ SECCION DE LOGIN
 .InicioGoogle{
     display: flex;
     gap: 5px;
-    background-color: white;
+    background-color: transparent;
     border-radius: 30px;
     width:280px;
     height:52px;
     justify-content: center;
     align-items: center;
-    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
-    border: 1px solid var(--color-bor-contain);
     margin-top: 20px;
     margin-bottom: 20px;
 }
+
 .link{
     text-decoration: none;
     color: grey;
@@ -153,9 +148,20 @@ SECCION DE LOGIN
 .Registrarse{
     text-align: center;
     text-decoration: none;
-    color: white;
+    color: #eaeaea; 
     font-weight: bold;
 }
+
+.Registrarse:hover {
+    color: #0056b3;       
+    transform: translateY(-2px);
+}
+
+.parrafo_r{
+    margin: auto;
+    color: white;
+}
+
 .logBot{
     position: fixed;
     bottom: 0;
@@ -189,7 +195,7 @@ SECCION REGISTROS
 
 /* CONTENEDOR */
 .container-form {
-    background-color: var(--color--prede);
+    background-color: #60836a;
     padding: 0px 10px 25px 10px;
     border-radius: 35px;
     width: 566px;
@@ -200,7 +206,7 @@ SECCION REGISTROS
 .form__registro{
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 9px;
 }
 
 .label__registro {
@@ -209,7 +215,7 @@ SECCION REGISTROS
 }
 
 .form-input {
-    margin: 0px 10px 3px;
+    margin: 0px 10px 5px;
     padding: 0 70px;
 }
 
@@ -230,7 +236,7 @@ input:focus, select:focus {
 }
 
 legend {
-    padding: 0px 8px;
+    padding: 28px 8px;
     text-align: center;
     font-size: 0.9em;
 }
@@ -242,31 +248,12 @@ fieldset {
     border-bottom: none;
     width: 70%;
     display: block;
-    margin: 1px auto;
-    padding: 10px;
-}
-
-.button-r {
-    width: 50%;
-    margin: 15px auto;
-    padding: 13px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    border: none;
-    border-radius: 20px;
-    background-color: white;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
+    margin: 2px auto -10px;
     font-family: var(--fuente--contenido);
 }
 
 .btn__registro{
-    margin: auto;
-}
-
-.button-r:hover {
-    background-color: #f0f0f0;
+    margin: 9px auto 0px;
 }
 
 img {
@@ -274,32 +261,6 @@ img {
     height: auto;
 }
 
-.icon-google {
-    position: sticky;
-    width: 1.6vw;
-    height: auto;
-    top: 100vh;
-    bottom: 50vh;
-}
-
-/* ALERTAS */
-.alerta {
-    padding: 3px;
-    color: red;
-    display: none;
-    margin: 8px;
-}
-
-.success {
-    color: rgb(108, 232, 108);
-    margin: 10px;
-}
-
-#mensaje {
-    font-size: 0.8em;
-    text-align: center;
-    padding: 5px;
-}
 
 /* FONDO DE LA PÁGINA */
 .logoedupork {
@@ -356,141 +317,138 @@ img {
 }
 
 /* -------------------
-BARRA LATERAL
-------------------- */
-
-.barra-lateral{
-    position: fixed;
-    display: flex;
-    flex-direction: column;
-    width: 80px;
-    height: 100vh;
-    padding: 2rem 1rem;
-    background-color: var(--color--prede);
-    transition: width 0.3s ease, background-color 0.3s ease,left 0.3s ease;
-    overflow: hidden;
-    z-index: 3;
-    font-family: var(--fuente--contenido);
-    scrollbar-width: none;
-
-}
-.navegacion::-webkit-scrollbar{
-    display: none;
-}
-
-.mini-barra-lateral{
-    width: 250px;
-}
-
-/* -----------------------------------------------------------------nombre de la paginaaa */
-
-.barra-lateral .logo-edupork{
-    margin-bottom: 40px;
-    width: 100%;
-    height: 45px;
-    display: flex;
-    align-items: center;
-    color: var(--color-white);
-    font-family: var(--fuente--contenido);
-    cursor: pointer;
-}
-
-.barra-lateral .logo-edupork span{
-    margin-left: 5px;
-    font-size: 25px;
-}
-.barra-lateral .logo-edupork img{
-    min-width: 50px;
-    font-size: 40px;
-    cursor: pointer;
-}
-
-.barra-lateral  span{
-    opacity: 0;
-    width: 0;
-}
-
-.barra-lateral span.oculto{
-    font-size: 18px;
-    text-align: left;
-    opacity: 1;
-    transition: opacity 0.1s ease;
-    
-}
-
-/* -------------------------------------------------------------menu de navegacion */
-
-.barra-lateral .navegacion{
-    height: 100%;
-    overflow-y: auto;
-    overflow-x: hidden;
-}
-
-.barra-lateral .navegacion ul{
-    display: flex;
-    flex-direction: column;
-    gap: 2rem;
-}
-
-.barra-lateral .navegacion li{
-    list-style: none;
-    display: flex;
-    justify-content: center;
-    font-family: var(--fuente--contenido);
-}
-
-.barra-lateral .navegacion a{
-    width: 100%;
-    height: 45px;
-    display: flex;
-    justify-content: start;
-    align-items: center;
-    gap: 20px;
-    text-decoration: none;
-    border-radius: 10px;
-    color: var(--color-white);
-    transition: background-color 0.2s ease, font-weight 0.2s ease;
-    text-align: left;
-}
-
-.barra-lateral .navegacion a:hover{
-    background-color: var(--navegacion-despues);
-    font-weight: bold;
-}
-
-.barra-lateral .navegacion img{
-    margin-left: 0.2rem;
-    min-width: 38px;
-    font-size: 10px;
-    transition: transform 0.2s ease;
-}
-
-.barra-lateral .navegacion img:hover{
-    transform: scale(1.05);
-}
-
-/* ------------------------------------------------------------menu */
-
-.menu{
-    width: 50px;
-    height: 50px;
-    font-size: 30px;
-    display: none;
-    justify-content: center;
-    align-items: center;
-    border-radius: 50%;
-    right: 10px;
-    top: 10px;
-    background-color: var(--color--btn--resposive);
-    color: var(--color-white);
-    cursor: pointer;
-    z-index: 100;
-}
-
-
-/* -------------------
 SECCION DE HOME
 ------------------- */
+
+/* el ancho es de 90 porque asi esta en el figma, ya despues se pone responsive */
+.nav__bar{
+    width: 90px;
+    height: 100dvh;
+    background-color: var(--color--prede);
+    color: white;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    position: sticky; /*Sirve para centrar el ul*/
+    left: 0;
+}
+
+.nav__bar ul{
+    display: flex;
+    flex-direction: column;
+    align-items: center; /*sirve para que los elementos del ul se alinien todos*/
+    padding: 0;
+    gap: 17px;
+}
+
+.nav__bar ul li{
+    position: relative;
+    z-index: 1;
+    list-style: none;
+}
+
+.nav__bar ul li a {
+    display: flex;
+    align-items: center;
+    color: white;
+    padding: 15px 20px;
+    text-decoration: none;
+}
+
+.nav__bar ul li a img{
+    transition: 0.5s;
+}
+
+.nav__bar ul li.active a img{
+    transform: translateX(30px);
+}
+
+.indicador{
+    box-sizing: border-box;
+    position: absolute;
+    top: 18px;
+    left: 36px;
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    border: 6px solid #fff;
+    background-color: var(--color--letra);
+}
+
+.indicador::before{
+    content: '';
+    left: 24px;
+    top: -29.8px;
+    position: absolute;
+    width: 25px;
+    height: 25px;
+    border-bottom-right-radius: 20px;
+    box-shadow: 13px 4px 0 0 #ffffff;
+    background-color: var(--color--letra);
+}
+
+.indicador::after{
+    content: '';
+    right: 19.8px;
+    bottom: -29.8px;
+    position: absolute;
+    width: 25px;
+    height: 25px;
+    border-top-right-radius: 20px;
+    box-shadow: 13px -4px 0 0 #fff;
+    background-color: var(--color--letra);
+}
+
+.indicador__green::before{
+    content: '';
+    left: 24px;
+    top: -29.8px;
+    position: absolute;
+    width: 25px;
+    height: 25px;
+    border-bottom-right-radius: 20px;
+    box-shadow: 13px 4px 0 0 #78CB43;
+    background-color: var(--color--letra);
+}
+
+.indicador__green::after{
+    content: '';
+    right: 19.8px;
+    bottom: -29.8px;
+    position: absolute;
+    width: 25px;
+    height: 25px;
+    border-top-right-radius: 20px;
+    box-shadow: 13px -4px 0 0 #78CB43;
+    background-color: var(--color--letra);
+}
+
+.nav__bar ul li:nth-child(1).active ~ .indicador{
+    transform: translateY(0);
+}
+.nav__bar ul li:nth-child(2).active ~ .indicador{
+    transform: translateY(5.3em);
+}
+.nav__bar ul li:nth-child(3).active ~ .indicador{
+    transform: translateY(10.6em);
+}
+.nav__bar ul li:nth-child(4).active ~ .indicador{
+    transform: translateY(16.2em);
+}
+.nav__bar ul li:nth-child(5).active ~ .indicador{
+    transform: translateY(21.7em);
+}
+.nav__bar ul li:nth-child(6).active ~ .indicador{
+    transform: translateY(27em);
+}
+.nav__bar ul li:nth-child(7).active ~ .indicador{
+    transform: translateY(32.7em);
+    border: 6px solid #78CB43;
+}
+.nav__bar ul li:nth-child(8).active ~ .indicador{
+    transform: translateY(38.5em);
+    border: 6px solid #78CB43;
+}
 
 .section__home{
     display: grid;
@@ -605,29 +563,14 @@ SECCION DE PORCINOS
     background-position: bottom;
     background-size: 100%;
 }
-.body_dietas{
-    display: grid;
-    grid-template-columns: 117px auto;
-    background-image: url(/src/static/iconos/pasto.svg);
-    background-repeat: no-repeat;
-    background-position: bottom;
-    background-size: 100%;
-}
 
 .section__porcinos{
     display: grid;
     grid-template-rows: 85px 70px 60px 40px auto;
     gap: 30px;
 }
-.contenido_dietas{
-    display: grid;
-    grid-template-columns: repeat(10,1fr);
-    grid-template-rows: repeat(10,1fr);
-    overflow-y: hidden;
-}
 
 .container__logo__user{
-    width: 100%;
     display: flex;
     justify-content: space-between;
 }
@@ -691,60 +634,6 @@ SECCION DE PORCINOS
     border: 1px solid var(--color-bor-contain);
     border-radius: 14px;
 }
-.container__title_dietas{
-    grid-column: 4/8;
-    color: var(--color--letra);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    font-size: 30px;
-    width: 550px;
-    height: fit-content;
-    border: 1px solid black;
-    border-radius: 14px;
-    margin-top: 10px;
-}
-
-.alimentos_en_dieta{
-    display: grid;
-    grid-template-columns: repeat(3,1fr);
-    grid-template-rows: repeat(2,1fr);
-    gap: 10px; /* espacio entre tarjetas */
-    padding: 10px;
-    overflow-y: auto;
-    overflow-x: hidden;
-    max-height: 100%;
-    scrollbar-width: none;
-}
-.alimentos_dietas::-webkit-scrollbar{
-    display: none;
-}
-
-
-.alimentos_dietas{
-    display: flex;
-    flex-direction: column;
-    width: 180px;
-    height: 200px;
-    border: 1px solid black;
-    padding: 10px;
-    background-color: #ECE6F0;
-    border-radius: 10px;
-}
-
-.imagen_alimento_dieta img{
-    border-radius: 5px;
-    max-width: 158px;
-    max-height: 104px;
-}
-.sin_imagen_alimento_dieta {
-    border-radius: 5px;
-    width: 200px;   /* más grande */
-    height: 210px;
-    object-fit: contain;
-        object-fit: over;
-}
-
 
 /* CODIGO DE LA BARRA DE BUSQUEDA */
 
@@ -760,41 +649,6 @@ SECCION DE PORCINOS
     gap: 7em;
     font-family: var(--fuente--contenido);
 }
-.container__search__bar_dietas{
-    grid-column: 1/5;
-    grid-row: 2;
-    border: 1px solid black;
-    border-radius: 14px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 2%;
-    width: 115%;
-    height: 60px;
-    margin-top: 10px;
-    margin-left: 2%;
-    font-family: var(--fuente--contenido);
-    border: 1px solid black;
-}
-.container_dietas{
-    grid-column: 1/5;
-    grid-row: 3/11;
-    border: 1px solid black;
-    border-radius: 14px;
-    gap: 2%;
-    width: 115%;
-    height: 90%;
-    margin: auto;
-    margin-top: 3%;
-    margin-left: 2%;
-    font-family: var(--fuente--contenido);
-    display: grid;
-    grid-template-rows: 30px 1fr 60px;
-    grid-template-columns: 100%;
-    justify-content: center;
-
-}
-
 
 .input__id{
     width: 220px;
@@ -841,27 +695,8 @@ SECCION DE PORCINOS
     transition: background-color 0.5s ease-in-out;
     cursor: pointer;
 }
-.btn1{
-    background-color: var(--color--btn--sin--hover);
-    color: var(--color-white);
-    width: 130px;
-    height: 40px;
-    border: 1px solid var(--color-bor-btn);
-    font-family: inherit;
-    font-size: 15px;
-    font-weight: 600;
-    border-radius: 20px;
-    transition: background-color 0.5s ease-in-out;
-    cursor: pointer;
-    justify-self: center;
-    align-self: center;
-}
 
 .btn:hover{
-    background-color: var(--color--btn--hover);
-    border: 1px solid var(--color-bor-btn-hover);
-}
-.btn1:hover{
     background-color: var(--color--btn--hover);
     border: 1px solid var(--color-bor-btn-hover);
 }
@@ -955,10 +790,7 @@ thead{
 .svg__pig{
     position: relative;
     top: 5px;
-}
-.svg__alimento{
-    position: relative;
-    top: 2px;
+    z-index: 1;
 }
 
 .icon-edit{
@@ -978,6 +810,7 @@ thead{
 th{
     padding: 20px 0;
 }
+
 
 /* CODIGO DE LAS ACCIONES VER, EDITAR Y ELIMINAR */
 
@@ -1000,7 +833,7 @@ th{
 /* DIALOG ICON EYE */
 
 .dialog-icon-eye, .dialog-icon-edit, .dialog-icon-dele{
-    background-color: #d4d4d4;
+    background-color: var(--color-fondo-modal);
     width: 882px;
     height: 490px;
     margin: auto;
@@ -1009,13 +842,12 @@ th{
     overflow-y: hidden;
     position: relative;
     z-index: 2;
-    padding: 0 4rem;
 }
 
 /* TUTULO DE LA VENTANA MODAL */
 
 .title-dialog{
-    color: var(--color--letra);
+    color: #60836A;
     font-size: 25px;
     font-family: 'Times New Roman', Times, serif;
     display: flex;
@@ -1029,7 +861,7 @@ th{
 .info-porcino{
     display: grid;
     grid-template-columns: repeat( 3 , 1fr);
-    grid-template-rows: repeat(6, 1fr);
+    grid-template-rows: repeat(3, 1fr);
     place-items: center;
     font-family: var(--fuente--contenido);
     gap: 0.5rem 1rem;
@@ -1075,12 +907,6 @@ th{
     flex-direction: column;
     align-items: center;
 }
-container-button-dele1{
-    margin-top: 7em;
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-}
 
 .button-cerrar, .button-guardar, .button-eliminar{
     background-color: var(--color--btn--hover);
@@ -1088,7 +914,6 @@ container-button-dele1{
     width: 150px;
     height: 40px;
     font-weight: 900;
-    border: 1px solid #215718;
     border-radius: 27px;
     border: none;
     cursor: pointer;
@@ -1111,7 +936,7 @@ container-button-dele1{
 hr{
     width: 550px;
     margin: auto;
-    border: 1px solid var(--color--prede);
+    border: 1px solid #60836A;
 }
 
 /* DIALOG ICON DELETE */
@@ -1205,7 +1030,6 @@ hr{
     grid-template-rows: auto auto auto auto auto;
     justify-content: center;
     gap: 15px;
-    height: 0;
 }
 
 .container__btn__close{
@@ -1304,7 +1128,7 @@ SECCION DE configuracion
 
 .title_configuracion {
     font-size: 45px;
-    color: var(--color--letra);
+    color: #60836A;
     background: #D9D9D9;
     padding: 5px 50px;
     border-radius: 18px;
@@ -1542,7 +1366,7 @@ SECCION DE Perfil
 
 .perfil-texto {
     font-weight: 700;
-    color: var(--color--letra); 
+    color: #60836A; 
     font-size: 23px;
     font-weight: 200px ;
     margin-left: 12px;/* o blanco si prefieres */
@@ -1689,7 +1513,7 @@ SECCION DE Perfil
 .perfil-photo {
     width: 120px;
     height: 120px;
-    background-color: var(--color--letra);
+    background-color: #60836A;
     border-radius: 50%;
     display: flex;
     justify-content: center;
@@ -1732,110 +1556,84 @@ SECCION DE Perfil
 SI SALE MAL ES CULPA DE CRISTIAN
 ---------------------------------- */
 
-  .contenedor {
-      display: inline-flex;
-      align-items: center;
-      padding: 10px 20px;
-      background-color: #f1f1f1; /* Color del fondo */
-      border: 1px solid var(--color-bor-contain);
+.contenedor {
+    display: inline-flex;
+    align-items: center;
+    padding: 10px 20px;
+    background-color: #f1f1f1; /* Color del fondo */
+    border: 1px solid var(--color-bor-contain);
 
-      border-radius: 20px;
-      font-family: sans-serif;
-      gap: 10px;
-      cursor: pointer;
-    }
+    border-radius: 20px;
+    font-family: sans-serif;
+    gap: 10px;
+    cursor: pointer;
+}
 
-    .contenedor input[type="checkbox"] {
-      display: none;
-    }
+.contenedor input[type="checkbox"] {
+    display: none;
+}
 
-    .custom-checkbox {
-      width: 16px;
-      height: 16px;
+.custom-checkbox {
+    width: 16px;
+    height: 16px;
     border: 1px solid #000;
-      border-radius: 4px;
-      background-color: #aee9c6; /* Verde claro */
-    }
+    border-radius: 4px;
+    background-color: #aee9c6; /* Verde claro */
+}
 
-    .contenedor input[type="checkbox"]:checked + .custom-checkbox {
-      background-color: #7ed6a3;
-    }
-  .contenedor1 {
-      display: inline-flex;
-      align-items: center;
-      padding: 10px 20px;
-      background-color: #ECE6F0;
-      border-radius: 20px;
-      font-size: 11px;
-      font-weight: bold;
-      gap: 10px;
-      cursor: pointer;
-      justify-self: start;
-      align-self:flex-start ;
-      height: 100%;
-      margin-top: 1%;
-      margin-left:1%;
-      border: 1px solid black;
-      width: 40%;
-    }
+.contenedor input[type="checkbox"]:checked + .custom-checkbox {
+    background-color: #7ed6a3;
+}
 
-    .contenedor1 input[type="checkbox"] {
-      display: none;
-    }
+.color_p{
+    color:#8D8D8D;
+}
+.nuevo{
+    text-align: center;
+}
+.eliminar{
+    cursor: pointer;
+
+}
 
 
-    .contenedor1 input[type="checkbox"]:checked + .custom-checkbox {
-      background-color:#60836A;
-    }
+.nuevo1{
+background-color: var(--color-bg-registros);
+border: 5px solid var(--color--fondos);
+}
 
-    .color_p{
-        color:#8D8D8D;
-    }
-    .nuevo{
-        text-align: center;
-    }
-    .eliminar{
-        cursor: pointer;
-
-    }
-
-    .nuevo1{
-    background-color: var(--color-bg-registros);
-    border: 5px solid var(--color--fondos);
-    }
-
-    .container div p{
-        text-align: center;
-        color: #2C3D31;
-        font-weight:600;
-        margin-bottom: 4%;
-        margin-top: 4%;
-    }
-    .input_add{
-        border: 1px solid black;
-        background-color: #ECE6F0;
-        text-align: center;
-        
-    }
-    .input_add1{
-        width: 60%;
-        position: relative;
-        border: 1px solid black;
-        text-align: center;
-        margin-left: 170%;
-        font-weight: bolder;
-        background-color: var(--color--btn--sin--hover);
-        color: var(--color-white);
-        width: 130px;
-        height: 40px;
-        border: 1px solid var(--color-bor-btn);
-        font-family: inherit;
-        font-size: 15px;
-        font-weight: 600;
-        border-radius: 20px;
-        transition: background-color 0.5s ease-in-out;
-        cursor: pointer;
-    }
+.container div p{
+    text-align: center;
+    color: #2C3D31;
+    font-weight:600;
+    margin-bottom: 4%;
+    margin-top: 4%;
+}
+.input_add{
+    border: 1px solid black;
+    background-color: #ECE6F0;
+    text-align: center;
+    
+}
+.input_add1{
+    width: 60%;
+    position: relative;
+    border: 1px solid black;
+    text-align: center;
+    margin-left: 170%;
+    font-weight: bolder;
+    background-color: var(--color--btn--sin--hover);
+    color: var(--color-white);
+    width: 130px;
+    height: 40px;
+    border: 1px solid var(--color-bor-btn);
+    font-family: inherit;
+    font-size: 15px;
+    font-weight: 600;
+    border-radius: 20px;
+    transition: background-color 0.5s ease-in-out;
+    cursor: pointer;
+}
 
 .input_add1:hover{
     background-color: var(--color--btn--hover);
@@ -1843,19 +1641,4 @@ SI SALE MAL ES CULPA DE CRISTIAN
 }
     .seccion1{
         margin: 0% 5%;
-    }
-
-
-
-/* MODAL VER ALIMENTOS */
-.contenido-modal{
-    display: flex;
-    flex-direction: column;
-    gap: 25px;
-    width: fit-content;
-    height: fit-content;
 }
-
-/* ----------------------
-DIETASSSSSSSS 
---------------------- */

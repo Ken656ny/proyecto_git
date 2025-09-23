@@ -1007,47 +1007,18 @@ function consulta_individual_alimento(){
     });
 }
 
+const abrirnav = document.getElementById("abrirnav")
+const barra_lateral = document.getElementById("barra_lateral")
+const spans = barra_lateral.querySelectorAll("span") 
 
-const cerdo = document.getElementById("cerdo");
-const barralateral = document.querySelector(".barra-lateral");
-const spans = document.querySelectorAll("span");
-const circulo = document.querySelector(".circulo")
-const menu=document.querySelector(".menu")
-
-menu.children[1].style.display="none"
-menu.addEventListener("click",()=>{
-    barralateral.classList.toggle("max-barra-lateral")
-    if(barralateral.classList.contains("max-barra-lateral")){
-        menu.children[0].style.display="none"
-        menu.children[1].style.display="block"
-    }
-    else{
-        menu.children[0].style.display="block"
-        menu.children[1].style.display="none"
-    }
+abrirnav.addEventListener("click", () => {
+    barra_lateral.classList.toggle("mini-barra-lateral")
+    spans.forEach(span => {
+        span.classList.toggle("oculto")
+    })
 })
 
-document.addEventListener("click", (e) => {
-    if (
-        !barralateral.contains(e.target) &&
-        !menu.contains(e.target)
-    ){
-        if (barralateral.classList.contains("max-barra-lateral")) {
-            barralateral.classList.remove("max-barra-lateral");
 
-            // Actualiza íconos
-            menu.children[0].style.display = "block";
-            menu.children[1].style.display = "none";
-        }
-    }
-});
-
-cerdo.addEventListener("click", () => {
-    barralateral.classList.toggle("mini-barra-lateral");
-    spans.forEach((span) => {
-        span.classList.toggle("oculto");
-    });
-});
 
 function consulta_alimentos(){
     const contenido = document.getElementById("contenido");
