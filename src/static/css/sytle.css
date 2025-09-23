@@ -12,8 +12,12 @@
     --fuente-titulos: 'Times New Roman', Times, serif;
     /*tipografia en contenido*/
     --fuente--contenido: 'Inter';
+    /* color para hover de la barra de navegacion */
+    --navegacion-despues:#75927c;
     /* color de los botones sin hover*/
     --color--btn--sin--hover:#99A69A;
+    /* color de los botones de la barra sup resposive */
+    --color--btn--resposive: #33493b;
     /* color de los botones con hover*/
     --color--btn--hover: #215718;
     /* color de los border de los containers */
@@ -185,7 +189,7 @@ SECCION REGISTROS
 
 /* CONTENEDOR */
 .container-form {
-    background-color: #60836a;
+    background-color: var(--color--prede);
     padding: 0px 10px 25px 10px;
     border-radius: 35px;
     width: 566px;
@@ -355,135 +359,126 @@ img {
 SECCION DE HOME
 ------------------- */
 
-/* el ancho es de 90 porque asi esta en el figma, ya despues se pone responsive */
-.nav__bar{
-    width: 90px;
-    height: 100dvh;
+.barra-lateral{
+    position: fixed;
+    display: flex;
+    flex-direction: column;
+    width: 250px;
+    height: 100vh;
+    padding: 2rem 1rem;
     background-color: var(--color--prede);
-    color: white;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    position: sticky; /*Sirve para centrar el ul*/
-    left: 0;
+    transition: width 0.3s ease, background-color 0.3s ease,left 0.3s ease;
+    overflow: hidden;
+    z-index: 3;
+    font-family: var(--fuente--contenido);
 }
 
-.nav__bar ul{
-    display: flex;
-    flex-direction: column;
-    align-items: center; /*sirve para que los elementos del ul se alinien todos*/
-    padding: 0;
-    gap: 17px;
-}
+.mini-barra-lateral{
+    width: 80px;
+} 
 
-.nav__bar ul li{
-    position: relative;
-    z-index: 1;
-    list-style: none;
-}
+/* -----------------------------------------------------------------nombre de la paginaaa */
 
-.nav__bar ul li a {
+.barra-lateral .logo-edupork{
+    margin-bottom: 40px;
+    width: 100%;
+    height: 45px;
     display: flex;
     align-items: center;
-    color: white;
-    padding: 15px 20px;
+    color: var(--color-white);
+    font-family: var(--fuente--contenido);
+}
+
+.barra-lateral .logo-edupork span{
+    margin-left: 5px;
+    font-size: 25px;
+}
+.barra-lateral .logo-edupork img{
+    min-width: 50px;
+    font-size: 40px;
+    cursor: pointer;
+}
+
+.barra-lateral  span{
+    font-size: 18px;
+    text-align: left;
+    transition: opacity 0.1s ease;
+}
+
+.barra-lateral span.oculto{
+    opacity: 0;
+    width: 0;
+}
+
+/* -------------------------------------------------------------menu de navegacion */
+
+.barra-lateral .navegacion{
+    height: 100%;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
+.barra-lateral .navegacion ul{
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+}
+
+.barra-lateral .navegacion li{
+    list-style: none;
+    display: flex;
+    justify-content: center;
+    font-family: var(--fuente--contenido);
+}
+
+.barra-lateral .navegacion a{
+    width: 100%;
+    height: 45px;
+    display: flex;
+    justify-content: start;
+    align-items: center;
+    gap: 20px;
     text-decoration: none;
+    border-radius: 10px;
+    color: var(--color-white);
+    transition: background-color 0.2s ease, font-weight 0.2s ease;
+    text-align: left;
 }
 
-.nav__bar ul li a img{
-    transition: 0.5s;
+.barra-lateral .navegacion a:hover{
+    background-color: var(--navegacion-despues);
+    font-weight: bold;
 }
 
-.nav__bar ul li.active a img{
-    transform: translateX(30px);
+.barra-lateral .navegacion img{
+    margin-left: 0.2rem;
+    min-width: 38px;
+    font-size: 10px;
+    transition: transform 0.2s ease;
 }
 
-.indicador{
-    box-sizing: border-box;
-    position: absolute;
-    top: 18px;
-    left: 36px;
-    width: 80px;
-    height: 80px;
+.barra-lateral .navegacion img:hover{
+    transform: scale(1.05);
+}
+
+/* ------------------------------------------------------------menu */
+
+.menu{
+    width: 50px;
+    height: 50px;
+    font-size: 30px;
+    display: none;
+    justify-content: center;
+    align-items: center;
     border-radius: 50%;
-    border: 6px solid #fff;
-    background-color: var(--color--letra);
+    right: 10px;
+    top: 10px;
+    background-color: var(--color--btn--resposive);
+    color: var(--color-white);
+    cursor: pointer;
+    z-index: 100;
 }
 
-.indicador::before{
-    content: '';
-    left: 24px;
-    top: -29.8px;
-    position: absolute;
-    width: 25px;
-    height: 25px;
-    border-bottom-right-radius: 20px;
-    box-shadow: 13px 4px 0 0 #ffffff;
-    background-color: var(--color--letra);
-}
-
-.indicador::after{
-    content: '';
-    right: 19.8px;
-    bottom: -29.8px;
-    position: absolute;
-    width: 25px;
-    height: 25px;
-    border-top-right-radius: 20px;
-    box-shadow: 13px -4px 0 0 #fff;
-    background-color: var(--color--letra);
-}
-
-.indicador__green::before{
-    content: '';
-    left: 24px;
-    top: -29.8px;
-    position: absolute;
-    width: 25px;
-    height: 25px;
-    border-bottom-right-radius: 20px;
-    box-shadow: 13px 4px 0 0 #78CB43;
-    background-color: var(--color--letra);
-}
-
-.indicador__green::after{
-    content: '';
-    right: 19.8px;
-    bottom: -29.8px;
-    position: absolute;
-    width: 25px;
-    height: 25px;
-    border-top-right-radius: 20px;
-    box-shadow: 13px -4px 0 0 #78CB43;
-    background-color: var(--color--letra);
-}
-
-.nav__bar ul li:nth-child(1).active ~ .indicador{
-    transform: translateY(0);
-}
-.nav__bar ul li:nth-child(2).active ~ .indicador{
-    transform: translateY(5.3em);
-}
-.nav__bar ul li:nth-child(3).active ~ .indicador{
-    transform: translateY(10.6em);
-}
-.nav__bar ul li:nth-child(4).active ~ .indicador{
-    transform: translateY(16.2em);
-}
-.nav__bar ul li:nth-child(5).active ~ .indicador{
-    transform: translateY(21.7em);
-}
-.nav__bar ul li:nth-child(6).active ~ .indicador{
-    transform: translateY(27em);
-}
-.nav__bar ul li:nth-child(7).active ~ .indicador{
-    transform: translateY(32.7em);
-    border: 6px solid #78CB43;
-}
-.nav__bar ul li:nth-child(8).active ~ .indicador{
-    transform: translateY(38.5em);
-    border: 6px solid #78CB43;
-}
 
 .section__home{
     display: grid;
@@ -547,7 +542,7 @@ SECCION DE NOTIFICACIONES
 
 .titulo__noti{
     font-family: var(--fuente--contenido);
-    color: #60836A;
+    color: var(--color--letra);
     margin: 24px 53px auto;
 }
 
@@ -606,6 +601,7 @@ SECCION DE PORCINOS
 }
 
 .container__logo__user{
+    width: 100%;
     display: flex;
     justify-content: space-between;
 }
@@ -648,7 +644,6 @@ SECCION DE PORCINOS
     width: 150px;
     height: 45px;
     padding-left: 40px;
-    font-family: var(--fuente--contenido);
     font-size: 15PX;
     font-weight: 500;
     border-radius: 8px;
@@ -883,7 +878,7 @@ th{
 /* TUTULO DE LA VENTANA MODAL */
 
 .title-dialog{
-    color: #60836A;
+    color: var(--color--letra);
     font-size: 25px;
     font-family: 'Times New Roman', Times, serif;
     display: flex;
@@ -972,7 +967,7 @@ th{
 hr{
     width: 550px;
     margin: auto;
-    border: 1px solid #60836A;
+    border: 1px solid var(--color--prede);
 }
 
 /* DIALOG ICON DELETE */
@@ -1165,7 +1160,7 @@ SECCION DE configuracion
 
 .title_configuracion {
     font-size: 45px;
-    color: #60836A;
+    color: var(--color--letra);
     background: #D9D9D9;
     padding: 5px 50px;
     border-radius: 18px;
@@ -1286,26 +1281,6 @@ SECCION DE configuracion
     margin-right: 2%;
 }
 
-.svg__user{
-    position: absolute;
-    width: 30px;
-    height: 30px;
-    top: 28px;
-    left: 15px;
-}
-
-.btn__perfil{
-    background-color: var(--color--letra);
-    color: var(--color-white);
-    width: 150px;
-    height: 45px;
-    padding-left: 40px;
-    font-family: var(--fuente--contenido);
-    font-size: 15PX;
-    font-weight: 500;
-    border-radius: 8px;
-    border: none;
-}
 
 /* -------------------
 SECCION DE Perfil
@@ -1313,7 +1288,7 @@ SECCION DE Perfil
 
 .title_perfil {
     font-size: 42px;
-    color: #60836A;
+    color: var(--color--letra);
     background: #D9D9D9;
     padding: 10px 40px;
     border-radius: 18px;
@@ -1403,7 +1378,7 @@ SECCION DE Perfil
 
 .perfil-texto {
     font-weight: 700;
-    color: #60836A; 
+    color: var(--color--letra); 
     font-size: 23px;
     font-weight: 200px ;
     margin-left: 12px;/* o blanco si prefieres */
@@ -1550,7 +1525,7 @@ SECCION DE Perfil
 .perfil-photo {
     width: 120px;
     height: 120px;
-    background-color: #60836A;
+    background-color: var(--color--letra);
     border-radius: 50%;
     display: flex;
     justify-content: center;
@@ -1633,10 +1608,9 @@ SI SALE MAL ES CULPA DE CRISTIAN
 
 }
 
-
 .nuevo1{
-background-color: var(--color-bg-registros);
-border: 5px solid var(--color--fondos);
+    background-color: var(--color-bg-registros);
+    border: 5px solid var(--color--fondos);
 }
 
 .container div p{
@@ -1678,4 +1652,90 @@ border: 5px solid var(--color--fondos);
 }
     .seccion1{
         margin: 0% 5%;
+}
+
+.container-user{
+    display: none;
+}
+
+.container-user-bar{
+    display: block;
+}
+
+
+
+
+/* ---------------------
+RESPONSIVE BAR
+--------------------- */
+
+@media(max-height: 660px){
+    .barra-lateral .nombre-pagina{
+        margin-bottom: 5px;
+    }
+
+}
+
+@media(max-width: 600px){
+    .body__porcinos{
+        display: flex;
+        flex-direction: column;
+    }
+
+    .container__user__btn{
+        display: none;
+    }
+
+    .container__back__logo{
+        width: 100%;
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+    }
+
+    .container__btn__perfil{
+        position: relative;
+        display: flex;
+        align-items: center;
+        
+    }
+
+    .btn__perfil{
+        background-color: var(--color--btn--resposive);
+    }
+
+    .svg__user__2{
+        position: absolute;
+        left: 1rem;
+    }
+
+    .barra-lateral{
+        position: absolute;
+        left: -250px;
+    }
+
+    .menu{
+        display: flex;
+    }
+    .max-barra-lateral{
+        left: 0;
+    } 
+    .menu ion-icon:nth-child(2){
+        display: none;
+    }
+
+    .container-user{
+        background-color: var(--color--prede);
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+        height: 55px;
+        padding: 1rem;
+        width: 100%;
+    }
+
+    .barra-lateral .navegacion ul{
+        gap: 1.2rem;
+    }
 }
