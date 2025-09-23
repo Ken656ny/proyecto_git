@@ -20,7 +20,7 @@ from werkzeug.utils import secure_filename
 
 app = Flask(__name__)
 app.secret_key = 'secretkey'
-CORS(app, origins=["http://localhost:63802/","http://10.4.212.212"], supports_credentials=True)
+CORS(app, supports_credentials=True)
 Swagger(app)
 
 cargar_imagenes = os.path.join(os.getcwd(), "static", "imagenes")
@@ -815,7 +815,7 @@ def consulta_individual_alimento(nombre):
                 alimento = {
                     "id_alimento": filas[0]["id_alimento"],
                     "nombre": filas[0]["nombre_alimento"],
-                    "estado": filas[0]["estado"],  # ✅ corregido
+                    "estado": filas[0]["estado"],  
                     "elementos": []
                 }
                 
@@ -830,4 +830,4 @@ def consulta_individual_alimento(nombre):
         return jsonify({"error": str(e)})
 
 if __name__ == '__main__':
-    app.run(host="0.0.0.0",port=5000,debug=True)
+    app.run(debug=True)

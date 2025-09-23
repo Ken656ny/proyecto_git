@@ -2,6 +2,21 @@ const URL_BASE = 'http://127.0.0.1:5000'
 
 // REDIRECCION DE FORMA LENTA HACIA LOS HTML
 
+
+
+// Al cargar la página, insertar el diálogo
+document.addEventListener('DOMContentLoaded', function() {
+    const dialogContainer = document.createElement('div');
+    dialogContainer.innerHTML = crearDialogRegistrarRaza();
+    document.body.appendChild(dialogContainer);
+
+    const dialogContainer2 = document.createElement('div');
+    dialogContainer2.innerHTML = crearDialogRegistrarEtapa();
+    document.body.appendChild(dialogContainer2);
+});
+
+// REDIRECCION DE FORMA LENTA HACIA LOS HTML
+
 function redirectWithDelay(event, url) {
     event.preventDefault(); // Evita que el enlace redirija de inmediato
 
@@ -17,6 +32,29 @@ function redirectWithDelay(event, url) {
 // FUCNIONALIDAD PARA LA BARRA DE NAVEGACION
 
 const nav_bar = document.querySelectorAll('.nav__item')
+
+function bar_funct(){
+    nav_bar.forEach((item) => 
+    item.classList.remove('active'));
+    this.classList.add('active');
+}
+nav_bar.forEach((item) => item.addEventListener('click',bar_funct));
+
+function redirectWithDelay(event, url) {
+    event.preventDefault(); // Evita que el enlace redirija de inmediato
+
+    // Aquí puedes poner una animación o efecto antes de redirigir
+    console.log("Esperando antes de redirigir...");
+
+    // Esperar 1 segundo (1000 ms) antes de redirigir
+    setTimeout(() => {
+        window.location.href = url;  
+    }, 1000);
+}
+
+
+// FUCNIONALIDAD PARA LA BARRA DE NAVEGACION
+
 
 
 function bar_funct(){
@@ -878,7 +916,7 @@ function dietas(){
             alimentos_en_dieta.innerHTML+=`
             <div class="alimentos_dietas">
     <div class="imagen_alimento_dieta">
-        <img src="${element.imagen}" alt="no hay imagen">
+        <img src="${element.imagen}" onerror="this.onerror=null; this.src='/src/static/iconos/imagen no encontrada.svg'; this.classList.add('sin_imagen_alimento_dieta')" alt="no hay imagen">
     </div>
     <div class="descripcion_dietas">
         <p><strong>Nombre: ${element.nombre}</strong> </p>

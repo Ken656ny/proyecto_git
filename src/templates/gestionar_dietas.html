@@ -17,41 +17,68 @@
 </head>
 
 <body class="body_dietas">
-    <nav class="nav__bar">
-        <ul class="nav__list">
-            <li class="nav__item">
-                <a href="/src/templates/home.html" onclick="redirectWithDelay(event, 'home.html')"><img
-                        src="/src/static/iconos/home icon.svg" alt=""></a>
-            </li>
-            <li class="nav__item">
-                <a href="#"><img src="/src/static/iconos/notificacions.svg" alt=""></a>
-            </li>
-            <li class="nav__item ">
-                <a href="/src/templates/alimento.html" onclick="redirectWithDelay(event, 'alimento.html')"><img
-                        src="/src/static/iconos/icon pig.svg" alt=""></a>
-            </li>
-            <li class="nav__item ">
-                <a href="/src/templates/alimentos.html" onclick="redirectWithDelay(event, 'alimentos.html')"><img
-                        src="/src/static/iconos/icon wheate.svg" alt=""></a>
-            </li>
-            <li class="nav__item active" >
-                <a href="/src/templates/dietas.html"><img src="/src/static/iconos/icon plate.svg" alt=""></a>
-            </li>
-            <li class="nav__item">
-                <a href="#"><img src="/src/static/iconos/icon page.svg" alt=""></a>
-            </li>
-            <li class="nav__item">
-                <a href="/src/templates/perfil.html" onclick="redirectWithDelay(event, 'perfil.html')"><img
-                        src="/src/static/iconos/icon user.svg" alt=""></a>
-            </li>
-            <li class="nav__item">
-                <a href="/src/templates/configuracion.html"
-                    onclick="redirectWithDelay(event, 'configuracion.html')"><img
-                        src="/src/static/iconos/icon setting.svg" alt=""></a>
-            </li>
-            <div class="indicador"></div>
-        </ul>
-    </nav>
+<section class="section-nav-bar" >
+        <div class="barra-lateral">
+            <div>
+                <div class="logo-edupork">
+                    <img id="cerdo" class="nombre" src="../static/iconos/cerdo.png" width="20px" alt="">
+                    <span>Edupork</span>
+                </div>
+            </div>
+            <nav class="navegacion">
+                <ul class="ul-navegacion">
+                    <li>
+                        <a href="/src/templates/home.html" onclick="redirectWithDelay(event, 'home.html')" > <!--dar estilo -->
+                            <img src="../static/iconos/home icon.svg" width="20px" alt="" class="icons-bar">
+                            <span>Home</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="/src/templates/notificaciones.html">
+                            <img src="../static/iconos/notificacions.svg" width="20px" alt="" class="icons-bar">
+                            <span>Notificaciones </span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="/src/templates/porcinos.html" onclick="redirectWithDelay(event, 'porcinos.html')">
+                            <img src="../static/iconos/icon pig.svg" width="20px" alt="" class="icons-bar">
+                            <span>Porcinos</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="" class="flex-icons">
+                            <img src="../static/iconos/icon wheate.svg" title="alimentos" width="20px" alt="" class="icons-bar">
+                            <span>Alimentos</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#">
+                            <img src="../static/iconos/icon plate.svg" width="20px" alt="" class="icons-bar">
+                            <span>Dietas</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#">
+                            <img src="../static/iconos/icon page.svg" alt="" class="icons-bar">
+                            <span>Informes</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="/src/templates/perfil.html" onclick="redirectWithDelay(event, 'perfil.html')">
+                            <img src="../static/iconos/icon user.svg" width="20px" alt="" class="icons-bar">
+                            <span>Usuario</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="/src/templates/configuracion.html" onclick="redirectWithDelay(event, 'configuracion.html')">
+                            <img src="../static/iconos/icon setting.svg" width="20px" alt="" class="icons-bar">
+                            <span>Configuración</span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    </section>
     <section class="contenido_dietas">
         <header class= "container container__title_dietas">
             <h1>Crear dietas</h1>

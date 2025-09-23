@@ -154,14 +154,22 @@ document.querySelector("form").addEventListener("submit", function (e) {
       if (!text) throw new Error("Respuesta vacía del servidor");
       return JSON.parse(text);
   })
-  .then(res => {
-      if (res.mensaje) {
-          Swal.fire("Éxito", res.mensaje, "success");
-          window.location.href="alimentos.html";
-      } else if (res.error) {
-          Swal.fire("Error", res.error, "error");
-      }
-  })
+.then(res => {
+    if (res.mensaje) {
+        Swal.fire({
+            title: "Éxito",
+            text: res.mensaje,
+            icon: "success",
+            confirmButtonText: "Aceptar"
+        }).then((result) => {
+            if (result.isConfirmed) {
+                window.location.href = "alimentos.html";
+            }
+        });
+    } else if (res.error) {
+        Swal.fire("Error", res.error, "error");
+    }
+})
   .catch(err => Swal.fire("Error", err.message, "error"));
 });
 </script>
