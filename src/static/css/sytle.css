@@ -356,7 +356,7 @@ img {
 }
 
 /* -------------------
-SECCION DE HOME
+BARRA LATERAL
 ------------------- */
 
 .barra-lateral{
@@ -479,6 +479,10 @@ SECCION DE HOME
     z-index: 100;
 }
 
+
+/* -------------------
+SECCION DE HOME
+------------------- */
 
 .section__home{
     display: grid;
