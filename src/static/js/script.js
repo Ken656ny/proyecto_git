@@ -50,6 +50,7 @@ nav_bar.forEach((item) => item.addEventListener('click',bar_funct));
             const contraseña = document.getElementById('password').value;
             const constraseña_confirm = document.getElementById('confirmPassword').value;
 
+            
         if ((constraseña_confirm == contraseña) && (contraseña != '')) {
             const user = {
                 numero_identificacion: numero_identificacion,
@@ -75,7 +76,7 @@ nav_bar.forEach((item) => item.addEventListener('click',bar_funct));
                     title: "Mensaje",
                     text: `Usuario registrado correctamente`,
                     icon: "success",
-                    confirmButtonText: "Ir al panel"
+                    confirmButtonText: "Ir a la pagina",
                 }).then(() => {
                     localStorage.setItem("usuario", JSON.stringify({
                         nombre: nombre,
@@ -89,7 +90,8 @@ nav_bar.forEach((item) => item.addEventListener('click',bar_funct));
             Swal.fire({
                 title: "Mensaje",
                 text: `Las contraseñas no coinciden`,
-                icon: "error"
+                icon: "error",
+                scrollbarPadding: false
             });
         }
 
@@ -97,8 +99,6 @@ nav_bar.forEach((item) => item.addEventListener('click',bar_funct));
             console.error(error);
         }
     }
-
-
 
 async function login() {
     try {
@@ -117,25 +117,25 @@ async function login() {
                 headers : {
                     "Content-type" : "application/json"
                 }
-            }).then(response => {
-                return response.json()
-            }).then(response => {
-                console.log(response)
-                console.log(response.Mensaje)
-                if (response.Mensaje === 'Las crendenciales son correctas'){
+            }).then(data => {
+                return data.json()
+            }).then(data => {
+                console.log(data)
+                console.log(data.Mensaje)
+                if (data.Mensaje === 'Las credenciales son correctas'){
                     localStorage.setItem("usuario", JSON.stringify({
                         nombre: data.nombre,
                         numero_identificacion: data.numero_identificacion,
                         correo: data.correo
                     }));
                     location.href = 'home.html'
-                } else if (response.Mensaje === 'Contraseña incorrecta'){
+                } else if (data.Mensaje === 'Contraseña incorrecta'){
                     Swal.fire({
                         title: "Mensaje",
                         text: `Constraseña incorrecta`,
                         icon: "error"
                     });
-                } else if (response.Mensaje === 'Usuario no encontrado'){
+                } else if (data.Mensaje === 'Usuario no encontrado'){
                     Swal.fire({
                         title: "Mensaje",
                         text: `Usuario no encontrado`,
@@ -154,7 +154,6 @@ async function login() {
         console.error(error)
     }
 }
-
 
 // Funciones para abrir y cerrar diálogos
 function abrirDialog(dialogId) {
@@ -1042,6 +1041,7 @@ function consulta_individual_alimento(){
     }).then(() => {
         localStorage.setItem("usuario", JSON.stringify({
             nombre: data.nombre,
+            numero_identificacion: data.numero_identificacion,
             correo: data.correo
         }));
             location.href = "home.html"; 
@@ -1060,6 +1060,7 @@ function consulta_individual_alimento(){
 
 document.addEventListener("DOMContentLoaded", () => {
     const usuario = JSON.parse(localStorage.getItem("usuario"));
+    console.log(usuario)
 
     if (usuario) {
 
@@ -1075,9 +1076,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const btnPerfil = document.getElementById("btnPerfil");
         if (btnPerfil) btnPerfil.textContent = usuario.nombre;
 
-    } else {
-        console.warn("No se encontró el objeto 'usuario' en localStorage");
-    }
+    } 
 });
 
   //SIRVE PARA CERRAR SESION 

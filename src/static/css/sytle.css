@@ -186,10 +186,9 @@ SECCION REGISTROS
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 100vh;
+    min-height: 100vh;
     background-color: hsl(183, 100%, 93%);
-    color: white;
-    overflow: hidden;
+    color: white;;
     font-family: var(--fuente--contenido);
 }
 
@@ -199,7 +198,6 @@ SECCION REGISTROS
     padding: 0px 10px 25px 10px;
     border-radius: 35px;
     width: 566px;
-    overflow: hidden;
     box-shadow: 0 0 25px rgba(80, 129, 84, 0.7);
 }
 

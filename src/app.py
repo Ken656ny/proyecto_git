@@ -59,13 +59,16 @@ def login():
     
     with config['development'].conn() as conn:
       with conn.cursor() as cur:
-        cur.execute('SELECT correo, contrasena FROM usuario WHERE correo = %s', (correo))
-    
-    user = cur.fetchone()
+        cur.execute('SELECT id_usuario as numero_identificacion, nombre, correo, contrasena FROM usuario WHERE correo = %s', (correo,))
+        user = cur.fetchone()
     
     if user:
       if user['contrasena'] == constraseña:
-        return jsonify({'Mensaje': 'Las crendenciales son correctas'})
+        return jsonify({'Mensaje': 'Las credenciales son correctas',
+                    'nombre': user['nombre'],
+                    'numero_identificacion': user['numero_identificacion'],
+                    'correo': user['correo']
+})
       else:
         return jsonify({'Mensaje': 'Contraseña incorrecta'})
     else:
