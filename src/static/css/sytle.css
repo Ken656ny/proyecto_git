@@ -359,135 +359,126 @@ img {
 SECCION DE HOME
 ------------------- */
 
-/* el ancho es de 90 porque asi esta en el figma, ya despues se pone responsive */
-.nav__bar{
-    width: 90px;
-    height: 100dvh;
+.barra-lateral{
+    position: fixed;
+    display: flex;
+    flex-direction: column;
+    width: 250px;
+    height: 100vh;
+    padding: 2rem 1rem;
     background-color: var(--color--prede);
-    color: white;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    position: sticky; /*Sirve para centrar el ul*/
-    left: 0;
+    transition: width 0.3s ease, background-color 0.3s ease,left 0.3s ease;
+    overflow: hidden;
+    z-index: 3;
+    font-family: var(--fuente--contenido);
 }
 
-.nav__bar ul{
-    display: flex;
-    flex-direction: column;
-    align-items: center; /*sirve para que los elementos del ul se alinien todos*/
-    padding: 0;
-    gap: 17px;
-}
+.mini-barra-lateral{
+    width: 80px;
+} 
 
-.nav__bar ul li{
-    position: relative;
-    z-index: 1;
-    list-style: none;
-}
+/* -----------------------------------------------------------------nombre de la paginaaa */
 
-.nav__bar ul li a {
+.barra-lateral .logo-edupork{
+    margin-bottom: 40px;
+    width: 100%;
+    height: 45px;
     display: flex;
     align-items: center;
-    color: white;
-    padding: 15px 20px;
+    color: var(--color-white);
+    font-family: var(--fuente--contenido);
+}
+
+.barra-lateral .logo-edupork span{
+    margin-left: 5px;
+    font-size: 25px;
+}
+.barra-lateral .logo-edupork img{
+    min-width: 50px;
+    font-size: 40px;
+    cursor: pointer;
+}
+
+.barra-lateral  span{
+    font-size: 18px;
+    text-align: left;
+    transition: opacity 0.1s ease;
+}
+
+.barra-lateral span.oculto{
+    opacity: 0;
+    width: 0;
+}
+
+/* -------------------------------------------------------------menu de navegacion */
+
+.barra-lateral .navegacion{
+    height: 100%;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
+.barra-lateral .navegacion ul{
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+}
+
+.barra-lateral .navegacion li{
+    list-style: none;
+    display: flex;
+    justify-content: center;
+    font-family: var(--fuente--contenido);
+}
+
+.barra-lateral .navegacion a{
+    width: 100%;
+    height: 45px;
+    display: flex;
+    justify-content: start;
+    align-items: center;
+    gap: 20px;
     text-decoration: none;
+    border-radius: 10px;
+    color: var(--color-white);
+    transition: background-color 0.2s ease, font-weight 0.2s ease;
+    text-align: left;
 }
 
-.nav__bar ul li a img{
-    transition: 0.5s;
+.barra-lateral .navegacion a:hover{
+    background-color: var(--navegacion-despues);
+    font-weight: bold;
 }
 
-.nav__bar ul li.active a img{
-    transform: translateX(30px);
+.barra-lateral .navegacion img{
+    margin-left: 0.2rem;
+    min-width: 38px;
+    font-size: 10px;
+    transition: transform 0.2s ease;
 }
 
-.indicador{
-    box-sizing: border-box;
-    position: absolute;
-    top: 18px;
-    left: 36px;
-    width: 80px;
-    height: 80px;
+.barra-lateral .navegacion img:hover{
+    transform: scale(1.05);
+}
+
+/* ------------------------------------------------------------menu */
+
+.menu{
+    width: 50px;
+    height: 50px;
+    font-size: 30px;
+    display: none;
+    justify-content: center;
+    align-items: center;
     border-radius: 50%;
-    border: 6px solid #fff;
-    background-color: var(--color--letra);
+    right: 10px;
+    top: 10px;
+    background-color: var(--color--btn--resposive);
+    color: var(--color-white);
+    cursor: pointer;
+    z-index: 100;
 }
 
-.indicador::before{
-    content: '';
-    left: 24px;
-    top: -29.8px;
-    position: absolute;
-    width: 25px;
-    height: 25px;
-    border-bottom-right-radius: 20px;
-    box-shadow: 13px 4px 0 0 #ffffff;
-    background-color: var(--color--letra);
-}
-
-.indicador::after{
-    content: '';
-    right: 19.8px;
-    bottom: -29.8px;
-    position: absolute;
-    width: 25px;
-    height: 25px;
-    border-top-right-radius: 20px;
-    box-shadow: 13px -4px 0 0 #fff;
-    background-color: var(--color--letra);
-}
-
-.indicador__green::before{
-    content: '';
-    left: 24px;
-    top: -29.8px;
-    position: absolute;
-    width: 25px;
-    height: 25px;
-    border-bottom-right-radius: 20px;
-    box-shadow: 13px 4px 0 0 #78CB43;
-    background-color: var(--color--letra);
-}
-
-.indicador__green::after{
-    content: '';
-    right: 19.8px;
-    bottom: -29.8px;
-    position: absolute;
-    width: 25px;
-    height: 25px;
-    border-top-right-radius: 20px;
-    box-shadow: 13px -4px 0 0 #78CB43;
-    background-color: var(--color--letra);
-}
-
-.nav__bar ul li:nth-child(1).active ~ .indicador{
-    transform: translateY(0);
-}
-.nav__bar ul li:nth-child(2).active ~ .indicador{
-    transform: translateY(5.3em);
-}
-.nav__bar ul li:nth-child(3).active ~ .indicador{
-    transform: translateY(10.6em);
-}
-.nav__bar ul li:nth-child(4).active ~ .indicador{
-    transform: translateY(16.2em);
-}
-.nav__bar ul li:nth-child(5).active ~ .indicador{
-    transform: translateY(21.7em);
-}
-.nav__bar ul li:nth-child(6).active ~ .indicador{
-    transform: translateY(27em);
-}
-.nav__bar ul li:nth-child(7).active ~ .indicador{
-    transform: translateY(32.7em);
-    border: 6px solid #78CB43;
-}
-.nav__bar ul li:nth-child(8).active ~ .indicador{
-    transform: translateY(38.5em);
-    border: 6px solid #78CB43;
-}
 
 .section__home{
     display: grid;
@@ -1667,125 +1658,8 @@ SI SALE MAL ES CULPA DE CRISTIAN
 
 
 
-.barra-lateral{
-    position: fixed;
-    display: flex;
-    flex-direction: column;
-    width: 250px;
-    height: 100vh;
-    padding: 2rem 1rem;
-    background-color: var(--color--prede);
-    transition: width 0.3s ease, background-color 0.3s ease,left 0.3s ease;
-    overflow: hidden;
-    z-index: 3;
-    font-family: var(--fuente--contenido);
-}
 
-.mini-barra-lateral{
-    width: 80px;
-} 
 
-/* -----------------------------------------------------------------nombre de la paginaaa */
-
-.barra-lateral .logo-edupork{
-    margin-bottom: 40px;
-    width: 100%;
-    height: 45px;
-    display: flex;
-    align-items: center;
-    color: var(--color-white);
-    font-family: var(--fuente--contenido);
-}
-
-.barra-lateral .logo-edupork span{
-    margin-left: 5px;
-    font-size: 25px;
-}
-.barra-lateral .logo-edupork img{
-    min-width: 50px;
-    font-size: 40px;
-    cursor: pointer;
-}
-
-.barra-lateral  span{
-    font-size: 18px;
-    text-align: left;
-    transition: opacity 0.1s ease;
-}
-
-.barra-lateral span.oculto{
-    opacity: 0;
-    width: 0;
-}
-
-/* -------------------------------------------------------------menu de navegacion */
-
-.barra-lateral .navegacion{
-    height: 100%;
-    overflow-y: auto;
-    overflow-x: hidden;
-}
-
-.barra-lateral .navegacion ul{
-    display: flex;
-    flex-direction: column;
-    gap: 2rem;
-}
-
-.barra-lateral .navegacion li{
-    list-style: none;
-    display: flex;
-    justify-content: center;
-    font-family: var(--fuente--contenido);
-}
-
-.barra-lateral .navegacion a{
-    width: 100%;
-    height: 45px;
-    display: flex;
-    justify-content: start;
-    align-items: center;
-    gap: 20px;
-    text-decoration: none;
-    border-radius: 10px;
-    color: var(--color-white);
-    transition: background-color 0.2s ease, font-weight 0.2s ease;
-    text-align: left;
-}
-
-.barra-lateral .navegacion a:hover{
-    background-color: var(--navegacion-despues);
-    font-weight: bold;
-}
-
-.barra-lateral .navegacion img{
-    margin-left: 0.2rem;
-    min-width: 38px;
-    font-size: 10px;
-    transition: transform 0.2s ease;
-}
-
-.barra-lateral .navegacion img:hover{
-    transform: scale(1.05);
-}
-
-/* ------------------------------------------------------------menu */
-
-.menu{
-    width: 50px;
-    height: 50px;
-    font-size: 30px;
-    display: none;
-    justify-content: center;
-    align-items: center;
-    border-radius: 50%;
-    right: 10px;
-    top: 10px;
-    background-color: var(--color--btn--resposive);
-    color: var(--color-white);
-    cursor: pointer;
-    z-index: 100;
-}
 
 /* ---------------------responsive */
 
