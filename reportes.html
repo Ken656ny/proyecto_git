@@ -9,39 +9,23 @@
     <link rel="stylesheet" href="static/css/sytle.css">
     <title>Edupork</title>
 </head>
-   <body class="body__porcinos">
-        <nav class="nav__bar">
-            <ul class="nav__list">
-                <li class="nav__item active">
-                    <a href="#"><img src="/iconos/home icon.svg" alt=""></a>
-                </li>
-                <li class="nav__item">
-                    <a href="#"><img src="/iconos/notificacions.svg" alt=""></a>
-                </li>
-                <li class="nav__item">
-                    <a href="#"><img src="/iconos/icon pig.svg" alt=""></a>
-                </li>
-                <li class="nav__item"> 
-                    <a href="#"><img src="/iconos/icon wheate.svg" alt=""></a>
-                </li>
-                <li class="nav__item">
-                    <a href="#"><img src="/iconos/icon plate.svg" alt=""></a>
-                </li>
-                <li class="nav__item">
-                    <a href="reportes.html"><img src="/iconos/icon page.svg" alt=""></a>
-                </li>
-                <li class="nav__item">
-                    <a href="perfil.html"><img src="/iconos/icon user.svg" alt=""></a>
-                </li>
-                <li class="nav__item">
-                    <a href="configuracion.html"><img src="/iconos/icon setting.svg" alt=""></a>
-                </li>
-                <div class="indicador"></div>
-            </ul>
+<body class="body__reportes">
+    <nav class="nav__bar">
+        <ul class="nav__list">
+            <li class="nav__item active"><a href="#"><img src="/iconos/home icon.svg" alt=""></a></li>
+            <li class="nav__item"><a href="#"><img src="/iconos/notificacions.svg" alt=""></a></li>
+            <li class="nav__item"><a href="#"><img src="/iconos/icon pig.svg" alt=""></a></li>
+            <li class="nav__item"><a href="#"><img src="/iconos/icon wheate.svg" alt=""></a></li>
+            <li class="nav__item"><a href="#"><img src="/iconos/icon plate.svg" alt=""></a></li>
+            <li class="nav__item"><a href="reportes.html"><img src="/iconos/icon page.svg" alt=""></a></li>
+            <li class="nav__item"><a href="perfil.html"><img src="/iconos/icon user.svg" alt=""></a></li>
+            <li class="nav__item"><a href="configuracion.html"><img src="/iconos/icon setting.svg" alt=""></a></li>
+            <div class="indicador"></div>
+        </ul>
     </nav>
 
     <!-- Sección principal -->
-    <section class="section__porcinos">
+    <section class="section__reportes">
         <!-- Logo y usuario -->
         <section class="container__logo__user">
             <div class="container__back__logo">
@@ -57,9 +41,7 @@
         </section>
 
         <!-- Título -->
-        <div class="contenedor-informes">
-            <h2>Generar Informe</h2>
-        </div>
+        <h2 class="title_reportes">Generar Informe</h2>
 
         <!-- Barra de filtros -->
         <div class="barra-filtros">
@@ -86,11 +68,9 @@
 
         <!-- Botón generar -->
         <div class="contenedor-informes">
-            <button id="btn-generar" class="btn-generar">Generar</button>
+            <button id="btn-generar" class="btn-reportes">Generar</button>
         </div>
     </section>
-
-
 
 <script>
 document.addEventListener("DOMContentLoaded", () => {
@@ -112,7 +92,7 @@ document.addEventListener("DOMContentLoaded", () => {
         if (opcion === "alimentos") {
             destino = "reportes_alimentos.html";
         } else if (opcion === "pesos") {
-            destino = "pesos_reporte.html";
+            destino = "reportes_pesos.html";
         }
 
         // Paso el rango si fue seleccionado
@@ -120,13 +100,9 @@ document.addEventListener("DOMContentLoaded", () => {
             destino += `?rango=${rango}`;
         }
 
-        console.log("Redirigiendo a:", destino); // 👀 Ver en consola
         window.location.href = destino;
     });
 });
 </script>
-
-
-
 </body>
 </html>
