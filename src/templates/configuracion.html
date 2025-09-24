@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="/src/static/css/sytle.css">
+    <title>Edupork</title>
+</head>
+
+<body class="body__porcinos">
+    <section class="section-nav-bar" >
+        <div class="container-user">
+            <div class="container__btn__perfil">
+                <img src="../static/iconos/icon user.svg" alt="" width="25" class="svg__user__2">
+                <button type="button" class="btn__perfil">Juan Tovar</button>
+            </div>
+            <div class="menu">
+                <img src="../static/iconos/menu_icon.svg" alt="" class="menu-icons">
+                <img src="../static/iconos/close_icon.svg" alt="" class="menu-icons">
+            </div>
+        </div>
+        <div class="barra-lateral">
+            <div>
+                <div class="logo-edupork">
+                    <img id="cerdo" class="nombre" src="../static/iconos/cerdo.png" width="20px" alt="">
+                    <span>Edupork</span>
+                </div>
+            </div>
+            <nav class="navegacion">
+                <ul class="ul-navegacion">
+                    <li>
+                        <a href="/src/templates/home.html" onclick="redirectWithDelay(event, 'home.html')" > <!--dar estilo -->
+                            <img src="../static/iconos/home icon.svg" width="20px" alt="" class="icons-bar">
+                            <span>Home</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="/src/templates/notificaciones.html">
+                            <img src="../static/iconos/notificacions.svg" width="20px" alt="" class="icons-bar">
+                            <span>Notificaciones </span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="/src/templates/porcinos.html" onclick="redirectWithDelay(event, 'porcinos.html')">
+                            <img src="../static/iconos/icon pig.svg" width="20px" alt="" class="icons-bar">
+                            <span>Porcinos</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="/src/templates/alimentos.html" onclick="redirectWithDelay(event, 'alimentos.html')">
+                            <img src="../static/iconos/icon wheate.svg" title="alimentos" width="20px" alt="" class="icons-bar">
+                            <span>Alimentos</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#">
+                            <img src="../static/iconos/icon plate.svg" width="20px" alt="" class="icons-bar">
+                            <span>Dietas</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#">
+                            <img src="../static/iconos/icon page.svg" alt="" class="icons-bar">
+                            <span>Informes</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="/src/templates/perfil.html" onclick="redirectWithDelay(event, 'perfil.html')">
+                            <img src="../static/iconos/icon user.svg" width="20px" alt="" class="icons-bar">
+                            <span>Usuario</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="/src/templates/configuracion.html" onclick="redirectWithDelay(event, 'configuracion.html')">
+                            <img src="../static/iconos/icon setting.svg" width="20px" alt="" class="icons-bar">
+                            <span>Configuración</span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    </section>
+
+    <section class="section__porcinos">
+
+        <section class="container__logo__user">
+            <div class="container__back__logo" >
+                <img src="/src/static/iconos/back icon.svg" alt="icon back" class="icon__back">
+                <a href="/src/templates/home.html">
+                    <img src="/src/static/iconos/Logo.svg" alt="Logo Edupork" class="logo">
+                </a>
+            </div>
+            <div class="container__user__btn">
+                <img src="/src/static/iconos/icon user.svg" alt="" class="svg__user">
+                <button type="button" class="btn__perfil">Juan Tovar</button>
+            </div>
+        </section>
+
+        <div class="content_configuracion">
+
+            <h1 class="title_configuracion">Configuración</h1>
+
+            <div class="menu_configuracion">
+                <div class="menu-item_configuracion" onclick="abrirPanel('cuenta')">
+                    <img src="/src/static/iconos/cuenta.svg" alt="Cuenta" class="icono_configuracion"> Cuenta
+                </div>
+                <div class="menu-item_configuracion" onclick="abrirPanel('ajustar')">
+                    <img src="/src/static/iconos/ajustes.svg" alt="Ajustar" class="icono_configuracion"> Ajustar campos
+                </div>
+                <div class="menu-item_configuracion" onclick="abrirPanel('notificaciones')">
+                    <img src="/src/static/iconos/notificacions.svg" alt="Notificaciones" class="icono_configuracion">
+                    Notificaciones
+                </div>
+                <div class="menu-item_configuracion" onclick="abrirPanel('ayuda')">
+                    <img src="/src/static/iconos/signo_interrogacion.svg" alt="Ayuda" class="icono_configuracion"> Ayuda
+                </div>
+                <div class="menu-item_configuracion" onclick="abrirPanel('terminos')">
+                    <img src="/src/static/iconos/incono_exclamacion.svg" alt="Términos" class="icono_configuracion"> Términos y
+                    condiciones
+                </div>
+                <div class="menu-item_configuracion" onclick="abrirPanel('cambiar')">
+                    <img src="/src/static/iconos/incono_cambiar.svg" alt="Cambiar cuenta" class="icono_configuracion"> Cambiar
+                    cuenta
+                </div>
+                <div class="menu-item_configuracion" data-bs-toggle="modal" data-bs-target="#modalCerrarSesion">
+                    <img src="/src/static/iconos/incono_salida.svg" alt="Cerrar sesión" class="icono_configuracion"> Cerrar sesión
+                </div>
+
+                <!-- al final de tu HTML -->
+                <script src="/src/static/js/script.js"></script>
+            </div>
+        </div>
+</body>
+</html>
