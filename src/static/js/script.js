@@ -303,7 +303,8 @@ function crearDialogDelete(item, uniqueId) {
     return crearDialogBase(`dialog-delete-${uniqueId}`, 'dialog-icon-dele', 'Eliminar registro del porcino', contenido, '', '', uniqueId);
 }
 
-function crearDialogBase(id, clase, titulo, contenido, textoBoton, claseBoton, uniqueId) {
+function crearDialogBase(id, clase, titulo, contenido, textoBoton, claseBoton, uniqueId, funct, params) {
+
     return `
         <dialog class="${clase}" id="${id}">
             <div class="container__btn__close">
@@ -343,6 +344,8 @@ async function consulta_general_porcinos() {
         if (!response.ok) throw new Error(`Error: ${response.status}`);
         const porcinos = await response.json();
         mostrar_porcinos(porcinos);
+        consultar_razas();
+        consultar_etapas();
     } catch (error) {
         console.error('Error:', error);
     }
@@ -514,14 +517,14 @@ function crearDialogRegistrarRaza(){
         {label: 'Nombre', id: 'nombre_raza', required: false},
         {label: 'Descripcion', id: 'descripcion_raza', required: true},
     ]
-
+    
     const camposHTML = campos.map(campo => `
         <div class = "container__label__input">
             <label for="${campo.id}">${campo.label}</label>
             <input type="text" class="campo-info" id="${campo.id}" ${campo.required ? '' : 'required'}>
         </div>
         `).join('');
-
+    console.log(camposHTML)
     return crearDialogBaseRaza(`dialog-registrar-raza`, 'dialog-icon-eye', 'Registrar Raza', camposHTML, 'Guardar', 'button-guardar', '', 'registrar_raza','');
 }
 
@@ -627,7 +630,6 @@ async function consultar_razas() {
 
 async function registrar_raza() {
     try {
-        console.log('si entra a registrar')
         const nombre = document.getElementById('nombre_raza').value;
         const descri = document.getElementById('descripcion_raza').value;
 
@@ -650,9 +652,9 @@ async function registrar_raza() {
             title: "Mensaje",
             text: `${response.Mensaje}`,
             icon: "success"
-            
             });
             consultar_razas();
+            cerrarDialog
         } else{
             Swal.fire({
             title: "Mensaje",

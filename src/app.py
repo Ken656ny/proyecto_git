@@ -222,7 +222,7 @@ def registrar_porcinos():
   responses:
     200:
       description: Registro agregado
-  """
+  """ 
   try:
     porcino = request.get_json()
     id =      porcino['id_porcino']
@@ -237,8 +237,10 @@ def registrar_porcinos():
     
     with config['development'].conn() as conn:
       with conn.cursor() as cur:
-        cur.execute('INSERT INTO porcinos (peso_inicial,peso_final,fecha_nacimiento,sexo,id_raza,id_etapa,estado,descripcion,id_porcino) values (%s,%s,%s,%s,%s,%s,%s,%s,%s)',
-                  (p_ini,p_fin,fec_nac,sexo,id_ra,id_eta,estado,descripcion,id))
+        cur.execute("""
+                    INSERT INTO porcinos (peso_inicial,peso_final,fecha_nacimiento,sexo,id_raza,id_etapa,estado,descripcion,id_porcino) 
+                    values (%s,%s,%s,%s,%s,%s,%s,%s,%s)""",
+                    (p_ini,p_fin,fec_nac,sexo,id_ra,id_eta,estado,descripcion,id))
         conn.commit()
     
     return jsonify({'Mensaje': f'Porcino con id {id} registrado'})
