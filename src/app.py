@@ -15,6 +15,9 @@ from config import config
 app = Flask(__name__)
 app.secret_key = 'secretkey'
 CORS(app)
+
+# consumo de flutter
+CORS(app, origins=["http://localhost:58838/","http://10.4.215.181"])
 Swagger(app)
 
 # RUTA PRINCIPAL PARA VISUALIZAR SI EL SERVIDOR ESTA CORRIENDO CON NORMALIDAD
@@ -150,7 +153,7 @@ def consulta_general_porcinos():
         cur.execute('SELECT id_porcino,peso_inicial,peso_final,fecha_nacimiento,sexo,r.nombre as raza,e.nombre as etapa,estado,p.descripcion FROM porcinos p JOIN raza r ON p.id_raza = r.id_raza JOIN etapa_vida e ON p.id_etapa = e.id_etapa')
     
     informacion = cur.fetchall()
-    return jsonify({'Porcinos': informacion, 'Mensaje':'Listado de porcinos'})
+    return jsonify({'Porcinos': informacion})
     
   except Exception as err:
     print(err)
@@ -879,4 +882,4 @@ def eliminar_alimento(id):
       return jsonify({"error": str(e)})
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(host="0.0.0.0",port=5000,debug=True)
