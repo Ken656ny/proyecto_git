@@ -879,3 +879,22 @@ def eliminar_alimento(id):
 
 if __name__ == '__main__':
     app.run(debug=True)
+    
+# RUTA PARA INGRESAR DIETAS 
+
+# @app.route("/ingresar_dieta/", methods=["POST"])
+# def ingresar_dieta():
+#   """
+#   Consultar dietas
+#   ---
+#   tags: 
+#     - Gestion de dietas
+#   responses:
+#     200:
+#       description: Lista de dietas
+#   """
+#   try:
+#     data = request.get_json()
+    
+#   except Exception as e:
+    

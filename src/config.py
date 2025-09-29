@@ -13,7 +13,6 @@ class DevelopmentConfig(Config):
     PASSWORD = '290307'
     DATABASE = 'edupork'
     CURSOR_CLASS = pymysql.cursors.DictCursor
-    SQLALCHEMY_DATABASE_URI = config('SQLALCHEMY_DATABASE_URI')
 
     @classmethod
     def conn(self):

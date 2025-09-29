@@ -1046,3 +1046,35 @@ cerdo.addEventListener("click", () => {
         span.classList.toggle("oculto");
     });
 });
+
+
+//-- GESTIONAR DIETAS --//
+function mostrar_dietas(dietas){
+    const info = dietas.dietas.map(item => crearFiladieta(item)).join('');
+    document.getElementById('dietas').innerHTML = info;
+}
+
+function crearFilaDieta(item){
+    const uniqueId = item.id_dieta;
+    return `
+    <tr class="registro registro__dia">
+        <td class="td__border__l">${item.id_raza}</td>
+        <td>${item.nombre}</td>
+        <td>${item.descripcion}</td>
+        <td class="td__border__r">
+            ${crearIconosAccionesRaza(uniqueId)}
+        </td>
+            ${crearDialogEyeRaza(item, uniqueId)}
+            ${crearDialogEditRaza(item, uniqueId)}
+            ${crearDialogtDeleteRaza(item, uniqueId)}
+    </tr>
+    `
+}
+
+function crearIconosAccionesRaza(id) {
+    return `
+        <img src="/src/static/iconos/icono eye.svg" alt="" class="icon-eye" onclick="abrirDialog('dialog-eye-raza-${id}')">
+        <img src="/src/static/iconos/edit icon.svg" alt="" class="icon-edit" onclick="abrirDialog('dialog-edit-raza-${id}')">
+        <img src="/src/static/iconos/delete icon.svg" alt="" class="icon-delete" onclick="abrirDialog('dialog-delete-raza-${id}')">
+    `;
+}
