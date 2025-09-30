@@ -10,7 +10,7 @@ class Config():
 class DevelopmentConfig(Config):
     HOST = 'localhost'
     USER = 'root'
-    PASSWORD = '290307'
+    PASSWORD = '1711'
     DATABASE = 'edupork'
     CURSOR_CLASS = pymysql.cursors.DictCursor
 

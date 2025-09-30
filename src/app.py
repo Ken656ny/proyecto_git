@@ -877,24 +877,60 @@ def eliminar_alimento(id):
   except Exception as e:
       return jsonify({"error": str(e)})
 
-if __name__ == '__main__':
-    app.run(debug=True)
-    
+   
 # RUTA PARA INGRESAR DIETAS 
 
-# @app.route("/ingresar_dieta/", methods=["POST"])
-# def ingresar_dieta():
-#   """
-#   Consultar dietas
-#   ---
-#   tags: 
-#     - Gestion de dietas
-#   responses:
-#     200:
-#       description: Lista de dietas
-#   """
-#   try:
-#     data = request.get_json()
+@app.route("/ingresar_dieta/", methods=["POST"])
+def ingresar_dieta():
+  
+  print("oli")
+  """
+  Consultar dietas
+  ---
+  tags: 
+    - Gestion de dietas
+  responses:
+    200:
+      description: Lista de dietas
+  """
+  try:
     
-#   except Exception as e:
+    data = request.get_json()
     
+    if not data or "id_usuario" not in data:
+      return jsonify({"mensaje": "falta el campo 'id_usuario'"}), 400
+    
+    id_usuario = data["id_usuario"]
+    id_alimento_elemento = data.get("alimento_registro", [])
+    fecha = data.get("fecha")
+    # cantidad_alimento = data.get("cantidad_alimento")
+    
+    if not id_alimento_elemento:
+      return jsonify({"mensaje": "Esta vacio o falta el campo 'alimento_registro"}), 400
+    
+    registro = []
+    for item in id_alimento_elemento:
+      if "id" not in item or "valor" not in item:
+        return jsonify({"mensaje": "Cada alimento en 'alimento_registro' debe tener 'id"}), 400
+    
+      id_alimento = item["id"]
+      cantidad_alimento = item["valor"]
+      registro.append((id_usuario, id_alimento, fecha, cantidad_alimento))
+    
+    with config['development'].conn() as conn:
+      with conn.cursor() as cur:
+        sql = "insert into dietas (id_usuario, id_alimento_tiene_elemento, fecha, cantidad_alimento) values (%s, %s, %s, %s)"
+      
+        cur.executemany(sql, registro)
+        
+        conn.commit()
+    
+    return jsonify({"mensaje": "Se ha registrado correctamente"}), 200
+    
+  except Exception as e:
+    print(e)
+    return jsonify({"mensaje": "Error al registrar"}), 500
+    
+    
+if __name__ == '__main__':
+  app.run(debug = True)
