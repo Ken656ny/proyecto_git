@@ -618,6 +618,30 @@ SECCION DE PORCINOS
     border: none;
 }
 
+.usuario-menu {
+    display: none;
+    position: absolute;
+    right: 0;
+    background-color: var(--color--letra);
+    font-family: var(--fuente--contenido);
+    min-width: 150px;
+    box-shadow: 0px 8px 16px rgba(0,0,0,0.2);
+    border-radius: 6px;
+    z-index: 100;
+}
+
+.usuario-menu a {
+    display: block;
+    padding: 10px;
+    color: var(--color-white);
+    text-decoration: none;
+}
+
+.usuario-menu a:hover {
+    background: var(--color--btn--hover);
+}
+
+
 /* CODIGO DE LA SECCION DEL TITULO */
 
 .container__title{

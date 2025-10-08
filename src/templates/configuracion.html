@@ -7,6 +7,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <script src="https://accounts.google.com/gsi/client" async defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <link
         href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap"
         rel="stylesheet">
@@ -56,7 +57,14 @@
             </div>
             <div class="container__user__btn">
                 <img src="/src/static/iconos/icon user.svg" alt="" class="svg__user">
-                <button type="button" class="btn__perfil" id="btnPerfil"></button>
+                <button type="button" class="btn__perfil" id="btnPerfil">
+                    <span id="nombreUsuarioTexto"></span>
+                    <i class="fa fa-caret-down"></i>
+                </button>
+                <div class="usuario-menu" id="usuarioMenu">
+                    <a href="perfil.html">Mi perfil</a>
+                    <a href="#" id="cerrarSesionBtn">Cerrar sesión</a>
+                </div>
             </div>
         </section>
 
@@ -79,14 +87,12 @@
           <img src="/src/static/iconos/cuenta.svg" alt="Términos" class="icono_configuracion"> Usuarios
         </div>
         <div >
-           <button id="btnLogout" class="menu-item_configuracion"><img src="/src/static/iconos/incono_salida.svg" alt="Cerrar sesión" class="icono_configuracion"> Cerrar sesion</button>
+           <button id="btnLogout" class="menu-item_configuracion" onclick="cerrarSesion()"><img src="/src/static/iconos/incono_salida.svg" alt="Cerrar sesión" class="icono_configuracion"> Cerrar sesion</button>
         </div>
       </div>
     </div>
-  </section>
+    </section>
 
-                <script src="/src/static/js/script.js"></script>
-            </div>
-        </div>
+<script src="/src/static/js/script.js"></script>
 </body>
 </html>
