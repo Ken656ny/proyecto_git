@@ -15,11 +15,13 @@ from config import config
 from google.oauth2 import id_token
 from google.auth.transport import requests as google_requests
 
+import jwt
+from datetime import datetime, timedelta, timezone
+from functools import wraps
 
 app = Flask(__name__)
 app.secret_key = 'secretkey'
 CORS(app)
-CORS(app, origins=["http://localhost:64664/", "http://10.4.214.174"])
 Swagger(app)
 
 # RUTA PRINCIPAL PARA VISUALIZAR SI EL SERVIDOR ESTA CORRIENDO CON NORMALIDAD
@@ -29,54 +31,87 @@ def ruta_principal():
     return jsonify({'Mensaje':'App funcionnando correctamente'})
 
 
+def generar_token(usuario):
+    payload = {
+        "id_usuario": usuario["numero_identificacion"],
+        "nombre": usuario["nombre"],
+        "correo": usuario["correo"],
+        "exp": datetime.now(timezone.utc) + timedelta(hours=1)
+    }
+    token = jwt.encode(payload, app.secret_key, algorithm="HS256")
+    return token
+
+def token_requerido(f):
+    @wraps(f)
+    def decorador(*args, **kwargs):
+        token = request.headers.get("Authorization")
+        if not token:
+            return jsonify({"Mensaje": "Token faltante"}), 401
+        
+        try:
+            if "Bearer " in token:
+                token = token.replace("Bearer ", "")
+            
+            datos = jwt.decode(token, app.secret_key, algorithms=["HS256"])
+            request.usuario = datos
+            print("Datos decodificados:", datos)
+            
+        except jwt.ExpiredSignatureError:
+            return jsonify({"Mensaje": "Token expirado"}), 401
+        except jwt.InvalidTokenError as e:
+            print(f"Error decodificando token: {e}")
+            return jsonify({"Mensaje": "Token inválido"}), 401
+        
+        return f(*args, **kwargs)
+    return decorador
+
+@app.route('/perfil', methods=['GET'])
+@token_requerido
+def perfil():
+    usuario = request.usuario
+    return jsonify({
+        "nombre": usuario["nombre"],
+        "numero_identificacion": usuario["id_usuario"],  
+        "correo": usuario["correo"]
+    })
+
+
+
 # RUTA PARA VALIDACION DE LOGIN
-@app.route('/login', methods = ['POST'])
+@app.route('/login', methods=['POST'])
 def login():
-  """
-  Validacion de credenciales para iniciar sesion
-  ---
-  tags:
-    - login
-  parameters: 
-    - name: body
-      in: body
-      required: true
-      schema:
-        type: object
-        properties:
-          correo:
-            type: string
-          contraseña:
-            type: string
-  responses:
-    200:
-      description: Las credenciales coiciden 
-  """
-  try:
-    data = request.get_json()
-    correo = data['correo']
-    constraseña = data['contraseña']
-    
-    with config['development'].conn() as conn:
-      with conn.cursor() as cur:
-        cur.execute('SELECT id_usuario as numero_identificacion, nombre, correo, contrasena FROM usuario WHERE correo = %s', (correo,))
-        user = cur.fetchone()
-    
-    if user:
-      if user['contrasena'] == constraseña:
-        return jsonify({'Mensaje': 'Las credenciales son correctas',
+    try:
+        data = request.get_json()
+        
+        if not data or 'correo' not in data or 'contraseña' not in data:
+            return jsonify({'Mensaje': 'Datos incompletos'}), 400
+        
+        correo = data['correo']
+        contraseña = data['contraseña']
+        
+        with config['development'].conn() as conn:
+            with conn.cursor() as cur:
+                cur.execute('SELECT id_usuario as numero_identificacion, nombre, correo, contrasena FROM usuario WHERE correo = %s', (correo,))
+                user = cur.fetchone()
+        
+        if user:
+            if user['contrasena'] == contraseña:
+                token = generar_token(user)
+                return jsonify({
+                    'Mensaje': 'Las credenciales son correctas',
+                    'token': token,
                     'nombre': user['nombre'],
                     'numero_identificacion': user['numero_identificacion'],
                     'correo': user['correo']
-})
-      else:
-        return jsonify({'Mensaje': 'Contraseña incorrecta'})
-    else:
-      return jsonify({'Mensaje': 'Usuario no encontrado'})
-    
-  except Exception as err:
-    print(err)
-    return jsonify({'Mensaje': 'Error al consultar Usuario'})
+                }), 200
+            else:
+                return jsonify({'Mensaje': 'Contraseña incorrecta'}), 401
+        else:
+            return jsonify({'Mensaje': 'Usuario no encontrado'}), 404
+        
+    except Exception as err:
+        print(f"Error en login: {err}")
+        return jsonify({'Mensaje': 'Error al consultar Usuario'}), 500
 
 
 # RUTA PARA REGISTRAR USUARIOS NUEVOS
@@ -141,7 +176,6 @@ def registro_usuarios():
 
 @app.route('/api/auth/google', methods=['POST'])
 def google_login():
-
     if not request.is_json:
         return jsonify({"status": "error", "message": "Formato JSON requerido"}), 400
 
@@ -152,7 +186,6 @@ def google_login():
         return jsonify({"status": "error", "message": "Token no recibido"}), 400
 
     try:
-        # VERIFICA EL TOKEN DE GOOGLE
         idinfo = id_token.verify_oauth2_token(
             token,
             google_requests.Request(),
@@ -165,26 +198,43 @@ def google_login():
 
         conn = config['development'].conn()
         cursor = conn.cursor()
-        cursor.execute("SELECT * FROM usuario_externo WHERE correo = %s", (email,))
+
+        # Verificar si el usuario ya existe
+        cursor.execute("SELECT id_usuario_externo, nombre FROM usuario_externo WHERE correo = %s", (email,))
         user = cursor.fetchone()
 
         if not user:
+            # Insertar nuevo usuario externo
             cursor.execute("""
                 INSERT INTO usuario_externo (correo, nombre, proveedor)
                 VALUES (%s, %s, %s)
+                RETURNING id_usuario_externo
             """, (email, name, proveedor))
+            id_usuario_externo = cursor.fetchone()[0]
             conn.commit()
+        else:
+            id_usuario_externo = user["id_usuario_externo"]
+            name = user["nombre"]
+
+        # Construir objeto usuario y generar token
+        usuario = {
+            "numero_identificacion": id_usuario_externo,
+            "nombre": name,
+            "correo": email
+        }
+        token = generar_token(usuario)
 
         return jsonify({
             "status": "success",
             "correo": email,
             "nombre": name,
-            "proveedor": proveedor
+            "numero_identificacion": id_usuario_externo,
+            "proveedor": proveedor,
+            "token": token
         })
 
     except ValueError:
         return jsonify({"status": "error", "message": "Token inválido"}), 400
-
 
 
 # ------------------------------
@@ -916,4 +966,4 @@ def eliminar_alimento(id):
       return jsonify({"error": str(e)})
 
 if __name__ == '__main__':
-    app.run(host="0.0.0.0",port=5000,debug=True)
+    app.run(debug=True)
