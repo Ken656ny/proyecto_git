@@ -326,7 +326,7 @@ img {
     right: 0%;
     bottom: 0vh;
     z-index: -1;
-    overflow: hidden;
+
 }
 
 .nubes {
@@ -596,6 +596,8 @@ SECCION DE PORCINOS
     background-repeat: no-repeat;
     background-position: bottom;
     background-size: 100%;
+    background-attachment: fixed;
+    min-height: 100vh;
 }
 
 .section__porcinos{

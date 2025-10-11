@@ -11,6 +11,8 @@ from flasgger import Swagger
 # BASE DE DATOS, DENTRO DE ESA CLASE HAY UN CLASSMETHOD QUE RETORNA LA CONEXION CON LA BASE DE DATOS
 from config import config
 
+from datetime import datetime ,date
+
 
 app = Flask(__name__)
 app.secret_key = 'secretkey'
@@ -147,9 +149,13 @@ def consulta_general_porcinos():
   try:
     with config['development'].conn() as conn:
       with conn.cursor() as cur:
-        cur.execute('SELECT id_porcino,peso_inicial,peso_final,fecha_nacimiento,sexo,r.nombre as raza,e.nombre as etapa,estado,p.descripcion FROM porcinos p JOIN raza r ON p.id_raza = r.id_raza JOIN etapa_vida e ON p.id_etapa = e.id_etapa')
-    informacion = cur.fetchall()
-    return jsonify(informacion)
+          cur.execute("""SELECT id_porcino,peso_inicial,peso_final,fecha_nacimiento,sexo,r.nombre as raza,e.nombre as etapa,estado,p.descripcion
+              FROM porcinos p 
+              JOIN raza r ON p.id_raza = r.id_raza 
+              JOIN etapa_vida e ON p.id_etapa = e.id_etapa""")
+          informacion = cur.fetchall()
+    
+    return jsonify({'Porcinos' : informacion, "Mensaje":'Lista de porcinos'})
     
   except Exception as err:
     print(err)
@@ -188,6 +194,69 @@ def consulta_individual_porcinos(id):
     print(err)
     return jsonify({'Mensaje': 'Error al consultar porcino'})
 
+#Ruta para filtrar los porcinos
+@app.route('/porcino/filtros', methods = ['POST'])
+def porcinos_filtro():
+  """
+  Consulta por filtro de los porcinos registrado en la base de datos
+  ---
+  tags:
+    - Porcinos
+  parameters:
+    - name: body
+      in: body
+      required: true
+      schema:
+        type: object
+        properties:
+          filtro:
+            type: string
+          valor:
+            type: string
+  responses:
+    200:
+      descripcion: Lista de los porcinos filtrada
+  """
+  try:
+    data = request.get_json()
+    filtro = data.get('filtro')
+    valor = data.get('valor')
+    params = []
+    
+    query = """SELECT id_porcino,peso_inicial,peso_final,fecha_nacimiento,sexo,r.nombre as raza,e.nombre as etapa,estado,p.descripcion
+              FROM porcinos p 
+              JOIN raza r ON p.id_raza = r.id_raza 
+              JOIN etapa_vida e ON p.id_etapa = e.id_etapa
+              WHERE 1 = 1
+              """
+    
+    if filtro == 'sexo':
+      query += ' AND p.sexo = %s'
+      params.append(valor)
+    elif filtro == 'raza':
+      query += ' AND r.nombre = %s'
+      params.append(valor)
+    elif filtro == 'etapa':
+      query += ' AND e.nombre = %s'
+      params.append(valor)
+    elif filtro == 'peso_final':
+      query += ' AND  %s BETWEEN (p.peso_final - 10) AND (p.peso_final + 10)'
+      params.append(valor)
+    elif filtro == 'estado':
+      query += ' AND p.estado = %s'
+      params.append(valor)
+    else:
+      return jsonify({'Mensaje': 'Seleccione algun filtro...'})
+
+    with config['development'].conn() as conn:
+      with conn.cursor() as cur:
+          cur.execute(query,params)
+          informacion = cur.fetchall()
+    return jsonify({'Porcinos' : informacion, "Mensaje":'Lista de porcinos'})
+  except Exception as err:
+    print(err)
+    return jsonify({'Mensaje': 'Error'})
+
 # RUTA PARA REGISTRAR A UN PORCINO
 @app.route('/porcino', methods=['POST'])
 def registrar_porcinos():
@@ -222,33 +291,59 @@ def registrar_porcinos():
   responses:
     200:
       description: Registro agregado
-  """ 
+  """
   try:
     porcino = request.get_json()
     id =      porcino['id_porcino']
-    p_ini =   porcino['peso_inicial']
-    p_fin =   porcino['peso_final']
-    fec_nac = porcino['fecha_nacimiento']
+    p_ini =   float(porcino['peso_inicial'])
+    p_fin =   float(porcino['peso_final'])
+    fec_nac = datetime.strptime(porcino["fecha_nacimiento"], "%Y-%m-%d").date()
     sexo =    porcino['sexo']
     id_ra =   porcino['id_raza']
     id_eta =  porcino['id_etapa']
     estado =  porcino['estado']
     descripcion = porcino['descripcion']
+    print(porcino)
+    # Lista de campos obligatorios
+    campos_obligatorios = [
+        "id_porcino", "peso_inicial", "peso_final",
+        "fecha_nacimiento", "sexo", "id_raza",
+        "id_etapa", "estado"
+    ]
+
+    # Validar que los campos no estén vacíos
+    for campo in campos_obligatorios:
+        if campo not in porcino or porcino[campo] in [None, "", " "]:
+            return jsonify({"Mensaje": f"El campo '{campo}' es obligatorio"})
+    
+    # Validar si el peso_inicial y el peso_final no son negativos
+    if p_ini < 0 or p_fin < 0:
+      return jsonify({"Mensaje": "No se puede registrar un porcino con peso negativo"})
+    
+    # Validar que la fecha no sea futura
+    if fec_nac > date.today():
+      return jsonify({"Mensaje": "No se puede registrar un porcino con fecha futura"})
     
     with config['development'].conn() as conn:
       with conn.cursor() as cur:
         cur.execute("""
-                    INSERT INTO porcinos (peso_inicial,peso_final,fecha_nacimiento,sexo,id_raza,id_etapa,estado,descripcion,id_porcino) 
-                    values (%s,%s,%s,%s,%s,%s,%s,%s,%s)""",
-                    (p_ini,p_fin,fec_nac,sexo,id_ra,id_eta,estado,descripcion,id))
-        conn.commit()
+                    SELECT * FROM porcinos WHERE id_porcino = %s 
+                    """,(id))
+        porcino = cur.fetchone()
+        if porcino:
+          return jsonify({"Mensaje": f"Existe un porcino con el id {id}"})
+        else:
+          cur.execute("""
+                      INSERT INTO porcinos (peso_inicial,peso_final,fecha_nacimiento,sexo,id_raza,id_etapa,estado,descripcion,id_porcino) 
+                      values (%s,%s,%s,%s,%s,%s,%s,%s,%s)""",
+                      (p_ini,p_fin,fec_nac,sexo,id_ra,id_eta,estado,descripcion,id))
+          conn.commit()
     
     return jsonify({'Mensaje': f'Porcino con id {id} registrado'})
   
   except Exception as err:
     print(err)
-    
-    return jsonify({'Mensaje':'Error el porcino no pudo ser registrado'})
+    return jsonify({'Mensaje': f'{err}'})
 
 
 # RUTA PARA ACTUALIZAR LA INFORMACION DE UN PORCINO POR SU ID
