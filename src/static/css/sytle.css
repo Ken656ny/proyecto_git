@@ -226,6 +226,7 @@ input, select, textarea {
     background-color: #f1f1f1;
     width: 100%;
     border-radius: 20px;
+    border: none;
     padding: 9px;
     transition: all 0.3s ease;
     font-family: var(--fuente--contenido);
@@ -289,6 +290,13 @@ img {
     bottom: 0vh;
     z-index: -1;
 
+}
+
+.back1 {
+    position: absolute;
+    width: 3vw;
+    right: 96%;
+    bottom: 89vh;
 }
 
 .nubes {
