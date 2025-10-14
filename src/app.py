@@ -257,6 +257,7 @@ def porcinos_filtro():
     print(err)
     return jsonify({'Mensaje': 'Error'})
 
+
 # RUTA PARA REGISTRAR A UN PORCINO
 @app.route('/porcino', methods=['POST'])
 def registrar_porcinos():
