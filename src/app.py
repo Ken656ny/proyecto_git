@@ -36,7 +36,7 @@ def generar_token(usuario):
         "id_usuario": usuario["numero_identificacion"],
         "nombre": usuario["nombre"],
         "correo": usuario["correo"],
-        "exp": datetime.now(timezone.utc) + timedelta(hours=1)
+        "exp": datetime.now(timezone.utc) + timedelta(minutes=5)
     }
     token = jwt.encode(payload, app.secret_key, algorithm="HS256")
     return token
@@ -173,7 +173,6 @@ def registro_usuarios():
 # REGISTRO CON GOOGLE
 # ------------------------------
 
-
 @app.route('/api/auth/google', methods=['POST'])
 def google_login():
     if not request.is_json:
@@ -199,12 +198,12 @@ def google_login():
         conn = config['development'].conn()
         cursor = conn.cursor()
 
-        # Verificar si el usuario ya existe
+
         cursor.execute("SELECT id_usuario_externo, nombre FROM usuario_externo WHERE correo = %s", (email,))
         user = cursor.fetchone()
 
         if not user:
-            # Insertar nuevo usuario externo
+
             cursor.execute("""
                 INSERT INTO usuario_externo (correo, nombre, proveedor)
                 VALUES (%s, %s, %s)
@@ -216,7 +215,6 @@ def google_login():
             id_usuario_externo = user["id_usuario_externo"]
             name = user["nombre"]
 
-        # Construir objeto usuario y generar token
         usuario = {
             "numero_identificacion": id_usuario_externo,
             "nombre": name,

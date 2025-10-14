@@ -234,56 +234,56 @@ function handleCredentialResponse(response) {
 
 
 async function cargarDatosPerfil() {
-  const token = localStorage.getItem('token');
-  if (!token) {
+    const token = localStorage.getItem('token');
+        if (!token) {
     Swal.fire({
-      icon: 'warning',
-      title: 'Sesión no iniciada',
-      text: 'Por favor inicia sesión para ver Edupork.',
-      confirmButtonText: 'Ir al login'
+        icon: 'warning',
+        title: 'Sesión no iniciada',
+        text: 'Por favor inicia sesión para ver Edupork.',
+        confirmButtonText: 'Ir al login'
     }).then(() => {
-      window.location.href = 'index.html'; 
+        window.location.href = 'index.html'; 
     });
-    return;
-  }
+        return;
+    }
 
-  try {
-    const respuesta = await fetch(`${URL_BASE}/perfil`, {
-      method: 'GET',
-      headers: {
-        'Authorization': `Bearer ${token}`
-      }
-    });
+    try {
+        const respuesta = await fetch(`${URL_BASE}/perfil`, {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${token}`
+                }
+            });
 
     const datos = await respuesta.json();
 
     if (!respuesta.ok) {
-      Swal.fire({
-        icon: 'error',
-        title: 'Sesión inválida',
-        text: datos.Mensaje || 'No se pudo cargar el perfil.',
-        confirmButtonText: 'Volver a iniciar sesión'
-      }).then(() => {
-        localStorage.removeItem('token');
-        localStorage.removeItem('usuario');
-        window.location.href = 'index.html';
-      });
-      return;
+            Swal.fire({
+            icon: 'error',
+            title: 'Sesión inválida',
+            text: datos.Mensaje || 'No se pudo cargar el perfil.',
+            confirmButtonText: 'Volver a iniciar sesión'
+        }).then(() => {
+            localStorage.removeItem('token');
+            localStorage.removeItem('usuario');
+            window.location.href = 'index.html';
+        });
+        return;
     }
 
     document.getElementById('nombreUsuario').textContent = datos.nombre;
     document.getElementById('identificacionUsuario').textContent = datos.numero_identificacion;
     document.getElementById('correoUsuario').textContent = datos.correo;
 
-  } catch (error) {
-    console.error("Error en la petición:", error);
-    Swal.fire({
-      icon: 'error',
-      title: 'Error de conexión',
-      text: 'No se pudo conectar con el servidor.',
-      confirmButtonText: 'Reintentar'
-    });
-  }
+    } catch (error) {
+        console.error("Error en la petición:", error);
+        Swal.fire({
+            icon: 'error',
+            title: 'Error de conexión',
+            text: 'No se pudo conectar con el servidor.',
+            confirmButtonText: 'Reintentar'
+        });
+    }
 }
 
 // CERRAR SESIÓN
