@@ -22,6 +22,7 @@ from functools import wraps
 app = Flask(__name__)
 app.secret_key = 'secretkey'
 CORS(app)
+CORS(app, resources={r"/api/*": {"origins": ["http://127.0.0.1:5502"]}})
 Swagger(app)
 
 # RUTA PRINCIPAL PARA VISUALIZAR SI EL SERVIDOR ESTA CORRIENDO CON NORMALIDAD
@@ -206,10 +207,8 @@ def google_login():
 
             cursor.execute("""
                 INSERT INTO usuario_externo (correo, nombre, proveedor)
-                VALUES (%s, %s, %s)
-                RETURNING id_usuario_externo
-            """, (email, name, proveedor))
-            id_usuario_externo = cursor.fetchone()[0]
+                VALUES (%s, %s, %s)""", (email, name, proveedor))
+            id_usuario_externo = cursor.lastrowid
             conn.commit()
         else:
             id_usuario_externo = user["id_usuario_externo"]
