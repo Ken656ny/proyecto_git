@@ -217,7 +217,6 @@ input, select, textarea {
     color: #434242;
     background-color: #f1f1f1;
     width: 100%;
-    border: none;
     border-radius: 20px;
     padding: 9px;
     transition: all 0.3s ease;
@@ -681,9 +680,15 @@ SECCION DE PORCINOS
     width: 1100px;
     height: 60px;
     margin: auto;
-    padding-left: 3em;
-    gap: 7em;
+    padding: 0 2rem;
+    gap: 4rem;
     font-family: var(--fuente--contenido);
+}
+
+#filter__options__2{
+    width: 150px;
+    border-radius: 10px;
+    order: 3;
 }
 
 .input__id{
@@ -694,11 +699,13 @@ SECCION DE PORCINOS
     border-radius: 26px;
     font-family: inherit;
     outline: none;
+    order: 1;
 }
 
 .container__filtro{
     position: relative;
     display: flex;
+    order: 2;
 }
 
 #svg__filter{
@@ -732,11 +739,15 @@ SECCION DE PORCINOS
     cursor: pointer;
 }
 
+
 .btn:hover{
     background-color: var(--color--btn--hover);
     border: 1px solid var(--color-bor-btn-hover);
 }
 
+#btn_consultar{
+    order: 4;
+}
 /* CODIGO DE LA SECCION DEL BOTON DE AGREGAR */
 
 .container__btn__options{
@@ -908,6 +919,7 @@ th{
 .info-delete{
     display: flex;
     flex-direction: column;
+    align-items: center;
     grid-column-start: 1;
     grid-column-end: 4;
 }
@@ -939,7 +951,7 @@ th{
 /* CONTAINER DEL BOTTON CERRAR */
 
 .container-button-close, .container-button-guardar, .container-button-dele{
-    margin-top: 2.5em;
+    margin-top: 1em;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -979,6 +991,7 @@ hr{
 /* DIALOG ICON DELETE */
 
 .dialog-icon-dele{
+    
     width: 529px;
     height: 397px;
     padding: 0 15px;
@@ -991,7 +1004,7 @@ hr{
     font-size: 20px;
 }
 
-    .dialog-icon-dele hr{
+.dialog-icon-dele hr{
     width: 450px;
     margin-bottom: 50px;
 }
@@ -1047,6 +1060,15 @@ hr{
     border: 1px solid var(--color-bor-contain);
 }
 
+.placerholder_eliminar{
+    border : 1px solid #f15b5bff;
+}
+
+.placerholder_eliminar::placeholder{
+    color: #f31818;
+    font-weight: bold;
+}
+
 .btn--guardar{
     grid-column: 2/4;
     margin: auto;
@@ -1068,6 +1090,7 @@ hr{
     justify-content: center;
     gap: 15px;
     height: 0;
+    padding: 0;
 }
 
 .container__btn__close{

@@ -6,7 +6,6 @@ document.addEventListener('DOMContentLoaded', function() {
     crearDialogRegistrarEtapa();
 });
 
-
 // REDIRECCION DE FORMA LENTA HACIA LOS HTML
 
 function redirectWithDelay(event, url) {
@@ -61,7 +60,6 @@ async function registro_usuarios() {
                         "Content-type" : "application/json"
                     }
                 }).then(response => {
-                    console.log(response)
                 }).then(() => {
                     Swal.fire({
                         title: "Mensaje",
@@ -102,8 +100,6 @@ async function login() {
             }).then(response => {
                 return response.json()
             }).then(response => {
-                console.log(response)
-                console.log(response.Mensaje)
                 if (response.Mensaje === 'Las crendenciales son correctas'){
                     location.href = 'home.html'
                 } else if (response.Mensaje === 'Contraseña incorrecta'){
@@ -198,10 +194,8 @@ function dialog__ges__eta(){
 
 // CONSUMO DE DATOS DE LOS PORCINOS REGISTRADOS
 function mostrar_porcinos(porcinos) {
-    
     const info = porcinos.Porcinos.map(item => crearFilaPorcino(item)).join('');
     document.getElementById('info_porcinos').innerHTML = info;
-    
 }
 
 function crearFilaPorcino(item) {
@@ -225,6 +219,7 @@ function crearFilaPorcino(item) {
             ${crearDialogEye(item, uniqueId)}
             ${crearDialogEdit(item, uniqueId)}
             ${crearDialogDelete(item, uniqueId)}
+            ${crearDialogDeleteConfirm(uniqueId)}
         </tr>`;
 }
 
@@ -259,7 +254,7 @@ function crearDialogEye(item, uniqueId) {
     </div>
     `).join('');
 
-    return crearDialogBase(`dialog-eye-${uniqueId}`, 'dialog-icon-eye', 'Informacion del Porcino', camposHTML, 'Cerrar', 'button-cerrar', uniqueId);
+    return crearDialogBase(`dialog-eye-${uniqueId}`, 'dialog-icon-eye', 'Informacion del Porcino', camposHTML, 'Cerrar', 'button-cerrar', uniqueId,'prueba');
 }
 
 function crearDialogEdit(item, uniqueId){
@@ -359,46 +354,55 @@ function crearDialogEdit(item, uniqueId){
     return crearDialogBase(`dialog-edit-${uniqueId}`, 'dialog-icon-edit', 'Actualizar datos del porcino', camposHTML, 'Guardar', 'button-guardar', uniqueId,'actualizar_porcino','');
 }
 
+function crearDialogDeleteConfirm(uniqueId){
+    const contenido = `
+        <p>Escriba debajo el ID "${uniqueId}" y presione eliminar si asi lo desea</p>
+        <input id="input-eliminar-${uniqueId}" class="input__add__por" type="number" oninput="this.value = Math.abs(this.value)" placeholder= "Ingrese el ID">
+    `;
+    return crearDialogBase(`dialog-delete-conf-${uniqueId}`, 'dialog-icon-dele', 'Eliminar registro del porcino', contenido, 'Eliminar','button-eliminar', uniqueId,'eliminar_porcino')
+}
+
 function crearDialogDelete(item, uniqueId) {
     const contenido = `
-    <div class="info-delete" >
         <p>Eliminar el registro sin saber si el porcino tiene trazabilidad puede que altere el funcionamiento del sistema, es preferible que cambie el estado del porcino a inactivo.</p>
         <span>¿Está seguro que quiere eliminar este registro?</span>
-        <div class="container-button-dele">
-            <button class="button-eliminar" onclick="eliminar_porcino(${item.id_porcino})">Eliminar</button>
-        </div>
-    </div>
     `;
-
-    return crearDialogBase(`dialog-delete-${uniqueId}`, 'dialog-icon-dele', 'Eliminar registro del porcino', contenido, '', '', uniqueId);
+    return crearDialogBase(`dialog-delete-${uniqueId}`, 'dialog-icon-dele', 'Eliminar registro del porcino', contenido, 'Continuar', 'button-eliminar', uniqueId,'eliminar_porcino');
 }
+
 
 function crearDialogBase(id, clase, titulo, contenido, textoBoton, claseBoton, uniqueId, funct, params) {
     const dialog = document.createElement("dialog");
-    document.body.appendChild(dialog)
+    
     dialog.className = clase;
     dialog.id = id;
-
     dialog.innerHTML = `
         <div class="container__btn__close">
             <button type="button" class="btn__close" onclick="cerrarDialog('${id}')">X</button>
         </div>
-        <form  onsubmit="event.preventDefault(); ${funct}('${uniqueId}')" class="container__items__dialogs">
-            <div class="title-dialog">
-                <h2>${titulo}</h2>
-                <hr>
-            </div>
-            <div class="info-porcino">${contenido}</div>
-            ${textoBoton ? `
-            <div class="container-button-${claseBoton.includes('cerrar') ? 'close' : 'guardar'}">
-                <button type="${textoBoton.toLowerCase() === 'cerrar' ? 'button' : 'submit'}" 
-                        class="${claseBoton}" 
-                        ${textoBoton.toLowerCase() === 'cerrar' ? `onclick="cerrarDialog('${id}')"` : ""}>
-                    ${textoBoton}
-                </button>
-            </div>` : ""}
-        </form>
+        ${clase ? `
+            <form onsubmit="event.preventDefault(); ${funct}('${uniqueId}')" ${clase.toLowerCase() === 'dialog-icon-dele' ? '' : 'class="container__items__dialogs"' }>
+                <div class="title-dialog">
+                    <h2>${titulo}</h2>
+                    <hr>
+                </div>
+                ${clase ? ` 
+                <div class="${clase.toLowerCase() === 'dialog-icon-dele' ? 'info-delete' : "info-porcino"}"> ${contenido} </div>
+                ` : ""}
+                ${textoBoton ? `
+                <div class="container-button-${claseBoton.includes('cerrar') ? 'close' : 'guardar'}">
+                    <button type="${textoBoton.toLowerCase() === 'cerrar' || textoBoton.toLowerCase() === 'continuar' ? 'button' : 'submit'}"
+                        class="${claseBoton}"
+                        ${textoBoton.toLowerCase() === 'cerrar' ? `onclick="cerrarDialog('${id}')"` : ""}
+                        ${textoBoton.toLowerCase() === 'continuar' ? `onclick="abrirDialog('dialog-delete-conf-${uniqueId}')"` : ""}
+                        >
+                        ${textoBoton}
+                    </button>
+                </div>` : ""}
+            </form>
+        ` : ""}
     `;
+    document.body.appendChild(dialog)
     return ''
 }
 
@@ -425,6 +429,7 @@ async function consulta_general_porcinos() {
         mostrar_porcinos(porcinos);
         consultar_razas();
         consultar_etapas();
+        porcino_filtros();
     } catch (error) {
         console.error('Error:', error);
     }
@@ -438,7 +443,6 @@ function consulta_individual_porcino(){
         return response.json();
     })
     .then( porcinos => {
-        console.log(porcinos)
         if (porcinos.Mensaje == 'Porcino no encontrado'){
             Swal.fire({
             title: "Mensaje",
@@ -460,9 +464,88 @@ function refrescar_porcinos(id_porcino){
     }
 }
 
-async function porcino_filtros() {
+function crearSelects(filtro,opciones){
+    const old_select = document.getElementById('filter__options__2');
+    if (old_select) old_select.remove();
+    const container_search = document.getElementById("container__search__bar");
+    let select = document.createElement('select')
+    select.id = "filter__options__2"
+    select.className = "input_id"
+    select.setAttribute('required', true)
+    let value_pred = document.createElement('option');
+    value_pred.text = "Seleccione..."
+    value_pred. value = ""
+    value_pred.disabled = true
+    value_pred.selected = true
+    select.appendChild(value_pred)
+    if (filtro === 'sexo' || filtro === 'estado'){
+        opciones.forEach(opcion => {
+            let option = document.createElement('option')
+            option.text = opcion
+            option.value = opcion
+            select.appendChild(option)
+        })
+    } else {
+        opciones.forEach(opcion => {
+            let option = document.createElement('option')
+            option.text = opcion.nombre
+            option.value = opcion.nombre
+            select.appendChild(option)
+        })
+    }
+    container_search.appendChild(select)
+}
+
+function porcino_filtros() {
     try {
-        
+        const filter = document.getElementById("filter_porcino");
+        const opciones = {
+            "sexo" : ["Macho","Hembra"],
+            "estado" : ["Activo","Inactivo"]
+        }
+        filter.addEventListener('change', () => {
+            if (opciones[filter.value]){
+                crearSelects(filter.value,opciones[filter.value])
+            } else{
+                setTimeout(async() => {
+                    const razas = await consultar_razas();
+                    const etapas = await consultar_etapas();
+                    if (filter.value === 'raza'){
+                        crearSelects(filter.value,razas.razas)
+                    }
+                    if (filter.value === 'etapa'){
+                        crearSelects(filter.value,etapas.etapas)
+                    }
+                },);
+            }
+        })
+    } catch (error) {
+        console.error(error)
+    }
+}
+
+// HACER LA FUNCION DE FILTRADO(), CAMBIAR ESE NOMBRE TAN PEYE CONECTAR CON EL BACKEND
+async function consulta_filtros() {
+    try {
+        const filtro = document.getElementById('filter_porcino').value;
+        const valor = document.getElementById('filter__options__2').value;
+
+        const info = {
+            "filtro" : filtro,
+            "valor" : valor
+        }
+        console.log(info)
+        const promesa = await fetch(`${URL_BASE}/porcino/filtros`, 
+            {
+                method : 'POST',
+                body : JSON.stringify(info),
+                headers : {
+                    "Content-type" : "application/json"
+                }
+            }
+        )
+        const response = await promesa.json()
+        mostrar_porcinos(response)
     } catch (error) {
         console.error(error)
     }
@@ -476,9 +559,9 @@ async function agregar_porcino(){
         const peso_inicial = document.getElementById('peso_inicial').value;
         const peso_final = document.getElementById('peso_final').value;
         const fecha = document.getElementById('fecha').value;
-        const raza = document.getElementById('raza').value;
+        const raza = document.getElementById('raza_add').value;
         const sexo = document.getElementById('sexo').value;
-        const etapa = document.getElementById('etapa').value;
+        const etapa = document.getElementById('etapa_add').value;
         const descripcion = document.getElementById('descripcion').value;
 
         const porcino = {
@@ -492,7 +575,6 @@ async function agregar_porcino(){
             "estado" : "Activo",
             "descripcion" : descripcion 
         }
-        console.log(porcino)
         const promesa = await fetch(`${URL_BASE}/porcino`, {
             method : 'POST',
             body : JSON.stringify(porcino),
@@ -516,7 +598,6 @@ async function agregar_porcino(){
             
         });
         }
-        console.log(response)
         return response
     } catch (error) {
         console.error(error)
@@ -545,7 +626,6 @@ async function actualizar_porcino(id_porcino) {
             "estado" :estado,
             "descripcion" : descripcion 
         }
-        console.log(porcino)
         const promesa = await fetch(`${URL_BASE}/porcino/${id_porcino}`, 
             {
                 method : "PUT",
@@ -564,20 +644,32 @@ async function actualizar_porcino(id_porcino) {
 
 
 function eliminar_porcino(id_porcino){
-    fetch(`${URL_BASE}/porcino/${id_porcino}`, {method: 'DELETE'})
-    .then( response => {
-        if (!response.ok) throw new Error(`Error: ${response.status}`);
-        return response.json()
-    })
-    .then(response => {
-        refrescar_porcinos(id_porcino);
-        Swal.fire({
-            title: "Mensaje",
-            text: `${response.Mensaje}`,
-            icon: "success"
-        });
-    })
-    .catch(error => console.error('Error', error));
+    const input = document.getElementById(`input-eliminar-${id_porcino}`);
+    const id_input = document.getElementById(`input-eliminar-${id_porcino}`).value;
+    if (id_input == id_porcino){
+        fetch(`${URL_BASE}/porcino/${id_porcino}`, {method: 'DELETE'})
+        .then( response => {
+            if (!response.ok) throw new Error(`Error: ${response.status}`);
+            return response.json()
+        })
+        .then(response => {
+            refrescar_porcinos(id_porcino);
+            cerrarDialog(`dialog-delete-conf-${id_porcino}`);
+            cerrarDialog(`dialog-delete-${id_porcino}`);
+            Swal.fire({
+                title: "Mensaje",
+                text: `${response.Mensaje}`,
+                icon: "success"
+            });
+        })
+        .catch(error => console.error('Error', error));
+    } else {
+        input.style.backgroundColor = '#f8a5a5';
+        input.classList.add('placerholder_eliminar')
+        input.value = '';
+        input.placeholder = 'ID incorrecto...';
+    }
+
 }
 
 // -------------------
@@ -604,6 +696,7 @@ function crearFilaRaza(item){
             ${crearDialogEyeRaza(item, uniqueId)}
             ${crearDialogEditRaza(item, uniqueId)}
             ${crearDialogtDeleteRaza(item, uniqueId)}
+            ${crearDialogDeleteConfirmRaza(uniqueId)}
     </tr>
     `
 }
@@ -672,18 +765,20 @@ function crearDialogEditRaza(item, uniqueId){
     return crearDialogBaseRaza(`dialog-edit-raza-${uniqueId}`, 'dialog-icon-eye', 'Actualizar datos de la Raza', camposHTML, 'Guardar', 'button-guardar', uniqueId, 'actualizar_raza','')
 }
 
+function crearDialogDeleteConfirmRaza(uniqueId){
+    const contenido = `
+        <p>Escriba debajo el ID "${uniqueId}" y presione eliminar si asi lo desea</p>
+        <input id="input-eliminar-r-${uniqueId}" class="input__add__por" type="number" oninput="this.value = Math.abs(this.value)" placeholder= "Ingrese el ID">
+    `;
+    return crearDialogBaseRaza(`dialog-delete-conf-r-${uniqueId}`, 'dialog-icon-dele', 'Eliminar Raza', contenido, 'Eliminar','button-eliminar', uniqueId,'eliminar_raza')
+}
+
 function crearDialogtDeleteRaza(item, uniqueId){
     const contenido =  `
-        <div class="info-delete" >
-            <p>Eliminar el registro sin saber si la raza tiene trazabilidad puede que altere el funcionamiento del sistema.</p>
-            <span>¿Está seguro que quiere eliminar este registro?</span>
-            <div class="container-button-dele">
-                <button class="button-eliminar" onclick="eliminar_raza(${item.id_raza})">Eliminar</button>
-            </div>
-        </div>
+        <p>Eliminar el registro sin saber si la raza tiene trazabilidad puede que altere el funcionamiento del sistema.</p>
+        <span>¿Está seguro que quiere eliminar este registro?</span>
     `;
-
-    return crearDialogBaseRaza(`dialog-delete-raza-${uniqueId}`, 'dialog-icon-dele', 'Eliminar Raza', contenido, '', '', uniqueId, '', '')
+    return crearDialogBaseRaza(`dialog-delete-raza-${uniqueId}`, 'dialog-icon-dele', 'Eliminar Raza', contenido, 'Continuar', 'button-eliminar', uniqueId, 'eliminar_raza', '')
 }
 
 
@@ -705,16 +800,22 @@ function crearDialogBaseRaza(id, clase, titulo, contenido, textoBoton, claseBoto
             </div>
             <div class="info_raza_etapa">${contenido}</div>
             ${textoBoton ? `
-            <div class="container-button-${claseBoton.includes('cerrar') ? 'close' : 'guardar'}">
-                <button type="${textoBoton.toLowerCase() === 'cerrar' ? 'button' : 'submit'}" 
-                        class="${claseBoton}" 
-                        ${textoBoton.toLowerCase() === 'cerrar' ? `onclick="cerrarDialog('${id}')"` : ""}>
+                <div class="container-button-${claseBoton.includes('cerrar') ? 'close' : 'guardar'}">
+                    <button 
+                    type="${['cerrar', 'continuar'].includes(textoBoton.toLowerCase()) ? 'button' : 'submit'}"
+                    class="${claseBoton}"
+                    ${textoBoton.toLowerCase() === 'cerrar' ? `onclick="cerrarDialog('${id}')"` : ""}
+                    ${funct && funct.toLowerCase() === 'eliminar_raza' 
+                        ? `onclick="abrirDialog('dialog-delete-conf-r-${uniqueId}')"` 
+                        : funct && funct.toLowerCase() === 'eliminar_etapa' 
+                        ? `onclick="abrirDialog('dialog-delete-conf-e-${uniqueId}')"` 
+                        : ""}
+                    >
                     ${textoBoton}
-                </button>
+                    </button>
             </div>` : ""}
         </form>
     `;
-    
     document.body.appendChild(dialog)
     return ''
 }
@@ -750,15 +851,15 @@ async function registrar_raza() {
             }
         })
         const response = await promesa.json()
-        console.log(response)
         if (response.Mensaje == "Raza registrada correctamente"){
+            consultar_razas()
+            cerrarDialog('dialog-registrar-raza')
+            cerrarDialog('dialog__ges__raz')
             Swal.fire({
             title: "Mensaje",
             text: `${response.Mensaje}`,
             icon: "success"
             });
-            cerrarDialog('dialog-registrar-raza')
-            cerrarDialog('dialog__ges__raz')
         } else{
             Swal.fire({
             title: "Mensaje",
@@ -777,9 +878,6 @@ async function actualizar_raza(id) {
         const nombre = document.getElementById(`nombre-raza-actualizar-${id}`).value;
         const descri = document.getElementById(`descripcion-raza-actualizar-${id}`).value;
 
-        console.log(document.getElementById(`nombre-raza-actualizar-${id}`))
-        console.log(document.getElementById(`descripcion-actualizar-raza-${id}`))
-
         const raza = {
             nombre: nombre,
             descripcion: descri
@@ -793,7 +891,6 @@ async function actualizar_raza(id) {
             }
         })
         const response = await promesa.json()
-        console.log(response)
         consultar_razas()
         return response
     } catch (error) {
@@ -803,12 +900,27 @@ async function actualizar_raza(id) {
 
 async function eliminar_raza(id){
     try {
-        const promesa = await fetch(`${URL_BASE}/raza/${id}`, {method : 'DELETE'});
-        const response = await promesa.json();
-        consultar_razas()
-        return response
+        const input = document.getElementById(`input-eliminar-r-${id}`);
+        const value_input = document.getElementById(`input-eliminar-r-${id}`).value;
+        if (value_input == id){
+            const promesa = await fetch(`${URL_BASE}/raza/${id}`, {method : 'DELETE'});
+            const response = await promesa.json();
+            consultar_razas()
+            cerrarDialog(`dialog-delete-conf-r-${id}`);
+            cerrarDialog(`dialog-delete-raza-${id}`);
+            cerrarDialog(`dialog__ges__raz`);
+            Swal.fire({
+                title: "Mensaje",
+                text: `${response.Mensaje}`,
+                icon: "success"
+            });
+        } else{
+            input.style.backgroundColor = '#f8a5a5';
+            input.classList.add('placerholder_eliminar')
+            input.value = '';
+            input.placeholder = 'ID incorrecto...';
+        }
     } catch (error) {
-        console.log(error)
         Swal.fire({
             title: "Mensaje",
             text: `${error}`,
@@ -840,6 +952,7 @@ function crearFilaEtapa(item){
             ${crearDialogEyeEtapa(item, uniqueId)}
             ${crearDialogEditEtapa(item, uniqueId)}
             ${crearDialogDeleteEtapa(item, uniqueId)}
+            ${crearDialogDeleteConfirmEtapa(uniqueId)}
         </tr>
     `
 }
@@ -865,7 +978,6 @@ function crearDialogRegistrarEtapa(){
                 </div>
             `
     }).join('');
-    console.log(camposHTML)
     return crearDialogBaseRaza('dialog-registrar-etapa', 'dialog-icon-eye', 'Registar Etapa de vida', camposHTML, "Guardar", 'button-guardar', '','registrar_etapas','')
 }
 
@@ -907,18 +1019,21 @@ function crearDialogEditEtapa(item, uniqueId){
     return crearDialogBaseRaza(`dialog-edit-etapa-${uniqueId}`, 'dialog-icon-eye', 'Actualizar datos de la Etapa de Vida', camposHTML, 'Guardar', 'button-guardar', uniqueId,'actualizar_etapa','')
 }
 
+function crearDialogDeleteConfirmEtapa(uniqueId){
+    const contenido = `
+        <p>Escriba debajo el ID "${uniqueId}" y presione eliminar si asi lo desea</p>
+        <input id="input-eliminar-e-${uniqueId}" class="input__add__por" type="number" oninput="this.value = Math.abs(this.value)" placeholder= "Ingrese el ID">
+    `;
+    return crearDialogBaseRaza(`dialog-delete-conf-e-${uniqueId}`, 'dialog-icon-dele', 'Eliminar Etapa de Vida', contenido, 'Eliminar','button-eliminar', uniqueId,'eliminar_etapa')
+}
+
 function crearDialogDeleteEtapa(item, uniqueId){
     const contenido =  `
-        <div class="info-delete" >
-            <p>Eliminar el registro sin saber si la etapa de vida tiene trazabilidad puede que altere el funcionamiento del sistema.</p>
-            <span>¿Está seguro que quiere eliminar este registro?</span>
-            <div class="container-button-dele">
-                <button class="button-eliminar" onclick="eliminar_etapa(${item.id_etapa})">Eliminar</button>
-            </div>
-        </div>
+        <p>Eliminar el registro sin saber si la etapa de vida tiene trazabilidad puede que altere el funcionamiento del sistema.</p>
+        <span>¿Está seguro que quiere eliminar este registro?</span>
     `;
 
-    return crearDialogBaseRaza(`dialog-delete-etapa-${uniqueId}`, 'dialog-icon-dele', 'Eliminar Etapa de Vida', contenido, '','', uniqueId)
+    return crearDialogBaseRaza(`dialog-delete-etapa-${uniqueId}`, 'dialog-icon-dele', 'Eliminar Etapa de Vida', contenido, 'Continuar','button-eliminar', uniqueId,'eliminar_etapa')
 }
 
 async function consultar_etapas() {
@@ -950,15 +1065,15 @@ async function registrar_etapas(){
             }
         })
         const response = await promesa.json()
-        console.log(response)
         if (response.Mensaje == "Etapa de vida registrada correctamente"){
+            consultar_etapas()
+            cerrarDialog('dialog-registrar-etapa');
+            cerrarDialog('dialog__ges__eta');
             Swal.fire({
             title: "Mensaje",
             text: `${response.Mensaje}`,
             icon: "success"
             });
-            cerrarDialog('dialog-registrar-etapa');
-            cerrarDialog('dialog__ges__eta');
         } else{
             Swal.fire({
             title: "Mensaje",
@@ -990,8 +1105,6 @@ async function actualizar_etapa(id) {
             }
         })
         const response = await promesa.json();
-
-        console.log(response)
         consultar_etapas()
         return response
     } catch (error) {
@@ -1001,13 +1114,29 @@ async function actualizar_etapa(id) {
 
 async function eliminar_etapa(id) {
     try {
-        const promesa = await fetch(`${URL_BASE}/etapa_vida/${id}`, {
-            method: 'DELETE',
-        })
-        const response = await promesa.json();
-        consultar_etapas()
-        console.log(response);
-        return response
+        const input = document.getElementById(`input-eliminar-e-${id}`);
+        const value_input = document.getElementById(`input-eliminar-e-${id}`).value;
+
+        if (value_input == id){
+            const promesa = await fetch(`${URL_BASE}/etapa_vida/${id}`, {
+                method: 'DELETE',
+            })
+            const response = await promesa.json();
+            consultar_etapas()
+            cerrarDialog(`dialog-delete-conf-e-${id}`);
+            cerrarDialog(`dialog-delete-etapa-${id}`);
+            cerrarDialog(`dialog__ges__eta`);
+            Swal.fire({
+                title: "Mensaje",
+                text: `${response.Mensaje}`,
+                icon: "success"
+            });
+        } else {
+            input.style.backgroundColor = '#f8a5a5';
+            input.classList.add('placerholder_eliminar')
+            input.value = '';
+            input.placeholder = 'ID incorrecto...';
+        }
     } catch (error) {
         console.error(error)
     }
@@ -1023,7 +1152,6 @@ function consulta_alimentos(){
     fetch(`${URL_BASE}/alimentos`,{method: "GET"})
     .then(res=>res.json())
     .then(data=>{
-        console.log(data)
         contenido.innerHTML=""; 
         data.mensaje.forEach(element => {
                 const mapa = {};
@@ -1059,7 +1187,6 @@ function eliminar_alimento(id){
     fetch(`${URL_BASE}/eliminar_alimento/${id}`,{method:"delete"})
     .then(res=>res.json())
     .then(data=>{
-        console.log("eliminado correctamente")
         alert("eliminado correctamente")
         window.location.reload()
     })

@@ -97,18 +97,17 @@
                 <button type="button" class="btn__perfil">Juan Tovar</button>
             </div>
         </section>
-
         <header class= "container container__title">
             <h1>Gestionar Porcinos</h1>
         </header>
 
-        <section class="container container__search__bar">
+        <form class="container container__search__bar" id="container__search__bar" onsubmit="event.preventDefault(); consulta_filtros()">
 
             <img src="/src/static/iconos/icon lupa.svg" alt="">
             <input type = "number" class = "input__id" id="input_id" placeholder = "Ingrese el ID del porcino" min="0" oninput = "this.value = Math.abs(this.value)">
             <div class="container__filtro">
                 <img src="/src/static/iconos/icon filter.svg" alt="" id="svg__filter">
-                <select name="" id="" class="filter">
+                <select name="filter" id="filter_porcino" class="filter" required>
                     <option value="" disabled selected >Filtrar por...</option>
                     <option value="sexo">Sexo</option>
                     <option value="raza">Raza</option>
@@ -118,8 +117,8 @@
                 </select>
             </div>
 
-            <button type="button" class="btn" onclick="consulta_individual_porcino()">Consultar</button>
-        </section>
+            <button type="submit" class="btn" id="btn_consultar">Consultar</button>
+        </form>
         
         <div class="container__btn__options">
             <div class="container__btn__agregar">
