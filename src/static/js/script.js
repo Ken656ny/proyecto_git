@@ -636,9 +636,16 @@ function crearIconoEdit() {
 }
 
 async function consulta_general_porcinos() {
-    try 
-    {
-        const response = await fetch(`${URL_BASE}/porcino`);
+    try {
+        const token = localStorage.getItem('token');
+        const response = await fetch(`${URL_BASE}/porcino`, 
+            {
+                method : 'GET',
+                headers : {
+                    "Content-type" : 'application/json',
+                    'Authorization': `Bearer ${token}`
+                }            
+            });
         if (!response.ok) throw new Error(`Error: ${response.status}`);
         const porcinos = await response.json();
         mostrar_porcinos(porcinos);
@@ -651,8 +658,15 @@ async function consulta_general_porcinos() {
 }
 
 function consulta_individual_porcino(){
+    const token = localStorage.getItem("token");
     var id_porcino = document.getElementById('input_id').value
-    fetch(`${URL_BASE}/porcino/${id_porcino}`, {method: 'GET'})
+    fetch(`${URL_BASE}/porcino/${id_porcino}`, {
+        method: 'GET',
+        headers : {
+            "Content-type" : "application/json",
+            'Authorization': `Bearer ${token}`
+        }
+    })
     .then(response => {
         if (!response.ok) throw new Error(`Error: ${response.status}`); // Manejo de errores HTTP
         return response.json();
@@ -742,6 +756,7 @@ function porcino_filtros() {
 // HACER LA FUNCION DE FILTRADO(), CAMBIAR ESE NOMBRE TAN PEYE CONECTAR CON EL BACKEND
 async function consulta_filtros() {
     try {
+        const token = localStorage.getItem("token");
         const filtro = document.getElementById('filter_porcino').value;
         const valor = document.getElementById('filter__options__2').value;
 
@@ -755,7 +770,8 @@ async function consulta_filtros() {
                 method : 'POST',
                 body : JSON.stringify(info),
                 headers : {
-                    "Content-type" : "application/json"
+                    "Content-type" : "application/json",
+                    'Authorization': `Bearer ${token}`
                 }
             }
         )
@@ -769,7 +785,7 @@ async function consulta_filtros() {
 
 async function agregar_porcino(){
     try {
-        
+        const token = localStorage.getItem("token");
         const id_porcino = document.getElementById('id_porcino').value;
         const peso_inicial = document.getElementById('peso_inicial').value;
         const peso_final = document.getElementById('peso_final').value;
@@ -794,7 +810,8 @@ async function agregar_porcino(){
             method : 'POST',
             body : JSON.stringify(porcino),
             headers : {
-                "Content-type" : "application/json"
+                "Content-type" : "application/json",
+                'Authorization': `Bearer ${token}`
             }
         })
         const response = await promesa.json()
@@ -822,6 +839,7 @@ async function agregar_porcino(){
 
 async function actualizar_porcino(id_porcino) {
     try {
+        const token = localStorage.getItem("token");
         const peso_inicial = document.getElementById(`Peso-inicial-actualizar-${id_porcino}`).value;
         const peso_final = document.getElementById(`Peso-final-actualizar-${id_porcino}`).value;
         const fecha = document.getElementById(`Fecha-de-nacimiento-actualizar-${id_porcino}`).value;
@@ -830,7 +848,7 @@ async function actualizar_porcino(id_porcino) {
         const etapa = document.getElementById(`Etapa-de-vida-actualizar-${id_porcino}`).value;
         const estado = document.getElementById(`Estado-actualizar-${id_porcino}`).value;
         const descripcion = document.getElementById(`Descripcion-actualizar-${id_porcino}`).value;
-
+        
         const porcino = {
             "peso_inicial" : peso_inicial,
             "peso_final" : peso_final,
@@ -846,7 +864,8 @@ async function actualizar_porcino(id_porcino) {
                 method : "PUT",
                 body : JSON.stringify(porcino),
                 headers : {
-                    "Content-type" : "application/json"
+                    "Content-type" : "application/json",
+                    'Authorization': `Bearer ${token}`
                 }
             }
         );
@@ -859,10 +878,17 @@ async function actualizar_porcino(id_porcino) {
 
 
 function eliminar_porcino(id_porcino){
+    const token = localStorage.getItem("token");
     const input = document.getElementById(`input-eliminar-${id_porcino}`);
     const id_input = document.getElementById(`input-eliminar-${id_porcino}`).value;
     if (id_input == id_porcino){
-        fetch(`${URL_BASE}/porcino/${id_porcino}`, {method: 'DELETE'})
+        fetch(`${URL_BASE}/porcino/${id_porcino}`, {
+            method: 'DELETE',
+            headers : {
+                "Content-type" : "application/json",
+                'Authorization': `Bearer ${token}`
+            }
+        })
         .then( response => {
             if (!response.ok) throw new Error(`Error: ${response.status}`);
             return response.json()
@@ -1038,7 +1064,16 @@ function crearDialogBaseRaza(id, clase, titulo, contenido, textoBoton, claseBoto
 
 async function consultar_razas() {
     try {
-        const promesa = await fetch(`${URL_BASE}/raza`, {method: 'GET'});
+        const token = localStorage.getItem("token");
+        const promesa = await fetch(`${URL_BASE}/raza`, 
+            {
+                method: 'GET',
+                headers : {
+                    "Content-type" : "application/json",
+                    'Authorization': `Bearer ${token}`
+                }
+            }
+        );
         if (!promesa.ok) throw new Error(`Error: ${promesa.status}`);
         const response = await promesa.json();
         mostrar_raza(response)
@@ -1050,6 +1085,7 @@ async function consultar_razas() {
 
 async function registrar_raza() {
     try {
+        const token = localStorage.getItem("token");
         const nombre = document.getElementById('nombre_raza').value;
         const descri = document.getElementById('descripcion_raza').value;
 
@@ -1062,7 +1098,8 @@ async function registrar_raza() {
             method : 'POST',
             body : JSON.stringify(raza),
             headers: {
-                "Content-type" : "application/json"
+                "Content-type" : "application/json",
+                'Authorization': `Bearer ${token}`
             }
         })
         const response = await promesa.json()
@@ -1090,6 +1127,7 @@ async function registrar_raza() {
 
 async function actualizar_raza(id) {
     try {
+        const token = localStorage.getItem("token");
         const nombre = document.getElementById(`nombre-raza-actualizar-${id}`).value;
         const descri = document.getElementById(`descripcion-raza-actualizar-${id}`).value;
 
@@ -1102,7 +1140,8 @@ async function actualizar_raza(id) {
             method : 'PUT',
             body : JSON.stringify(raza),
             headers: {
-                "Content-type" : "application/json"
+                "Content-type" : "application/json",
+                'Authorization': `Bearer ${token}`
             }
         })
         const response = await promesa.json()
@@ -1115,10 +1154,19 @@ async function actualizar_raza(id) {
 
 async function eliminar_raza(id){
     try {
+        const token = localStorage.getItem("token");
         const input = document.getElementById(`input-eliminar-r-${id}`);
         const value_input = document.getElementById(`input-eliminar-r-${id}`).value;
         if (value_input == id){
-            const promesa = await fetch(`${URL_BASE}/raza/${id}`, {method : 'DELETE'});
+            const promesa = await fetch(`${URL_BASE}/raza/${id}`, 
+                {
+                    method : 'DELETE',
+                    headers : {
+                        "Content-type" : "application/json",
+                        'Authorization': `Bearer ${token}`
+                    }
+                }
+            );
             const response = await promesa.json();
             consultar_razas()
             cerrarDialog(`dialog-delete-conf-r-${id}`);
@@ -1253,7 +1301,16 @@ function crearDialogDeleteEtapa(item, uniqueId){
 
 async function consultar_etapas() {
     try{
-        const promesa = await fetch(`${URL_BASE}/etapa_vida`, {method: 'GET'});
+        const token = localStorage.getItem("token");
+        const promesa = await fetch(`${URL_BASE}/etapa_vida`, 
+            {
+                method: 'GET',
+                headers : {
+                    "Content-type" : "application/json",
+                    'Authorization': `Bearer ${token}`
+                }
+            }
+        );
         const response = await promesa.json();
         mostrar_etapas(response)
         return response
@@ -1264,6 +1321,7 @@ async function consultar_etapas() {
 
 async function registrar_etapas(){
     try {
+        const token = localStorage.getItem("token");
         const nombre = document.getElementById('nombre_etapa').value;
         const descri = document.getElementById('descripcion_etapa').value;
 
@@ -1276,7 +1334,8 @@ async function registrar_etapas(){
             method : 'POST',
             body: JSON.stringify(etapa),
             headers : {
-                "Content-type" : "application/json"
+                "Content-type" : "application/json",
+                'Authorization': `Bearer ${token}`
             }
         })
         const response = await promesa.json()
@@ -1304,6 +1363,7 @@ async function registrar_etapas(){
 
 async function actualizar_etapa(id) {
     try {
+        const token = localStorage.getItem("token");
         const nombre = document.getElementById(`nombre-etapa-actualizar-${id}`).value;
         const descri = document.getElementById(`descripcion-etapa-actualizar-${id}`).value;
 
@@ -1317,6 +1377,7 @@ async function actualizar_etapa(id) {
             body: JSON.stringify(etapa),
             headers : {
                 "Content-type" : "application/json",
+                'Authorization': `Bearer ${token}`
             }
         })
         const response = await promesa.json();
@@ -1329,12 +1390,17 @@ async function actualizar_etapa(id) {
 
 async function eliminar_etapa(id) {
     try {
+        const token = localStorage.getItem("token");
         const input = document.getElementById(`input-eliminar-e-${id}`);
         const value_input = document.getElementById(`input-eliminar-e-${id}`).value;
 
         if (value_input == id){
             const promesa = await fetch(`${URL_BASE}/etapa_vida/${id}`, {
                 method: 'DELETE',
+                headers : {
+                    "Content-type" : "application/json",
+                    'Authorization': `Bearer ${token}`
+                }
             })
             const response = await promesa.json();
             consultar_etapas()
@@ -1361,6 +1427,7 @@ async function eliminar_etapa(id) {
 // -------------------
 // GESTION DE ALIMENTOS
 // -------------------
+
 
 function consulta_alimentos(){
     const contenido = document.getElementById("contenido");

@@ -243,6 +243,7 @@ def google_login():
 
 # RUTA PARA CONSULTAR TODOS LOS PORCINOS
 @app.route('/porcino', methods=['GET'])
+@token_requerido
 def consulta_general_porcinos():
   """
   Consulta general de los porcinos registrados en la base de datos
@@ -267,6 +268,7 @@ def consulta_general_porcinos():
 
 # RUTA PARA CONSULTAR UN PORCINO POR SU ID
 @app.route('/porcino/<int:id>', methods=['GET'])
+@token_requerido
 def consulta_individual_porcinos(id):
   """
   Consulta individual por ID de los porcinos registrados en la base de datos
@@ -300,6 +302,7 @@ def consulta_individual_porcinos(id):
 
 #Ruta para filtrar los porcinos
 @app.route('/porcino/filtros', methods = ['POST'])
+@token_requerido
 def porcinos_filtro():
   """
   Consulta por filtro de los porcinos registrado en la base de datos
@@ -364,6 +367,7 @@ def porcinos_filtro():
 
 # RUTA PARA REGISTRAR A UN PORCINO
 @app.route('/porcino', methods=['POST'])
+@token_requerido
 def registrar_porcinos():
   """
   Registrar nuevo porcino en la base de datos
@@ -453,6 +457,7 @@ def registrar_porcinos():
 
 # RUTA PARA ACTUALIZAR LA INFORMACION DE UN PORCINO POR SU ID
 @app.route('/porcino/<int:id>', methods=['PUT'])
+@token_requerido
 def actualizar_porcino(id):
   
   """
@@ -516,6 +521,7 @@ def actualizar_porcino(id):
 
 # RUTA PARA ELIMINAR PORCINO POR ID
 @app.route('/porcino/<int:id>', methods=['DELETE'])
+@token_requerido
 def eliminar_porcino(id):
   """
   Eliminar registro por ID de un porcino registrado en la base de datos
@@ -544,6 +550,7 @@ def eliminar_porcino(id):
 
 # RUTA PARA CONSULTAR TODAS LAS RAZAS
 @app.route('/raza', methods = ['GET'])
+@token_requerido
 def consulta_gen_raza():
   """
   Consulta general de las razas registradas en la base de datos
@@ -571,6 +578,7 @@ def consulta_gen_raza():
 
 # RUTA PARA CONSULTAR UNA RAZA POR SU ID
 @app.route('/raza/<int:id>', methods = ['GET'])
+@token_requerido
 def consulta_indi_raza(id):
   """
   Consulta individual por ID de las razas registradas en la base de datos
@@ -605,6 +613,7 @@ def consulta_indi_raza(id):
 
 # RUTA PARA REGISTRAR RAZAS
 @app.route('/raza', methods = ['POST'])
+@token_requerido
 def registrar_raza():
   """
   Registrar nueva etapa en la base de datos
@@ -644,6 +653,7 @@ def registrar_raza():
 
 # RUTA PARA ACTUALIZAR LA INFORMACION DE UNA RAZA POR SU ID
 @app.route('/raza/<int:id>', methods = ['PUT'])
+@token_requerido
 def actualizar_raza(id):
   """
   Actualizar etapa por id
@@ -688,6 +698,7 @@ def actualizar_raza(id):
 
 # RUTA PARA ELIMINAR UNA RAZA POR SU ID
 @app.route('/raza/<int:id>', methods = ['DELETE'])
+@token_requerido
 def eliminar_raza(id):
   """
   Eliminar registro por ID de una etapa registrado en la base de datos
@@ -723,6 +734,7 @@ def eliminar_raza(id):
 
 #RUTA PARA CONSULTAR TODAS LAS ETAPAS DE VIDA
 @app.route('/etapa_vida', methods = ['GET'])
+@token_requerido
 def consulta_gen_etapa(): 
   """
   Consulta de etapas de vida
@@ -754,6 +766,7 @@ def consulta_gen_etapa():
 
 # RUTA PARA CONSULTAR UN ETAPA DE VIDA POR SU ID
 @app.route('/etapa_vida/<int:id>', methods = ['GET'])
+@token_requerido
 def consulta_indi_etapa(id):
   """
   Consulta individual por ID de los porcinos registrados en la base de datos
@@ -787,6 +800,7 @@ def consulta_indi_etapa(id):
 
 # RUTA PARA REGISTRAR UNA ETAPA DE VIDA
 @app.route('/etapa_vida', methods = ['POST'])
+@token_requerido
 def registrar_etapa():
   """
   Registrar nueva etapa de vida en la base de datos
@@ -834,6 +848,7 @@ def registrar_etapa():
 
 # RUTA PARA ACTUALIZAR LA INFORMACION DE UNA ETAPA DE VIDA POR SU ID
 @app.route('/etapa_vida/<int:id>', methods = ['PUT'])
+@token_requerido
 def actualizar_etapa_vida(id):
   """
   Actualizar etapa de vida por id
@@ -878,6 +893,7 @@ def actualizar_etapa_vida(id):
 
 # RUTA PARA ELIMINAR UNA ETAPA DE VIDA POR SU ID
 @app.route('/etapa_vida/<int:id>', methods = ['DELETE'])
+@token_requerido
 def eliminar_etapa_vida(id):
   """
   Eliminar registro por ID de una etapa de vida registrado en la base de datos

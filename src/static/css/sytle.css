@@ -604,20 +604,21 @@ SECCION DE PORCINOS
     height: 30px;
     top: 28px;
     left: 15px;
+    padding-right: 0.1rem;
 }
 
 .btn__perfil{
     background-color: var(--color--letra);
     color: var(--color-white);
-    width: 150px;
+    width: fit-content;
     height: 45px;
-    padding-left: 40px;
+    padding: 0 1rem;
+    padding-left: 3.5rem;
     font-size: 15PX;
     font-weight: 500;
     border-radius: 8px;
     border: none;
 }
-
 .usuario-menu {
     display: none;
     position: absolute;
