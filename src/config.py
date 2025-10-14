@@ -3,6 +3,7 @@ import pymysql
 import pymysql.cursors
 import secrets
 
+
 class Config():
     SECRET_KEY = secrets.token_hex(32)
     DEBUG = config('DEBUG', cast=bool)
@@ -10,7 +11,7 @@ class Config():
 class DevelopmentConfig(Config):
     HOST = 'localhost'
     USER = 'root'
-    PASSWORD = '290307'
+    PASSWORD = '27012007'
     DATABASE = 'edupork'
     CURSOR_CLASS = pymysql.cursors.DictCursor
     SQLALCHEMY_DATABASE_URI = config('SQLALCHEMY_DATABASE_URI')

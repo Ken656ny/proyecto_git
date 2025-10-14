@@ -6,6 +6,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <link
         href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap"
         rel="stylesheet">
@@ -98,43 +100,42 @@
             </div>
             <div class="container__user__btn">
                 <img src="/src/static/iconos/icon user.svg" alt="" class="svg__user">
-                <button type="button" class="btn__perfil">Juan Tovar</button>
+                <button type="button" class="btn__perfil" id="btnPerfil">
+                    <span id="nombreUsuarioTexto"></span>
+                    <i class="fa fa-caret-down"></i>
+                </button>
+                <div class="usuario-menu" id="usuarioMenu">
+                    <a href="perfil.html">Mi perfil</a>
+                    <a href="#" id="cerrarSesionBtn">Cerrar sesión</a>
+                </div>
             </div>
         </section>
 
-        <div class="content_configuracion">
+    <div class="content_configuracion">
+      <h2 class="title_configuracion">Configuración</h2>
 
-            <h1 class="title_configuracion">Configuración</h1>
-
-            <div class="menu_configuracion">
-                <div class="menu-item_configuracion" onclick="abrirPanel('cuenta')">
-                    <img src="/src/static/iconos/cuenta.svg" alt="Cuenta" class="icono_configuracion"> Cuenta
-                </div>
-                <div class="menu-item_configuracion" onclick="abrirPanel('ajustar')">
-                    <img src="/src/static/iconos/ajustes.svg" alt="Ajustar" class="icono_configuracion"> Ajustar campos
-                </div>
-                <div class="menu-item_configuracion" onclick="abrirPanel('notificaciones')">
-                    <img src="/src/static/iconos/notificacions.svg" alt="Notificaciones" class="icono_configuracion">
-                    Notificaciones
-                </div>
-                <div class="menu-item_configuracion" onclick="abrirPanel('ayuda')">
-                    <img src="/src/static/iconos/signo_interrogacion.svg" alt="Ayuda" class="icono_configuracion"> Ayuda
-                </div>
-                <div class="menu-item_configuracion" onclick="abrirPanel('terminos')">
-                    <img src="/src/static/iconos/incono_exclamacion.svg" alt="Términos" class="icono_configuracion"> Términos y
-                    condiciones
-                </div>
-                <div class="menu-item_configuracion" onclick="abrirPanel('cambiar')">
-                    <img src="/src/static/iconos/incono_cambiar.svg" alt="Cambiar cuenta" class="icono_configuracion"> Cambiar
-                    cuenta
-                </div>
-                <div class="menu-item_configuracion" data-bs-toggle="modal" data-bs-target="#modalCerrarSesion">
-                    <img src="/src/static/iconos/incono_salida.svg" alt="Cerrar sesión" class="icono_configuracion"> Cerrar sesión
-                </div>
-
-                <!-- al final de tu HTML -->
-                <script src="/src/static/js/script.js"></script>
-            </div>
+      <div class="menu_configuracion">
+        <div class="menu-item_configuracion" onclick="window.location.href='cuenta.html'">
+          <img src="/src/static/iconos/cuenta.svg" alt="Cuenta" class="icono_configuracion"> Cuenta
         </div>
+
+        <div class="menu-item_configuracion" onclick="window.location.href='centro_de_ayuda.html'">
+          <img src="/src/static/iconos/signo_interrogacion.svg" alt="Ayuda" class="icono_configuracion"> Ayuda
+        </div>
+
+        <div class="menu-item_configuracion" onclick="window.location.href='terminos_y_condiciones.html'">
+          <img src="/src/static/iconos/incono_exclamacion.svg" alt="Términos" class="icono_configuracion"> Términos y condiciones
+        </div>
+        <div class="menu-item_configuracion" onclick="window.location.href='terminos_y_condiciones.html'">
+          <img src="/src/static/iconos/cuenta.svg" alt="Términos" class="icono_configuracion"> Usuarios
+        </div>
+        <div >
+           <button id="btnLogout" class="menu-item_configuracion" onclick="cerrarSesion()"><img src="/src/static/iconos/incono_salida.svg" alt="Cerrar sesión" class="icono_configuracion"> Cerrar sesion</button>
+        </div>
+      </div>
+    </div>
+    </section>
+
+<script src="/src/static/js/script.js"></script>
 </body>
 </html>

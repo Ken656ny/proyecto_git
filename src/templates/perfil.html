@@ -6,6 +6,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <link
     href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap"
     rel="stylesheet">
@@ -95,10 +97,17 @@
               <img src="/src/static/iconos/Logo.svg" alt="Logo Edupork" class="logo">
           </a>
       </div>
-      <div class="container__user__btn">
-          <img src="/src/static/iconos/icon user.svg" alt="" class="svg__user">
-          <button type="button" class="btn__perfil">Juan Tovar</button>
-      </div>
+            <div class="container__user__btn">
+                <img src="/src/static/iconos/icon user.svg" alt="" class="svg__user">
+                <button type="button" class="btn__perfil" id="btnPerfil">
+                    <span id="nombreUsuarioTexto"></span>
+                    <i class="fa fa-caret-down"></i>
+                </button>
+                <div class="usuario-menu" id="usuarioMenu">
+                    <a href="perfil.html">Mi perfil</a>
+                    <a href="#" id="cerrarSesionBtn">Cerrar sesión</a>
+                </div>
+            </div>
     </section>
 
     <div class="content_perfil">
@@ -115,9 +124,9 @@
 
               </div>
               <div class="perfil-datos">
-                <p><strong>Nombre:</strong> <span class="perfil-texto">pico</span></p>
-                <p><strong>Nº identificación:</strong> <span class="perfil-texto">2928724</span></p>
-                <p><strong>Correo:</strong> <span class="perfil-texto">juantovar@gmail.com</span></p>
+                <p><strong>Nombre:</strong><span id="nombreUsuario" class="perfil-texto"></span></p>
+                <p><strong>Nº identificación:</strong> <span id="identificacionUsuario" class="perfil-texto"></span></p>
+                <p><strong>Correo:</strong> <span id="correoUsuario" class="perfil-texto"></span></p>
               </div>
             </div>
 
@@ -142,5 +151,6 @@
     </div>
     <!-- al final de tu HTML -->
     <script src="/src/static/js/script.js"></script>
+    <script>cargarDatosPerfil()</script>
 </body>
 </html>

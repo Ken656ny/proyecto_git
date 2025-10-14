@@ -33,101 +33,316 @@ nav_bar.forEach((item) => item.addEventListener('click',bar_funct));
 
 // MANEJO DE RUTAS DEL LOGIN Y REGISTRO DE USUARIOS
 
+    async function registro_usuarios(event) {
+        event.preventDefault(); 
 
-async function registro_usuarios() {
-    try {
-        const nombre = document.getElementById('fname').value;
-        const tipo_identificacion = document.getElementById('tipo_identificacion').value;
-        const numero_identificacion = document.getElementById('n.i').value;
-        const correo = document.getElementById('correo').value;
-        const contraseña = document.getElementById('password').value;
-        const constraseña_confirm = document.getElementById('confirmPassword').value;
+        try {
+            const nombre = document.getElementById('fname').value;
+            const tipo_identificacion = document.getElementById('tipo_identificacion').value;
+            const numero_identificacion = document.getElementById('n.i').value;
+            const correo = document.getElementById('correo').value;
+            const contraseña = document.getElementById('password').value;
+            const constraseña_confirm = document.getElementById('confirmPassword').value;
 
-        if ((constraseña_confirm == contraseña) && (contraseña != '')){
+            
+        if ((constraseña_confirm == contraseña) && (contraseña != '')) {
             const user = {
-                "numero_identificacion" : numero_identificacion,
-                "nombre" : nombre,
-                "correo" : correo,
-                "contraseña" : contraseña,
-                "estado" : "Activo",
-                "id_tipo_identificacion" : tipo_identificacion,
-            }
-            fetch(`${URL_BASE}/users`, 
-                {
-                    method: 'POST',
-                    body: JSON.stringify(user),
-                    headers : {
-                        "Content-type" : "application/json"
-                    }
-                }).then(response => {
+                numero_identificacion: numero_identificacion,
+                nombre: nombre,
+                correo: correo,
+                contraseña: contraseña,
+                estado: "Activo",
+                id_tipo_identificacion: tipo_identificacion,
+            };
+
+            console.log(user);
+
+            fetch(`${URL_BASE}/users`, {
+                method: 'POST',
+                body: JSON.stringify(user),
+                headers: {
+                    "Content-type": "application/json"
+                }
+            })
+            .then(response => response.json())
+            .then(() => {
+                Swal.fire({
+                    title: "Mensaje",
+                    text: `Usuario registrado correctamente`,
+                    icon: "success",
+                    confirmButtonText: "Ir a la pagina",
                 }).then(() => {
-                    Swal.fire({
-                        title: "Mensaje",
-                        text: `Usuario registrado correctamente`,
-                        icon: "success"
-                    });
-                })
-        } else{
+                    localStorage.setItem("usuario", JSON.stringify({
+                        nombre: nombre,
+                        numero_identificacion: numero_identificacion,
+                        correo: correo
+                    }));
+                    location.href = "home.html";
+                });
+            });
+        } else {
             Swal.fire({
                 title: "Mensaje",
-                text: `Las constraseñas no coinciden`,
+                text: `Las contraseñas no coinciden`,
+                icon: "error",
+                scrollbarPadding: false
+            });
+        }
+
+        } catch (error) {
+            console.error(error);
+        }
+    }
+
+async function login() {
+    try {
+        const correo = document.getElementById('entrada1').value;
+        const contraseña = document.getElementById('entrada2').value;
+
+        if (!correo || !contraseña) {
+            Swal.fire({
+                title: "Error",
+                text: "Por favor completa todos los campos",
+                icon: "warning"
+            });
+            return;
+        }
+
+        const user = {
+            "correo": correo,
+            "contraseña": contraseña
+        }
+
+        const response = await fetch(`${URL_BASE}/login`, {
+            method: 'POST',
+            body: JSON.stringify(user),
+            headers: {
+                "Content-Type": "application/json"
+            },
+        });
+
+        const data = await response.json();
+
+        console.log("Respuesta del servidor:", data);
+        console.log("Status:", response.status);
+
+        if (response.ok && data.Mensaje === 'Las credenciales son correctas') {
+            localStorage.setItem("token", data.token);
+            localStorage.setItem("usuario", JSON.stringify({
+                nombre: data.nombre,
+                numero_identificacion: data.numero_identificacion,
+                correo: data.correo
+            }));
+            
+            Swal.fire({
+                title: "¡Éxito!",
+                text: "Inicio de sesión exitoso",
+                icon: "success",
+                timer: 1500,
+                showConfirmButton: false
+            }).then(() => {
+                location.href = 'home.html';
+            });
+            
+        } else {
+            let errorMessage = data.Mensaje || "Error desconocido";
+            
+            Swal.fire({
+                title: "Error",
+                text: errorMessage,
                 icon: "error"
             });
         }
 
     } catch (error) {
-        console.error(error)
+        console.error("Error en login:", error);
+        Swal.fire({
+            title: "Error de conexión",
+            text: "No se pudo conectar con el servidor",
+            icon: "error"
+        });
     }
 }
 
-async function login() {
+// FUNCIONAMIENTO DE LA API DE GOOGLE//
+
+window.onload = function () {
+    const googleButtonContainer = document.getElementById("google-btn-container");
+
+    if (googleButtonContainer) {
+        google.accounts.id.initialize({
+            client_id: "887853903603-sbo2ffg27v2o12navndev9okvno8t4fn.apps.googleusercontent.com",
+            callback: handleCredentialResponse
+        });
+
+        google.accounts.id.renderButton(googleButtonContainer, {
+            theme: "outline",
+            size: "large",
+            shape: "pill",
+            text: "signup_with",
+            logo_alignment: "center",
+            width: "400px"
+        });
+    }
+}
+
+
+function handleCredentialResponse(response) {
+    const idToken = response.credential;
+    console.log("Token recibido:", idToken);
+
+    fetch(`${URL_BASE}/api/auth/google`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ token: idToken })
+    })
+    .then(res => res.json())
+    .then(data => {
+        localStorage.setItem("token", data.token);
+        localStorage.setItem("usuario", JSON.stringify({
+        nombre: data.nombre,
+        numero_identificacion: data.numero_identificacion,
+        correo: data.correo
+}));
+
+        console.log("Respuesta del backend:", data);
+
+        Swal.fire({
+            icon: "success",
+            timer: 1500,
+            title: "¡Bienvenido a Edupork!",
+            text: `Hola ${data.nombre}, tu acceso con Google fue exitoso.`,
+            showConfirmButton: false
+        }).then(() => {
+            location.href = "home.html"; 
+        });
+    })
+    .catch(err => {
+        console.error("Error en el login:", err);
+        Swal.fire({
+            icon: "error",
+            title: "Error de conexión",
+            text: err.message || "No se pudo conectar con el servidor."
+        });
+    });
+}
+
+
+async function cargarDatosPerfil() {
+    const token = localStorage.getItem('token');
+        if (!token) {
+    Swal.fire({
+        icon: 'warning',
+        title: 'Sesión no iniciada',
+        text: 'Por favor inicia sesión para ver Edupork.',
+        confirmButtonText: 'Ir al login'
+    }).then(() => {
+        window.location.href = 'index.html'; 
+    });
+        return;
+    }
+
     try {
-        const correo  = document.getElementById('entrada1').value;
-        const contraseña  = document.getElementById('entrada2').value;
-
-        const user = {
-            "correo" : correo,
-            "contraseña" : contraseña
-        }
-
-        fetch(`${URL_BASE}/login`,
-            {
-                method: 'POST',
-                body: JSON.stringify(user),
-                headers : {
-                    "Content-type" : "application/json"
+        const respuesta = await fetch(`${URL_BASE}/perfil`, {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${token}`
                 }
-            }).then(response => {
-                return response.json()
-            }).then(response => {
-                if (response.Mensaje === 'Las crendenciales son correctas'){
-                    location.href = 'home.html'
-                } else if (response.Mensaje === 'Contraseña incorrecta'){
-                    Swal.fire({
-                        title: "Mensaje",
-                        text: `Constraseña incorrecta`,
-                        icon: "error"
-                    });
-                } else if (response.Mensaje === 'Usuario no encontrado'){
-                    Swal.fire({
-                        title: "Mensaje",
-                        text: `Usuario no encontrado`,
-                        icon: "error"
-                    });
-                } else{
-                    Swal.fire({
-                        text: `Error en la base de datos`,
-                        title: "Mensaje",
-                        icon: "error"
-                    });
-                }
-            })
+            });
+
+    const datos = await respuesta.json();
+
+    if (!respuesta.ok) {
+            Swal.fire({
+            icon: 'error',
+            title: 'Sesión inválida',
+            text: datos.Mensaje || 'No se pudo cargar el perfil.',
+            confirmButtonText: 'Volver a iniciar sesión'
+        }).then(() => {
+            localStorage.removeItem('token');
+            localStorage.removeItem('usuario');
+            window.location.href = 'index.html';
+        });
+        return;
+    }
+
+    document.getElementById('nombreUsuario').textContent = datos.nombre;
+    document.getElementById('identificacionUsuario').textContent = datos.numero_identificacion;
+    document.getElementById('correoUsuario').textContent = datos.correo;
 
     } catch (error) {
-        console.error(error)
+        console.error("Error en la petición:", error);
+        Swal.fire({
+            icon: 'error',
+            title: 'Error de conexión',
+            text: 'No se pudo conectar con el servidor.',
+            confirmButtonText: 'Reintentar'
+        });
     }
 }
 
+// CERRAR SESIÓN
+function cerrarSesion() {
+    Swal.fire({
+        title: "¿Cerrar sesión?",
+        text: "Estás seguro de que quieres salir",
+        icon: "question",
+        showCancelButton: true,
+        confirmButtonText: "Sí, salir",
+        cancelButtonText: "Cancelar"
+    }).then((result) => {
+        if (result.isConfirmed) {
+            localStorage.removeItem("token");
+            localStorage.removeItem("usuario");
+            location.href = "index.html";
+        }
+    });
+}
+
+function mostrarNombreUsuario() {
+    const usuario = JSON.parse(localStorage.getItem("usuario"));
+    if (usuario && usuario.nombre) {
+        const nombreSpan = document.getElementById("nombreUsuarioTexto");
+    if (nombreSpan) {
+        nombreSpan.textContent = usuario.nombre;
+        }
+    }
+}
+
+// CONTROL DEL MENU DESPLEGABLE
+document.addEventListener("DOMContentLoaded", () => {
+    mostrarNombreUsuario();
+
+    const btnPerfil = document.getElementById("btnPerfil");
+    const menu = document.getElementById("usuarioMenu");
+
+    if (btnPerfil && menu) {
+        btnPerfil.addEventListener("click", (e) => {
+            e.stopPropagation();
+            menu.style.display = menu.style.display === "block" ? "none" : "block";
+        });
+
+        window.addEventListener("click", () => {
+            menu.style.display = "none";
+        });
+    } 
+
+    const btnLogout = document.getElementById("btnLogout");
+    if (btnLogout) {
+        btnLogout.addEventListener("click", (e) => {
+            e.preventDefault();
+            cerrarSesion();
+        });
+    }
+
+    const cerrarSesionBtn = document.getElementById("cerrarSesionBtn");
+    if (cerrarSesionBtn) {
+        cerrarSesionBtn.addEventListener("click", (e) => {
+            e.preventDefault();
+            cerrarSesion();
+    });
+    }
+});
 
 // Funciones para abrir y cerrar diálogos
 function abrirDialog(dialogId) {

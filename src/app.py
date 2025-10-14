@@ -13,10 +13,18 @@ from config import config
 
 from datetime import datetime ,date
 
+#LIBRERIAS PARA LA FUNCIONALIDAD DE AUTENTICACION DE GOOGLE
+from google.oauth2 import id_token
+from google.auth.transport import requests as google_requests
+
+import jwt
+from datetime import datetime, timedelta, timezone
+from functools import wraps
 
 app = Flask(__name__)
 app.secret_key = 'secretkey'
 CORS(app)
+CORS(app, resources={r"/api/*": {"origins": ["http://127.0.0.1:5502"]}})
 Swagger(app)
 
 # RUTA PRINCIPAL PARA VISUALIZAR SI EL SERVIDOR ESTA CORRIENDO CON NORMALIDAD
@@ -26,51 +34,87 @@ def ruta_principal():
     return jsonify({'Mensaje':'App funcionnando correctamente'})
 
 
+def generar_token(usuario):
+    payload = {
+        "id_usuario": usuario["numero_identificacion"],
+        "nombre": usuario["nombre"],
+        "correo": usuario["correo"],
+        "exp": datetime.now(timezone.utc) + timedelta(minutes=5)
+    }
+    token = jwt.encode(payload, app.secret_key, algorithm="HS256")
+    return token
+
+def token_requerido(f):
+    @wraps(f)
+    def decorador(*args, **kwargs):
+        token = request.headers.get("Authorization")
+        if not token:
+            return jsonify({"Mensaje": "Token faltante"}), 401
+        
+        try:
+            if "Bearer " in token:
+                token = token.replace("Bearer ", "")
+            
+            datos = jwt.decode(token, app.secret_key, algorithms=["HS256"])
+            request.usuario = datos
+            print("Datos decodificados:", datos)
+            
+        except jwt.ExpiredSignatureError:
+            return jsonify({"Mensaje": "Token expirado"}), 401
+        except jwt.InvalidTokenError as e:
+            print(f"Error decodificando token: {e}")
+            return jsonify({"Mensaje": "Token inválido"}), 401
+        
+        return f(*args, **kwargs)
+    return decorador
+
+@app.route('/perfil', methods=['GET'])
+@token_requerido
+def perfil():
+    usuario = request.usuario
+    return jsonify({
+        "nombre": usuario["nombre"],
+        "numero_identificacion": usuario["id_usuario"],  
+        "correo": usuario["correo"]
+    })
+
+
+
 # RUTA PARA VALIDACION DE LOGIN
-@app.route('/login', methods = ['POST'])
+@app.route('/login', methods=['POST'])
 def login():
-  """
-  Validacion de credenciales para iniciar sesion
-  ---
-  tags:
-    - login
-  parameters: 
-    - name: body
-      in: body
-      required: true
-      schema:
-        type: object
-        properties:
-          correo:
-            type: string
-          contraseña:
-            type: string
-  responses:
-    200:
-      description: Las credenciales coiciden 
-  """
-  try:
-    data = request.get_json()
-    correo = data['correo']
-    constraseña = data['contraseña']
-    
-    with config['development'].conn() as conn:
-      with conn.cursor() as cur:
-        cur.execute('SELECT correo, contrasena FROM usuario WHERE correo = %s', (correo))
-    
-    user = cur.fetchone()
-    
-    if user:
-      if user['contrasena'] == constraseña:
-        return jsonify({'Mensaje': 'Las crendenciales son correctas'})
-      else:
-        return jsonify({'Mensaje': 'Contraseña incorrecta'})
-    else:
-      return jsonify({'Mensaje': 'Usuario no encontrado'})
-    
-  except Exception as err:
-    print(err)
-    return jsonify({'Mensaje': 'Error al consultar Usuario'})
+    try:
+        data = request.get_json()
+        
+        if not data or 'correo' not in data or 'contraseña' not in data:
+            return jsonify({'Mensaje': 'Datos incompletos'}), 400
+        
+        correo = data['correo']
+        contraseña = data['contraseña']
+        
+        with config['development'].conn() as conn:
+            with conn.cursor() as cur:
+                cur.execute('SELECT id_usuario as numero_identificacion, nombre, correo, contrasena FROM usuario WHERE correo = %s', (correo,))
+                user = cur.fetchone()
+        
+        if user:
+            if user['contrasena'] == contraseña:
+                token = generar_token(user)
+                return jsonify({
+                    'Mensaje': 'Las credenciales son correctas',
+                    'token': token,
+                    'nombre': user['nombre'],
+                    'numero_identificacion': user['numero_identificacion'],
+                    'correo': user['correo']
+                }), 200
+            else:
+                return jsonify({'Mensaje': 'Contraseña incorrecta'}), 401
+        else:
+            return jsonify({'Mensaje': 'Usuario no encontrado'}), 404
+        
+    except Exception as err:
+        print(f"Error en login: {err}")
+        return jsonify({'Mensaje': 'Error al consultar Usuario'}), 500
 
 
 # RUTA PARA REGISTRAR USUARIOS NUEVOS
@@ -128,6 +172,69 @@ def registro_usuarios():
     return jsonify({'Mensaje':'Error el usuario no pudo ser registrado'})
 
 
+# ------------------------------
+# REGISTRO CON GOOGLE
+# ------------------------------
+
+@app.route('/api/auth/google', methods=['POST'])
+def google_login():
+    if not request.is_json:
+        return jsonify({"status": "error", "message": "Formato JSON requerido"}), 400
+
+    data = request.get_json()
+    token = data.get('token')
+
+    if not token:
+        return jsonify({"status": "error", "message": "Token no recibido"}), 400
+
+    try:
+        idinfo = id_token.verify_oauth2_token(
+            token,
+            google_requests.Request(),
+            "887853903603-sbo2ffg27v2o12navndev9okvno8t4fn.apps.googleusercontent.com"
+        )
+
+        email = idinfo['email']
+        name = idinfo.get('name', '')
+        proveedor = 'Google'
+
+        conn = config['development'].conn()
+        cursor = conn.cursor()
+
+
+        cursor.execute("SELECT id_usuario_externo, nombre FROM usuario_externo WHERE correo = %s", (email,))
+        user = cursor.fetchone()
+
+        if not user:
+
+            cursor.execute("""
+                INSERT INTO usuario_externo (correo, nombre, proveedor)
+                VALUES (%s, %s, %s)""", (email, name, proveedor))
+            id_usuario_externo = cursor.lastrowid
+            conn.commit()
+        else:
+            id_usuario_externo = user["id_usuario_externo"]
+            name = user["nombre"]
+
+        usuario = {
+            "numero_identificacion": id_usuario_externo,
+            "nombre": name,
+            "correo": email
+        }
+        token = generar_token(usuario)
+
+        return jsonify({
+            "status": "success",
+            "correo": email,
+            "nombre": name,
+            "numero_identificacion": id_usuario_externo,
+            "proveedor": proveedor,
+            "token": token
+        })
+
+    except ValueError:
+        return jsonify({"status": "error", "message": "Token inválido"}), 400
+
 
 # ------------------------------
 # SECCION DE GESTIONAR PORCINOS
@@ -138,7 +245,7 @@ def registro_usuarios():
 @app.route('/porcino', methods=['GET'])
 def consulta_general_porcinos():
   """
-  Consulta general de kos porcinos registrados en la base de datos
+  Consulta general de los porcinos registrados en la base de datos
   ---
   tags:
     - Porcinos
@@ -149,13 +256,10 @@ def consulta_general_porcinos():
   try:
     with config['development'].conn() as conn:
       with conn.cursor() as cur:
-          cur.execute("""SELECT id_porcino,peso_inicial,peso_final,fecha_nacimiento,sexo,r.nombre as raza,e.nombre as etapa,estado,p.descripcion
-              FROM porcinos p 
-              JOIN raza r ON p.id_raza = r.id_raza 
-              JOIN etapa_vida e ON p.id_etapa = e.id_etapa""")
-          informacion = cur.fetchall()
+        cur.execute('SELECT id_porcino,peso_inicial,peso_final,fecha_nacimiento,sexo,r.nombre as raza,e.nombre as etapa,estado,p.descripcion FROM porcinos p JOIN raza r ON p.id_raza = r.id_raza JOIN etapa_vida e ON p.id_etapa = e.id_etapa')
     
-    return jsonify({'Porcinos' : informacion, "Mensaje":'Lista de porcinos'})
+    informacion = cur.fetchall()
+    return jsonify({'Porcinos': informacion, 'Mensaje':'Listado de porcinos'})
     
   except Exception as err:
     print(err)
@@ -870,36 +974,10 @@ def consulta_individual_alimento(nombre):
   try:
       with config['development'].conn() as conn:
           with conn.cursor() as cur:
-              cur.execute("""
-                  SELECT 
-                      a.id_alimento, 
-                      a.nombre AS nombre_alimento, 
-                      e.nombre AS nombre_elemento, 
-                      ate.valor 
-                  FROM alimentos a
-                  JOIN alimento_tiene_elemento ate ON a.id_alimento = ate.id_alimento
-                  JOIN elementos e ON e.id_elemento = ate.id_elemento
-                  WHERE a.nombre = %s
-              """, (nombre,))
-              
-              filas = cur.fetchall()
-              
-              if not filas:
-                  return jsonify({"mensaje": None})
-              
-              alimento = {
-                  "id_alimento": filas[0]["id_alimento"],
-                  "nombre": filas[0]["nombre_alimento"],
-                  "elementos": []
-              }
-              
-              for fila in filas:
-                  alimento["elementos"].append({
-                      "nombre": fila["nombre_elemento"],
-                      "valor": float(fila["valor"])
-                  })
-              
-              return jsonify({"mensaje": alimento})
+              cur.execute("DELETE FROM alimento_tiene_elemento WHERE id_alimento = %s", (id,))
+              cur.execute("DELETE FROM alimentos WHERE id_alimento = %s", (id,))
+              conn.commit()
+      return jsonify({"mensaje": f"Alimento con id {id} eliminado correctamente"})
   except Exception as e:
       return jsonify({"error": str(e)})
 

@@ -6,6 +6,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet">
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
     <link rel="stylesheet" href="/src/static/css/sytle.css">
     <script src="/src/static/js/script.js"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11.17.2/dist/sweetalert2.min.css">
@@ -98,7 +99,14 @@
             </div>
             <div class="container__user__btn">
                 <img src="/src/static/iconos/icon user.svg" alt="" class="svg__user">
-                <button type="button" class="btn__perfil">cristhian U</button>
+                <button type="button" class="btn__perfil" id="btnPerfil">
+                    <span id="nombreUsuarioTexto"></span>
+                    <i class="fa fa-caret-down"></i>
+                </button>
+                <div class="usuario-menu" id="usuarioMenu">
+                    <a href="perfil.html">Mi perfil</a>
+                    <a href="#" id="cerrarSesionBtn">Cerrar sesión</a>
+                </div>
             </div>
         </section>
 

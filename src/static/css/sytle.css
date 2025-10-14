@@ -111,17 +111,16 @@ SECCION DE LOGIN
 .InicioGoogle{
     display: flex;
     gap: 5px;
-    background-color: white;
+    background-color: transparent;
     border-radius: 30px;
     width:280px;
     height:52px;
     justify-content: center;
     align-items: center;
-    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
-    border: 1px solid var(--color-bor-contain);
     margin-top: 20px;
     margin-bottom: 20px;
 }
+
 .link{
     text-decoration: none;
     color: grey;
@@ -153,9 +152,20 @@ SECCION DE LOGIN
 .Registrarse{
     text-align: center;
     text-decoration: none;
-    color: white;
+    color: #eaeaea; 
     font-weight: bold;
 }
+
+.Registrarse:hover {
+    color: #0056b3;       
+    transform: translateY(-2px);
+}
+
+.parrafo_r{
+    margin: auto;
+    color: white;
+}
+
 .logBot{
     position: fixed;
     bottom: 0;
@@ -180,10 +190,9 @@ SECCION REGISTROS
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 100vh;
+    min-height: 100vh;
     background-color: hsl(183, 100%, 93%);
-    color: white;
-    overflow: hidden;
+    color: white;;
     font-family: var(--fuente--contenido);
 }
 
@@ -193,14 +202,13 @@ SECCION REGISTROS
     padding: 0px 10px 25px 10px;
     border-radius: 35px;
     width: 566px;
-    overflow: hidden;
     box-shadow: 0 0 25px rgba(80, 129, 84, 0.7);
 }
 
 .form__registro{
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 9px;
 }
 
 .label__registro {
@@ -209,7 +217,7 @@ SECCION REGISTROS
 }
 
 .form-input {
-    margin: 0px 10px 3px;
+    margin: 0px 10px 5px;
     padding: 0 70px;
 }
 
@@ -229,7 +237,7 @@ input:focus, select:focus {
 }
 
 legend {
-    padding: 0px 8px;
+    padding: 28px 8px;
     text-align: center;
     font-size: 0.9em;
 }
@@ -241,31 +249,12 @@ fieldset {
     border-bottom: none;
     width: 70%;
     display: block;
-    margin: 1px auto;
-    padding: 10px;
-}
-
-.button-r {
-    width: 50%;
-    margin: 15px auto;
-    padding: 13px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    border: none;
-    border-radius: 20px;
-    background-color: white;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
+    margin: 2px auto -10px;
     font-family: var(--fuente--contenido);
 }
 
 .btn__registro{
-    margin: auto;
-}
-
-.button-r:hover {
-    background-color: #f0f0f0;
+    margin: 9px auto 0px;
 }
 
 img {
@@ -273,32 +262,6 @@ img {
     height: auto;
 }
 
-.icon-google {
-    position: sticky;
-    width: 1.6vw;
-    height: auto;
-    top: 100vh;
-    bottom: 50vh;
-}
-
-/* ALERTAS */
-.alerta {
-    padding: 3px;
-    color: red;
-    display: none;
-    margin: 8px;
-}
-
-.success {
-    color: rgb(108, 232, 108);
-    margin: 10px;
-}
-
-#mensaje {
-    font-size: 0.8em;
-    text-align: center;
-    padding: 5px;
-}
 
 /* FONDO DE LA PÁGINA */
 .logoedupork {
@@ -654,6 +617,30 @@ SECCION DE PORCINOS
     border-radius: 8px;
     border: none;
 }
+
+.usuario-menu {
+    display: none;
+    position: absolute;
+    right: 0;
+    background-color: var(--color--letra);
+    font-family: var(--fuente--contenido);
+    min-width: 150px;
+    box-shadow: 0px 8px 16px rgba(0,0,0,0.2);
+    border-radius: 6px;
+    z-index: 100;
+}
+
+.usuario-menu a {
+    display: block;
+    padding: 10px;
+    color: var(--color-white);
+    text-decoration: none;
+}
+
+.usuario-menu a:hover {
+    background: var(--color--btn--hover);
+}
+
 
 /* CODIGO DE LA SECCION DEL TITULO */
 

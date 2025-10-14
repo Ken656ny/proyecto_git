@@ -7,8 +7,8 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/src/static/css/sytle.css">
-    <script src="/src/static/js/script.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="/src/static/js/script.js"></script>
     <title>Edupork</title>
 </head>
 <body class="body__registro">
@@ -18,10 +18,10 @@
         <img class="rancho" src="/src/static/iconos/Rancho.svg" alt="rancho">
     </section>
     <div class="container-form">
-        <button class="button-r"> <img class="icon-google" src="/src/static/iconos/icon google.svg" alt="icon-google">Registrarse con google</button>
-        <form class="form__registro" id="form__registro" onsubmit="event.preventDefault(); registro_usuarios()">
+
+        <form class="form__registro" onsubmit="registro_usuarios(event)">
             <fieldset>
-                <legend>O correo electronico</legend>
+                <legend>REGISTRO DE USUARIO</legend>
             </fieldset>
             <div class="form-input">
                 <label class="label__registro" for="fname">Nombre Completo</label>

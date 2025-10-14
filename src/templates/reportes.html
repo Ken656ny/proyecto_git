@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="static/css/sytle.css">
     <title>Edupork</title>
@@ -36,8 +37,15 @@
                 </a>
             </div>
             <div class="container__user__btn">
-                <img src="/iconos/icon user.svg" alt="" class="svg__user">
-                <button type="button" class="btn__perfil">Juan Tovar</button>
+                <img src="/src/static/iconos/icon user.svg" alt="" class="svg__user">
+                <button type="button" class="btn__perfil" id="btnPerfil">
+                    <span id="nombreUsuarioTexto"></span>
+                    <i class="fa fa-caret-down"></i>
+                </button>
+                <div class="usuario-menu" id="usuarioMenu">
+                    <a href="perfil.html">Mi perfil</a>
+                    <a href="#" id="cerrarSesionBtn">Cerrar sesión</a>
+                </div>
             </div>
         </section>
 
@@ -76,7 +84,7 @@
         </section>
     </section>
 
-    <script src="static/js/script.js"></script>
+    <script src="/src/static/js/script.js"></script>
 </body>
 </html>
     
