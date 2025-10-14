@@ -84,69 +84,104 @@
             </nav>
         </div>
     </section>
-    <section class="section__porcinos" >
+    <section class="section__add__por" >
 
         <section class="container__logo__user">
             <div class="container__back__logo" >
-                <img src="/src/static/iconos/back icon.svg" alt="icon back" class="icon__back">
+                <a href="/src/templates/porcinos.html">
+                    <img src="/src/static/iconos/back icon.svg" alt="icon back" class="icon__back">
+                </a>
                 <a href="/src/templates/home.html">
                     <img src="/src/static/iconos/Logo.svg" alt="Logo Edupork" class="logo">
                 </a>
             </div>
             <div class="container__user__btn">
                 <img src="/src/static/iconos/icon user.svg" alt="" class="svg__user">
-                <button type="button" class="btn__perfil">cristhian</button>
+                <button type="button" class="btn__perfil">Juan Tovar</button>
             </div>
         </section>
 
-        <header class= "container container__title">
-            <h1>Gestionar alimentos</h1>
+        <header class="container container__title">
+            <h1>Agregar porcinos</h1>
         </header>
-        
-        
-        <section class="container container__search__bar">
 
-            <img src="/src/static/iconos/icon lupa.svg" alt="">
-            <input type = "text" class = "input__id" id="id_alimento" placeholder = "Ingrese el ID del alimento" >
+        <form class="container container__add__por" onsubmit="event.preventDefault(); agregar_porcino()">
+            <div class="container__label__input">
+                <label for="id_porcino"> ID del porcino </label>
+                <input class="input__add__por" type="number" name="id_porcino" id="id_porcino" min="1" oninput = "this.value = Math.abs(this.value)" placeholder="Ingrese el id del porcino" required>
+            </div>
 
-           <label class="contenedor">
-              <input type="checkbox" id="check1">
-              <span class="custom-checkbox"></span>
-              <p class="color_p">consultar todo</p>
-              
-            </label>
+            <div class="container__label__input">
+                <label for="peso_inicial"> Peso inicial </label>
+                <input class="input__add__por" type="number" name="peso_inicial" id="peso_inicial" min="1" oninput = "this.value = Math.abs(this.value)" placeholder="Ingrese el peso inicial" required>
+            </div>
 
-            <button type="button" class="btn" onclick="consulta_individual_alimento()">Consultar</button>
-        </section>
-        <div class="container__btn__agregar">
-            <img src="/src/static/iconos/icon add.svg" alt="" class="svg__add">
-            <button type="button" class="btn btn--agregar" onclick="location.href = 'add_alimento.html' ">Agregar</button>
-        </div>
+            <div class="container__label__input">
+                <label for="peso_final"> Peso final </label>
+                <input class="input__add__por" type="number" name="peso_final" id="peso_final" min="1" oninput = "this.value = Math.abs(this.value)" placeholder="Ingrese el peso final" required>
+            </div>
 
-        <section class="container__registros">
-            <table class="table__registros">
-                <thead>
-                    <tr>
-                        <th></th>
-                        <th>ID</th>
-                        <th>nombre</th>
-                        <th>materia <br> seca(%)</th>
-                        <th>Energia <br> metabolizble(%)</th>
-                        <th>proteina<br> cruda(%)</th>
-                        <th>fibra <br> cruda(%)</th>
-                        <th>estado</th>
-                        <th>Acciones</th>
-                    </tr>
-                </thead>
-                <tbody class="registros" id="contenido">
-                
-                </tbody>
-            </table>
-        </section>
+            <div class="container__label__input">
+                <label for="fecha"> Fecha de nacimiento </label>
+                <input type="date" name="fecha" id="fecha" class="input__add__por" required>
+            </div>
+            
+            <div class="container__label__input">
+                <label for="raza_add"> Raza </label>
+                <select name="" id="raza_add" class="input__add__por" required>
+                    
+                </select>
+            </div>
+
+            <div class="container__label__input">
+                <label for="sexo"> Sexo </label>
+                <select name="" id="sexo" class="input__add__por" required>
+                    <option value="" disabled selected>Seleccione el sexo...</option>
+                    <option value="Macho">Macho</option>
+                    <option value="Hembra">Hembra</option>
+                </select>
+            </div>
+
+            <div class="container__label__input">
+                <label for="etapa_add"> Etapa de vida </label>
+                <select name="" id="etapa_add" class="input__add__por" required>
+                    
+                </select>
+            </div>
+            <div class="container__label__input">
+                <label for="descripcion"> Descripción </label>
+                <textarea name="" id="descripcion" class="input__add__por" placeholder="Descripcion del animal."></textarea>
+            </div>
+            <button type="submit" class="btn btn--guardar">Agregar Porcino</button>
+        </form>
     </section>
     <script src="/src/static/js/script.js"></script>
+    
     <script>
-        consulta_alimentos();
-    </script>
+        document.addEventListener("DOMContentLoaded", async () => {
+            try {
+                const razaSelect = document.getElementById("raza_add");
+                const etapaSelect = document.getElementById("etapa_add");
+
+                razaSelect.innerHTML = '<option value="">Cargando razas...</option>';
+                etapaSelect.innerHTML = '<option value="">Cargando etapas...</option>';
+
+                const razas = await consultar_razas();
+                const etapas = await consultar_etapas();
+                
+                llenarSelectDesdeLista(razas.razas, "raza_add", "", "id_raza", "nombre");
+                llenarSelectDesdeLista(etapas.etapas, "etapa_add", "", "id_etapa", "nombre");
+
+            } catch (error) {
+                console.error("Error cargando las listas:", error);
+                Swal.fire({
+                    icon: "error",
+                    title: "Error",
+                    text: "No se pudieron cargar las listas de razas y etapas.",
+                });
+            }
+        });
+</script>
+
 </body>
 </html>

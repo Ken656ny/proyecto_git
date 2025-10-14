@@ -1,16 +1,18 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap"
+        rel="stylesheet">
     <link rel="stylesheet" href="/src/static/css/sytle.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11.17.2/dist/sweetalert2.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <title>Edupork</title>
 </head>
+
 <body class="body__porcinos">
     <section class="section-nav-bar" >
         <div class="container-user">
@@ -84,7 +86,8 @@
             </nav>
         </div>
     </section>
-    <section class="section__porcinos" >
+
+    <section class="section__porcinos">
 
         <section class="container__logo__user">
             <div class="container__back__logo" >
@@ -95,58 +98,43 @@
             </div>
             <div class="container__user__btn">
                 <img src="/src/static/iconos/icon user.svg" alt="" class="svg__user">
-                <button type="button" class="btn__perfil">cristhian</button>
+                <button type="button" class="btn__perfil">Juan Tovar</button>
             </div>
         </section>
 
-        <header class= "container container__title">
-            <h1>Gestionar alimentos</h1>
-        </header>
-        
-        
-        <section class="container container__search__bar">
+        <div class="content_configuracion">
 
-            <img src="/src/static/iconos/icon lupa.svg" alt="">
-            <input type = "text" class = "input__id" id="id_alimento" placeholder = "Ingrese el ID del alimento" >
+            <h1 class="title_configuracion">Configuración</h1>
 
-           <label class="contenedor">
-              <input type="checkbox" id="check1">
-              <span class="custom-checkbox"></span>
-              <p class="color_p">consultar todo</p>
-              
-            </label>
+            <div class="menu_configuracion">
+                <div class="menu-item_configuracion" onclick="abrirPanel('cuenta')">
+                    <img src="/src/static/iconos/cuenta.svg" alt="Cuenta" class="icono_configuracion"> Cuenta
+                </div>
+                <div class="menu-item_configuracion" onclick="abrirPanel('ajustar')">
+                    <img src="/src/static/iconos/ajustes.svg" alt="Ajustar" class="icono_configuracion"> Ajustar campos
+                </div>
+                <div class="menu-item_configuracion" onclick="abrirPanel('notificaciones')">
+                    <img src="/src/static/iconos/notificacions.svg" alt="Notificaciones" class="icono_configuracion">
+                    Notificaciones
+                </div>
+                <div class="menu-item_configuracion" onclick="abrirPanel('ayuda')">
+                    <img src="/src/static/iconos/signo_interrogacion.svg" alt="Ayuda" class="icono_configuracion"> Ayuda
+                </div>
+                <div class="menu-item_configuracion" onclick="abrirPanel('terminos')">
+                    <img src="/src/static/iconos/incono_exclamacion.svg" alt="Términos" class="icono_configuracion"> Términos y
+                    condiciones
+                </div>
+                <div class="menu-item_configuracion" onclick="abrirPanel('cambiar')">
+                    <img src="/src/static/iconos/incono_cambiar.svg" alt="Cambiar cuenta" class="icono_configuracion"> Cambiar
+                    cuenta
+                </div>
+                <div class="menu-item_configuracion" data-bs-toggle="modal" data-bs-target="#modalCerrarSesion">
+                    <img src="/src/static/iconos/incono_salida.svg" alt="Cerrar sesión" class="icono_configuracion"> Cerrar sesión
+                </div>
 
-            <button type="button" class="btn" onclick="consulta_individual_alimento()">Consultar</button>
-        </section>
-        <div class="container__btn__agregar">
-            <img src="/src/static/iconos/icon add.svg" alt="" class="svg__add">
-            <button type="button" class="btn btn--agregar" onclick="location.href = 'add_alimento.html' ">Agregar</button>
+                <!-- al final de tu HTML -->
+                <script src="/src/static/js/script.js"></script>
+            </div>
         </div>
-
-        <section class="container__registros">
-            <table class="table__registros">
-                <thead>
-                    <tr>
-                        <th></th>
-                        <th>ID</th>
-                        <th>nombre</th>
-                        <th>materia <br> seca(%)</th>
-                        <th>Energia <br> metabolizble(%)</th>
-                        <th>proteina<br> cruda(%)</th>
-                        <th>fibra <br> cruda(%)</th>
-                        <th>estado</th>
-                        <th>Acciones</th>
-                    </tr>
-                </thead>
-                <tbody class="registros" id="contenido">
-                
-                </tbody>
-            </table>
-        </section>
-    </section>
-    <script src="/src/static/js/script.js"></script>
-    <script>
-        consulta_alimentos();
-    </script>
 </body>
 </html>

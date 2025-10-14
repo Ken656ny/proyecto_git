@@ -6,10 +6,8 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/src/static/css/sytle.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11.17.2/dist/sweetalert2.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <title>Edupork</title>
+    <link rel="stylesheet" href="/src/static/css/sytle.css">
 </head>
 <body class="body__porcinos">
     <section class="section-nav-bar" >
@@ -84,69 +82,31 @@
             </nav>
         </div>
     </section>
-    <section class="section__porcinos" >
-
+    <section class="section__home">
         <section class="container__logo__user">
             <div class="container__back__logo" >
-                <img src="/src/static/iconos/back icon.svg" alt="icon back" class="icon__back">
-                <a href="/src/templates/home.html">
+                <a href="/src/templates/home.html" onclick="redirectWithDelay(event, 'index.html')">
                     <img src="/src/static/iconos/Logo.svg" alt="Logo Edupork" class="logo">
                 </a>
             </div>
             <div class="container__user__btn">
                 <img src="/src/static/iconos/icon user.svg" alt="" class="svg__user">
-                <button type="button" class="btn__perfil">cristhian</button>
+                <button type="button" class="btn__perfil">Juan Tovar</button>
             </div>
         </section>
-
-        <header class= "container container__title">
-            <h1>Gestionar alimentos</h1>
-        </header>
-        
-        
-        <section class="container container__search__bar">
-
-            <img src="/src/static/iconos/icon lupa.svg" alt="">
-            <input type = "text" class = "input__id" id="id_alimento" placeholder = "Ingrese el ID del alimento" >
-
-           <label class="contenedor">
-              <input type="checkbox" id="check1">
-              <span class="custom-checkbox"></span>
-              <p class="color_p">consultar todo</p>
-              
-            </label>
-
-            <button type="button" class="btn" onclick="consulta_individual_alimento()">Consultar</button>
-        </section>
-        <div class="container__btn__agregar">
-            <img src="/src/static/iconos/icon add.svg" alt="" class="svg__add">
-            <button type="button" class="btn btn--agregar" onclick="location.href = 'add_alimento.html' ">Agregar</button>
+        <div class="titulo__home">
+            <h1>BIENVENIDOS A EDUPORK!</h1>
         </div>
-
-        <section class="container__registros">
-            <table class="table__registros">
-                <thead>
-                    <tr>
-                        <th></th>
-                        <th>ID</th>
-                        <th>nombre</th>
-                        <th>materia <br> seca(%)</th>
-                        <th>Energia <br> metabolizble(%)</th>
-                        <th>proteina<br> cruda(%)</th>
-                        <th>fibra <br> cruda(%)</th>
-                        <th>estado</th>
-                        <th>Acciones</th>
-                    </tr>
-                </thead>
-                <tbody class="registros" id="contenido">
-                
-                </tbody>
-            </table>
+        <div class="Parrafo__home">
+            <p>El programa que estás utilizando fue creado con el fin de ayudarte 
+                a aprender lo necesario en la creación de dietas que cumplan con los requerimientos nutricionales de los porcinos</p>
+        </div>
+        <section>
+            <img class="PorcinoTwo" src="/src/static/iconos/PorcinoTwo.svg" alt="PorcinoTwo">
         </section>
     </section>
-    <script src="/src/static/js/script.js"></script>
-    <script>
-        consulta_alimentos();
+    <script src="/src/static/js/script.js">
+        ValidarPassword()
     </script>
 </body>
 </html>

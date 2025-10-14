@@ -2,6 +2,8 @@
 :root{
     /* fondo de contenidos */
     --color--fondos:#D9D9D9;
+    /* color predeterminado */
+    --color--prede: #60836a;
     /* color de letras cuando esta en el fondo del contenido  */
     --color--letra:#60836A;
     /* color letra predeterminada */
@@ -10,8 +12,12 @@
     --fuente-titulos: 'Times New Roman', Times, serif;
     /*tipografia en contenido*/
     --fuente--contenido: 'Inter';
+    /* color para hover de la barra de navegacion */
+    --navegacion-despues:#75927c;
     /* color de los botones sin hover*/
     --color--btn--sin--hover:#99A69A;
+    /* color de los botones de la barra sup resposive */
+    --color--btn--resposive: #33493b;
     /* color de los botones con hover*/
     --color--btn--hover: #215718;
     /* color de los border de los containers */
@@ -24,6 +30,11 @@
     --color-bg-registros: #AFAEAE;
     /* color del borde de los registros */
     --color-bor-registros: #918D8D;
+    /* color del fondo de los modales */
+    --color-fondo-modal: #d4d4d4;
+    /* color de fondo modal cruds */
+    --color-fondo-modal-cruds: #ececec;
+
     --color-white: #fff;
     --color-black: #000;
 }
@@ -40,89 +51,531 @@ body{
     margin: 0;
 }
 
-/* el ancho es de 90 porque asi esta en el figma, ya despues se pone responsive */
-.nav__bar{
-    width: 90px;
+/* -------------------
+SECCION DE LOGIN
+------------------- */
+.body_login{
+    background: url("/src/static/iconos/background_login.svg") center / cover no-repeat fixed;
     height: 100vh;
-    background-color: #60836A;
-    color: white;
-    display: flex;
-    flex-direction: column;
-    justify-content: center; /*Sirve para centrar el ul*/
 }
-
-.nav__bar ul{
-    display: flex;
-    flex-direction: column;
-    align-items: center; /*sirve para que los elementos del ul se alinien todos*/
-    padding: 0;
-    gap: 17px;
-}
-
-.nav__bar ul li{
-    position: relative;
-    z-index: 1;
-    list-style: none;
-}
-
-.nav__bar ul li a {
+/*Creo el body2 para poder controlar con un flexbox el conetendor de mi inicio de sesion*/
+.body_overlay{
+    background-color: #000000a1;
     display: flex;
     align-items: center;
-    color: white;
-    padding: 15px 20px;
-    text-decoration: none;
+    justify-content: center;
+    height: 100vh;
+    width: 100vw;
+    position: absolute;
 }
-
-.nav__bar ul li a img{
-    transition: 0.5s;
-}
-
-.nav__bar ul li.active a img{
-    transform: translateX(30px);
-}
-
-.indicador{
+/*El container guarda las entradas de datos de inicio de sesión*/
+.container__form__login{
+    display:flex;
+    flex-wrap: wrap;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background-color: var(--color--letra);
+    height:615px;
+    width: 612px;
+    gap: 12px;
+    border-radius: 30px;
+    margin-top: 60px;
+    margin-bottom: 50px;
+    border: 1px solid var(--color-bor-contain);
     box-sizing: border-box;
-    position: absolute;
-    top: 18px;
-    left: 36px;
-    width: 80px;
-    height: 80px;
+    font-family: var(--fuente--contenido);
+}
+.perfil{
+    border: 1px solid var(--color-bor-contain);
     border-radius: 50%;
-    border: 6px solid #fff;
-    background-color: var(--color--letra);
-
+    background-color: #fff;
+    width: 100px;
+    height: 100px;
+}
+.icon{
+    width: 98px;
+    filter: invert(54%) sepia(5%) saturate(1904%) hue-rotate(85deg) brightness(87%) contrast(93%); 
 }
 
-.indicador::before{
-    content: '';
-    left: 22px;
-    top: -27px;
+.formulario{
+    display: flex;
+    flex-direction: column;
+    gap: 25px;
+}
+
+.gicon{
+    width: 25px;
+}
+
+.InicioGoogle{
+    display: flex;
+    gap: 5px;
+    background-color: white;
+    border-radius: 30px;
+    width:280px;
+    height:52px;
+    justify-content: center;
+    align-items: center;
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+    border: 1px solid var(--color-bor-contain);
+    margin-top: 20px;
+    margin-bottom: 20px;
+}
+.link{
+    text-decoration: none;
+    color: grey;
+    margin-left: 6px;
+}
+.entrada{
+    margin-top: 20px;
+    width:427px;
+    height: 42px;
+    padding-left: 10px ;
+    background-color: #ECE6F0;
+    border-radius: 30px;
+    border: 1px solid var(--color-bor-contain); /*COLOCAR EL COLOR CORRESPONDIENTE PARA LOS BORDES */
+    outline: none;
+}
+.container_boton{
+    display: flex;
+    flex-direction: column;
+    border-radius: 30px;
+}
+.bIniciarSesion{
+    margin: auto;
+}
+
+.label_input{
+    color: white;
+}
+
+.Registrarse{
+    text-align: center;
+    text-decoration: none;
+    color: white;
+    font-weight: bold;
+}
+.logBot{
+    position: fixed;
+    bottom: 0;
+}
+.logobot2{   
+    left: 80px;
+    margin-bottom: 10px;
+}
+.LogoEdupork{
+    display: flex;
+    width: 300px;
+    height: 100px;
+    margin:auto;
+    padding: 5px;
+    position: fixed;
+}
+
+/* -------------------
+SECCION REGISTROS
+------------------- */
+.body__registro {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background-color: hsl(183, 100%, 93%);
+    color: white;
+    overflow: hidden;
+    font-family: var(--fuente--contenido);
+}
+
+/* CONTENEDOR */
+.container-form {
+    background-color: var(--color--prede);
+    padding: 0px 10px 25px 10px;
+    border-radius: 35px;
+    width: 566px;
+    overflow: hidden;
+    box-shadow: 0 0 25px rgba(80, 129, 84, 0.7);
+}
+
+.form__registro{
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.label__registro {
+    font-size: 15px;
+    line-height: 1.5em;
+}
+
+.form-input {
+    margin: 0px 10px 3px;
+    padding: 0 70px;
+}
+
+input, select, textarea {
+    color: #434242;
+    background-color: #f1f1f1;
+    width: 100%;
+    border-radius: 20px;
+    padding: 9px;
+    transition: all 0.3s ease;
+    font-family: var(--fuente--contenido);
+}
+
+input:focus, select:focus {
+    outline: 2px solid rgba(80, 129, 84, 0.7);
+    background-color: #ffffff;
+}
+
+legend {
+    padding: 0px 8px;
+    text-align: center;
+    font-size: 0.9em;
+}
+
+fieldset {
+    border: 1px solid white;
+    border-left: none;
+    border-right: none;
+    border-bottom: none;
+    width: 70%;
+    display: block;
+    margin: 1px auto;
+    padding: 10px;
+}
+
+.button-r {
+    width: 50%;
+    margin: 15px auto;
+    padding: 13px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border: none;
+    border-radius: 20px;
+    background-color: white;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    font-family: var(--fuente--contenido);
+}
+
+.btn__registro{
+    margin: auto;
+}
+
+.button-r:hover {
+    background-color: #f0f0f0;
+}
+
+img {
+    max-width: 100%;
+    height: auto;
+}
+
+.icon-google {
+    position: sticky;
+    width: 1.6vw;
+    height: auto;
+    top: 100vh;
+    bottom: 50vh;
+}
+
+/* ALERTAS */
+.alerta {
+    padding: 3px;
+    color: red;
+    display: none;
+    margin: 8px;
+}
+
+.success {
+    color: rgb(108, 232, 108);
+    margin: 10px;
+}
+
+#mensaje {
+    font-size: 0.8em;
+    text-align: center;
+    padding: 5px;
+}
+
+/* FONDO DE LA PÁGINA */
+.logoedupork {
     position: absolute;
-    width: 23px;
-    height: 23px;
-    border-bottom-right-radius: 20px;
-    box-shadow: 12.2px 4px 0 0 #fff;
-    background-color: var(--color--letra);
+    width: 20vw;
+    right: 75%;
+    bottom: 83vh;
 }
 
-.indicador::after{
-    content: '';
-    right: 20px;
-    bottom: -30px;
+.rancho {
     position: absolute;
-    width: 23px;
-    height: 23.3px;
-    border-top-right-radius: 20px;
-    box-shadow: 8px -7px 0 0 #fff;
-    background-color: var(--color--letra);
+    right: 72%;
+    width: 28vw;
+    height: auto;
+    bottom: 1vh;
+    z-index: -1;
+    overflow: hidden;
 }
 
-.nav__bar ul li:nth-child(1).active ~ .indicador{
-    transform: translateY(cal(70px*0));
+.pasto {
+    position: absolute;
+    width: 100vw;
+    height: auto;
+    right: 0%;
+    bottom: 0vh;
+    z-index: -1;
+
 }
-.nav__bar ul li:nth-child(2).active ~ .indicador{
-    transform: translateY(cal(70*2));
+
+.nubes {
+    position: absolute;
+    width: 24vw;
+    height: auto;
+    right: 72%;
+    bottom: 75vh;
+    z-index: -1;
+}
+
+.nubes2 {
+    position: absolute;
+    width: 25vw;
+    left: 73%;
+    bottom: 71vh;
+    z-index: -1;
+}
+
+.porcino {
+    position: absolute;
+    width: 25vh;
+    height: auto;
+    left: 79%;
+    bottom: 10vh;
+    z-index: -1;
+}
+
+/* -------------------
+BARRA LATERAL
+------------------- */
+
+.barra-lateral{
+    position: fixed;
+    display: flex;
+    flex-direction: column;
+    width: 250px;
+    height: 100vh;
+    padding: 2rem 1rem;
+    background-color: var(--color--prede);
+    transition: width 0.3s ease, background-color 0.3s ease,left 0.3s ease;
+    overflow: hidden;
+    z-index: 3;
+    font-family: var(--fuente--contenido);
+}
+
+.mini-barra-lateral{
+    width: 80px;
+} 
+
+/* -----------------------------------------------------------------nombre de la paginaaa */
+
+.barra-lateral .logo-edupork{
+    margin-bottom: 40px;
+    width: 100%;
+    height: 45px;
+    display: flex;
+    align-items: center;
+    color: var(--color-white);
+    font-family: var(--fuente--contenido);
+}
+
+.barra-lateral .logo-edupork span{
+    margin-left: 5px;
+    font-size: 25px;
+}
+.barra-lateral .logo-edupork img{
+    min-width: 50px;
+    font-size: 40px;
+    cursor: pointer;
+}
+
+.barra-lateral  span{
+    font-size: 18px;
+    text-align: left;
+    transition: opacity 0.1s ease;
+}
+
+.barra-lateral span.oculto{
+    opacity: 0;
+    width: 0;
+}
+
+/* -------------------------------------------------------------menu de navegacion */
+
+.barra-lateral .navegacion{
+    height: 100%;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
+.barra-lateral .navegacion ul{
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+}
+
+.barra-lateral .navegacion li{
+    list-style: none;
+    display: flex;
+    justify-content: center;
+    font-family: var(--fuente--contenido);
+}
+
+.barra-lateral .navegacion a{
+    width: 100%;
+    height: 45px;
+    display: flex;
+    justify-content: start;
+    align-items: center;
+    gap: 20px;
+    text-decoration: none;
+    border-radius: 10px;
+    color: var(--color-white);
+    transition: background-color 0.2s ease, font-weight 0.2s ease;
+    text-align: left;
+}
+
+.barra-lateral .navegacion a:hover{
+    background-color: var(--navegacion-despues);
+    font-weight: bold;
+}
+
+.barra-lateral .navegacion img{
+    margin-left: 0.2rem;
+    min-width: 38px;
+    font-size: 10px;
+    transition: transform 0.2s ease;
+}
+
+.barra-lateral .navegacion img:hover{
+    transform: scale(1.05);
+}
+
+/* ------------------------------------------------------------menu */
+
+.menu{
+    width: 50px;
+    height: 50px;
+    font-size: 30px;
+    display: none;
+    justify-content: center;
+    align-items: center;
+    border-radius: 50%;
+    right: 10px;
+    top: 10px;
+    background-color: var(--color--btn--resposive);
+    color: var(--color-white);
+    cursor: pointer;
+    z-index: 100;
+}
+
+
+/* -------------------
+SECCION DE HOME
+------------------- */
+
+.section__home{
+    display: grid;
+    grid-template-rows: 85px auto;
+    gap: 15px;
+    font-family: var(--fuente--contenido);
+}
+
+.titulo__home{
+    font-size: 1.5em;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 50px auto 35px;
+    width: 750px;
+}
+
+.Parrafo__home{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 800px;
+    text-align: center;
+    font-size: 1.8em;
+    margin: 10px auto 40px;
+}
+
+.PorcinoTwo{
+    position: relative;
+    z-index: 1;
+    left: 45%;
+}
+
+.logoedupork__home {
+    position: absolute;
+    width: 20vw;
+    right: 70%;
+    bottom: 89vh;
+}
+
+/* -------------------
+SECCION DE NOTIFICACIONES
+------------------- */
+
+.section__noti{
+    display: grid;
+    grid-template-rows: 85px 75px auto;
+    gap: 15px;
+}
+
+.container__noti{
+    background-color: var(--color--fondos);
+    width: 985px;
+    height: 425px;
+    margin: auto;
+    border: 1px solid var(--color-bor-contain);
+    border-radius: 40px;
+    display: grid;
+    grid-template-rows: 50px 75px 85px 50px 75px 75px auto;
+}
+
+.titulo__noti{
+    font-family: var(--fuente--contenido);
+    color: var(--color--letra);
+    margin: 24px 53px auto;
+}
+
+.menssage__noti{
+    width: 925px;
+    height: auto;
+    margin: auto;
+    padding: 15px;
+    background-color: #AFAEAE;
+    color: #ffffff;
+    border: 1px solid var(--color-bor-contain);
+    border-radius: 15px;
+    box-shadow: 0px 4px 4px 0px rgba(0, 0, 0, 0.25);
+    font-family: var(--fuente--contenido);
+}
+
+
+.btn--noti{
+    background-color: var(--color--btn--sin--hover);
+    color: var(--color-white);
+    width: 280px;
+    height: 40px;
+    margin: auto;
+    border: 1px solid var(--color-bor-btn);
+    font-family: var(--fuente--contenido);
+    font-size: 15px;
+    font-weight: 600;
+    border-radius: 20px;
+    transition: background-color 0.5s ease-in-out;
+    cursor: pointer;
 }
 
 /* -------------------
@@ -131,18 +584,701 @@ SECCION DE PORCINOS
 
 /* CODIGO DE LA SECCION QUE CONTIENE EL ICONO DE REGRESAR EL LOGO Y EL USUARIO REGISTRADO */
 
+.container{
+    background-color: var(--color--fondos);
+}
+
 .body__porcinos{
     display: grid;
     grid-template-columns: 117px auto;
-    background-image: url(/iconos/background\ svg.svg);
+    background-image: url(/src/static/iconos/pasto.svg);
     background-repeat: no-repeat;
     background-position: bottom;
     background-size: 100%;
+    background-attachment: fixed;
+    min-height: 100vh;
 }
 
 .section__porcinos{
     display: grid;
     grid-template-rows: 85px 70px 60px 40px auto;
+    gap: 30px;
+}
+
+.container__logo__user{
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+}
+
+.container__back__logo{
+    display: flex;
+    align-items: center;
+}
+
+.icon__back{
+    width: 3rem;
+    height: 4rem;
+    cursor: pointer;
+}
+
+.logo{
+    width: 262px;
+    height: 88px;
+    cursor: pointer;
+}
+
+.container__user__btn{
+    position: relative;
+    display: flex;
+    align-items: center;
+    margin-right: 2%;
+}
+
+.svg__user{
+    position: absolute;
+    width: 30px;
+    height: 30px;
+    top: 28px;
+    left: 15px;
+}
+
+.btn__perfil{
+    background-color: var(--color--letra);
+    color: var(--color-white);
+    width: 150px;
+    height: 45px;
+    padding-left: 40px;
+    font-size: 15PX;
+    font-weight: 500;
+    border-radius: 8px;
+    border: none;
+}
+
+/* CODIGO DE LA SECCION DEL TITULO */
+
+.container__title{
+    color: var(--color--letra);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: auto;
+    padding: 6px 0;
+    font-size: 30px;
+    width: 750px;
+    border: 1px solid var(--color-bor-contain);
+    border-radius: 14px;
+}
+
+/* CODIGO DE LA BARRA DE BUSQUEDA */
+
+.container__search__bar{
+    border: 1px solid var(--color-bor-contain);
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    width: 1100px;
+    height: 60px;
+    margin: auto;
+    padding: 0 2rem;
+    gap: 4rem;
+    font-family: var(--fuente--contenido);
+}
+
+#filter__options__2{
+    width: 150px;
+    border-radius: 10px;
+    order: 3;
+}
+
+.input__id{
+    width: 220px;
+    height: 40px;
+    padding-left: 18px;
+    border: 1px solid var(--color-bor-contain);
+    border-radius: 26px;
+    font-family: inherit;
+    outline: none;
+    order: 1;
+}
+
+.container__filtro{
+    position: relative;
+    display: flex;
+    order: 2;
+}
+
+#svg__filter{
+    position: absolute;
+    top: 11px;
+    left: 12px;
+    font-family: inherit;
+}
+
+.filter{
+    width: 250px;
+    height: 40px;
+    padding-left: 35px;
+    border-radius: 10px;
+    color: #7C7A7A;
+    border: 1px solid var(--color-bor-contain);
+    outline: none;
+}
+
+.btn{
+    background-color: var(--color--btn--sin--hover);
+    color: var(--color-white);
+    width: 130px;
+    height: 40px;
+    border: 1px solid var(--color-bor-btn);
+    font-family: inherit;
+    font-size: 15px;
+    font-weight: 600;
+    border-radius: 20px;
+    transition: background-color 0.5s ease-in-out;
+    cursor: pointer;
+}
+
+
+.btn:hover{
+    background-color: var(--color--btn--hover);
+    border: 1px solid var(--color-bor-btn-hover);
+}
+
+#btn_consultar{
+    order: 4;
+}
+/* CODIGO DE LA SECCION DEL BOTON DE AGREGAR */
+
+.container__btn__options{
+    width: 1100px;
+    margin: auto;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}
+
+.container__btn__agregar{
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    position: relative;
+    font-family: var(--fuente--contenido);
+}
+
+.svg__add, .svg__btn{
+    position: absolute;
+    top: 11px;
+    left: 15px;
+}
+
+.svg--gesti{
+    top: 14px;
+    padding-right: 8px;
+}
+
+.btn--options{
+    width: 165px;
+    padding-left: 35px;
+    font-size: 14px;
+
+}
+
+.btn--options--actua{
+    width: 155px;
+    padding-left: 35px;
+    font-size: 14px;
+}
+
+.btn--agregar{
+    width: 165px;
+    padding-left: 20px;
+    font-size: 14px;
+}
+
+
+
+/* CODIGO DE LA SECCION DE LOS REGISTROS DE LOS PORCINOS */
+
+.container__registros{
+    background-color: var(--color--fondos);
+    width: 1200px;
+    height: 320px;
+    margin: auto;
+    border: 1px solid var(--color-bor-contain);
+    border-radius: 40px;
+    overflow-y: scroll;
+}
+.container__registros::-webkit-scrollbar{
+    display: none;
+}
+
+thead{
+    position: sticky;
+    top:  0;
+    z-index: 2;
+    background-color: var(--color--fondos);
+}
+
+.table__registros{
+    width: 1150px ;
+    margin: auto;
+    border-collapse: collapse;
+    font-family: var(--fuente--contenido);
+    color: var(--color-letra-predeter);
+}
+
+.registro{
+    background-color: var(--color-bg-registros);
+    text-align: center;
+    border: 5px solid var(--color--fondos);
+}
+
+.svg__pig{
+    position: relative;
+    top: 5px;
+    z-index: 1;
+}
+
+.icon-edit{
+    margin: 0 15px;
+}
+
+.td__border__l{
+    border-top-left-radius: 25px;
+    border-bottom-left-radius: 25px;
+}
+
+.td__border__r{
+    border-top-right-radius: 25px;
+    border-bottom-right-radius: 25px;
+}
+
+th{
+    padding: 20px 0;
+}
+
+
+/* CODIGO DE LAS ACCIONES VER, EDITAR Y ELIMINAR */
+
+/* LO USO PAR OSCURECER EL FONDO */
+
+.dialog-icon-eye::backdrop, .dialog-icon-edit::backdrop, .dialog-icon-dele::backdrop, .dialog__ges__raz::backdrop{
+    background-color: #000b;
+}
+
+.icon-eye , .icon-edit, .icon-delete{
+    cursor: pointer;
+    transition: scale 0.5s;
+    
+}
+
+.icon-eye:hover, .icon-edit:hover, .icon-delete:hover{
+    scale: 1.1;
+}
+
+/* DIALOG ICON EYE */
+
+.dialog-icon-eye, .dialog-icon-edit, .dialog-icon-dele{
+    background-color: var(--color-fondo-modal);
+    width: 882px;
+    height: 490px;
+    margin: auto;
+    border-radius: 34px;
+    border: 1px solid #000;
+    overflow-y: hidden;
+    position: relative;
+    z-index: 2;
+    padding: 0 4rem;
+}
+
+/* TUTULO DE LA VENTANA MODAL */
+
+.title-dialog{
+    color: var(--color--letra);
+    font-size: 25px;
+    font-family: 'Times New Roman', Times, serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+}
+
+/* GRID CON LOS INPUTS */
+
+.info-porcino{
+    display: grid;
+    grid-template-columns: repeat( 3 , 1fr);
+    grid-template-rows: repeat(3, 1fr);
+    place-items: center;
+    font-family: var(--fuente--contenido);
+    gap: 0.5rem 1rem;
+}
+
+
+.info-delete{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    grid-column-start: 1;
+    grid-column-end: 4;
+}
+
+.info-porcino > div > input, .info-porcino > div > div > input, .info-porcino > div > div > select ,.info_raza_etapa > div > input, .info_raza_etapa > div > div > input{
+    background-color: #ece6f0;
+    width: 200px;
+    height: 40px;
+    font-weight: 500;
+    border: 1px solid #737171;
+    border-radius: 18px;
+    outline: none;
+    padding: 10px 8px;
+}
+
+.info_raza_etapa > div > input, .info_raza_etapa > div > div > input {
+    width: 100%;
+}
+
+.info-porcino > div > label{
+    margin-top: 10px;
+    margin-bottom: 2px;
+    line-height: 1.5;
+    color: #2C3D31;
+    font-weight: 700;
+}
+
+
+/* CONTAINER DEL BOTTON CERRAR */
+
+.container-button-close, .container-button-guardar, .container-button-dele{
+    margin-top: 1em;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.button-cerrar, .button-guardar, .button-eliminar{
+    background-color: var(--color--btn--hover);
+    color: var(--color-white);
+    width: 150px;
+    height: 40px;
+    font-weight: 900;
+    border-radius: 27px;
+    border: none;
+    cursor: pointer;
+}
+
+/* DIALOG ICON EDIT */
+
+.container-inputs{
+    position: relative;
+}
+
+.info-porcino > div > div > .vector-edit, .info_raza_etapa > div > div .vector-edit{
+    position: absolute;
+    right: 0;
+    bottom: -2px;
+    margin-right: 14px;
+    z-index: 2;
+}
+
+hr{
+    width: 550px;
+    margin: auto;
+    border: 1px solid var(--color--prede);
+}
+
+/* DIALOG ICON DELETE */
+
+.dialog-icon-dele{
+    
+    width: 529px;
+    height: 397px;
+    padding: 0 15px;
+    text-align: center;
+    font-weight: 600;
+    font-family: var(--fuente--contenido);
+}
+
+.dialog-icon-dele .title-dialog{
+    font-size: 20px;
+}
+
+.dialog-icon-dele hr{
+    width: 450px;
+    margin-bottom: 50px;
+}
+
+.dialog-icon-dele p{
+    color: #2C3D31;
+    margin-bottom: 24px;
+}
+
+
+/* REGISTRAR PORCINOS */
+
+.section__add__por{
+    display: grid;
+    grid-template-rows: 85px 70px auto;
+    align-items: center;
+    gap: 10px;
+}
+
+.container__add__por{
+    justify-self: center;
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr 1fr;
+    width: 1100px;
+    height: 436px;
+    align-items: center;
+    padding: 0 5%;
+    border: 1px solid var(--color-bor-contain);
+    border-radius: 32px;
+    font-family: var(--fuente--contenido);
+}
+
+.container__label__input{
+    display: flex;
+    flex-direction: column;
+    line-height: 3;
+}
+
+.container__label__input > label{
+    font-weight: bolder;
+    color: #2C3D31;
+}
+
+.container__label__input > textarea{
+    width: 224px;
+    height: 40px;
+    resize: none;
+
+}
+
+.input__add__por{
+    width: 224px;
+    border: 1px solid var(--color-bor-contain);
+}
+
+.placerholder_eliminar{
+    border : 1px solid #f15b5bff;
+}
+
+.placerholder_eliminar::placeholder{
+    color: #f31818;
+    font-weight: bold;
+}
+
+.btn--guardar{
+    grid-column: 2/4;
+    margin: auto;
+}
+
+/* GESTIONAR RAZAS MODAL */
+.dialog__ges__raz{
+    margin: auto;
+    background-color: var(--color-fondo-modal-cruds);
+    width: 882px;
+    height: 490px;
+    border-radius: 34px;
+    border: 1px solid var(--color-bor-contain);
+}
+
+.container__items__dialogs{
+    display: grid;
+    grid-template-rows: auto auto auto auto auto;
+    justify-content: center;
+    gap: 15px;
+    height: 0;
+    padding: 0;
+}
+
+.container__btn__close{
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: end;
+}
+
+
+.btn__close{
+    background-color:  var(--color-fondo-modal);
+    color: var(--color--letra);
+    width: 50px;
+    padding: 10px;
+    border: none;
+    font-family: var(--fuente--contenido);
+    font-size: 20px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.btn__close__cruds{
+    background-color: var(--color-fondo-modal-cruds);
+}
+
+.bar--gestion{
+    background-color: var(--color--fondos);
+    width: 735px;
+    height: 55px;
+    padding: 0 20px;
+    gap: 0;
+    justify-content: space-between;
+}
+
+.conta__lupa__inp{
+    display: flex;
+    flex-direction: row;
+    gap: 2em;
+}
+
+.container__btn{
+    position: relative;
+}
+
+.svg__add__dial{
+    position: absolute;
+    top: 11px;
+    left: 15px;
+}
+
+.btn__add__dial{
+    font-family: var(--fuente--contenido);
+}
+
+.container__registros__dia{
+    width: 735px;
+    height: 200px;
+    place-self: center;
+}
+
+.table__regis__dia{
+    width: 700px;
+}
+
+.registro__dia{
+    width: 700px;
+
+}
+
+/* -------------------
+SECCION DE configuracion
+------------------- */
+
+.body_configuracion {
+    font-family: 'Times New Roman';
+    background-size: cover;
+    background-position: bottom; /* Esto hace que el fondo se "pegue" abajo */
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    margin: 0;
+    display: flex;
+    height: 100vh;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+
+.content_configuracion {
+    position: relative;
+    top:-10px; /* Sube título y menú juntos */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.title_configuracion {
+    font-size: 45px;
+    color: var(--color--letra);
+    background: #D9D9D9;
+    padding: 5px 50px;
+    border-radius: 18px;
+    text-align: center;
+    font-weight: bold;
+    border: 2px solid #808080;
+    min-width: 580px;
+    max-width: 300px;
+    margin: top -40px; 
+    margin-bottom: 20px;
+
+}
+
+.title_configuracion {
+    position: relative;
+    top: -50px;
+}
+
+.menu_configuracion {
+    background: #e0e0e0;
+    padding: 35px 30px 20px 40px; 
+    border-radius: 41px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top:-47px ;
+    width: 800px; /* ← define un ancho fijo coherente */
+    height: 530px; /* ← ahora sí se aplicará correctamente */
+    border: 1px solid #1b1b1b;
+}
+
+.menu-item_configuracion {
+    background: #bdbdbd;
+    color:#3F5947;
+    font-size: 21px;
+    padding: 10px 15px;
+    border-radius: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 65px;
+    cursor: pointer;
+    transition: 0.3s;
+    font-weight: bold;
+    border: 1px solid #272727;
+    width: 100%;
+    height: 62px;
+    top: 100px;
+    
+    box-sizing: border-box;
+}
+
+.menu-item_configuracion img {
+    max-width: 40px;
+    height: auto;
+    object-fit: contain;
+    filter: drop-shadow(0 0 0 transparent); /* Elimina sombras raras */
+    background-color: transparent; /* evita fondos blancos si los tuviera */
+    stroke: none;
+    filter: none;
+
+}
+
+.menu-item_configuracion:hover {
+    background: #888;
+}
+
+.panel_configuracion .close {
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    font-size: 25px;
+    cursor: pointer;
+}
+
+.content_configuracion {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    width: 100%;
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.section__porcinos{
+    display: grid;
+    grid-template-rows: 85px 70px 60px 40px 80px;
     gap: 30px;
 }
 
@@ -174,90 +1310,358 @@ SECCION DE PORCINOS
     margin-right: 2%;
 }
 
-.svg__user{
-    position: absolute;
-    width: 30px;
-    height: 30px;
-    top: 28px;
-    left: 15px;
-}
 
-.btn__perfil{
-    background-color: var(--color--letra);
-    color: var(--color-white);
-    width: 150px;
-    height: 45px;
-    padding-left: 40px;
-    font-family: var(--fuente--contenido);
-    font-size: 15PX;
-    font-weight: 500;
-    border-radius: 8px;
-    border: none;
-}
+/* -------------------
+SECCION DE Perfil
+------------------- */
 
-/* CODIGO DE LA SECCION DEL TITULO */
-
-.container__title{
-    background-color: var(--color--fondos);
+.title_perfil {
+    font-size: 42px;
     color: var(--color--letra);
+    background: #D9D9D9;
+    padding: 10px 40px;
+    border-radius: 18px;
+    text-align: center;
+    font-weight: bold;
+    border: 2px solid #808080;
+    min-width: 700px;
+    margin-top: 60px;
+    margin-bottom: -20px;
+    margin-left: auto;
+    margin-right: auto;
+
+}
+
+.perfil-wrapper {
+    display: flex;
+    justify-content: center;
+}
+.content_perfil {
+    position: relative;
+    top: -50px; /* Sube título y menú juntos */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    
+}
+
+.perfil-section {
+    background: #e0e0e0;
+    padding: 30px;
+    border-radius: 41px;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    min-width: 800px;
+    max-width: 250px;
+    height: 400px;
+    border: 1px solid #1b1b1b;
+    position: relative;
+    margin-top: 60px; 
+    font-family: 'Inter', sans-serif;
+    font-size: 16px;
+    /* el resto de tus estilos permanece igual */
+}
+
+.perfil-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    height: 100%;
+
+    padding-left: 10px; /* o 0 si quieres completamente al borde */
+    margin-left: 20px; 
+
+}
+
+.perfil-info p {
+    font-size: 16px;
+    line-height: 1.5 ;
+}
+
+.perfil-texto {
+    font-size: 16px;
+    color: #2C3D31;
+    font-weight: normal;
+}
+.perfil-info p {
+    margin: 4px 0;
+    font-size: 16px;
+    line-height: 1.3;
+}
+
+.perfil-datos p {
+    font-family: 'Inter', sans-serif;
+    font-size: 1px;
+    font-weight: 400;
+    color: #2C3D31;
+    margin: 6px 0;
+}
+
+.perfil-datos p strong {
+    color: #2C3D31;
+    font-family: 'Inter', sans-serif;
+    font-size: 25px;
+    font-weight: 800;
+}
+
+.perfil-texto {
+    font-weight: 700;
+    color: var(--color--letra); 
+    font-size: 23px;
+    font-weight: 200px ;
+    margin-left: 12px;/* o blanco si prefieres */
+}
+
+
+.perfil-descripcion {
+    background: #bdbdbd;
+    color: #2C3D31;
+    font-size: 18px;
+    padding: 20px 20px;
+    border-radius: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 55px;
+    cursor: pointer;
+    transition: 0.3s;
+    font-weight: bold;
+    border: 1px solid #272727;
+    width: 650px;
+    height: 90px;
+    top: 470px;
+    box-sizing: border-box;
+    margin-bottom: 20px;
+    margin: 20px 0; /* espacio vertical entre textos */
+    
+
+}
+
+.perfil-descripcion p {
+    margin: 0;
+    color: white;
+    font-size: 20px;
+    font-weight: 500;
+    line-height: 1.2;
+    font-family: 'Inter', sans-serif;
+}
+
+.perfil-descripcion p strong {
+    color: #2C3D31;
+    font-size: 25px;
+    font-weight: 700;
+    font-family: 'Inter', sans-serif;
+}
+.perfil-estadistica p {
+    font-family: 'Inter', sans-serif;
+    font-size: 25px;
+    font-weight: 500;
+    line-height: 1; /* 100% */
+    color: #2C3D31;
+    text-align: center;
+    margin-bottom: 5px;
+}
+.perfil-estadistica span {
+    font-family: 'Inter', sans-serif;
+    font-size: 20px; /* más pequeño que el título */
+    font-weight: 500;
+    color: white;
+    display: block;
+}
+
+.perfil-caja {
+    margin-top: 5px;
+    background-color: #aaa;
+    padding: 10px 15px;
+    border-radius: 6px;
+    font-size: 14px;
+    color: white;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.perfil-estadisticas {
+    background: #bdbdbd;
+    color: #2C3D31;
+    font-size: 20px;
+    padding: 20px;
+    border-radius: 15px;
+    display: flex;
+    justify-content: space-between; /* <-- distribuye el espacio entre los hijos */
+    align-items: center;
+    cursor: pointer;
+    transition: 0.3s;
+    font-weight: bold;
+    border: 1px solid #272727;
+    width: 650px;
+    height: 90px;
+    box-sizing: border-box;
+    font-family: 'Inter', sans-serif;
+}
+
+.perfil-estadistica {
+  flex: 1; /* cada estadística ocupa 50% del espacio */
+  text-align: center; /* centra el texto horizontalmente */
+  margin-top: 15px; /* separa de la descripción */
+}
+
+.perfil-estadistica p {
+    margin: 0;
+    color: #2C3D31;
+    font-weight: bold;
+    font-family: 'Inter', sans-serif; 
+}
+
+.perfil-estadistica span {
+    color: white;
+    font-weight: bold;
+    display: block;
+    margin-top: 5px;
+    font-family: 'Inter', sans-serif;
+}
+
+
+.perfil-item {
+    flex: 1;
+    background-color: #aaa;
+    padding: 15px 20px;
+    border-radius: 6px;
+    text-align: center;
+    color: white;
+}
+
+.perfil-item p:first-child {
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+.perfil-header {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    padding-left: 20px;
+    padding-right: 0;
+    justify-content: flex-start;
+}
+
+.perfil-datos {
+    font-family: 'Times New Roman', serif;
+    font-weight: 700;
+    font-size: 30px;
+    color: #3F5947;
+    margin-left: 30px; /* ESTE MUEVE EL TEXTO A LA DERECHA */
+}
+.perfil-photo {
+    width: 120px;
+    height: 120px;
+    background-color: var(--color--letra);
+    border-radius: 50%;
     display: flex;
     justify-content: center;
     align-items: center;
-    margin: auto;
-    font-size: 30px;
-    width: 750px;
-    border: 1px solid var(--color-bor-contain);
-    border-radius: 14px;
+    overflow: hidden; /* Muy importante para recortar lo que sobresale */
+    margin-left:-130px; /* 👈 Asegúrate que esto no tenga -150px como antes */
 }
 
-/* CODIGO DE LA BARRA DE BUSQUEDA */
+.perfil-photo img {
+    width: 60%;
+    height: auto;
+    object-fit: contain;
+    display: block;
 
-.container__search__bar{
-    background-color: var(--color--fondos);
-    border: 1px solid var(--color-bor-contain);
-    border-radius: 14px;
-    display: flex;
+  /* Puedes ajustar este valor a gusto */
+
+}
+
+.perfil-descripcion p {
+    color: #2C3D31; /* Solo el título en negro */
+}
+
+.perfil-descripcion p strong {
+    color:#2C3D31; /* Título "Descripción:" */
+}
+
+.perfil-descripcion p {
+    color: white;
+}
+
+.perfil-descripcion p strong {
+    color: #2C3D31;
+}
+
+.perfil-estadistica span {
+    color: white;
+}
+
+/* ----------------------------------
+SI SALE MAL ES CULPA DE CRISTIAN
+---------------------------------- */
+
+.contenedor {
+    display: inline-flex;
     align-items: center;
-    width: 1100px;
-    height: 60px;
-    margin: auto;
-    padding-left: 3em;
-    gap: 7em;
-    font-family: var(--fuente--contenido);
-}
-
-.input__id{
-    width: 220px;
-    height: 40px;
-    padding-left: 18px;
+    padding: 10px 20px;
+    background-color: #f1f1f1; /* Color del fondo */
     border: 1px solid var(--color-bor-contain);
-    border-radius: 26px;
-    font-family: inherit;
-    outline: none;
+
+    border-radius: 20px;
+    font-family: sans-serif;
+    gap: 10px;
+    cursor: pointer;
 }
 
-.container__filtro{
+.contenedor input[type="checkbox"] {
+    display: none;
+}
+
+.custom-checkbox {
+    width: 16px;
+    height: 16px;
+    border: 1px solid #000;
+    border-radius: 4px;
+    background-color: #aee9c6; /* Verde claro */
+}
+
+.contenedor input[type="checkbox"]:checked + .custom-checkbox {
+    background-color: #7ed6a3;
+}
+
+.color_p{
+    color:#8D8D8D;
+}
+.nuevo{
+    text-align: center;
+}
+.eliminar{
+    cursor: pointer;
+
+}
+
+.nuevo1{
+    background-color: var(--color-bg-registros);
+    border: 5px solid var(--color--fondos);
+}
+
+.container div p{
+    text-align: center;
+    color: #2C3D31;
+    font-weight:600;
+    margin-bottom: 4%;
+    margin-top: 4%;
+}
+.input_add{
+    border: 1px solid black;
+    background-color: #ECE6F0;
+    text-align: center;
+    
+}
+.input_add1{
+    width: 60%;
     position: relative;
-    display: flex;
-}
-
-#svg__filter{
-    position: absolute;
-    top: 11px;
-    left: 12px;
-    font-family: inherit;
-}
-
-.filter{
-    width: 250px;
-    height: 40px;
-    padding-left: 35px;
-    border-radius: 10px;
-    color: #7C7A7A;
-    outline: none;
-}
-
-.btn{
+    border: 1px solid black;
+    text-align: center;
+    margin-left: 170%;
+    font-weight: bolder;
     background-color: var(--color--btn--sin--hover);
     color: var(--color-white);
     width: 130px;
@@ -271,210 +1675,96 @@ SECCION DE PORCINOS
     cursor: pointer;
 }
 
-.btn:hover{
+.input_add1:hover{
     background-color: var(--color--btn--hover);
     border: 1px solid var(--color-bor-btn-hover);
 }
-
-/* CODIGO DE LA SECCION DEL BOTON DE AGREGAR */
-
-.container__btn__agregar{
-    position: relative;
-    display: flex;
-    font-family: var(--fuente--contenido);
-    margin-left: 155px;
+    .seccion1{
+        margin: 0% 5%;
 }
 
-.svg__add{
-    position: absolute;
-    top: 11px;
-    left: 15px;
+.container-user{
+    display: none;
 }
 
-.btn--agregar{
-    width: 120px;
-    padding-left: 20px;
+.container-user-bar{
+    display: block;
 }
 
-/* CODIGO DE LA SECCION DE LOS REGISTROS DE LOS PORCINOS */
 
-.container__registros{
-    background-color: var(--color--fondos);
-    width: 1200px;
-    height: 320px;
-    margin: auto;
-    border: 1px solid var(--color-bor-contain);
-    border-radius: 40px;
-}
 
-.table__registros{
-    width: 1150px ;
-    margin: auto;
-    margin-top: 15px;
-    border-collapse: collapse;
-    font-family: var(--fuente--contenido);
-    color: var(--color-letra-predeter);
-}
 
-.registro{
-    background-color: var(--color-bg-registros);
-    text-align: center;
-}
+/* ---------------------
+RESPONSIVE BAR
+--------------------- */
 
-.svg__pig{
-    position: relative;
-    top: 5px;
-}
-
-.icon-edit{
-    margin: 0 15px;
-}
-
-.td__border__l{
-    border-top-left-radius: 15px;
-    border-bottom-left-radius: 15px;
-}
-
-.td__border__r{
-    border-top-right-radius: 15px;
-    border-bottom-right-radius: 15px;
-}
-
-/* CODIGO DE LAS ACCIONES VER, EDITAR Y ELIMINAR */
-
-/* LO USO PAR OSCURECER EL FONDO */
-
-.dialog-icon-eye::backdrop, .dialog-icon-edit::backdrop, .dialog-icon-dele::backdrop{
-    background-color: #000b;
-}
-
-.icon-eye , .icon-edit, .icon-delete{
-    cursor: pointer;
-    transition: scale 0.5s;
-}
-
-.icon-eye:hover, .icon-edit:hover, .icon-delete:hover{
-    scale: 1.1;
-}
-
-/* DIALOG ICON EYE */
-
-.dialog-icon-eye, .dialog-icon-edit, .dialog-icon-dele{
-    background-color: #d4d4d4;
-    width: 882px;
-    height: 490px;
-    margin: auto;
-    border-radius: 34px;
-    border: 1px solid #000;
+@media(max-height: 660px){
+    .barra-lateral .nombre-pagina{
+        margin-bottom: 5px;
+    }
 
 }
 
-/* TUTULO DE LA VENTANA MODAL */
+@media(max-width: 600px){
+    .body__porcinos{
+        display: flex;
+        flex-direction: column;
+    }
 
-.title-dialog{
-    color: #60836A ;
-    font-size: 25px;
-    font-family: 'Times New Roman', Times, serif;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    margin: 15px 8px;
-}
+    .container__user__btn{
+        display: none;
+    }
 
-/* GRID CON LOS INPUTS */
+    .container__back__logo{
+        width: 100%;
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+    }
 
-.info-porcino{
-    display: grid;
-    grid-template-columns: repeat( 3 , 1fr);
-    grid-template-rows: repeat(6, 1fr);
-    place-items: center;
-    font-family: var(--fuente--contenido);
-}
+    .container__btn__perfil{
+        position: relative;
+        display: flex;
+        align-items: center;
+        
+    }
 
-.info-porcino > input, .info-porcino > div > input{
-    background-color: #ece6f0;
-    width: 200px;
-    height: 40px;
-    font-weight: 500;
-    border: 1px solid #737171;
-    border-radius: 18px;
-    outline: none;
-    padding: 10px 8px;
-}
+    .btn__perfil{
+        background-color: var(--color--btn--resposive);
+    }
 
-.info-porcino > label{
-    margin-top: 10px;
-    margin-bottom: 2px;
-    line-height: 0.5;
-    color: #2C3D31;
-    font-weight: 700;
-}
+    .svg__user__2{
+        position: absolute;
+        left: 1rem;
+    }
 
-/* CONTAINER DEL BOTTON CERRAR */
+    .barra-lateral{
+        position: absolute;
+        left: -250px;
+    }
 
-.container-button-close, .container-button-guardar, .container-button-dele{
-    margin-top: 3em;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-}
+    .menu{
+        display: flex;
+    }
+    .max-barra-lateral{
+        left: 0;
+    } 
+    .menu ion-icon:nth-child(2){
+        display: none;
+    }
 
-.button-cerrar, .button-guardar, .button-eliminar{
-    background-color: #fff;
-    color: #215718;
-    width: 150px;
-    height: 40px;
-    font-weight: 900;
-    border: 1px solid #215718;
-    border-radius: 27px;
-    transition: background-color .5s, color .5s;
-}
+    .container-user{
+        background-color: var(--color--prede);
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+        height: 55px;
+        padding: 1rem;
+        width: 100%;
+    }
 
-.button-cerrar:hover, .button-guardar:hover, .button-eliminar:hover{
-    background-color: #215718;
-    color: #fff;
-}
-
-/* DIALOG ICON EDIT */
-
-.container-inputs{
-    position: relative;
-}
-
-.vector-edit{
-    position: absolute;
-    right: 0;
-    bottom: 9px;
-    margin-right: 14px;
-}
-
-hr{
-    width: 550px;
-    margin: auto;
-    border: 1px solid #60836A;
-}
-
-/* DIALOG ICON DELETE */
-
-.dialog-icon-dele{
-    width: 529px;
-    height: 397px;
-    padding: 0 15px;
-    text-align: center;
-    font-weight: 600;
-    font-family: var(--fuente--contenido);
-}
-
-.dialog-icon-dele .title-dialog{
-    font-size: 20px;
-}
-
-    .dialog-icon-dele hr{
-    width: 450px;
-    margin-bottom: 50px;
-}
-
-.dialog-icon-dele p{
-    color: #2C3D31;
-    margin-bottom: 24px;
+    .barra-lateral .navegacion ul{
+        gap: 1rem;
+    }
 }
