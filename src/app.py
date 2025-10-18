@@ -33,17 +33,20 @@ Swagger(app)
 def ruta_principal():
     return jsonify({'Mensaje':'App funcionnando correctamente'})
 
-
-def generar_token(usuario):
+#GENARADOR DE TOKEN
+def generar_token(usuario, es_google=False):
     payload = {
         "id_usuario": usuario["numero_identificacion"],
         "nombre": usuario["nombre"],
         "correo": usuario["correo"],
-        "exp": datetime.now(timezone.utc) + timedelta(minutes=5)
+        "es_google": es_google,
+        "rol": usuario.get("rol", "Aprendiz"),
+        "exp": datetime.now(timezone.utc) + timedelta(minutes=2)
     }
     token = jwt.encode(payload, app.secret_key, algorithm="HS256")
     return token
 
+#DECORADORES DE EDUPORK
 def token_requerido(f):
     @wraps(f)
     def decorador(*args, **kwargs):
@@ -60,25 +63,44 @@ def token_requerido(f):
             print("Datos decodificados:", datos)
             
         except jwt.ExpiredSignatureError:
-            return jsonify({"Mensaje": "Token expirado"}), 401
+            return jsonify({"Mensaje": "Sesión expirada"}), 401
         except jwt.InvalidTokenError as e:
             print(f"Error decodificando token: {e}")
-            return jsonify({"Mensaje": "Token inválido"}), 401
+            return jsonify({"Mensaje": "Sesión inválida"}), 401
         
         return f(*args, **kwargs)
     return decorador
 
-@app.route('/perfil', methods=['GET'])
-@token_requerido
-def perfil():
-    usuario = request.usuario
-    return jsonify({
-        "nombre": usuario["nombre"],
-        "numero_identificacion": usuario["id_usuario"],  
-        "correo": usuario["correo"]
-    })
+def rol_requerido(rol_requerido):
+    def decorador(f):
+        @wraps(f)
+        def funcion_decorada(*args, **kwargs):
+            try:
+                # Verificar que el token requerido ya se haya ejecutado
+                if not hasattr(request, 'usuario'):
+                    return jsonify({"Mensaje": "Token requerido"}), 401
+                
+                usuario_token = request.usuario
+                rol_usuario = usuario_token.get("rol")
+                
+                if not rol_usuario:
+                    return jsonify({"Mensaje": "Rol no definido"}), 403
+                
+                # Verificar si el usuario tiene el rol requerido
+                if rol_usuario != rol_requerido:
+                    return jsonify({"Mensaje": "No tienes permisos para esta acción"}), 403
+                
+                return f(*args, **kwargs)
+                
+            except Exception as e:
+                print(f"Error en verificación de rol: {str(e)}")
+                return jsonify({"Mensaje": "Error interno del servidor"}), 500
+        return funcion_decorada
+    return decorador
 
-
+# ------------------------------
+# SECCION DE USUARIOS 
+# ------------------------------
 
 # RUTA PARA VALIDACION DE LOGIN
 @app.route('/login', methods=['POST'])
@@ -94,18 +116,19 @@ def login():
         
         with config['development'].conn() as conn:
             with conn.cursor() as cur:
-                cur.execute('SELECT id_usuario as numero_identificacion, nombre, correo, contrasena FROM usuario WHERE correo = %s', (correo,))
+                cur.execute('SELECT id_usuario as numero_identificacion, nombre, correo, contrasena, rol FROM usuario WHERE correo = %s', (correo,))
                 user = cur.fetchone()
         
         if user:
             if user['contrasena'] == contraseña:
-                token = generar_token(user)
+                token = generar_token(user, es_google=False)
                 return jsonify({
                     'Mensaje': 'Las credenciales son correctas',
                     'token': token,
                     'nombre': user['nombre'],
                     'numero_identificacion': user['numero_identificacion'],
-                    'correo': user['correo']
+                    'correo': user['correo'],
+                    'rol': user['rol']
                 }), 200
             else:
                 return jsonify({'Mensaje': 'Contraseña incorrecta'}), 401
@@ -116,6 +139,69 @@ def login():
         print(f"Error en login: {err}")
         return jsonify({'Mensaje': 'Error al consultar Usuario'}), 500
 
+# RUTA DE REGISTRO CON GOOGLE
+@app.route('/api/auth/google', methods=['POST'])
+def google_login():
+    if not request.is_json:
+        return jsonify({"status": "error", "message": "Formato JSON requerido"}), 400
+
+    data = request.get_json()
+    token = data.get('token')
+
+    if not token:
+        return jsonify({"status": "error", "message": "Token no recibido"}), 400
+
+    try:
+        idinfo = id_token.verify_oauth2_token(
+            token,
+            google_requests.Request(),
+            "887853903603-sbo2ffg27v2o12navndev9okvno8t4fn.apps.googleusercontent.com"
+        )
+
+        email = idinfo['email']
+        name = idinfo.get('name', '')
+        proveedor = 'Google'
+
+        conn = config['development'].conn()
+        cursor = conn.cursor()
+
+
+        cursor.execute("SELECT id_usuario_externo, nombre, rol FROM usuario_externo WHERE correo = %s", (email,))
+        user = cursor.fetchone()
+
+        if not user:
+
+            cursor.execute("""
+                INSERT INTO usuario_externo (correo, nombre, proveedor, rol)
+                VALUES (%s, %s, %s, 'Aprendiz')""", (email, name, proveedor))
+            id_usuario_externo = cursor.lastrowid
+            conn.commit()
+            rol = 'Aprendiz'
+        else:
+            id_usuario_externo = user["id_usuario_externo"]
+            name = user["nombre"]
+            rol = user["rol"]
+
+        usuario = {
+            "numero_identificacion": id_usuario_externo,
+            "nombre": name,
+            "correo": email,
+            'rol': rol
+        }
+        token = generar_token(usuario, es_google=True)
+
+        return jsonify({
+            "status": "success",
+            "correo": email,
+            "nombre": name,
+            "numero_identificacion": id_usuario_externo,
+            "proveedor": proveedor,
+            "rol": rol,
+            "token": token
+        })
+
+    except ValueError:
+        return jsonify({"status": "error", "message": "Token inválido"}), 400
 
 # RUTA PARA REGISTRAR USUARIOS NUEVOS
 @app.route('/users', methods = ['POST'])
@@ -172,69 +258,44 @@ def registro_usuarios():
     return jsonify({'Mensaje':'Error el usuario no pudo ser registrado'})
 
 
-# ------------------------------
-# REGISTRO CON GOOGLE
-# ------------------------------
 
-@app.route('/api/auth/google', methods=['POST'])
-def google_login():
-    if not request.is_json:
-        return jsonify({"status": "error", "message": "Formato JSON requerido"}), 400
-
-    data = request.get_json()
-    token = data.get('token')
-
-    if not token:
-        return jsonify({"status": "error", "message": "Token no recibido"}), 400
-
+#RUTA DE PERFIL
+@app.route('/perfil', methods=['GET'])
+@token_requerido
+def perfil():
     try:
-        idinfo = id_token.verify_oauth2_token(
-            token,
-            google_requests.Request(),
-            "887853903603-sbo2ffg27v2o12navndev9okvno8t4fn.apps.googleusercontent.com"
-        )
-
-        email = idinfo['email']
-        name = idinfo.get('name', '')
-        proveedor = 'Google'
-
-        conn = config['development'].conn()
-        cursor = conn.cursor()
-
-
-        cursor.execute("SELECT id_usuario_externo, nombre FROM usuario_externo WHERE correo = %s", (email,))
-        user = cursor.fetchone()
-
-        if not user:
-
-            cursor.execute("""
-                INSERT INTO usuario_externo (correo, nombre, proveedor)
-                VALUES (%s, %s, %s)""", (email, name, proveedor))
-            id_usuario_externo = cursor.lastrowid
-            conn.commit()
-        else:
-            id_usuario_externo = user["id_usuario_externo"]
-            name = user["nombre"]
-
-        usuario = {
-            "numero_identificacion": id_usuario_externo,
-            "nombre": name,
-            "correo": email
+        usuario_token = request.usuario
+        usuario = None
+        
+        with config['development'].conn() as conn:
+            with conn.cursor() as cur:
+                cur.execute("SELECT nombre, correo, rol FROM usuario WHERE id_usuario = %s", 
+                          (usuario_token["id_usuario"],))
+                usuario = cur.fetchone()
+                
+                if not usuario:
+                    cur.execute("SELECT nombre, correo, rol FROM usuario_externo WHERE id_usuario_externo = %s", 
+                              (usuario_token["id_usuario"],))
+                    usuario = cur.fetchone()
+        
+        if not usuario:
+            return jsonify({"Mensaje": "Usuario no encontrado"}), 404
+        
+        perfil_data = {
+            "nombre": usuario_token["nombre"],
+            "correo": usuario_token["correo"],
+            "es_google": usuario_token.get("es_google", False),
+            "rol": usuario_token.get("rol", "Aprendiz")
         }
-        token = generar_token(usuario)
-
-        return jsonify({
-            "status": "success",
-            "correo": email,
-            "nombre": name,
-            "numero_identificacion": id_usuario_externo,
-            "proveedor": proveedor,
-            "token": token
-        })
-
-    except ValueError:
-        return jsonify({"status": "error", "message": "Token inválido"}), 400
-
+        
+        if not usuario_token.get("es_google", False):
+            perfil_data["numero_identificacion"] = usuario_token["id_usuario"]
+        
+        return jsonify(perfil_data)
+        
+    except Exception as e:
+        print(f"Error en perfil: {str(e)}")
+        return jsonify({"Mensaje": "Error interno del servidor"}), 500
 
 # ------------------------------
 # SECCION DE GESTIONAR PORCINOS

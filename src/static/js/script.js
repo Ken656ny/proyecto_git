@@ -123,15 +123,13 @@ async function login() {
 
         const data = await response.json();
 
-        console.log("Respuesta del servidor:", data);
-        console.log("Status:", response.status);
-
         if (response.ok && data.Mensaje === 'Las credenciales son correctas') {
             localStorage.setItem("token", data.token);
             localStorage.setItem("usuario", JSON.stringify({
                 nombre: data.nombre,
                 numero_identificacion: data.numero_identificacion,
-                correo: data.correo
+                correo: data.correo,
+                rol: data.rol
             }));
             
             Swal.fire({
@@ -202,10 +200,9 @@ function handleCredentialResponse(response) {
         localStorage.setItem("usuario", JSON.stringify({
         nombre: data.nombre,
         numero_identificacion: data.numero_identificacion,
-        correo: data.correo
+        correo: data.correo,
+        rol: data.rol
 }));
-
-        console.log("Respuesta del backend:", data);
 
         Swal.fire({
             icon: "success",
@@ -228,17 +225,36 @@ function handleCredentialResponse(response) {
 }
 
 
+function tieneRol(rolRequerido) {
+    const usuario = JSON.parse(localStorage.getItem("usuario") || "{}");
+    return usuario.rol === rolRequerido;
+}
+
+function verificarPermisosAdmin() {
+    if (!tieneRol('Admin')) {
+        Swal.fire({
+            title: "Acceso denegado",
+            text: "No tienes permisos para acceder a esta sección",
+            icon: "error"
+        }).then(() => {
+            window.location.href = 'home.html';
+        });
+        return false;
+    }
+    return true;
+}
+
 async function cargarDatosPerfil() {
     const token = localStorage.getItem('token');
-        if (!token) {
-    Swal.fire({
-        icon: 'warning',
-        title: 'Sesión no iniciada',
-        text: 'Por favor inicia sesión para ver Edupork.',
-        confirmButtonText: 'Ir al login'
-    }).then(() => {
-        window.location.href = 'index.html'; 
-    });
+    if (!token) {
+        Swal.fire({
+            icon: 'warning',
+            title: 'Sesión no iniciada',
+            text: 'Por favor inicia sesión para ver Edupork.',
+            confirmButtonText: 'Ir al login'
+        }).then(() => {
+            window.location.href = 'index.html'; 
+        });
         return;
     }
 
@@ -247,28 +263,33 @@ async function cargarDatosPerfil() {
             method: 'GET',
             headers: {
                 'Authorization': `Bearer ${token}`
-                }
-            });
-
-    const datos = await respuesta.json();
-
-    if (!respuesta.ok) {
-            Swal.fire({
-            icon: 'error',
-            title: 'Sesión inválida',
-            text: datos.Mensaje || 'No se pudo cargar el perfil.',
-            confirmButtonText: 'Volver a iniciar sesión'
-        }).then(() => {
-            localStorage.removeItem('token');
-            localStorage.removeItem('usuario');
-            window.location.href = 'index.html';
+            }
         });
-        return;
-    }
 
-    document.getElementById('nombreUsuario').textContent = datos.nombre;
-    document.getElementById('identificacionUsuario').textContent = datos.numero_identificacion;
-    document.getElementById('correoUsuario').textContent = datos.correo;
+        const datos = await respuesta.json();
+
+        if (!respuesta.ok) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Sesión inválida',
+                text: datos.Mensaje || 'No se pudo cargar el perfil.',
+                confirmButtonText: 'Volver a iniciar sesión'
+            }).then(() => {
+                localStorage.removeItem('token');
+                localStorage.removeItem('usuario');
+                window.location.href = 'index.html';
+            });
+            return;
+        }
+
+        document.getElementById('nombreUsuario').textContent = datos.nombre;
+        document.getElementById('correoUsuario').textContent = datos.correo;
+
+        if (datos.es_google) {
+            document.getElementById('identificacionLinea').style.display = 'none';
+        } else {
+            document.getElementById('identificacionUsuario').textContent = datos.numero_identificacion;
+        }
 
     } catch (error) {
         console.error("Error en la petición:", error);
