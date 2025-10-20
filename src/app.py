@@ -41,7 +41,7 @@ def generar_token(usuario, es_google=False):
         "correo": usuario["correo"],
         "es_google": es_google,
         "rol": usuario.get("rol", "Aprendiz"),
-        "exp": datetime.now(timezone.utc) + timedelta(minutes=2)
+        "exp": datetime.now(timezone.utc) + timedelta(minutes=10)
     }
     token = jwt.encode(payload, app.secret_key, algorithm="HS256")
     return token
@@ -76,7 +76,7 @@ def rol_requerido(rol_requerido):
         @wraps(f)
         def funcion_decorada(*args, **kwargs):
             try:
-                # Verificar que el token requerido ya se haya ejecutado
+
                 if not hasattr(request, 'usuario'):
                     return jsonify({"Mensaje": "Token requerido"}), 401
                 
@@ -86,7 +86,7 @@ def rol_requerido(rol_requerido):
                 if not rol_usuario:
                     return jsonify({"Mensaje": "Rol no definido"}), 403
                 
-                # Verificar si el usuario tiene el rol requerido
+
                 if rol_usuario != rol_requerido:
                     return jsonify({"Mensaje": "No tienes permisos para esta acción"}), 403
                 
@@ -247,16 +247,13 @@ def registro_usuarios():
     
     with config['development'].conn() as conn:
       with conn.cursor() as cur:
-        cur.execute('INSERT INTO usuario (nombre,correo,contrasena,estado,id_tipo_identificacion,id_usuario) values (%s,%s,%s,%s,%s,%s)',
-                  (nom,correo,contra,estado,id_tipo_iden,num_identi))
+        cur.execute('INSERT INTO usuario (nombre,numero_identificacion,correo,contrasena,estado,rol,id_tipo_identificacion) values (%s,%s,%s,%s,%s,%s,%s)',
+                  (nom,num_identi,correo,contra,estado,"Aprendiz",id_tipo_iden))
         conn.commit()
-    
     return jsonify({'Mensaje': f'Usuario registrado'})
-  
   except Exception as err:
     print(err)
-    return jsonify({'Mensaje':'Error el usuario no pudo ser registrado'})
-
+    return jsonify({'Mensaje':'Error el usuario no pudo ser registrado'})
 
 
 #RUTA DE PERFIL

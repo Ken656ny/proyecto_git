@@ -55,8 +55,6 @@ nav_bar.forEach((item) => item.addEventListener('click',bar_funct));
                 id_tipo_identificacion: tipo_identificacion,
             };
 
-            console.log(user);
-
             fetch(`${URL_BASE}/users`, {
                 method: 'POST',
                 body: JSON.stringify(user),
