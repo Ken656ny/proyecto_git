@@ -1119,7 +1119,7 @@ async function consulta_reportes_peso(tipo) {
             tbody.innerHTML += `
                 <tr class="fila__porcino">
                     <td class="celda__icono">
-                        <img src="/static/iconos/pig_icon.svg" class="icono__porcino" alt="porcino">
+                         <img src="/src/static/iconos/pin icon.svg" class="icono__porcino" alt="porcino">
                     </td>
                     <td>${id}</td>
                     <td>${peso} KG</td>
@@ -1138,7 +1138,7 @@ async function consulta_reportes_peso(tipo) {
 // CONSULTA DE USUARIOS
 // ===============================
 document.addEventListener("DOMContentLoaded", async () => {
-    const contenedor = document.getElementById("contenido");
+    const contenedor = document.getElementById("contenido_u");
 
     try {
         const response = await fetch("http://127.0.0.1:5000/gestionar_usuarios");
