@@ -126,7 +126,7 @@
         <div class="container__btn__options">
             <div class="container__btn__agregar">
                 <img src="/src/static/iconos/icon add.svg" alt="" class="svg__add">
-                <button type="button" class="btn btn--agregar" onclick="location.href = 'add_porcinos.html' ">Agregar Dieta</button>
+                <button type="button" class="btn btn--agregar" onclick="consulta_dietas()">Agregar Dieta</button>
             </div>
         </div>
         
@@ -134,14 +134,13 @@
             <table class="table__registros">
                 <thead>
                     <tr>
-                        <th>ID</th>
-                        <th>Usuario Creador</th>
-                        <th>Fecha</th>
-                        <th>Etapa de Vida</th>
-                        <th>Acciones</th>
+                        <td>ID</td>
+                        <td>Alimentos</td>
+                        <td>Elementos</td>
+                        <td>Acciones</td>
                     </tr>
                 </thead>
-                <tbody class="registros" id="info_porcinos">
+                <tbody class="registros" id="dietas">
                     
                 </tbody>
             </table>
@@ -149,7 +148,16 @@
         
     </section>
 </section>
+<button onclick="probarDietas()" style="background: #4CAF50; color: white; padding: 10px; margin: 10px;">
+    🧪 Probar Carga de Dietas
+</button>
 
+<script>
+function probarDietas() {
+    console.clear();
+    consulta_dietas();
+}
+</script>
 
 </body>
 <script src="../static/js/script.js"></script>

@@ -877,60 +877,116 @@ def eliminar_alimento(id):
   except Exception as e:
       return jsonify({"error": str(e)})
 
-   
-# RUTA PARA INGRESAR DIETAS 
+#Prueba Registro Dietas  
 
-@app.route("/ingresar_dieta/", methods=["POST"])
-def ingresar_dieta():
-  
-  print("oli")
-  """
-  Consultar dietas
-  ---
-  tags: 
-    - Gestion de dietas
-  responses:
-    200:
-      description: Lista de dietas
-  """
+@app.route('/registrar_dieta', methods=['POST'])
+def registrar_dieta():
+    try:
+        data = request.json
+        fecha = data['fecha']
+        id_usuario = data['id_usuario']
+        nombre_dieta = data.get('nombre_dieta', 'Mi Dieta')
+        alimentos = data['alimentos']
+        
+        with config['development'].conn() as conn:
+            with conn.cursor() as cur:
+                # 1. Insertar la dieta principal (UNA SOLA VEZ)
+                cur.execute('''
+                    INSERT INTO dietas_principal (fecha, id_usuario, nombre_dieta) 
+                    VALUES (%s, %s, %s)
+                ''', (fecha, id_usuario, nombre_dieta))
+                
+                # Obtener el ID de la dieta recién creada
+                id_dieta = cur.lastrowid
+                
+                # 2. Insertar TODOS los alimentos de esta dieta
+                for alimento in alimentos:
+                    cur.execute('''
+                        INSERT INTO dieta_alimentos 
+                        (id_dieta, id_alimento_tiene_elemento, cantidad_alimento) 
+                        VALUES (%s, %s, %s)
+                    ''', (id_dieta, alimento['id_alimento_tiene_elemento'], alimento['cantidad']))
+                
+                conn.commit()
+                
+        return jsonify({
+            "mensaje": "Dieta registrada exitosamente",
+            "id_dieta": id_dieta
+        })
+        
+    except Exception as e:
+        return jsonify({"error": str(e)})   
+   
+#Prueba Consulta Dietas 
+
+@app.route('/consulta_dietas', methods=['GET'])  
+def consulta_dietas():
+    try: 
+        with config['development'].conn() as conn:
+            with conn.cursor() as cur:
+                cur.execute('''
+                    SELECT
+                        dp.id_dieta,
+                        dp.fecha,
+                        dp.nombre_dieta,
+                        dp.id_usuario,
+                        da.cantidad_alimento,
+                        AL.descripcion AS nombre_alimento,
+                        E.nombre AS nombre_elemento,
+                        ATE.id as ate_id
+                    FROM dietas_principal dp
+                    JOIN dieta_alimentos da ON dp.id_dieta = da.id_dieta
+                    JOIN alimento_tiene_elemento ATE ON da.id_alimento_tiene_elemento = ATE.id
+                    JOIN alimentos AL ON ATE.id_alimento = AL.id_alimento
+                    JOIN elementos E ON ATE.id_elemento = E.id_elemento
+                    ORDER BY dp.id_dieta
+                ''')
+                dietas = cur.fetchall()
+                
+                if not dietas:
+                    return jsonify({"mensaje": "No se encontraron dietas"})
+                
+                # Agrupar por id_dieta
+                dietas_agrupadas = {}
+                for dieta in dietas:
+                    id_dieta = dieta['id_dieta']
+                    
+                    if id_dieta not in dietas_agrupadas:
+                        dietas_agrupadas[id_dieta] = {
+                            "id_dieta": id_dieta,
+                            "fecha": str(dieta['fecha']),
+                            "nombre_dieta": dieta['nombre_dieta'],
+                            "id_usuario": dieta['id_usuario'],
+                            "alimentos": []
+                        }
+                    
+                    dietas_agrupadas[id_dieta]["alimentos"].append({
+                        "cantidad_alimento": dieta['cantidad_alimento'],
+                        "nombre_alimento": dieta['nombre_alimento'],
+                        "nombre_elemento": dieta['nombre_elemento'],
+                        "ate_id": dieta['ate_id']
+                    })
+                
+                return jsonify({
+                    "dietas": list(dietas_agrupadas.values())
+                })
+                
+    except Exception as e:
+        print(f"Error en consulta_dietas: {e}")
+        return jsonify({"error": "Error al consultar las dietas"})   
+
+# RUTA PARA ELIMINAR DIETAS
+
+@app.route('/eliminar_dieta/<int:id>', methods=['DELETE'])
+def delete_dietas():
   try:
-    
-    data = request.get_json()
-    
-    if not data or "id_usuario" not in data:
-      return jsonify({"mensaje": "falta el campo 'id_usuario'"}), 400
-    
-    id_usuario = data["id_usuario"]
-    id_alimento_elemento = data.get("alimento_registro", [])
-    fecha = data.get("fecha")
-    # cantidad_alimento = data.get("cantidad_alimento")
-    
-    if not id_alimento_elemento:
-      return jsonify({"mensaje": "Esta vacio o falta el campo 'alimento_registro"}), 400
-    
-    registro = []
-    for item in id_alimento_elemento:
-      if "id" not in item or "valor" not in item:
-        return jsonify({"mensaje": "Cada alimento en 'alimento_registro' debe tener 'id"}), 400
-    
-      id_alimento = item["id"]
-      cantidad_alimento = item["valor"]
-      registro.append((id_usuario, id_alimento, fecha, cantidad_alimento))
-    
     with config['development'].conn() as conn:
       with conn.cursor() as cur:
-        sql = "insert into dietas (id_usuario, id_alimento_tiene_elemento, fecha, cantidad_alimento) values (%s, %s, %s, %s)"
-      
-        cur.executemany(sql, registro)
-        
+        cur.execute('DELETE from dietas where id = %s', (id,))
         conn.commit()
-    
-    return jsonify({"mensaje": "Se ha registrado correctamente"}), 200
-    
+      return jsonify({"mensaje": f"Dieta con el id {id} eliminada exitosamente"})
   except Exception as e:
-    print(e)
-    return jsonify({"mensaje": "Error al registrar"}), 500
-    
+    return print(e)
     
 if __name__ == '__main__':
   app.run(debug = True)

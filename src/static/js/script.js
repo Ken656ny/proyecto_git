@@ -1049,32 +1049,65 @@ cerdo.addEventListener("click", () => {
 
 
 //-- GESTIONAR DIETAS --//
-function mostrar_dietas(dietas){
-    const info = dietas.dietas.map(item => crearFiladieta(item)).join('');
-    document.getElementById('dietas').innerHTML = info;
+function consulta_dietas(dietas){
+    const tablaDietas = document.getElementById('dietas');
+    
+    // Limpiar tabla primero
+    tablaDietas.innerHTML = '';
+    
+    fetch(`${URL_BASE}/consulta_dietas`, { method: "GET" })
+    .then(res => res.json())
+    .then(data => {
+        console.log("Datos recibidos:", data);
+        
+        if (!data.mensaje || data.mensaje.length === 0) {
+            tablaDietas.innerHTML = `
+                <tr>
+                    <td colspan="5" class="text-center">No hay dietas registradas</td>
+                </tr>
+            `;
+            return;
+        }
+        
+        // Construir filas con los datos
+        data.mensaje.forEach(element => {
+            tablaDietas.innerHTML += crearFilaDieta(element);
+        });
+    })
+    .catch(error => {
+        console.error("Error al cargar dietas:", error);
+        tablaDietas.innerHTML = `
+            <tr>
+                <td colspan="5" class="text-center error">Error al cargar las dietas</td>
+            </tr>
+        `;
+    });
 }
 
-function crearFilaDieta(item){
+function crearFilaDieta(item) {
     const uniqueId = item.id_dieta;
+    
+    // Formatear los elementos para mostrar
+    const elementosFormateados = Array.isArray(item.elementos) 
+        ? item.elementos.map(e => `${e.nombre}: ${e.valor}`).join(', ')
+        : item.elementos;
+    
+    // Formatear alimentos
+    const alimentosFormateados = Array.isArray(item.alimentos)
+        ? item.alimentos.join(', ')
+        : item.alimentos;
+
     return `
     <tr class="registro registro__dia">
-        <td class="td__border__l">${item.id_raza}</td>
-        <td>${item.nombre}</td>
-        <td>${item.descripcion}</td>
+        <td class="td__border__l">${item.id_dieta || 'N/A'}</td>
+        <td>${alimentosFormateados || 'Sin alimentos'}</td>
+        <td>${elementosFormateados || 'Sin elementos'}</td>
         <td class="td__border__r">
             ${crearIconosAccionesRaza(uniqueId)}
         </td>
-            ${crearDialogEyeRaza(item, uniqueId)}
-            ${crearDialogEditRaza(item, uniqueId)}
-            ${crearDialogtDeleteRaza(item, uniqueId)}
     </tr>
-    `
-}
-
-function crearIconosAccionesRaza(id) {
-    return `
-        <img src="/src/static/iconos/icono eye.svg" alt="" class="icon-eye" onclick="abrirDialog('dialog-eye-raza-${id}')">
-        <img src="/src/static/iconos/edit icon.svg" alt="" class="icon-edit" onclick="abrirDialog('dialog-edit-raza-${id}')">
-        <img src="/src/static/iconos/delete icon.svg" alt="" class="icon-delete" onclick="abrirDialog('dialog-delete-raza-${id}')">
+    ${crearDialogEyeRaza(item, uniqueId)}
+    ${crearDialogEditRaza(item, uniqueId)}
+    ${crearDialogDeleteRaza(item, uniqueId)}
     `;
 }
