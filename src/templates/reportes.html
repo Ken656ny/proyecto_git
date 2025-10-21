@@ -87,8 +87,8 @@
         </div>
     </section>
 
-    <section class="section__porcinos">
-
+</head> 
+    <section class="section__porcinos section-contenido" >
         <section class="container__logo__user">
             <div class="container__back__logo" >
                 <img src="/src/static/iconos/back icon.svg" alt="icon back" class="icon__back">
@@ -102,44 +102,45 @@
             </div>
         </section>
 
-   
-<!-- CONTENIDO CONFIGURACIÓN -->
-<div class="content_configuracion">
-  <h2 class="title_configuracion">Configuración</h2>
+    <header class="container container__title">
+  <h1>Generar Informes</h1>
+</header>
 
-  <div class="menu_configuracion">
+<section class="container container__search__bar">
 
-    <button class="menu-item_configuracion" onclick="location.href='cuenta.html'">
-      <img src="/src/static/iconos/cuenta.svg" alt="Cuenta" class="icono_configuracion">
-      Cuenta
-    </button>
+  <!-- Izquierda -->
+  <div class="grupo__izquierda">
+    <img src="/src/static/iconos/Vector (6).svg" alt="icono reporte" class="icono__reporte">
 
-    <button class="menu-item_configuracion" onclick="location.href='centro_de_ayuda.html'">
-      <img src="/src/static/iconos/signo_interrogacion.svg" alt="Ayuda" class="icono_configuracion">
-      Ayuda
-    </button>
-
-    <button class="menu-item_configuracion" onclick="location.href='terminos_y_condiciones.html'">
-      <img src="/src/static/iconos/incono_exclamacion.svg" alt="Términos" class="icono_configuracion">
-      Términos y condiciones
-    </button>
-
-    <button class="menu-item_configuracion" onclick="location.href='usuario.html'">
-      <img src="/src/static/iconos/incono_exclamacion.svg" alt="Usuario" class="icono_configuracion">
-      Usuario
-    </button>
-
-    <button class="menu-item_configuracion" data-bs-toggle="modal" data-bs-target="#modalCerrarSesion">
-      <img src="/src/static/iconos/incono_salida.svg" alt="Cerrar sesión" class="icono_configuracion">
-      Cerrar sesión
-    </button>
-
+    <div class="dropdown">
+      <input type="text" class="input__id" id="input_tipo_informe" placeholder="Escoja el tipo de informe..." readonly>
+      <div class="dropdown__content">
+        <a href="#">Alimentos</a>
+        <a href="#">Pesos</a>
+      </div>
+    </div>
   </div>
+
+  <!-- Derecha -->
+  <div class="grupo__derecha">
+    <div class="dropdown">
+      <input type="text" class="input__id" id="input_rango_fecha" placeholder="Escoja el rango de fecha..." readonly>
+      <div class="dropdown__content">
+        <a href="#">Última semana</a>
+        <a href="#">Últimos 15 días</a>
+        <a href="#">Último mes</a>
+        <a href="#">Últimos 6 meses</a>
+        <a href="#">Último año</a>
+      </div>
+    </div>
+  </div>
+
+</section>
+
+<!-- Botón generar -->
+<div class="container__btn__generar">
+  <button class="btn__generar__reportes">Generar</button>
 </div>
-
-
-  <!-- SCRIPTS -->
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
   <script src="/src/static/js/script.js "></script>
 </body>
 </html>

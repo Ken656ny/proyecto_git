@@ -1046,3 +1046,140 @@ cerdo.addEventListener("click", () => {
         span.classList.toggle("oculto");
     });
 });
+
+
+document.addEventListener("DOMContentLoaded", () => {
+  // Manejar selección de opciones en los dropdowns
+  document.querySelectorAll('.dropdown').forEach(drop => {
+    const input = drop.querySelector('.input__id');
+    const content = drop.querySelector('.dropdown__content');
+
+    // Mostrar/Ocultar menú al click
+    input.addEventListener('click', () => {
+      content.style.display = content.style.display === 'block' ? 'none' : 'block';
+    });
+
+    // Insertar valor en input al seleccionar
+    content.querySelectorAll('a').forEach(option => {
+      option.addEventListener('click', (e) => {
+        e.preventDefault();
+        input.value = option.textContent; // mete el texto en el input
+        content.style.display = 'none';   // cierra menú
+      });
+    });
+  });
+
+  // Cerrar dropdown si se hace click afuera
+  document.addEventListener('click', function(e) {
+    document.querySelectorAll('.dropdown__content').forEach(menu => {
+      if (!menu.parentElement.contains(e.target)) {
+        menu.style.display = 'none';
+      }
+    });
+  });
+
+  // Acción del botón Generar
+  const btnGenerar = document.querySelector('.btn__generar__reportes');
+  if (btnGenerar) {
+    btnGenerar.addEventListener('click', () => {
+      const tipoInforme = document.getElementById('input_tipo_informe')?.value;
+
+      if (tipoInforme === "Alimentos") {
+        window.location.href = "reportes_alimentos.html"; // redirige a alimentos
+      } else if (tipoInforme === "Pesos") {
+        window.location.href = "reportes_pesos.html"; // redirige a pesos
+      } else {
+        alert("Por favor seleccione un tipo de informe antes de generar.");
+      }
+    });
+  }
+});
+// ===============================
+// CONSULTA DE REPORTES DE PESO
+// ===============================
+async function consulta_reportes_peso(tipo) {
+    try {
+        const response = await fetch(`http://127.0.0.1:5000/reportes/pesos?tipo=${tipo}`);
+        const data = await response.json();
+        console.log("Datos recibidos:", data);
+
+        const tbody = document.getElementById("contenido");
+        tbody.innerHTML = "";
+
+        if (!Array.isArray(data) || data.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="3">No hay datos disponibles</td></tr>`;
+            return;
+        }
+
+        data.forEach(item => {
+            const id = item.id_porcino ?? '';
+            const peso = item.peso_final ?? '';
+            const raza = item.raza ?? '';
+
+            tbody.innerHTML += `
+                <tr class="fila__porcino">
+                    <td class="celda__icono">
+                        <img src="/static/iconos/pig_icon.svg" class="icono__porcino" alt="porcino">
+                    </td>
+                    <td>${id}</td>
+                    <td>${peso} KG</td>
+                    <td>${raza}</td>
+                </tr>
+            `;
+        });
+
+    } catch (error) {
+        console.error("Error consultando reportes:", error);
+    }
+}
+
+
+// ===============================
+// CONSULTA DE USUARIOS
+// ===============================
+document.addEventListener("DOMContentLoaded", async () => {
+    const contenedor = document.getElementById("contenido");
+
+    try {
+        const response = await fetch("http://127.0.0.1:5000/gestionar_usuarios");
+        if (!response.ok) throw new Error("Error al obtener usuarios");
+
+        const usuarios = await response.json();
+        contenedor.innerHTML = "";
+
+        usuarios.forEach((u) => {
+            const fila = document.createElement("tr");
+
+         
+            const tdAcciones = `
+                <td>
+                    <img src="/static/iconos/edit_icon.svg" class="icono_accion" title="Editar" width="20">
+                    <img src="/static/iconos/delete_icon.svg" class="icono_accion" title="Eliminar" width="20">
+                    <img src="/static/iconos/eye_icon.svg" class="icono_accion" title="Ver" width="20">
+                </td>
+            `;
+
+         
+            const iconoEstado = u.estado === "Activo"
+                ? "/static/iconos/activo.svg"
+                : "/static/iconos/inactivo.svg";
+
+            const tdEstado = `<td><img src="${iconoEstado}" class="estado_icono" alt="${u.estado}" width="20"></td>`;
+
+           
+            fila.innerHTML = `
+                <td>${u.id_usuario}</td>
+                <td>${u.nombre}</td>
+                <td>${u.correo}</td>
+                ${tdEstado}
+                ${tdAcciones}
+            `;
+
+            contenedor.appendChild(fila);
+        });
+
+    } catch (err) {
+        console.error("❌ Error al cargar usuarios:", err);
+        alert("No se pudieron cargar los usuarios");
+    }
+});

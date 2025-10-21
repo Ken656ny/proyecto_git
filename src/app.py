@@ -1,11 +1,17 @@
 #ACCEDER A LAS FUNCIONES DE FLASK
 from flask import Flask, jsonify, request
+from flask import Flask, render_template, request, jsonify
+import pymysql
+from config import DevelopmentConfig
+from config import config
 
 #PARA FACILITAR EL CONSUMO DE LA API GENERADA
 from flask_cors import CORS
 
+
 #PARA DOCUMENTAR LAS RUTAS DEL CODIGO
 from flasgger import Swagger
+
 
 # IMPORTO EL DICCIONARIO CONFIG EN LA POSICION DEVELOPMENT PARA ACCEDER LA INFORMACION DE CONEXION DE LA
 # BASE DE DATOS, DENTRO DE ESA CLASE HAY UN CLASSMETHOD QUE RETORNA LA CONEXION CON LA BASE DE DATOS
@@ -175,7 +181,7 @@ def consulta_individual_porcinos(id):
   try:
     with config['development'].conn() as conn:
       with conn.cursor() as cur:
-        cur.execute('SELECT * FROM porcinos WHERE id_porcino = %s', (id))
+        cur.execute('SELECT * FROM porcinos WHERE id_porcino = %s', (id,))
     
     porcino = cur.fetchone()
     print(porcino)
@@ -191,62 +197,66 @@ def consulta_individual_porcinos(id):
 # RUTA PARA REGISTRAR A UN PORCINO
 @app.route('/porcino', methods=['POST'])
 def registrar_porcinos():
-  """
-  Registrar nuevo porcino en la base de datos
-  ---
-  tags:
-    - Porcinos
-  parameters: 
-    - name: body
-      in: body
-      required: true
-      schema:
-        type: object
-        properties:
-          peso_inicial:
-            type: float
-          peso_final:
-            type: float
-          fecha_nacimiento:
-            type: Date
-          sexo:
-            type: bool
-          id_raza:
-            type: integer
-          id_etapa:
-            type: integer
-          estado:
-            type: enum('Activo','Inactivo')
-          descripcion:
-            type: string
-  responses:
-    200:
-      description: Registro agregado
-  """
-  try:
-    porcino = request.get_json()
-    id =      porcino['id_porcino']
-    p_ini =   porcino['peso_inicial']
-    p_fin =   porcino['peso_final']
-    fec_nac = porcino['fecha_nacimiento']
-    sexo =    porcino['sexo']
-    id_ra =   porcino['id_raza']
-    id_eta =  porcino['id_etapa']
-    estado =  porcino['estado']
-    descripcion = porcino['descripcion']
-    
-    with config['development'].conn() as conn:
-      with conn.cursor() as cur:
-        cur.execute('INSERT INTO porcinos (peso_inicial,peso_final,fecha_nacimiento,sexo,id_raza,id_etapa,estado,descripcion,id_porcino) values (%s,%s,%s,%s,%s,%s,%s,%s,%s)',
-                  (p_ini,p_fin,fec_nac,sexo,id_ra,id_eta,estado,descripcion,id))
-        conn.commit()
-    
-    return jsonify({'Mensaje': f'Porcino con id {id} registrado'})
-  
-  except Exception as err:
-    print(err)
-    
-    return jsonify({'Mensaje':'Error el porcino no pudo ser registrado'})
+    """
+    Registrar nuevo porcino en la base de datos
+    ---
+    tags:
+      - Porcinos
+    parameters: 
+      - name: body
+        in: body
+        required: true
+        schema:
+          type: object
+          properties:
+            peso_inicial:
+              type: float
+            peso_final:
+              type: float
+            fecha_nacimiento:
+              type: Date
+            sexo:
+              type: bool
+            id_raza:
+              type: integer
+            id_etapa:
+              type: integer
+            estado:
+              type: enum('Activo','Inactivo')
+            descripcion:
+              type: string
+    responses:
+      200:
+        description: Registro agregado
+    """
+    try:
+        porcino = request.get_json()
+
+        # No tomamos id_porcino porque la BD lo genera automáticamente
+        p_ini = porcino['peso_inicial']
+        p_fin = porcino['peso_final']
+        fec_nac = porcino['fecha_nacimiento']
+        sexo = porcino['sexo']
+        id_ra = porcino['id_raza']
+        id_eta = porcino['id_etapa']
+        estado = porcino['estado']
+        descripcion = porcino['descripcion']
+
+        with config['development'].conn() as conn:
+            with conn.cursor() as cur:
+                cur.execute("""
+                    INSERT INTO porcinos 
+                    (peso_inicial, peso_final, fecha_nacimiento, sexo, id_raza, id_etapa, estado, descripcion)
+                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+                """, (p_ini, p_fin, fec_nac, sexo, id_ra, id_eta, estado, descripcion))
+                conn.commit()
+
+        return jsonify({'Mensaje': 'Porcino registrado correctamente'})
+
+    except Exception as err:
+        print("❌ Error al registrar porcino:", err)
+        return jsonify({'Mensaje': 'Error el porcino no pudo ser registrado'})
+
 
 
 # RUTA PARA ACTUALIZAR LA INFORMACION DE UN PORCINO POR SU ID
@@ -332,7 +342,7 @@ def eliminar_porcino(id):
   try:
     with config['development'].conn() as conn:
       with conn.cursor() as cur:
-        cur.execute('DELETE FROM porcinos WHERE id_porcino = %s', (id))
+        cur.execute('DELETE FROM porcinos WHERE id_porcino = %s', (id,))
         conn.commit()
     return jsonify({'Mensaje': f'El porcino con id {id} ha sido eliminado correctamente'})
     
@@ -388,7 +398,7 @@ def consulta_indi_raza(id):
     with config['development'].conn() as conn:
       with conn.cursor() as cur:
         cur.execute('SELECT * FROM etapa WHERE id_raza = %s',
-                    (id))
+                    (id,))
     etapa = cur.fetchone()
     print(etapa)
     if etapa:
@@ -877,5 +887,78 @@ def eliminar_alimento(id):
   except Exception as e:
       return jsonify({"error": str(e)})
 
+    
+# ----------------------------
+# MOSTRAR LA PÁGINA DE REPORTES
+# ----------------------------
+@app.route('/reportes')
+def reportes():
+    return render_template('reportes_pesos.html')
+# ----------------------------
+# API: OBTENER PESOS ALTOS Y BAJOS
+# ----------------------------
+@app.route('/reportes/pesos', methods=['GET'])
+def reportes_pesos():
+    try:
+        tipo = request.args.get('tipo')  # "alto" o "bajo"
+        print("Tipo recibido:", tipo)
+
+        sql = """
+            SELECT 
+                p.id_porcino,
+                p.peso_inicial,
+                p.peso_final,
+                p.fecha_nacimiento,
+                p.sexo,
+                r.nombre AS raza,
+                e.nombre AS etapa,
+                p.descripcion
+            FROM porcinos p
+            JOIN raza r ON p.id_raza = r.id_raza
+            JOIN etapa_vida e ON p.id_etapa = e.id_etapa
+            WHERE p.estado = 'Activo'
+        """
+
+        # 🧩 Filtro según peso final
+        if tipo == "alto":
+            sql += " AND p.peso_final > 50 ORDER BY p.peso_final DESC"
+        elif tipo == "bajo":
+            sql += " AND p.peso_final < 49 ORDER BY p.peso_final ASC"
+        else:
+            sql += " ORDER BY p.id_porcino ASC"
+
+        with config['development'].conn() as conn:
+            with conn.cursor(pymysql.cursors.DictCursor) as cur:
+                cur.execute(sql)
+                data = cur.fetchall()
+
+        print(f"✅ {len(data)} registros devueltos para tipo: {tipo}")
+        return jsonify(data)
+
+    except Exception as err:
+        print("❌ Error en reportes_pesos:", err)
+        return jsonify({"Mensaje": "Error generando reporte"})
+
+
+
+
+def get_db_connection():
+    return DevelopmentConfig.conn()
+
+@app.route('/gestionar_usuarios', methods=['GET'])
+def obtener_usuarios():
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute("SELECT id_usuario, nombre, correo, estado FROM usuario")
+        usuarios = cursor.fetchall()
+        conn.close()
+        return jsonify(usuarios)
+    except Exception as e:
+        print("❌ Error en /gestionar_usuarios:", e)
+        return jsonify({'error': str(e)}), 500
+
+
 if __name__ == '__main__':
     app.run(debug=True)
+

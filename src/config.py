@@ -10,10 +10,14 @@ class Config():
 class DevelopmentConfig(Config):
     HOST = 'localhost'
     USER = 'root'
-    PASSWORD = '290307'
+    PASSWORD = ''
     DATABASE = 'edupork'
     CURSOR_CLASS = pymysql.cursors.DictCursor
-    SQLALCHEMY_DATABASE_URI = config('SQLALCHEMY_DATABASE_URI')
+    SQLALCHEMY_DATABASE_URI = config(
+    'SQLALCHEMY_DATABASE_URI',
+    default='mysql+pymysql://root:@127.0.0.1:3306/edupork'
+)
+
 
     @classmethod
     def conn(self):
