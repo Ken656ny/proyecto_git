@@ -4,6 +4,7 @@ const URL_BASE = 'http://127.0.0.1:5000'
 document.addEventListener('DOMContentLoaded', function() {
     crearDialogRegistrarRaza();
     crearDialogRegistrarEtapa();
+    crearDialogActualizarPesoHistorial();
 });
 
 // REDIRECCION DE FORMA LENTA HACIA LOS HTML
@@ -365,33 +366,6 @@ function llenarSelectDesdeLista(lista, selectId, valorSeleccionado, keyId, keyNo
 // GESTION DE PORCINOS
 // -------------------
 
-function dialog_ges_raz(){
-    const mod_wind = document.getElementById('dialog__ges__raz')
-    const btn_abrir = document.getElementById('abrir__digraz')
-    const btn_cerrar = document.getElementById('cerrar__digraz')
-    
-    btn_abrir.addEventListener('click', function() {
-        mod_wind.showModal(); 
-    });
-    
-    btn_cerrar.addEventListener('click', function() {
-        mod_wind.close();
-    });
-}
-
-function dialog__ges__eta(){
-    const mod_wind = document.getElementById('dialog__ges__eta')
-    const btn_abrir = document.getElementById('abrir__digeta')
-    const btn_cerrar = document.getElementById('cerrar__digeta')
-    
-    btn_abrir.addEventListener('click', function() {
-        mod_wind.showModal(); 
-    });
-    
-    btn_cerrar.addEventListener('click', function() {
-        mod_wind.close();
-    });
-}
 
 // CONSUMO DE DATOS DE LOS PORCINOS REGISTRADOS
 function mostrar_porcinos(porcinos) {
@@ -631,30 +605,39 @@ async function consulta_general_porcinos() {
         consultar_razas();
         consultar_etapas();
         porcino_filtros();
+        consulta_gen_historial_pesos();
+        return porcinos
     } catch (error) {
         console.error('Error:', error);
     }
 }
 
-function consulta_individual_porcino(){
-    var id_porcino = document.getElementById('input_id').value
-    fetch(`${URL_BASE}/porcino/${id_porcino}`, {method: 'GET'})
-    .then(response => {
-        if (!response.ok) throw new Error(`Error: ${response.status}`); // Manejo de errores HTTP
-        return response.json();
-    })
-    .then( porcinos => {
-        if (porcinos.Mensaje == 'Porcino no encontrado'){
-            Swal.fire({
+async function consulta_individual_porcino(id, mostrar = false) {
+    try {
+        const promesa = await fetch(`${URL_BASE}/porcino/${id}`, {
+        method: 'GET',
+        headers: { "Content-type": "application/json" }
+        });
+        const response = await promesa.json(); 
+        if (response.Mensaje === 'Porcino no encontrado') {
+        Swal.fire({
             title: "Mensaje",
-            text: `${porcinos.Mensaje}`,
+            text: response.Mensaje,
             icon: "error"
         });
-        }else{
-            mostrar_porcinos(porcinos)
+        return null;
         }
-    })
-    .catch(error => console.error('Error', error));
+
+        if (mostrar) {
+        mostrar_porcinos(response);
+        }
+
+        return response;
+
+    } catch (error) {
+        console.error(error);
+        return null;
+    }
 }
 
 function refrescar_porcinos(id_porcino){
@@ -667,34 +650,45 @@ function refrescar_porcinos(id_porcino){
 
 function crearSelects(filtro,opciones){
     const old_select = document.getElementById('filter__options__2');
-    if (old_select) old_select.remove();
     const container_search = document.getElementById("container__search__bar");
-    let select = document.createElement('select')
-    select.id = "filter__options__2"
-    select.className = "input_id"
-    select.setAttribute('required', true)
-    let value_pred = document.createElement('option');
-    value_pred.text = "Seleccione..."
-    value_pred. value = ""
-    value_pred.disabled = true
-    value_pred.selected = true
-    select.appendChild(value_pred)
-    if (filtro === 'sexo' || filtro === 'estado'){
-        opciones.forEach(opcion => {
-            let option = document.createElement('option')
-            option.text = opcion
-            option.value = opcion
-            select.appendChild(option)
-        })
-    } else {
-        opciones.forEach(opcion => {
-            let option = document.createElement('option')
-            option.text = opcion.nombre
-            option.value = opcion.nombre
-            select.appendChild(option)
-        })
+    
+    if (old_select) old_select.remove();
+    if (filtro === 'peso_final'){
+        let input = document.createElement('input');
+        input.id = "filter__options__2"
+        input.className = "input_id"
+        input.type = 'number';
+        input.min = '0';
+        input.placeholder = opciones
+        container_search.appendChild(input)
+    }else{
+        let select = document.createElement('select')
+        select.id = "filter__options__2"
+        select.className = "input_id"
+        select.setAttribute('required', true)
+        let value_pred = document.createElement('option');
+        value_pred.text = "Seleccione..."
+        value_pred. value = ""
+        value_pred.disabled = true
+        value_pred.selected = true
+        select.appendChild(value_pred)
+        if (filtro === 'sexo' || filtro === 'estado'){
+            opciones.forEach(opcion => {
+                let option = document.createElement('option')
+                option.text = opcion
+                option.value = opcion
+                select.appendChild(option)
+            })
+        } else {
+            opciones.forEach(opcion => {
+                let option = document.createElement('option')
+                option.text = opcion.nombre
+                option.value = opcion.nombre
+                select.appendChild(option)
+            })
+        }
+        container_search.appendChild(select)
     }
-    container_search.appendChild(select)
 }
 
 function porcino_filtros() {
@@ -702,7 +696,8 @@ function porcino_filtros() {
         const filter = document.getElementById("filter_porcino");
         const opciones = {
             "sexo" : ["Macho","Hembra"],
-            "estado" : ["Activo","Inactivo"]
+            "estado" : ["Activo","Inactivo"],
+            "peso_final" : ["Escriba el peso final"]
         }
         filter.addEventListener('change', () => {
             if (opciones[filter.value]){
@@ -725,17 +720,14 @@ function porcino_filtros() {
     }
 }
 
-// HACER LA FUNCION DE FILTRADO(), CAMBIAR ESE NOMBRE TAN PEYE CONECTAR CON EL BACKEND
 async function consulta_filtros() {
     try {
         const filtro = document.getElementById('filter_porcino').value;
         const valor = document.getElementById('filter__options__2').value;
-
         const info = {
             "filtro" : filtro,
             "valor" : valor
         }
-        console.log(info)
         const promesa = await fetch(`${URL_BASE}/porcino/filtros`, 
             {
                 method : 'POST',
@@ -746,16 +738,22 @@ async function consulta_filtros() {
             }
         )
         const response = await promesa.json()
-        mostrar_porcinos(response)
+        if (Object.keys(response).length != 1){
+            mostrar_porcinos(response)
+        } else{
+            Swal.fire({
+            title: "Mensaje",
+            text: `${response.Mensaje}`,
+            icon: "error",
+        });
+        }
     } catch (error) {
         console.error(error)
     }
 }
 
-
 async function agregar_porcino(){
     try {
-        
         const id_porcino = document.getElementById('id_porcino').value;
         const peso_inicial = document.getElementById('peso_inicial').value;
         const peso_final = document.getElementById('peso_final').value;
@@ -805,7 +803,6 @@ async function agregar_porcino(){
     }
 }
 
-
 async function actualizar_porcino(id_porcino) {
     try {
         const peso_inicial = document.getElementById(`Peso-inicial-actualizar-${id_porcino}`).value;
@@ -837,6 +834,22 @@ async function actualizar_porcino(id_porcino) {
             }
         );
         const response = await promesa.json();
+        cerrarDialog(`dialog-edit-${id_porcino}`);
+        if (response.Mensaje === `Informacion del porcino con id ${id_porcino} actualizada`){
+            Swal.fire({
+                title: "Mensaje",
+                text: `${response.Mensaje}`,
+                icon: "success"
+            });
+            consulta_general_porcinos()
+        } else{
+            Swal.fire({
+                title: "Mensaje",
+                text: `${response.Mensaje}`,
+                icon: "error"
+            });
+        }
+        return response
 
     } catch (error) {
         console.error(error)
@@ -870,8 +883,279 @@ function eliminar_porcino(id_porcino){
         input.value = '';
         input.placeholder = 'ID incorrecto...';
     }
-
 }
+
+// -------------------
+// HISTORIAL DE PESOS
+// -------------------
+
+function mostrar_historial(historial){
+    const info = historial.Historial.map(item => crearFilaHistorial(item)).join('');
+    document.getElementById('historial_pesos').innerHTML = info;
+}
+
+function crearFilaHistorial(item){
+    const uniqueId = item.id_documento;
+    return `
+        <tr class="registro registro__dia">
+            <td class="td__border__l"> ${item.id_documento} </td>
+            <td> ${item.id_porcino} </td>
+            <td> ${item.peso_final} </td>
+            <td> ${item.fecha_pesaje} </td>
+            <td class="td__border__r">
+                <img src="/src/static/iconos/icon eye.svg" alt="" class="icon-eye" onclick="abrirDialog('dialog-eye-historial-${uniqueId}')">
+            </td>
+            ${crearDialogEyeHistorial(item,uniqueId)}
+        </tr>
+    `;
+}
+
+async function crearDialogActualizarPesoHistorial(){
+    const nm = await conteoNumeroConsecutivo();
+    const porcinos = await consulta_general_porcinos();
+    const campos = [
+        { label: 'Fecha de pesaje', id: 'fecha-pesaje-actu', type: 'date', required: true },
+        { label: 'ID porcino', id: 'id-porcino-actu', type: 'select', options: porcinos.Porcinos.map(por => por.id_porcino), required: true, placeholder: "Seleccione el ID del porcino" },
+        { label: 'Peso final', id: 'peso-final-actu', type: 'number', required: true, placeholder: "Digite el peso en Kg" },
+        { label: 'Usuario', id: 'id-usuario-actu', type: 'text', required: true, placeholder: "Juan Tovar", value: 3 },
+    ];
+
+    const camposHTML = campos.map(campo => {
+        // Si el campo es un SELECT
+        if (campo.type === 'select') {
+            const opciones = campo.options.map(opt => `<option value="${opt}">${opt}</option>`).join('');
+            return `
+                <div class="container__label__input container__label__input__actupeso">
+                    <label for="${campo.id}">${campo.label}</label>
+                    <select id="${campo.id}" class="input__actu__peso" ${campo.required ? 'required' : ''}>
+                        <option value="">${campo.placeholder}</option>
+                        ${opciones}
+                    </select>
+                </div>
+            `;
+        }
+
+        // Si el campo es el usuario (mostrar nombre pero enviar ID oculto)
+        if (campo.id === 'id-usuario-actu') {
+            return `
+                <div class="container__label__input container__label__input__actupeso">
+                    <label for="${campo.id}">${campo.label}</label>
+
+                    <!-- Input visible (muestra el nombre del usuario) -->
+                    <input 
+                        type="text"
+                        class="input__actu__peso"
+                        id="${campo.id}-nombre"
+                        value="${campo.placeholder}" 
+                        readonly
+                    >
+
+                    <!-- Input oculto (envía el ID real del usuario al backend) -->
+                    <input 
+                        type="hidden"
+                        id="${campo.id}"
+                        value="${campo.value}"
+                    >
+                </div>
+            `;
+        }
+
+        // Si es input normal (text, date, number, etc.)
+        return `
+            <div class="container__label__input container__label__input__actupeso">
+                <label for="${campo.id}">${campo.label}</label>
+                <input 
+                    type="${campo.type || 'text'}"
+                    class="input__actu__peso"
+                    id="${campo.id}"
+                    value="${campo.id}"
+                    placeholder="${campo.placeholder || ''}"
+                    ${campo.required ? 'required' : ''}
+                >
+            </div>
+        `;
+    }).join('');
+
+    const HTML = `
+        <div class='container layout_actualizar_peso'>
+            <div class='lay_actu_s1'>
+                <span class="span__actu_peso" id="span_num_consec">N.C: ${nm.Conteo + 1}</span>
+                ${camposHTML}
+            </div>
+            <div class='lay_actu_s2'>
+                <span class="span__actu_peso" id="span_fecha">${new Date().toLocaleDateString()}</span>
+                <span class="span__actu_peso">Preview</span>
+                <container class="container__preview"> 
+                    <p class="content__preview" id="descripcion-actu">
+                        Seleccione el ID del porcino...
+                    </p>
+                </container>
+            </div>
+        </div>
+    `;
+
+    setTimeout(() => {
+        const selectPorcino = document.getElementById('id-porcino-actu');
+        const pesoFinal = document.getElementById('peso-final-actu');
+        const descripcion = document.getElementById('descripcion-actu');
+        // Evento cuando cambia el ID del porcino
+        selectPorcino.addEventListener('change', async (e) => {
+            const idPorcino = e.target.value;
+            if (idPorcino) {
+                // Consultar los datos del porcino seleccionado
+                const porcino = await consulta_individual_porcino(idPorcino, false);
+                // Actualizar el texto del preview
+                actualizarPreview(porcino, pesoFinal.value, descripcion);
+            }
+        });
+        // Evento cuando cambia el peso
+        pesoFinal.addEventListener('input', async () => {
+            const idPorcino = selectPorcino.value;
+            const porcino = idPorcino ? await consulta_individual_porcino(idPorcino, false) : null;
+            actualizarPreview(porcino, pesoFinal.value, descripcion);
+        });
+    
+    }, 500); // Espera a que el modal esté renderizado
+    return crearDialogBaseRaza('dialog-actualizar-peso', 'dialog__ges__raz', 'Actualizar Peso', HTML, 'Guardar', 'button-guardar', '', 'actualizar_peso_historial', '');
+}
+
+function actualizarPreview(porcino, peso, elementoTexto) {
+    if (!porcino) {
+        elementoTexto.textContent = "Seleccione el ID del porcino...";
+        return;
+    }
+    const raza = porcino.Porcinos[0].raza || "XX";
+    const sexo = porcino.Porcinos[0].sexo || "XX";
+    const etapa = porcino.Porcinos[0].etapa || "XX";
+    const id = porcino.Porcinos[0].id_porcino || "XX";
+    const usuario = "Juan Tovar"; // O obtenerlo dinámicamente si ya lo tienes
+
+    elementoTexto.textContent = `
+        El porcino identificado con el ID ${id}, siendo de raza ${raza}, sexo ${sexo} y etapa de vida ${etapa},
+        después de su último pesaje registrado por el usuario ${usuario}, presenta un peso de ${peso || "XX"} Kg.
+    `;
+}
+
+function crearDialogEyeHistorial(item, uniqueId){
+    const campos = [
+        {label: 'ID', value: item.id_documento, id: 'id-documento'},
+        {label: 'Fecha Documento', value: item.fecha_documento, id: 'fecha-documento-eye'},
+        {label: 'Fecha Pesaje', value: item.fecha_pesaje, id: 'fecha-pesaje-eye'},
+        {label: 'ID porcino', value: item.id_porcino, id: 'id-porcino-eye'},
+        {label: 'Peso registrado', value: item.peso_final, id: 'peso-registrado-eye'},
+        {label: 'Usuario', value: item.nombre, id: 'nombre-usuario-eye'},
+        {label: 'Descripcion', value: item.descripcion, id: 'descripcion-eye'},
+    ]
+
+    const camposHTML = campos.map(campo => `
+        <div class = "container__label__input">
+            <label for="${campo.id}-${uniqueId}">${campo.label}</label>
+            <input type="text" class="campo-info" id="${campo.id}-${uniqueId}" placeholder="${campo.value}" readonly>
+        </div>
+        `).join('');
+
+    return crearDialogBaseRaza(`dialog-eye-historial-${uniqueId}`, 'dialog-icon-eye', 'Informacion de la transacción', camposHTML, 'Cerrar', 'button-cerrar', uniqueId, 'cerrarDialog',`dialog-eye-historial-${uniqueId}`);
+}
+
+
+async function consulta_gen_historial_pesos(){
+    try {
+        const promesa = await fetch(`${URL_BASE}/porcino/historial_pesos`, 
+            {
+                method : 'GET',
+                headers : {
+                    "Content-type" : "application/json",
+                }
+            })
+        const response = await promesa.json();
+        
+        if (promesa.status == 200){
+            mostrar_historial(response)
+        } else {
+            Swal.fire({
+            title: "Mensaje",
+            text: `${response.Mensaje}`,
+            icon: "error",
+            });
+        }
+        return response
+    } catch (error) {
+        console.error(error)
+    }
+}
+
+async function conteoNumeroConsecutivo() {
+    try {
+        const promesa = await fetch(`${URL_BASE}/porcino/historial_pesos/conteo_transacciones`,
+            {
+                method : 'GET',
+                headers : {
+                    "Content-type" : "application/json"
+                }
+            }
+        )
+        const response = await promesa.json()
+        return response
+    } catch (error) {
+        console.error(error)
+    }
+}
+
+async function actualizar_peso_historial() {
+    try {
+        const fecha_pesaje = document.getElementById('fecha-pesaje-actu').value;
+        const id_porcino = document.getElementById('id-porcino-actu').value;
+        const peso_final = document.getElementById('peso-final-actu').value;
+        const id_usuario = document.getElementById('id-usuario-actu').value;
+        const descripcion = document.getElementById('descripcion-actu').textContent;
+        const transa = {
+            
+            "fecha_pesaje" : fecha_pesaje,
+            "id_porcino" : id_porcino,
+            "peso_final" : peso_final,
+            "id_usuario" : id_usuario,
+            "descripcion" : descripcion
+        }
+        
+        const promesa = await fetch(`${URL_BASE}/porcino/historial_pesos/actualizar`,
+            {
+                method : 'POST',
+                body : JSON.stringify(transa),
+                headers : {
+                    "Content-type" : "application/json"
+                }
+            }
+        )
+        const response = await promesa.json()
+        cerrarDialog(`dialog-actualizar-peso`);
+        cerrarDialog(`dialog__his__peso`);
+        if (response.Mensaje ===  `El Peso Final del porcino con id ${id_porcino} actualizado`){
+            
+            Swal.fire({
+            title: "Mensaje",
+            text: `${response.Mensaje}`,
+            icon: "success",
+            });
+            
+        } else {
+            Swal.fire({
+            title: "Mensaje",
+            text: `${response.Mensaje}`,
+            icon: "error",
+            });
+        }
+        return response
+
+
+    } catch (error) {
+        console.error(error)
+    }
+}
+
+
+
+
+
 
 // -------------------
 // GESTION DE DE RAZAS
@@ -942,7 +1226,6 @@ function crearDialogEyeRaza(item, uniqueId){
     return crearDialogBaseRaza(`dialog-eye-raza-${uniqueId}`, 'dialog-icon-eye', 'Informacion de la Raza', camposHTML, 'Cerrar', 'button-cerrar', uniqueId, 'cerrarDialog',`dialog-eye-raza-${uniqueId}`);
 }
 
-
 function crearDialogEditRaza(item, uniqueId){
     const camposEditables = [
         {label: 'ID', value: item.id_raza, editable: false, id: "id-raza"},
@@ -991,10 +1274,12 @@ function crearDialogBaseRaza(id, clase, titulo, contenido, textoBoton, claseBoto
     dialog.id = id;
     // Armar contenido interno
     dialog.innerHTML = `
-        <div class="container__btn__close">
-            <button type="button" class="btn__close" onclick="cerrarDialog('${id}')">X</button>
-        </div>
-        <form onsubmit="event.preventDefault(); ${funct}('${uniqueId}')" class="container__items__dialogs">
+        ${ clase ? `
+            <div class="container__btn__close">
+                <button type="button" class="${clase.toLowerCase() === 'dialog__ges__raz' ? 'btn__close btn__close__cruds' : 'btn__close'}" onclick="cerrarDialog('${id}')">X</button>
+            </div>
+        ` : ''}
+        <form onsubmit="event.preventDefault(); ${funct}('${uniqueId}')" class="layout_form_dialog">
             <div class="title-dialog">
                 <h2>${titulo}</h2>
                 <hr>
