@@ -107,7 +107,7 @@
             <input type = "number" class = "input__id" id="input_id" placeholder = "Ingrese el ID del porcino" min="0" oninput = "this.value = Math.abs(this.value)">
             <div class="container__filtro">
                 <img src="/src/static/iconos/icon filter.svg" alt="" id="svg__filter">
-                <select name="filter" id="filter_porcino" class="filter" required>
+                <select name="filter" id="filter_porcino" class="filter" >
                     <option value="" disabled selected >Filtrar por...</option>
                     <option value="sexo">Sexo</option>
                     <option value="raza">Raza</option>
@@ -127,15 +127,15 @@
             </div>
             <div class="container__btn__agregar">
                 <img src="/src/static/iconos/icon gestion.svg" alt="" class="svg__btn svg--gesti" width="35px">
-                <button type="button" class="btn btn--options" id="abrir__digraz" onclick="dialog_ges_raz()">Gestionar Raza</button>
+                <button type="button" class="btn btn--options" id="abrir__digraz" onclick="abrirDialog('dialog__ges__raz')">Gestionar Raza</button>
             </div>
             <div class="container__btn__agregar">
                 <img src="/src/static/iconos/icon gestion.svg" alt="" class="svg__btn svg--gesti" width="35px">
-                <button type="button" class="btn btn--options" id="abrir__digeta" onclick="dialog__ges__eta()">Gestionar Etapa</button>
+                <button type="button" class="btn btn--options" id="abrir__digeta" onclick="abrirDialog('dialog__ges__eta')">Gestionar Etapa</button>
             </div>
             <div class="container__btn__agregar">
                 <img src="/src/static/iconos/icon actua.svg" alt="" class="svg__btn svg--actua" width="25px">
-                <button type="button" class="btn btn--options--actua">Historial Peso</button>
+                <button type="button" class="btn btn--options--actua" onclick="abrirDialog('dialog__his__peso')">Historial Peso</button>
             </div>
         </div>
 
@@ -164,7 +164,7 @@
     <!-- DIALOG DE GESTIONAR RAZA -->
     <dialog class="dialog__ges__raz" id="dialog__ges__raz">
         <div class="container__btn__close">
-            <button type="button" id="cerrar__digraz" class="btn__close btn__close__cruds">X</button>
+            <button type="button" id="cerrar__digraz" class="btn__close btn__close__cruds" onclick="cerrarDialog('dialog__ges__raz')">X</button>
         </div>
         <div class="container__items__dialogs">
             <div class="title-dialog">
@@ -174,7 +174,7 @@
             <div class="container__search__bar bar--gestion">
                 <div class="conta__lupa__inp">
                     <img src="/src/static/iconos/icon lupa.svg" alt="">
-                    <input type = "number" class = "input__id" id="input_id" placeholder = "Ingrese el ID de la raza" min="0" oninput = "this.value = Math.abs(this.value)">
+                    <input type = "number" class = "input__id" id="input_id_raza" placeholder = "Ingrese el ID de la raza" min="0" oninput = "this.value = Math.abs(this.value)">
                 </div>
                 <div>
                     <button type="button" class="btn">Consultar</button>
@@ -204,7 +204,7 @@
     <!-- DIALOG DE GESTIONAR ETAPA -->
     <dialog class="dialog__ges__raz" id="dialog__ges__eta">
         <div class="container__btn__close">
-            <button type="button" id="cerrar__digeta" class="btn__close btn__close__cruds">X</button>
+            <button type="button" id="cerrar__digeta" class="btn__close btn__close__cruds" onclick="cerrarDialog('dialog__ges__eta')">X</button>
         </div>
         <div class="container__items__dialogs">
             <div class="title-dialog">
@@ -214,7 +214,7 @@
             <div class="container__search__bar bar--gestion">
                 <div class="conta__lupa__inp">
                     <img src="/src/static/iconos/icon lupa.svg" alt="">
-                    <input type = "number" class = "input__id" id="input_id" placeholder = "Ingrese el ID de la etapa" min="0" oninput = "this.value = Math.abs(this.value)">
+                    <input type = "number" class = "input__id" id="input_id_raza" placeholder = "Ingrese el ID de la etapa" min="0" oninput = "this.value = Math.abs(this.value)">
                 </div>
                 <div>
                     <button type="button" class="btn">Consultar</button>
@@ -241,6 +241,49 @@
             </div>
         </div>
     </dialog>
+
+    <!-- DIALOG Historial de pesos -->
+    <dialog class="dialog__ges__raz" id="dialog__his__peso">
+        <div class="container__btn__close">
+            <button type="button" id="cerrar__digeta" class="btn__close btn__close__cruds" onclick="cerrarDialog('dialog__his__peso')">X</button>
+        </div>
+        <div class="container__items__dialogs">
+            <div class="title-dialog">
+                <h2>Historial de pesos</h2>
+                <hr>
+            </div>
+            <div class="container__search__bar bar--gestion">
+                <div class="conta__lupa__inp">
+                    <img src="/src/static/iconos/icon lupa.svg" alt="">
+                    <input type = "number" class = "input__id" id="input_id_hp" placeholder = "Ingrese el ID del porcino" min="0" oninput = "this.value = Math.abs(this.value)">
+                </div>
+                <div>
+                    <button type="button" class="btn">Consultar</button>
+                </div>
+            </div>
+            <div class="container__btn__agregar">
+                <img src="/src/static/iconos/icon actua.svg" alt="" class="svg__add">
+                <button type="button" class="btn btn--agregar" onclick="abrirDialog('dialog-actualizar-peso')">Actualizar peso</button>
+            </div>
+            <div class="container container__registros container__registros__dia">
+                <table class="table__registros table__regis__dia">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>porcino</th>
+                            <th>Peso registrado</th>
+                            <th>Fecha de pesado</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody class="registros" id="historial_pesos">
+                        
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </dialog>
+
     <script src="/src/static/js/script.js"></script>
     <script>
         consulta_general_porcinos();

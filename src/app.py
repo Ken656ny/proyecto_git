@@ -13,7 +13,6 @@ from config import config
 
 from datetime import datetime ,date
 
-
 app = Flask(__name__)
 app.secret_key = 'secretkey'
 CORS(app)
@@ -62,11 +61,11 @@ def login():
     
     if user:
       if user['contrasena'] == constraseña:
-        return jsonify({'Mensaje': 'Las crendenciales son correctas'})
+        return jsonify({'Mensaje': 'Las crendenciales son correctas'}), 200
       else:
         return jsonify({'Mensaje': 'Contraseña incorrecta'})
     else:
-      return jsonify({'Mensaje': 'Usuario no encontrado'})
+      return jsonify({'Mensaje': 'Usuario no encontrado'}), 404
     
   except Exception as err:
     print(err)
@@ -117,12 +116,10 @@ def registro_usuarios():
     
     with config['development'].conn() as conn:
       with conn.cursor() as cur:
-        cur.execute('INSERT INTO usuario (nombre,correo,contrasena,estado,id_tipo_identificacion,id_usuario) values (%s,%s,%s,%s,%s,%s)',
-                  (nom,correo,contra,estado,id_tipo_iden,num_identi))
+        cur.execute('INSERT INTO usuario (nombre,numero_identificacion,correo,contrasena,estado,rol,id_tipo_identificacion) values (%s,%s,%s,%s,%s,%s,%s)',
+                  (nom,num_identi,correo,contra,estado,"Aprendiz",id_tipo_iden))
         conn.commit()
-    
     return jsonify({'Mensaje': f'Usuario registrado'})
-  
   except Exception as err:
     print(err)
     return jsonify({'Mensaje':'Error el usuario no pudo ser registrado'})
@@ -161,6 +158,7 @@ def consulta_general_porcinos():
     print(err)
     return jsonify({'Mensaje':'Error'})
 
+
 # RUTA PARA CONSULTAR UN PORCINO POR SU ID
 @app.route('/porcino/<int:id>', methods=['GET'])
 def consulta_individual_porcinos(id):
@@ -181,12 +179,18 @@ def consulta_individual_porcinos(id):
   try:
     with config['development'].conn() as conn:
       with conn.cursor() as cur:
-        cur.execute('SELECT * FROM porcinos WHERE id_porcino = %s', (id))
+        cur.execute("""
+                    SELECT id_porcino,peso_inicial,peso_final,fecha_nacimiento,sexo,r.nombre as raza,e.nombre as etapa,estado,p.descripcion
+                    FROM porcinos p 
+                    JOIN raza r ON p.id_raza = r.id_raza 
+                    JOIN etapa_vida e ON p.id_etapa = e.id_etapa
+                    WHERE id_porcino = %s
+                    """,(id))
     
     porcino = cur.fetchone()
-    print(porcino)
+    
     if porcino:
-      return jsonify({'Porcinos': porcino, 'Mensaje': f'Porcino con id {id} consultado'})
+      return jsonify({'Porcinos': [porcino], 'Mensaje': f'Porcino con id {id} consultado'})
     else:
       print('Porcino no encontrado')
       return jsonify({'Mensaje':'Porcino no encontrado'})
@@ -240,7 +244,7 @@ def porcinos_filtro():
       query += ' AND e.nombre = %s'
       params.append(valor)
     elif filtro == 'peso_final':
-      query += ' AND  %s BETWEEN (p.peso_final - 10) AND (p.peso_final + 10)'
+      query += ' AND p.peso_final = %s'
       params.append(valor)
     elif filtro == 'estado':
       query += ' AND p.estado = %s'
@@ -252,10 +256,129 @@ def porcinos_filtro():
       with conn.cursor() as cur:
           cur.execute(query,params)
           informacion = cur.fetchall()
-    return jsonify({'Porcinos' : informacion, "Mensaje":'Lista de porcinos'})
+          if not informacion:
+            return jsonify({'Mensaje': 'No hay porcinos registrados con los filtros ingresados'})
+          else:
+            return jsonify({'Porcinos' : informacion, "Mensaje":'Lista de porcinos'})
   except Exception as err:
     print(err)
     return jsonify({'Mensaje': 'Error'})
+
+#Ruta para consultar el historial de pesos de los porcinos
+@app.route('/porcino/historial_pesos', methods = ['GET'])
+def historial_pesos():
+  """
+  Consultar el historial de pesos de los porcinos registrados
+  ---
+  tags:
+    - Porcinos
+  responses:
+    200:
+      description: Lista del historial de pesos de los porcinos registrados
+  """
+  try:
+    with config['development'].conn() as conn:
+      with conn.cursor() as cur:
+        cur.execute("""
+                    SELECT tp.id_documento,tp.fecha_documento,tp.fecha_pesaje,tp.id_porcino,tp.peso_final,u.nombre,tp.descripcion
+                    FROM transaccion_peso tp
+                    JOIN usuario u
+                    ON tp.id_usuario = u.id_usuario
+                    """)
+        historial = cur.fetchall()
+        if historial:
+          return jsonify({'Historial': historial, 'Mensaje': 'Listado del historial de los pesos de los porcinos registrados'})
+        else:
+          return jsonify({'Mensaje': 'No hay historial de pesos registrados'})
+  except Exception as err:
+    print(err)
+    return jsonify({'Mensaje': 'Error'}), 500
+
+
+@app.route('/porcino/historial_pesos/conteo_transacciones', methods=['GET'])
+def conteo_transacciones():
+    """
+    Conteo de transacciones de pesos actualizados
+    ---
+    tags:
+      - Porcinos
+    responses:
+      200:
+        description: Número de transacciones registradas en la base de datos
+    """
+    try:
+        with config['development'].conn() as conn:
+            with conn.cursor() as cur:
+                cur.execute("SELECT COUNT(*) FROM transaccion_peso;")
+                conteo = cur.fetchone()
+                print(conteo)
+
+                if conteo:
+                    # Si es dict o tupla, tomar solo el número
+                    total = list(conteo.values())[0] if isinstance(conteo, dict) else conteo[0]
+
+                    return jsonify({
+                        'Mensaje': 'Conteo de las transacciones hecha en la base de datos',
+                        'Conteo': total
+                    })
+                else:
+                    return jsonify({'Mensaje': 'No hay transacciones hechas', 'Conteo': 0})
+
+    except Exception as err:
+        print(err)
+        return jsonify({'Mensaje': 'Error'}), 500
+
+
+@app.route('/porcino/historial_pesos/actualizar', methods = ['POST'])
+def actualizar_peso_porcinos():
+  """
+  Registro de transaccion de peso y actualizacion del peso del porcino
+  ---
+  tags:
+    - Porcinos
+  parameters: 
+  - name: body
+    in: body
+    required: true
+    schema:
+      type: object
+      properties:
+        fecha_documento:
+          type: string
+          format: date
+        fecha_pesaje:
+          type: string
+          format: date
+        id_porcino:
+          type: integer
+        peso_final:
+          type: number
+          format: float
+        id_usuario:
+          type: integer
+        descripcion:
+          type: string
+  responses:
+    200:
+      description: Registro agregado
+  """
+  try:
+    data = request.get_json()
+    fec_pesa = data['fecha_pesaje']
+    id_porcino = data['id_porcino']
+    peso_final = data['peso_final']
+    id_usuario = data['id_usuario']
+    descripcion = data['descripcion']
+    
+    with config['development'].conn() as conn:
+      with conn.cursor() as cur :
+        cur.execute("CALL sp_actualizar_peso_historial(%s,%s,%s,%s,%s)",(fec_pesa,id_porcino,peso_final,id_usuario,descripcion))
+        conn.commit()
+        return jsonify({"Mensaje": f'El Peso Final del porcino con id {id_porcino} actualizado'}), 200
+  except Exception as err:
+    print(err)
+    return jsonify({'Mensaje': 'Error'}), 500
+
 
 # RUTA PARA REGISTRAR A UN PORCINO
 @app.route('/porcino', methods=['POST'])
@@ -303,7 +426,6 @@ def registrar_porcinos():
     id_eta =  porcino['id_etapa']
     estado =  porcino['estado']
     descripcion = porcino['descripcion']
-    print(porcino)
     # Lista de campos obligatorios
     campos_obligatorios = [
         "id_porcino", "peso_inicial", "peso_final",
@@ -403,10 +525,10 @@ def actualizar_porcino(id):
                   (p_ini,p_fin,fec_nac,sexo,id_ra,id_eta,estado,descripcion,id))
         conn.commit()
     
-    return jsonify({'Mensaje': f'Informacion del porcino con id {id} actualizada'})
+    return jsonify({'Mensaje': f'Informacion del porcino con id {id} actualizada'}), 200
   except Exception as err:
     print(err)
-    return jsonify({'Mensaje':'Error informacion del porcino no actualizada'})
+    return jsonify({'Mensaje':'Error informacion del porcino no actualizada'}), 500
 
 
 # RUTA PARA ELIMINAR PORCINO POR ID
