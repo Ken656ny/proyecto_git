@@ -1060,7 +1060,7 @@ function consulta_dietas(dietas){
     .then(data => {
         console.log("Datos recibidos:", data);
         
-        if (!data.mensaje || data.mensaje.length === 0) {
+        if (!data.dietas || data.dietas.length === 0) {
             tablaDietas.innerHTML = `
                 <tr>
                     <td colspan="5" class="text-center">No hay dietas registradas</td>
@@ -1070,7 +1070,7 @@ function consulta_dietas(dietas){
         }
         
         // Construir filas con los datos
-        data.mensaje.forEach(element => {
+        data.dietas.forEach(element => {
             tablaDietas.innerHTML += crearFilaDieta(element);
         });
     })
@@ -1100,14 +1100,15 @@ function crearFilaDieta(item) {
     return `
     <tr class="registro registro__dia">
         <td class="td__border__l">${item.id_dieta || 'N/A'}</td>
-        <td>${alimentosFormateados || 'Sin alimentos'}</td>
-        <td>${elementosFormateados || 'Sin elementos'}</td>
+        <td>${item.id}</td>
+        <td>${alimentosFormateados}</td> 
+        <td>${elementosFormateados}</td>
         <td class="td__border__r">
             ${crearIconosAccionesRaza(uniqueId)}
         </td>
     </tr>
     ${crearDialogEyeRaza(item, uniqueId)}
     ${crearDialogEditRaza(item, uniqueId)}
-    ${crearDialogDeleteRaza(item, uniqueId)}
+    ${crearDialogtDeleteRaza(item, uniqueId)}
     `;
 }
