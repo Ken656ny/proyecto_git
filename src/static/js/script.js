@@ -162,65 +162,45 @@ async function login() {
 
 // FUNCIONAMIENTO DE LA API DE GOOGLE//
 
-window.onload = function () {
-    const googleButtonContainer = document.getElementById("google-btn-container");
-
-    if (googleButtonContainer) {
-        google.accounts.id.initialize({
-            client_id: "887853903603-sbo2ffg27v2o12navndev9okvno8t4fn.apps.googleusercontent.com",
-            callback: handleCredentialResponse
-        });
-
-        google.accounts.id.renderButton(googleButtonContainer, {
-            theme: "outline",
-            size: "large",
-            shape: "pill",
-            text: "signup_with",
-            logo_alignment: "center",
-            width: "400px"
-        });
-    }
-}
-
-
-function handleCredentialResponse(response) {
+  function handleCredentialResponse(response) {
     const idToken = response.credential;
     console.log("Token recibido:", idToken);
 
     fetch(`${URL_BASE}/api/auth/google`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ token: idToken })
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ token: idToken })
     })
     .then(res => res.json())
     .then(data => {
-        localStorage.setItem("token", data.token);
-        localStorage.setItem("usuario", JSON.stringify({
+      localStorage.setItem("token", data.token);
+      localStorage.setItem("usuario", JSON.stringify({
         nombre: data.nombre,
         numero_identificacion: data.numero_identificacion,
         correo: data.correo,
         rol: data.rol
-}));
+      }));
 
-        Swal.fire({
-            icon: "success",
-            timer: 1500,
-            title: "¡Bienvenido a Edupork!",
-            text: `Hola ${data.nombre}, tu acceso con Google fue exitoso.`,
-            showConfirmButton: false
-        }).then(() => {
-            location.href = "home.html"; 
-        });
+      Swal.fire({
+        icon: "success",
+        timer: 1500,
+        title: "¡Bienvenido a Edupork!",
+        text: `Hola ${data.nombre}, tu acceso con Google fue exitoso.`,
+        showConfirmButton: false
+      }).then(() => {
+        location.href = "home.html";
+      });
     })
     .catch(err => {
-        console.error("Error en el login:", err);
-        Swal.fire({
-            icon: "error",
-            title: "Error de conexión",
-            text: err.message || "No se pudo conectar con el servidor."
-        });
+      console.error("Error en el login:", err);
+      Swal.fire({
+        icon: "error",
+        title: "Error de conexión",
+        text: err.message || "No se pudo conectar con el servidor."
+      });
     });
-}
+  }
+
 
 
 function tieneRol(rolRequerido) {
@@ -228,19 +208,6 @@ function tieneRol(rolRequerido) {
     return usuario.rol === rolRequerido;
 }
 
-function verificarPermisosAdmin() {
-    if (!tieneRol('Admin')) {
-        Swal.fire({
-            title: "Acceso denegado",
-            text: "No tienes permisos para acceder a esta sección",
-            icon: "error"
-        }).then(() => {
-            window.location.href = 'home.html';
-        });
-        return false;
-    }
-    return true;
-}
 
 async function cargarDatosPerfil() {
     const token = localStorage.getItem('token');

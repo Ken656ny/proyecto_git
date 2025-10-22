@@ -507,7 +507,7 @@ SECCION DE NOTIFICACIONES
     background-color: var(--color--fondos);
     width: 985px;
     height: 425px;
-    margin: auto;
+    margin: 120px auto;
     border: 1px solid var(--color-bor-contain);
     border-radius: 40px;
     display: grid;

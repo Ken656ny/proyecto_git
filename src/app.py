@@ -24,7 +24,6 @@ from functools import wraps
 app = Flask(__name__)
 app.secret_key = 'secretkey'
 CORS(app)
-CORS(app, resources={r"/api/*": {"origins": ["http://127.0.0.1:5502"]}})
 Swagger(app)
 
 # RUTA PRINCIPAL PARA VISUALIZAR SI EL SERVIDOR ESTA CORRIENDO CON NORMALIDAD
@@ -88,7 +87,7 @@ def rol_requerido(rol_requerido):
                 
 
                 if rol_usuario != rol_requerido:
-                    return jsonify({"Mensaje": "No tienes permisos para esta acción"}), 403
+                    return jsonify({"Mensaje": "No tienes permisos para esta sección"}), 403
                 
                 return f(*args, **kwargs)
                 
@@ -104,6 +103,7 @@ def rol_requerido(rol_requerido):
 
 # RUTA PARA VALIDACION DE LOGIN
 @app.route('/login', methods=['POST'])
+
 def login():
     try:
         data = request.get_json()
@@ -297,7 +297,6 @@ def perfil():
 # ------------------------------
 # SECCION DE GESTIONAR PORCINOS
 # ------------------------------
-
 
 # RUTA PARA CONSULTAR TODOS LOS PORCINOS
 @app.route('/porcino', methods=['GET'])
