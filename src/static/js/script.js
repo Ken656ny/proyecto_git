@@ -1087,20 +1087,29 @@ function consulta_dietas(dietas){
 function crearFilaDieta(item) {
     const uniqueId = item.id_dieta;
     
-    // Formatear los elementos para mostrar
-    const elementosFormateados = Array.isArray(item.elementos) 
-        ? item.elementos.map(e => `${e.nombre}: ${e.valor}`).join(', ')
-        : item.elementos;
     
     // Formatear alimentos
     const alimentosFormateados = Array.isArray(item.alimentos)
-        ? item.alimentos.join(', ')
-        : item.alimentos;
+    ? item.alimentos.map(a => `${a.nombre || 'N/A'}`).join(', ')
+    : 'N/A';
+
+    let elementosGlobal = [];
+
+    if (Array.isArray(item.alimentos)){
+        item.alimentos.forEach(alimento => {
+            if (Array.isArray(alimento.elementos)){
+                alimento.elementos.forEach(e => {
+                    elementosGlobal.push(`${e.nombre_elemento || 'N/A'}`);
+                })
+            }
+        })
+    }
+    
+    const elementosFormateados = elementosGlobal.join(', ');
 
     return `
-    <tr class="registro registro__dia">
+   <tr class="registro registro__dia">
         <td class="td__border__l">${item.id_dieta || 'N/A'}</td>
-        <td>${item.id}</td>
         <td>${alimentosFormateados}</td> 
         <td>${elementosFormateados}</td>
         <td class="td__border__r">

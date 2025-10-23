@@ -950,6 +950,7 @@ def consulta_dietas():
                 dietas_agrupadas = {}
                 for dieta in dietas:
                     id_dieta = dieta['id_dieta']
+                    nombre_alimento = dieta['nombre_alimento']
                     
                     if id_dieta not in dietas_agrupadas:
                         dietas_agrupadas[id_dieta] = {
@@ -957,18 +958,26 @@ def consulta_dietas():
                             "fecha": str(dieta['fecha']),
                             "nombre_dieta": dieta['nombre_dieta'],
                             "id_usuario": dieta['id_usuario'],
-                            "alimentos": []
+                            "alimentos": {}
                         }
+                    dieta_actual = dietas_agrupadas[id_dieta]
                     
-                    dietas_agrupadas[id_dieta]["alimentos"].append({
-                        "cantidad_alimento": dieta['cantidad_alimento'],
-                        "nombre_alimento": dieta['nombre_alimento'],
+                    if nombre_alimento not in dieta_actual['alimentos']:
+                      dieta_actual['alimentos'][nombre_alimento]={
+                        "nombre": nombre_alimento,
+                        "cantidad": dieta['cantidad_alimento'],
+                        "elementos": []
+                      }
+                    
+                    dieta_actual['alimentos'][nombre_alimento]['elementos'].append({
                         "nombre_elemento": dieta['nombre_elemento'],
                         "ate_id": dieta['ate_id']
                     })
-                
+                lista_dietas = list(dietas_agrupadas.values())
+                for dieta in lista_dietas:
+                  dieta['alimentos'] = list(dieta['alimentos'].values())
                 return jsonify({
-                    "dietas": list(dietas_agrupadas.values())
+                    "dietas": lista_dietas
                 })
                 
     except Exception as e:
