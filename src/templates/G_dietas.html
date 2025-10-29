@@ -58,7 +58,7 @@
                     </li>
                     <li>
                         <a href="#">
-                            <img src="../static/iconos/icon plate.svg" width="20px" alt="" class="icons-bar">
+                            <img src="../static/iconos/icon plate.svg" onclick="redirectWithDelay(event, 'G_dietas.html')"  width="20px" alt="" class="icons-bar">
                             <span>Dietas</span>
                         </a>
                     </li>
@@ -106,27 +106,18 @@
         <section class="container container__search__bar">
             
             <img src="/src/static/iconos/icon lupa.svg" alt="">
-            <input type = "number" class = "input__id" id="input_id" placeholder = "Buscar Alimentos" min="0" oninput = "this.value = Math.abs(this.value)">
+            <input type = "number" class = "input__id" id="input_id" placeholder = "Buscar Dietas" min="0" oninput = "this.value = Math.abs(this.value)">
             <div class="container__filtro">
                 <img src="/src/static/iconos/icon filter.svg" alt="" id="svg__filter">
-                <select name="" id="" class="filter">
-                    <option value="" disabled selected >Filtrar por...</option>
-                    <option value="">Sexo</option>
-                    <option value="">Raza</option>
-                    <option value="">Etapa de vida</option>
-                    <option value="">Peso final</option>
-                    <option value="">Estado</option>
-                    <option value="">Consultar todo</option>
-                </select>
             </div>
             
-            <button type="button" class="btn" onclick="consulta_individual_porcino()">Consultar</button>
+            <button type="button" class="btn" onclick="cargarDietaId()" id="ConsultaBtn">Consultar</button>
         </section>
         
         <div class="container__btn__options">
             <div class="container__btn__agregar">
                 <img src="/src/static/iconos/icon add.svg" alt="" class="svg__add">
-                <button type="button" class="btn btn--agregar" onclick="consulta_dietas()">Agregar Dieta</button>
+                <button type="button" class="btn btn--agregar">Agregar Dieta</button>
             </div>
         </div>
         
@@ -148,17 +139,20 @@
         
     </section>
 </section>
-<button onclick="probarDietas()" style="background: #4CAF50; color: white; padding: 10px; margin: 10px;">
-    🧪 Probar Carga de Dietas
-</button>
-
+<script src="../static/js/script.js"></script>
 <script>
-function probarDietas() {
-    console.clear();
-    consulta_dietas();
+function cargarDietaId() {
+    const input = document.getElementById('input_id');
+    const id = parseInt(input.value);
+    
+    if (id > 0) {
+        consulta_dieta_id(id);
+    } else {
+        alert("Ingresa un ID válido");
+    }
 }
+    consulta_dietas();
 </script>
 
 </body>
-<script src="../static/js/script.js"></script>
 </html>

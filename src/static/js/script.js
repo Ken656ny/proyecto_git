@@ -1121,3 +1121,78 @@ function crearFilaDieta(item) {
     ${crearDialogtDeleteRaza(item, uniqueId)}
     `;
 }
+
+//Consulta individual dietas 
+
+function consulta_dieta_id(id_dieta){
+    const tablaDietas = document.getElementById('dietas');
+    
+    // Limpiar tabla primero
+    tablaDietas.innerHTML = '';
+    
+    fetch(`${URL_BASE}/consulta_dieta_id/${id_dieta}`, { method: "GET" })
+    .then(res => res.json())
+    .then(data => {
+        console.log("Datos recibidos:", data);
+        
+        if (!data || Object.keys(data).length === 0 ||data.mensaje) {
+            tablaDietas.innerHTML = `
+                <tr>
+                    <td colspan="5" class="text-center">No hay dietas registradas</td>
+                </tr>
+            `;
+            return;
+        }
+        
+        // Construir filas con los datos
+        
+        tablaDietas.innerHTML = crearFilaDieta(data);
+        
+    })
+    .catch(error => {
+        console.error("Error al cargar dietas:", error);
+        tablaDietas.innerHTML = `
+            <tr>
+                <td colspan="5" class="text-center error">Error al cargar las dietas</td>
+            </tr>
+        `;
+    });
+}
+
+function crearFilaDieta(item) {
+    const uniqueId = item.id_dieta;
+    
+    
+    // Formatear alimentos
+    const alimentosFormateados = Array.isArray(item.alimentos)
+    ? item.alimentos.map(a => `${a.nombre || 'N/A'}`).join(', ')
+    : 'N/A';
+
+    let elementosGlobal = [];
+
+    if (Array.isArray(item.alimentos)){
+        item.alimentos.forEach(alimento => {
+            if (Array.isArray(alimento.elementos)){
+                alimento.elementos.forEach(e => {
+                    elementosGlobal.push(`${e.nombre_elemento || 'N/A'}`);
+                })
+            }
+        })
+    }
+    
+    const elementosFormateados = elementosGlobal.join(', ');
+
+    return `
+   <tr class="registro registro__dia">
+        <td class="td__border__l">${item.id_dieta || 'N/A'}</td>
+        <td>${alimentosFormateados}</td> 
+        <td>${elementosFormateados}</td>
+        <td class="td__border__r">
+            ${crearIconosAccionesRaza(uniqueId)}
+        </td>
+    </tr>
+    ${crearDialogEyeRaza(item, uniqueId)}
+    ${crearDialogEditRaza(item, uniqueId)}
+    ${crearDialogtDeleteRaza(item, uniqueId)}
+    `;
+}

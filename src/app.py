@@ -983,19 +983,172 @@ def consulta_dietas():
     except Exception as e:
         print(f"Error en consulta_dietas: {e}")
         return jsonify({"error": "Error al consultar las dietas"})   
+      
+# RUTA CONSULTA INDIVIDUAL 
+
+@app.route('/consulta_dieta_id/<int:id>', methods=['POST', 'GET'])
+def consulta_dieta_id(id):
+  try:
+    with config['development'].conn() as conn:
+      with conn.cursor() as cur:
+        cur.execute('''
+                    SELECT
+                        dp.id_dieta,
+                        dp.fecha,
+                        dp.nombre_dieta,
+                        dp.id_usuario,
+                        da.cantidad_alimento,
+                        AL.descripcion AS nombre_alimento,
+                        E.nombre AS nombre_elemento,
+                        ATE.id as ate_id
+                    FROM dietas_principal dp
+                    JOIN dieta_alimentos da ON dp.id_dieta = da.id_dieta
+                    JOIN alimento_tiene_elemento ATE ON da.id_alimento_tiene_elemento = ATE.id
+                    JOIN alimentos AL ON ATE.id_alimento = AL.id_alimento
+                    JOIN elementos E ON ATE.id_elemento = E.id_elemento
+                    WHERE dp.id_dieta = %s
+                    
+                    ORDER BY dp.id_dieta
+                ''', (id,))
+        
+        dietas = cur.fetchall()
+                
+        if not dietas:
+          return jsonify({"mensaje": "No se encontraron dietas"})
+         
+        dietas_agrupadas = {}
+        for dieta in dietas:
+             id_dieta = dieta['id_dieta']
+             nombre_alimento = dieta['nombre_alimento']
+             
+             if id_dieta not in dietas_agrupadas:
+                 dietas_agrupadas[id_dieta] = {
+                     "id_dieta": id_dieta,
+                     "fecha": str(dieta['fecha']),
+                     "nombre_dieta": dieta['nombre_dieta'],
+                     "id_usuario": dieta['id_usuario'],
+                     "alimentos": {}
+                 }
+             dieta_actual = dietas_agrupadas[id_dieta]
+             
+             if nombre_alimento not in dieta_actual['alimentos']:
+               dieta_actual['alimentos'][nombre_alimento]={
+                 "nombre": nombre_alimento,
+                 "cantidad": dieta['cantidad_alimento'],
+                 "elementos": []
+               }
+             
+             dieta_actual['alimentos'][nombre_alimento]['elementos'].append({
+                 "nombre_elemento": dieta['nombre_elemento'],
+                 "ate_id": dieta['ate_id']
+             })
+             
+        lista_dietas = list(dietas_agrupadas.values())
+        
+        for dieta in lista_dietas:
+          dieta['alimentos'] = list(dieta['alimentos'].values())
+        if lista_dietas:
+                    return jsonify(lista_dietas[0])
+        else:
+                    return jsonify({"mensaje": "No se encontró la dieta"}), 404
+  except Exception as e:
+    print(e)
 
 # RUTA PARA ELIMINAR DIETAS
 
 @app.route('/eliminar_dieta/<int:id>', methods=['DELETE'])
-def delete_dietas():
-  try:
-    with config['development'].conn() as conn:
-      with conn.cursor() as cur:
-        cur.execute('DELETE from dietas where id = %s', (id,))
-        conn.commit()
-      return jsonify({"mensaje": f"Dieta con el id {id} eliminada exitosamente"})
-  except Exception as e:
-    return print(e)
+def eliminar_dieta(id):
+    try:
+        sql_query = "DELETE FROM dietas_principal WHERE id_dieta = %s" 
+
+        with config['development'].conn() as conn:
+            with conn.cursor() as cur:
+                cur.execute(sql_query, (id,))
+                
+                if cur.rowcount == 0:
+                    return jsonify({"mensaje": f"Dieta con ID {id} no encontrada para eliminar."}), 404
+                conn.commit()
+                return jsonify({"mensaje": f"Dieta con ID {id} eliminada correctamente."}), 200
+      
+
+    except Exception as e:
+        print(f"Error al eliminar la dieta (ID: {id}): {e}")
+        return jsonify({"error": "Error interno al procesar la eliminación."}), 500
+      
+# ACTUALIZAR DIETA
+      
+@app.route('/actualizar_dieta/<int:id>', methods=['PUT', 'PATCH'])
+def actualizar_dieta(id):
+    try:
+        data = request.get_json()
+        if not data:
+            return jsonify({"error": "No se proporcionaron datos para actualizar."}), 400
+
+        # --- 1. Obtener y Validar datos principales y de alimentos ---
+        nombre_dieta = data.get('nombre_dieta')
+        fecha = data.get('fecha')
+        alimentos_modificaciones = data.get('alimentos_modificaciones', [])
+
+        if not (nombre_dieta or fecha or alimentos_modificaciones):
+             return jsonify({"error": "Se requiere al menos 'nombre_dieta', 'fecha' o 'alimentos_modificaciones' para actualizar."}), 400
+
+        # --- 2. Iniciar Transacción y Lógica de Actualización ---
+        with config['development'].conn() as conn:
+            with conn.cursor() as cur:
+                
+                # 2.1. Actualizar dietas_principal si hay cambios
+                set_parts = []
+                params = []
+                if nombre_dieta:
+                    set_parts.append("nombre_dieta = %s")
+                    params.append(nombre_dieta)
+                if fecha:
+                    set_parts.append("fecha = %s")
+                    params.append(fecha)
+
+                if set_parts:
+                    params.append(id)
+                    sql_query_principal = f"UPDATE dietas_principal SET {', '.join(set_parts)} WHERE id_dieta = %s"
+                    cur.execute(sql_query_principal, tuple(params))
+                    
+                    # Verificar si la dieta existe antes de proceder con los alimentos
+                    if cur.rowcount == 0:
+                        return jsonify({"mensaje": f"Dieta con ID {id} no encontrada para actualizar."}), 404
+                
+                # 2.2. Procesar Modificaciones de Alimentos (dieta_alimentos)
+                for mod in alimentos_modificaciones:
+                    accion = mod.get('accion', '').upper()
+                    
+                    if accion == 'AGREGAR':
+                        cantidad = mod.get('cantidad_alimento')
+                        ate_id = mod.get('id_alimento_tiene_elemento')
+                        if cantidad and ate_id:
+                            sql_insert = "INSERT INTO dieta_alimentos (id_dieta, cantidad_alimento, id_alimento_tiene_elemento) VALUES (%s, %s, %s)"
+                            cur.execute(sql_insert, (id, cantidad, ate_id))
+                    
+                    elif accion == 'ELIMINAR':
+                        da_id = mod.get('id_dieta_alimento')
+                        if da_id:
+                            sql_delete = "DELETE FROM dieta_alimentos WHERE id = %s AND id_dieta = %s"
+                            cur.execute(sql_delete, (da_id, id))
+                            
+                    elif accion == 'ACTUALIZAR':
+                        da_id = mod.get('id_dieta_alimento')
+                        cantidad = mod.get('cantidad_alimento')
+                        if da_id and cantidad:
+                            sql_update = "UPDATE dieta_alimentos SET cantidad_alimento = %s WHERE id = %s AND id_dieta = %s"
+                            cur.execute(sql_update, (cantidad, da_id, id))
+                
+                conn.commit() 
+
+                return jsonify({"mensaje": f"Dieta con ID {id} y sus alimentos actualizados correctamente."}), 200
+
+    except Exception as e:
+        print(f"Error al actualizar la dieta (ID: {id}): {e}")
+        # En caso de error, si estás en una transacción, deberías hacer un rollback
+        # return jsonify({"error": "Error interno al procesar la actualización."}), 500
+        return jsonify({"error": "Error interno al procesar la actualización.", "detalle": str(e)}), 500
+
     
 if __name__ == '__main__':
   app.run(debug = True)
