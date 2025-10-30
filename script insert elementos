@@ -1,0 +1,15 @@
+INSERT INTO elementos (nombre_elemento) VALUES 
+('Proteina_cruda'),
+('Fosforo'),
+('Treitona'),
+('Fibra_cruda'),
+('Sodio'),
+('Metionina'),
+('Materia_seca'),
+('Extracto_etereo'),
+('Arginina'),
+('Metionina_Cisteina'),
+('Energia_metabo'),
+('Calcio'),
+('Lisina'),
+('Triptofano');
