@@ -10,7 +10,7 @@ from flasgger import Swagger
 # IMPORTO EL DICCIONARIO CONFIG EN LA POSICION DEVELOPMENT PARA ACCEDER LA INFORMACION DE CONEXION DE LA
 # BASE DE DATOS, DENTRO DE ESA CLASE HAY UN CLASSMETHOD QUE RETORNA LA CONEXION CON LA BASE DE DATOS
 from config import config
-
+from pymysql.err import IntegrityError
 import os
 import json
 from werkzeug.utils import secure_filename
@@ -731,17 +731,69 @@ def eliminar_alimento(id):
       return jsonify({"mensaje": f"Alimento con id {id} eliminado correctamente"})
   except Exception as e:
       return jsonify({"error": str(e)})
-    
+
+@app.route("/alimentos_disponible", methods=["GET"])
+def consulta_alimento_disponible():
+    """
+    Consultar Alimentos disponibles
+    ---
+    tags:
+      - Gestion de Alimentos
+    responses:
+      200:
+        description: Lista de alimentos disponibles
+    """
+    try:
+        with config['development'].conn() as conn:
+            with conn.cursor() as cur:
+                cur.execute("""
+                    SELECT 
+                        a.id_alimento,
+                        a.nombre AS nombre_alimento,
+                        a.imagen AS imagen_alimento,  
+                        e.nombre AS nombre_elemento,
+                        a.estado AS estado_alimento,
+                        ate.valor
+                    FROM alimentos a
+                    JOIN alimento_tiene_elemento ate ON a.id_alimento = ate.id_alimento
+                    JOIN elementos e ON e.id_elemento = ate.id_elemento
+                    WHERE a.estado = 'activo'  
+                """)
+                filas = cur.fetchall()
+
+        if not filas:
+            return jsonify({"mensaje": "No se encontraron alimentos disponibles"})
+
+        agrupado = {}
+        for fila in filas:
+            id_alimento = fila["id_alimento"]
+            if id_alimento not in agrupado:
+                agrupado[id_alimento] = {
+                    "id_alimento": id_alimento,
+                    "nombre": fila["nombre_alimento"],
+                    "imagen": fila["imagen_alimento"],  
+                    "estado": fila["estado_alimento"], 
+                    "elementos": []
+                }
+            agrupado[id_alimento]["elementos"].append({
+                "nombre": fila["nombre_elemento"],
+                "valor": float(fila["valor"])
+            })
+
+        resultado = list(agrupado.values())
+        return jsonify({"mensaje": resultado})
+
+    except Exception as e:
+        return jsonify({"error": str(e)})
+
 @app.route("/registrar_alimento/", methods=["POST"])
 def registrar_alimento():
     try:
         nombre = request.form.get("nombre_alimento")
         elementos = request.form.get("elementos")
         imagen_file = request.files.get("imagen")
-
         if not nombre:
             return jsonify({"error": "El nombre del alimento es obligatorio"}), 400
-
         if imagen_file and imagen_file.filename != "":
             filename = secure_filename(imagen_file.filename)
             ruta = os.path.join(app.config["cargar_imagenes"], filename)
@@ -749,11 +801,9 @@ def registrar_alimento():
             imagen_web = f"/static/imagenes/{filename}"
         else:
             imagen_web = None
-
         with config['development'].conn() as conn:
             with conn.cursor() as cur:
                 id_usuario = 1066872759
-
                 cur.execute(
                     """
                     INSERT INTO alimentos (nombre, estado, imagen, id_usuario)
@@ -762,7 +812,6 @@ def registrar_alimento():
                     (nombre, "activo", imagen_web, id_usuario)
                 )
                 id_alimento = cur.lastrowid
-
                 if elementos:
                     elementos = json.loads(elementos)
                     for elem in elementos:
@@ -773,7 +822,6 @@ def registrar_alimento():
                             """,
                             (id_alimento, elem["id"], elem["valor"])
                         )
-
                 conn.commit()
 
         return jsonify({
@@ -784,6 +832,58 @@ def registrar_alimento():
 
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+
+      
+@app.route("/consulta_indi_alimento_disponible/<nombre>", methods=["GET"])
+def consulta_individual_alimento_disponible(nombre):
+    """
+    Consultar un alimento individual (solo si está disponible)
+    """
+    try:
+        with config['development'].conn() as conn:
+            with conn.cursor() as cur:
+                cur.execute("""
+                    SELECT 
+                        a.id_alimento, 
+                        a.nombre AS nombre_alimento, 
+                        a.imagen AS imagen_alimento,
+                        e.nombre AS nombre_elemento,
+                        a.estado,
+                        ate.valor 
+                    FROM alimentos a
+                    JOIN alimento_tiene_elemento ate ON a.id_alimento = ate.id_alimento
+                    JOIN elementos e ON e.id_elemento = ate.id_elemento
+                    WHERE a.nombre = %s AND a.estado = 'disponible'
+                """, (nombre,))
+                
+                filas = cur.fetchall()
+                
+                # Si no hay resultados
+                if not filas:
+                    return jsonify({"mensaje": None})
+                
+                # Estructurar respuesta
+                alimento = {
+                    "id_alimento": filas[0]["id_alimento"],
+                    "nombre": filas[0]["nombre_alimento"],
+                    "imagen": filas[0]["imagen_alimento"],
+                    "estado": filas[0]["estado"],  
+                    "elementos": []
+                }
+                
+                for fila in filas:
+                    alimento["elementos"].append({
+                        "nombre": fila["nombre_elemento"],
+                        "valor": float(fila["valor"])
+                    })
+                
+                return jsonify({"mensaje": alimento})
+                
+    except Exception as e:
+        return jsonify({"error": str(e)})
+
+
+
 @app.route("/consulta_indi_alimento/<nombre>", methods=["GET"])
 def consulta_individual_alimento(nombre):
     try:
@@ -823,6 +923,73 @@ def consulta_individual_alimento(nombre):
                 return jsonify({"mensaje": alimento})
     except Exception as e:
         return jsonify({"error": str(e)})
+      
+      
+@app.route("/actualizar_alimento/<int:id_alimento>", methods=["PUT", "POST"])
+def actualizar_alimento(id_alimento):
+    try:
+        if request.content_type.startswith("multipart/form-data"):
+            nombre = request.form.get("nombre")
+            estado = request.form.get("estado", "activo")
+            elementos = json.loads(request.form.get("elementos", "[]"))
+            imagen_file = request.files.get("imagen")
+        else:
+            data = request.get_json()
+            nombre = data.get("nombre")
+            estado = data.get("estado", "activo")
+            elementos = data.get("elementos", [])
+            imagen_file = None
+
+        if not nombre:
+            return jsonify({"error": "El nombre del alimento es obligatorio."}), 400
+
+        imagen_web = None
+        if imagen_file and imagen_file.filename != "":
+            filename = secure_filename(imagen_file.filename)
+            ruta = os.path.join(app.config["cargar_imagenes"], filename)
+            imagen_file.save(ruta)
+            imagen_web = f"/static/imagenes/{filename}"
+
+        with config['development'].conn() as conn:
+            with conn.cursor() as cur:
+
+                if imagen_web:
+                    cur.execute("""
+                        UPDATE alimentos 
+                        SET nombre = %s, estado = %s, imagen = %s 
+                        WHERE id_alimento = %s
+                    """, (nombre, estado, imagen_web, id_alimento))
+                else:
+                    cur.execute("""
+                        UPDATE alimentos 
+                        SET nombre = %s, estado = %s
+                        WHERE id_alimento = %s
+                    """, (nombre, estado, id_alimento))
+
+                for elem in elementos:
+                    cur.execute("""
+                        INSERT INTO alimento_tiene_elemento (id_alimento, id_elemento, valor)
+                        VALUES (%s, %s, %s)
+                        ON DUPLICATE KEY UPDATE valor = VALUES(valor)
+                    """, (id_alimento, elem["id_elemento"], elem["valor"]))
+
+                conn.commit()
+
+        return jsonify({
+            "mensaje": "Alimento actualizado correctamente",
+            "imagen": imagen_web  
+        }), 200
+
+    except IntegrityError as e:
+        if e.args[0] == 1062:
+            return jsonify({"error": f"Ya existe un alimento con el nombre '{nombre}'."}), 400
+        return jsonify({"error": "Error de integridad en la base de datos."}), 400
+
+    except Exception as e:
+        print("Error en actualización:", e)
+        return jsonify({"error": str(e)}), 500
+
+
 
 if __name__ == '__main__':
     app.run(debug=True)

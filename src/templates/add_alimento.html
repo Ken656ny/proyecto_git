@@ -12,7 +12,7 @@
     <title>Edupork</title>
 </head>
 <body class="body__porcinos">
-  <section class="section-nav-bar" >
+  <section class="section-nav-bar">
         <div id="barra_lateral" class="barra-lateral">
             <div id="abrirnav">
                 <div class="logo-edupork">
@@ -22,192 +22,158 @@
             </div>
             <nav class="navegacion">
                 <ul class="ul-navegacion">
-                    <li>
-                        <a href="/src/templates/home.html" onclick="redirectWithDelay(event, 'home.html')" > <!--dar estilo -->
-                            <img src="../static/iconos/home icon.svg" width="20px" alt="" class="icons-bar">
-                            <span>Home</span>
-                        </a>
-                    </li>
-                    <li>
-                                                <a href="/src/templates/notificaciones.html" onclick="redirectWithDelay(event, 'notificaciones.html')">
-
-                            <img src="../static/iconos/notificacions.svg" width="20px" alt="" class="icons-bar">
-                            <span>Notificaciones </span>
-                        </a>
-                    </li>
-                    <li>
-                        <a href="/src/templates/porcinos.html" onclick="redirectWithDelay(event, 'porcinos.html')">
-                            <img src="../static/iconos/icon pig.svg" width="20px" alt="" class="icons-bar">
-                            <span>Porcinos</span>
-                        </a>
-                    </li>
-                    <li>
-                        <a href="/src/templates/alimentos.html" onclick="redirectWithDelay(event, 'alimentos.html')" class="flex-icons">
-
-                            <img src="../static/iconos/icon wheate.svg" title="alimentos" width="20px" alt="" class="icons-bar">
-                            <span>Alimentos</span>
-                        </a>
-                    </li>
-                    <li>
-                        <a href="/src/templates/gestionar_dietas.html" onclick="redirectWithDelay(event, 'gestionar_dietas.html')" >
-                            <img src="../static/iconos/icon plate.svg" width="20px" alt="" class="icons-bar">
-                            <span>Dietas</span>
-                        </a>
-                    </li>
-                    <li>
-                        <a href="">
-                            <img src="../static/iconos/icon page.svg" alt="" class="icons-bar">
-                            <span>Informes</span>
-                        </a>
-                    </li>
-                    <li>
-                        <a href="/src/templates/perfil.html" onclick="redirectWithDelay(event, 'perfil.html')">
-                            <img src="../static/iconos/icon user.svg" width="20px" alt="" class="icons-bar">
-                            <span>Usuario</span>
-                        </a>
-                    </li>
-                    <li>
-                        <a href="/src/templates/configuracion.html" onclick="redirectWithDelay(event, 'configuracion.html')">
-                            <img src="../static/iconos/icon setting.svg" width="20px" alt="" class="icons-bar">
-                            <span>Configuración</span>
-                        </a>
-                    </li>
+                    <li><a href="/src/templates/home.html" onclick="redirectWithDelay(event, 'home.html')"><img src="../static/iconos/home icon.svg" width="20px" alt="" class="icons-bar"><span>Home</span></a></li>
+                    <li><a href="/src/templates/notificaciones.html" onclick="redirectWithDelay(event, 'notificaciones.html')"><img src="../static/iconos/notificacions.svg" width="20px" alt="" class="icons-bar"><span>Notificaciones</span></a></li>
+                    <li><a href="/src/templates/porcinos.html" onclick="redirectWithDelay(event, 'porcinos.html')"><img src="../static/iconos/icon pig.svg" width="20px" alt="" class="icons-bar"><span>Porcinos</span></a></li>
+                    <li><a href="/src/templates/alimentos.html" onclick="redirectWithDelay(event, 'alimentos.html')" class="flex-icons"><img src="../static/iconos/icon wheate.svg" title="alimentos" width="20px" alt="" class="icons-bar"><span>Alimentos</span></a></li>
+                    <li><a href="/src/templates/gestionar_dietas.html" onclick="redirectWithDelay(event, 'gestionar_dietas.html')"><img src="../static/iconos/icon plate.svg" width="20px" alt="" class="icons-bar"><span>Dietas</span></a></li>
+                    <li><a href=""><img src="../static/iconos/icon page.svg" alt="" class="icons-bar"><span>Informes</span></a></li>
+                    <li><a href="/src/templates/perfil.html" onclick="redirectWithDelay(event, 'perfil.html')"><img src="../static/iconos/icon user.svg" width="20px" alt="" class="icons-bar"><span>Usuario</span></a></li>
+                    <li><a href="/src/templates/configuracion.html" onclick="redirectWithDelay(event, 'configuracion.html')"><img src="../static/iconos/icon setting.svg" width="20px" alt="" class="icons-bar"><span>Configuración</span></a></li>
                 </ul>
             </nav>
         </div>
     </section>
-    <section class="section__add__por" >
 
+    <section class="section__add__por">
         <section class="container__logo__user">
-            <div class="container__back__logo" >
-                <a href="alimentos.html">
-                    <img src="/src/static/iconos/back icon.svg" alt="icon back" class="icon__back">
-                </a>
-                <a href="/src/templates/home.html">
-                    <img src="/src/static/iconos/Logo.svg" alt="Logo Edupork" class="logo">
-                </a>
+            <div class="container__back__logo">
+                <a href="alimentos.html"><img src="/src/static/iconos/back icon.svg" alt="Icon Back" class="icon__back"></a>
+                <a href="/src/templates/home.html"><img src="/src/static/iconos/Logo.svg" alt="Logo Edupork" class="logo"></a>
             </div>
             <div class="container__user__btn">
                 <img src="/src/static/iconos/icon user.svg" alt="" class="svg__user">
-                <button type="button" class="btn__perfil">cristhian U</button>
+                <button type="button" class="btn__perfil">Cristhian</button>
             </div>
         </section>
 
         <header class="container container__title">
-            <h1>Registrar alimento</h1>
+            <h1>Registrar Alimento</h1>
         </header>
-        <form onsubmit="consultar_">
 
-
+        <form id="formRegistrar">
             <section class="container container_alimento container__add__por">
                 <div class="seccion1">
-                    <p>inserte una imagen</p>
-                    <input id="imagen"  class="input_add" tabindex="1" placeholder="ingrese una imagen" type="file" accept=".png, .jpeg, .jpg">
-                    <p>proteina cruda(%)</p>
-                    <input class="input_add" tabindex="5" type="number" required step="any" placeholder="ingrese la proteina cruda" id="proteina_cruda">
-                    <p>fosforo (%)</p>
-                    <input class="input_add" tabindex="9" type="number" required step="any" placeholder="ingrese el fosforo" id="fosforo">
-                    <p>treitona(%)</p>
-                    <input class="input_add" tabindex="13" type="number" required step="any" placeholder="ingrese la treitona" id="treitona">
+                    <p>Inserte Una Imagen</p>
+                    <input id="imagen" class="input_add" type="file" accept=".png, .jpeg, .jpg">
+                    <p>Proteína Cruda (%)</p>
+                    <input class="input_add" type="number" required step="any" min="0" placeholder="Ingrese La Proteína Cruda" id="proteina_cruda">
+                    <p>Fósforo (%)</p>
+                    <input class="input_add" type="number" required step="any" min="0" placeholder="Ingrese El Fósforo" id="fosforo">
+                    <p>Treitona (%)</p>
+                    <input class="input_add" type="number" required step="any" min="0" placeholder="Ingrese La Treitona" id="treitona">
                 </div>
+
                 <div class="seccion1">
-                    <p>nombre del alimento</p>
-                    <input class="input_add" tabindex="2" type="text" placeholder="ingrese el nombre" id="nombre">
-                    <p>fibra cruda(%)</p>
-                    <input class="input_add" tabindex="6" type="number" required step="any" placeholder="ingrese la fibra cruda" id="fibra_cruda">
-                    <p>sodio(%)</p>
-                    <input class="input_add" tabindex="10" type="number" required step="any" placeholder="ingrese el sodio" id="sodio">
-                    <p>metionina(%)</p>
-                    <input class="input_add" tabindex="14" type="number" required step="any" placeholder="ingrese la metionina" id="metionina">
+                    <p>Nombre Del Alimento</p>
+                    <input class="input_add" type="text" placeholder="Ingrese El Nombre" id="nombre" required>
+                    <p>Fibra Cruda (%)</p>
+                    <input class="input_add" type="number" required step="any" min="0" placeholder="Ingrese La Fibra Cruda" id="fibra_cruda">
+                    <p>Sodio (%)</p>
+                    <input class="input_add" type="number" required step="any" min="0" placeholder="Ingrese El Sodio" id="sodio">
+                    <p>Metionina (%)</p>
+                    <input class="input_add" type="number" required step="any" min="0" placeholder="Ingrese La Metionina" id="metionina">
                 </div>
+
                 <div class="seccion1">
-                    <p>materia seca(%)</p>
-                    <input class="input_add" tabindex="3" type="number" required step="any" placeholder="ingrese la materia seca" id="materia_seca">
-                    <p>extracto etereo(%)</p>
-                    <input class="input_add" tabindex="7" type="number" required step="any" placeholder="ingrese el extracto etereo" id="extracto_etereo">
-                    <p>arginina(%)</p>
-                    <input class="input_add" tabindex="11" type="number" required step="any" placeholder="ingrese la arginina" id="arginina">
-                    <p>metionina + cisteina(%)</p>
-                    <input class="input_add" tabindex="15" type="number" required step="any" placeholder="ingrese la metionina + cisteina" id="metionina_cistenina">
+                    <p>Materia Seca (%)</p>
+                    <input class="input_add" type="number" required step="any" min="0" placeholder="Ingrese La Materia Seca" id="materia_seca">
+                    <p>Extracto Etéreo (%)</p>
+                    <input class="input_add" type="number" required step="any" min="0" placeholder="Ingrese El Extracto Etéreo" id="extracto_etereo">
+                    <p>Arginina (%)</p>
+                    <input class="input_add" type="number" required step="any" min="0" placeholder="Ingrese La Arginina" id="arginina">
+                    <p>Metionina + Cisteína (%)</p>
+                    <input class="input_add" type="number" required step="any" min="0" placeholder="Ingrese La Metionina + Cisteína" id="metionina_cistenina">
                 </div>
+
                 <div class="seccion1">
-                    <p>Energia M(Kcal/kg)</p>
-                    <input class="input_add" tabindex="4" type="number" required step="any" placeholder="ingrese la energia_metabolizable" id="energia_m">
-                    <p>calcio(%)</p>
-                    <input class="input_add" tabindex="8" type="number" required step="any" placeholder="ingrese el calcio" id="calcio">
-                    <p>lisina(%)</p>
-                    <input class="input_add" tabindex="12" type="number" required step="any" placeholder="ingrese la lisina" id="lisina">
-                    <p>triptofano(%)</p>
-                    <input class="input_add" tabindex="16" type="number" required step="any" placeholder="ingrese el triptofano" id="triptofano">
-    
+                    <p>Energía M (Kcal/kg)</p>
+                    <input class="input_add" type="number" required step="any" min="0" placeholder="Ingrese La Energía Metabolizable" id="energia_m">
+                    <p>Calcio (%)</p>
+                    <input class="input_add" type="number" required step="any" min="0" placeholder="Ingrese El Calcio" id="calcio">
+                    <p>Lisina (%)</p>
+                    <input class="input_add" type="number" required step="any" min="0" placeholder="Ingrese La Lisina" id="lisina">
+                    <p>Triptofano (%)</p>
+                    <input class="input_add" type="number" required step="any" min="0" placeholder="Ingrese El Triptofano" id="triptofano">
                 </div>
-                <input class="input_add1" tabindex="17" value="guardar" type="submit">
+
+                <input class="input_add1" value="Guardar" type="submit">
             </section>
-                
-                
         </form>
-
-
     </section>
-    <script src="/src/static/js/script.js"></script>
+
     <script>
-document.querySelector("form").addEventListener("submit", function (e) {
-  e.preventDefault();
+        document.getElementById("formRegistrar").addEventListener("submit", function (e) {
+    e.preventDefault();
 
-  const formData = new FormData();
-
-  const imagen = document.getElementById("imagen").files[0];
-  formData.append("imagen", imagen);
-
-  const nombre = document.getElementById("nombre").value;
-  formData.append("nombre_alimento", nombre);
-
-  const elementos = [
-    { id: 1, valor: parseFloat(document.getElementById("proteina_cruda").value) || 0 },
-    { id: 2, valor: parseFloat(document.getElementById("treitona").value) || 0 },
-    { id: 3, valor: parseFloat(document.getElementById("fosforo").value) || 0 },
-    { id: 4, valor: parseFloat(document.getElementById("fibra_cruda").value) || 0 },
-    { id: 5, valor: parseFloat(document.getElementById("sodio").value) || 0 },
-    { id: 6, valor: parseFloat(document.getElementById("metionina").value) || 0 },
-    { id: 7, valor: parseFloat(document.getElementById("materia_seca").value) || 0 },
-    { id: 8, valor: parseFloat(document.getElementById("extracto_etereo").value) || 0 },
-    { id: 9, valor: parseFloat(document.getElementById("arginina").value) || 0 },
-    { id: 10, valor: parseFloat(document.getElementById("metionina_cistenina").value) || 0 },
-    { id: 11, valor: parseFloat(document.getElementById("calcio").value) || 0 },
-    { id: 12, valor: parseFloat(document.getElementById("lisina").value) || 0 },
-    { id: 13, valor: parseFloat(document.getElementById("triptofano").value) || 0 },
-    { id: 14, valor: parseFloat(document.getElementById("energia_m").value) || 0 }
-  ];
-  formData.append("elementos", JSON.stringify(elementos));
-
-  fetch("http://127.0.0.1:5000/registrar_alimento/", {
-    method: "POST",
-    body: formData  
-  })
-  .then(async res => {
-      const text = await res.text();
-      if (!text) throw new Error("Respuesta vacía del servidor");
-      return JSON.parse(text);
-  })
-.then(res => {
-    if (res.mensaje) {
-        Swal.fire({
-            title: "registrado",
-            text: res.mensaje,
-            icon: "success",
-            confirmButtonText: "Aceptar"
-        }).then((result) => {
-            if (result.isConfirmed) {
-                window.location.href = "alimentos.html";
-            }
-        });
-    } else if (res.error) {
-        Swal.fire("Error", res.error, "error");
+    const numeros = document.querySelectorAll('input[type="number"]');
+    for (let input of numeros) {
+        if (parseFloat(input.value) < 0) {
+            Swal.fire({
+                title: "Valor inválido",
+                text: "No se permiten números negativos.",
+                icon: "warning",
+                confirmButtonText: "Entendido"
+            });
+            return; 
+        }
     }
-})
-  .catch(err => Swal.fire("Error", err.message, "error"));
-});
-</script>
 
+    const formData = new FormData();
+    const imagen = document.getElementById("imagen").files[0];
+    if (imagen) {
+        formData.append("imagen", imagen);
+    }
+
+    formData.append("nombre_alimento", document.getElementById("nombre").value);
+
+    const elementos = [
+        { id: 1, valor: parseFloat(document.getElementById("proteina_cruda").value) || 0 },
+        { id: 2, valor: parseFloat(document.getElementById("treitona").value) || 0 },
+        { id: 3, valor: parseFloat(document.getElementById("fosforo").value) || 0 },
+        { id: 4, valor: parseFloat(document.getElementById("fibra_cruda").value) || 0 },
+        { id: 5, valor: parseFloat(document.getElementById("sodio").value) || 0 },
+        { id: 6, valor: parseFloat(document.getElementById("metionina").value) || 0 },
+        { id: 7, valor: parseFloat(document.getElementById("materia_seca").value) || 0 },
+        { id: 8, valor: parseFloat(document.getElementById("extracto_etereo").value) || 0 },
+        { id: 9, valor: parseFloat(document.getElementById("arginina").value) || 0 },
+        { id: 10, valor: parseFloat(document.getElementById("metionina_cistenina").value) || 0 },
+        { id: 11, valor: parseFloat(document.getElementById("calcio").value) || 0 },
+        { id: 12, valor: parseFloat(document.getElementById("lisina").value) || 0 },
+        { id: 13, valor: parseFloat(document.getElementById("triptofano").value) || 0 },
+        { id: 14, valor: parseFloat(document.getElementById("energia_m").value) || 0 }
+    ];
+    formData.append("elementos", JSON.stringify(elementos));
+
+    fetch("http://127.0.0.1:5000/registrar_alimento", {
+        method: "POST",
+        body: formData
+    })
+    .then(async res => {
+        const text = await res.text();
+        if (!text) throw new Error("Respuesta vacía del servidor");
+        return JSON.parse(text);
+    })
+    .then(res => {
+        if (res.mensaje) {
+            Swal.fire({
+                title: "Registrado",
+                text: res.mensaje,
+                icon: "success",
+                confirmButtonText: "Aceptar",
+                allowOutsideClick: false,
+                allowEscapeKey: false
+            }).then(result => {
+                if (result.isConfirmed) {
+                    window.location.href = "alimentos.html";
+                }
+            });
+        } else if (res.error) {
+            Swal.fire("Error", res.error, "error");
+        }
+    })
+    .catch(err => Swal.fire("Error", err.message, "error"));
+});
+    </script>
 </body>
 </html>

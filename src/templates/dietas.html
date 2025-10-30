@@ -57,14 +57,13 @@
                         </a>
                     </li>
                     <li>
-                        <a href="/src/templates/dietas.html"
-                            onclick="redirectWithDelay(event, 'dietas.html')">
+                        <a href="/src/templates/dietas.html">
                             <img src="../static/iconos/icon plate.svg" width="20px" alt="" class="icons-bar">
                             <span>Dietas</span>
                         </a>
                     </li>
                     <li>
-                        <a href="">
+                        <a href="#">
                             <img src="../static/iconos/icon page.svg" alt="" class="icons-bar">
                             <span>Informes</span>
                         </a>
@@ -86,8 +85,7 @@
             </nav>
         </div>
     </section>
-    <section class="section__porcinos">
-
+    <section class="section__porcinos section-contenido">
         <section class="container__logo__user">
             <div class="container__back__logo">
                 <img src="/src/static/iconos/back icon.svg" alt="icon back" class="icon__back">
@@ -97,67 +95,75 @@
             </div>
             <div class="container__user__btn">
                 <img src="/src/static/iconos/icon user.svg" alt="" class="svg__user">
-                <button type="button" class="btn__perfil">cristhian</button>
+                <button type="button" class="btn__perfil">Cristhian</button>
             </div>
         </section>
 
         <header class="container container__title">
-            <h1>Gestionar Alimentos</h1>
+            <h1>Gestionar Dietas</h1>
         </header>
 
-        <section class="container container__search__bar_alimentos">
-            <div class="separador">
-                <img src="/src/static/iconos/icon lupa.svg" alt="">
-                <input type="text" class="input__id" id="id_alimento" placeholder="Nombre del alimento"
-                    list="lista_alimentos">
-                <datalist id="lista_alimentos"></datalist>
-                <label onclick="consulta_alimentos()" class="contenedor">
-                    <p class="color_linea">consultar todo</p>
-                </label>
-            </div>
-            <div class="final_buttom">
-                <button type="button" class="btn" onclick="consulta_individual_alimento()">Consultar</button>
-            </div>
-        </section>
+        <section class="container container__search__bar">
 
+            <img src="/src/static/iconos/icon lupa.svg" alt="">
+            <input type="number" class="input__id" id="input_id" placeholder="Ingrese el ID de la dieta" min="0"
+                oninput="this.value = Math.abs(this.value)">
+            <div class="container__filtro">
+                <img src="/src/static/iconos/icon filter.svg" alt="" id="svg__filter">
+                <select name="" id="" class="filter">
+                    <option value="" disabled selected>Filtrar por...</option>
+                    <option value="">Sexo</option>
+                    <option value="">Raza</option>
+                    <option value="">Etapa de vida</option>
+                    <option value="">Peso final</option>
+                    <option value="">Estado</option>
+                    <option value="">Consultar todo</option>
+                </select>
+            </div>
+
+            <button type="button" class="btn" onclick="consulta_individual_porcino()">Consultar</button>
+        </section>
 
         <div class="container__btn__options">
             <div class="container__btn__agregar">
                 <img src="/src/static/iconos/icon add.svg" alt="" class="svg__add">
                 <button type="button" class="btn btn--agregar"
-                    onclick="location.href = '/src/templates/add_alimento.html' ">Agregar alimento</button>
+                    onclick="location.href = 'gestionar_dietas.html' ">Agregar Dieta</button>
             </div>
+
         </div>
 
-
-
-        <section class="container__registros">
-            <table class="table__registros">
-                <thead>
+        <section class="container container__registros">
+            <table class="table__registros_dietas">
+                <thead class="tabla-dietas">
                     <tr>
                         <th></th>
-                        <th>ID </th>
-                        <th>Nombre </th>
-                        <th>Materia <br> seca(%)</th>
-                        <th>Energia <br> metabolizable(%)</th>
-                        <th>Proteina<br> cruda(%)</th>
-                        <th>Fibra <br> cruda(%)</th>
-                        <th onclick="ordenarTabla('estado')">Estado <span id="flecha-estado"></span></th>
+                        <th>ID</th>
+                        <th>usuario creador</th>
+                        <th>Fecha</th>
+                        <th>Etapa de vida</th>
+                        <th>Estado</th>
                         <th>Acciones</th>
                     </tr>
-
                 </thead>
-                <tbody class="registros" id="contenido">
-
+                <tbody class="registros_dietas" id="info_porcinos">
+                    <tr class="nuevo1">
+                        <td class="nuevo td__border__l"><img class="svg__alimento"
+                                src="/src/static/iconos/ramen 1.svg"></td>
+                        <td class="nuevo">1</td>
+                        <td class="nuevo">iradys</td>
+                        <td class="nuevo">25-10-2007</td>
+                        <td class="nuevo">inicial</td>
+                        <td class="nuevo">activo</td>
+                        <td class="nuevo td__border__r">acciones</td>
+                    </tr>
                 </tbody>
             </table>
         </section>
     </section>
     <script src="/src/static/js/script.js"></script>
     <script>
-        consulta_alimentos();
-        cargarAutocompletado();
-        
+
     </script>
 </body>
 
