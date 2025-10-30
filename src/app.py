@@ -1167,19 +1167,6 @@ def consulta_alimento():
         return jsonify({"error": str(e)})
 
 
-# RUTA PARA CONSULTAR UN ALIMENTO POR SU ID
-@app.route("/consulta_indi_alimento/<nombre>", methods=["GET"])
-def consulta_individual_alimento(nombre):
-  try:
-      with config['development'].conn() as conn:
-          with conn.cursor() as cur:
-              cur.execute("DELETE FROM alimento_tiene_elemento WHERE id_alimento = %s", (id,))
-              cur.execute("DELETE FROM alimentos WHERE id_alimento = %s", (id,))
-              conn.commit()
-      return jsonify({"mensaje": f"Alimento con id {id} eliminado correctamente"})
-  except Exception as e:
-      return jsonify({"error": str(e)})
-
 @app.route("/alimentos_disponible", methods=["GET"])
 def consulta_alimento_disponible():
     """
