@@ -1116,7 +1116,6 @@ container-button-dele1{
 }
 
 .info-porcino > div > div > .vector-edit, .info_raza_etapa > div > div .vector-edit{
-.info-porcino > div > div > .vector-edit, .info_raza_etapa > div > div .vector-edit{
     position: absolute;
     right: 0;
     bottom: 1px;
@@ -1876,6 +1875,7 @@ SI SALE MAL ES CULPA DE CRISTIAN
     }
     .eliminar{
         cursor: pointer;
+    }
 .contenedor input[type="checkbox"]:checked + .custom-checkbox {
     background-color: #7ed6a3;
 }
