@@ -16,18 +16,18 @@
     <section class="section-nav-bar" >
         <div class="container-user">
             <div class="container__btn__perfil">
-                <img src="../static/iconos/icon user.svg" alt="" width="25" class="svg__user__2">
+                <img src="../static/iconos/icon user.svg" alt="Icono de usuario" width="25" class="svg__user__2">
                 <button type="button" class="btn__perfil">Juan Tovar</button>
             </div>
             <div class="menu">
-                <img src="../static/iconos/menu_icon.svg" alt="" class="menu-icons">
-                <img src="../static/iconos/close_icon.svg" alt="" class="menu-icons">
+                <img src="../static/iconos/menu_icon.svg" alt="Abrir menu" class="menu-icons">
+                <img src="../static/iconos/close_icon.svg" alt="Cerrar menu" class="menu-icons">
             </div>
         </div>
         <div class="barra-lateral">
             <div>
                 <div class="logo-edupork">
-                    <img id="cerdo" class="nombre" src="../static/iconos/cerdo.png" width="20px" alt="">
+                    <img id="cerdo" class="nombre" src="../static/iconos/cerdo.png" width="20px" alt="Cerdo, abrir y cerrar navbar">
                     <span>Edupork</span>
                 </div>
             </div>
@@ -35,49 +35,49 @@
                 <ul class="ul-navegacion">
                     <li>
                         <a href="/src/templates/home.html" onclick="redirectWithDelay(event, 'home.html')" > <!--dar estilo -->
-                            <img src="../static/iconos/home icon.svg" width="20px" alt="" class="icons-bar">
+                            <img src="../static/iconos/home icon.svg" width="20px" alt="Icono de la casa" class="icons-bar">
                             <span>Home</span>
                         </a>
                     </li>
                     <li>
                         <a href="/src/templates/notificaciones.html">
-                            <img src="../static/iconos/notificacions.svg" width="20px" alt="" class="icons-bar">
+                            <img src="../static/iconos/notificacions.svg" width="20px" alt="Icono de notificaciones" class="icons-bar">
                             <span>Notificaciones </span>
                         </a>
                     </li>
                     <li>
                         <a href="/src/templates/porcinos.html" onclick="redirectWithDelay(event, 'porcinos.html')">
-                            <img src="../static/iconos/icon pig.svg" width="20px" alt="" class="icons-bar">
+                            <img src="../static/iconos/icon pig.svg" width="20px" alt="Icono de cerdo" class="icons-bar">
                             <span>Porcinos</span>
                         </a>
                     </li>
                     <li>
                         <a href="/src/templates/alimentos.html" onclick="redirectWithDelay(event, 'alimentos.html')">
-                            <img src="../static/iconos/icon wheate.svg" title="alimentos" width="20px" alt="" class="icons-bar">
+                            <img src="../static/iconos/icon wheate.svg" title="alimentos" width="20px" alt="Icono de alimentos" class="icons-bar">
                             <span>Alimentos</span>
                         </a>
                     </li>
                     <li>
                         <a href="#">
-                            <img src="../static/iconos/icon plate.svg" width="20px" alt="" class="icons-bar">
+                            <img src="../static/iconos/icon plate.svg" width="20px" alt="Icono de dietas" class="icons-bar">
                             <span>Dietas</span>
                         </a>
                     </li>
                     <li>
                         <a href="#">
-                            <img src="../static/iconos/icon page.svg" alt="" class="icons-bar">
+                            <img src="../static/iconos/icon page.svg" alt="Icono de informes" class="icons-bar">
                             <span>Informes</span>
                         </a>
                     </li>
                     <li>
                         <a href="/src/templates/perfil.html" onclick="redirectWithDelay(event, 'perfil.html')">
-                            <img src="../static/iconos/icon user.svg" width="20px" alt="" class="icons-bar">
+                            <img src="../static/iconos/icon user.svg" width="20px" alt="Icono de usuario" class="icons-bar">
                             <span>Usuario</span>
                         </a>
                     </li>
                     <li>
                         <a href="/src/templates/configuracion.html" onclick="redirectWithDelay(event, 'configuracion.html')">
-                            <img src="../static/iconos/icon setting.svg" width="20px" alt="" class="icons-bar">
+                            <img src="../static/iconos/icon setting.svg" width="20px" alt="Icono de configuracion" class="icons-bar">
                             <span>Configuración</span>
                         </a>
                     </li>
@@ -115,17 +115,17 @@
 
         <form class="container container__add__por" onsubmit="event.preventDefault(); agregar_porcino()">
             <div class="container__label__input">
-                <label for="id_porcino"> ID del porcino </label>
-                <input class="input__add__por" type="number" name="id_porcino" id="id_porcino" min="1" oninput = "this.value = Math.abs(this.value)" placeholder="Ingrese el id del porcino" required>
+                <label for="id_porcino"> ID del porcino (Chapeta)</label>
+                <input class="input__add__por" type="number" name="id_porcino" id="id_porcino" min="1" oninput = "this.value = Math.abs(this.value)" placeholder="Ingrese el id numerico" required>
             </div>
 
             <div class="container__label__input">
-                <label for="peso_inicial"> Peso inicial </label>
+                <label for="peso_inicial"> Peso inicial (KG)</label>
                 <input class="input__add__por" type="number" name="peso_inicial" id="peso_inicial" min="1" oninput = "this.value = Math.abs(this.value)" placeholder="Ingrese el peso inicial" required>
             </div>
 
             <div class="container__label__input">
-                <label for="peso_final"> Peso final </label>
+                <label for="peso_final"> Peso final (KG)</label>
                 <input class="input__add__por" type="number" name="peso_final" id="peso_final" min="1" oninput = "this.value = Math.abs(this.value)" placeholder="Ingrese el peso final" required>
             </div>
 
@@ -157,7 +157,7 @@
                 </select>
             </div>
             <div class="container__label__input">
-                <label for="descripcion"> Descripción </label>
+                <label for="descripcion"> Descripción (Opcional)</label>
                 <textarea name="" id="descripcion" class="input__add__por" placeholder="Descripcion del animal."></textarea>
             </div>
             <button type="submit" class="btn btn--guardar">Agregar Porcino</button>
@@ -177,8 +177,8 @@
                 const razas = await consultar_razas();
                 const etapas = await consultar_etapas();
                 
-                llenarSelectDesdeLista(razas.razas, "raza_add", "", "id_raza", "nombre");
-                llenarSelectDesdeLista(etapas.etapas, "etapa_add", "", "id_etapa", "nombre");
+                llenarSelectDesdeLista(razas.razas, "raza_add", "", "id_raza", "nombre","Seleccione una raza");
+                llenarSelectDesdeLista(etapas.etapas, "etapa_add", "", "id_etapa", "nombre", "Seleccione una etapa");
 
             } catch (error) {
                 console.error("Error cargando las listas:", error);

@@ -1,4 +1,3 @@
-/* general (barra de navegacion) */
 :root{
     /* fondo de contenidos */
     --color--fondos:#D9D9D9;
@@ -50,7 +49,6 @@ body{
     width: 100%;
     margin: 0;
 }
-
 /* -------------------
 SECCION DE LOGIN
 ------------------- */
@@ -226,6 +224,7 @@ input, select, textarea {
     background-color: #f1f1f1;
     width: 100%;
     border-radius: 20px;
+    border: 1px solid var(--color-bor-contain);
     padding: 9px;
     transition: all 0.3s ease;
     font-family: var(--fuente--contenido);
@@ -965,7 +964,7 @@ th{
 .info-porcino > div > div > .vector-edit, .info_raza_etapa > div > div .vector-edit{
     position: absolute;
     right: 0;
-    bottom: -2px;
+    bottom: 1px;
     margin-right: 14px;
     z-index: 2;
 }
@@ -1028,19 +1027,19 @@ hr{
 .container__label__input{
     display: flex;
     flex-direction: column;
-    line-height: 3;
+    line-height: 2;
 }
 
 .container__label__input > label{
     font-weight: bolder;
     color: #2C3D31;
+    font-family: var(--fuente--contenido);
 }
 
 .container__label__input > textarea{
     width: 224px;
     height: 40px;
     resize: none;
-
 }
 
 .input__add__por{
@@ -1148,6 +1147,81 @@ hr{
     width: 700px;
 
 }
+
+/* LAYOUT CONTENIDO DE LOS FORMULARIOS DENTRO DE LOS DIALOGS */
+
+.layout_form_dialog{
+    display: flex;
+    flex-direction: column;
+    padding: 0 2em;
+    gap: 1.2em;
+}
+
+
+/* hISTORIAL DE PESOS */
+
+.layout_actualizar_peso{
+    display: flex;
+    flex-direction: row;
+    gap: 1.4em;
+    padding: 2em;
+    border-radius: 20px;
+    border: 1px solid var(--color-bor-contain);
+}
+
+.lay_actu_s1{
+    width: 50%;
+    display: flex;
+    flex-direction: column;
+    gap: 1em;
+}
+
+.span__actu_peso{
+    font-family: var(--fuente--contenido);
+    color: var(--color-bor-btn);
+    font-weight: bold;
+}
+
+.container__label__input__actupeso{
+    display: grid;
+    grid-template-columns: 40% 60%;
+}
+
+.lay_actu_s2{
+    width: 50%;
+    display: grid;
+    grid-template-rows: auto auto 1fr;
+    gap: 0.5em;
+}
+
+#span_fecha{
+    place-self: end;
+}
+
+.container__preview{
+    background-color: #f1f1f1;
+    border-radius: 20px;
+    border: 1px solid var(--color-bor-contain);
+    padding: 1em;
+    font-family: var(--fuente--contenido);
+}
+
+/* LAYOUT DIALOG EYE HISTORIAL DE PESOS */
+.lay_content_histirial{
+    display: grid;
+    grid-template-columns: repeat(3,1fr);
+    column-gap: 1.5em;
+    row-gap: 0.5em;
+}
+
+#textare_eye_historial{
+    grid-column: 1 / 4;
+    overflow: hidden;
+    height: 80px;
+    resize: none;
+}
+
+
 
 /* -------------------
 SECCION DE configuracion
@@ -1752,7 +1826,220 @@ RESPONSIVE BAR
         width: 100%;
     }
 
-    .barra-lateral .navegacion ul{
-        gap: 1rem;
+
+}
+
+
+
+/* -----------------------------------------------------
+📱 LOGIN — Ajustes responsive para móviles y tablets
+-------------------------------------------------------- */
+
+/* 📱 Teléfonos pequeños (hasta 480px) */
+@media (max-width: 480px) {
+
+    .container__form__login {
+        width: 90%;
+        height: auto;
+        padding: 25px 10px;
+        margin: 20px auto;
+        border-radius: 20px;
+    }
+
+    .perfil {
+        width: 80px;
+        height: 80px;
+    }
+
+    .icon {
+        width: 75px;
+    }
+
+    .entrada {
+        width: 90%;
+        height: 40px;
+        font-size: 0.9rem;
+    }
+
+    .InicioGoogle {
+        width: 85%;
+        height: 45px;
+        font-size: 0.9rem;
+    }
+
+    .LogoEdupork {
+        position: relative;
+        width: 70%;
+        height: auto;
+    }
+
+    .body_login {
+        background-size: cover;
+        background-attachment: scroll; /* Evita bugs de fondo fijo en móviles */
+    }
+
+    .label_input, .Registrarse {
+        font-size: 0.9rem;
+        text-align: center;
+    }
+}
+
+/* 📱 Tablets (481px a 768px) */
+@media (min-width: 481px) and (max-width: 768px) {
+    .container__form__login {
+        width: 75%;
+        height: auto;
+        padding: 30px;
+        gap: 15px;
+    }
+
+    .entrada {
+        width: 85%;
+        height: 42px;
+    }
+
+    .InicioGoogle {
+        width: 80%;
+    }
+
+    .perfil {
+        width: 90px;
+        height: 90px;
+    }
+
+    .LogoEdupork {
+        width: 60%;
+        height: auto;
+    }
+}
+
+/* 💻 Laptops pequeñas (769px a 1024px) */
+@media (min-width: 769px) and (max-width: 1024px) {
+    .container__form__login {
+        width: 550px;
+        height: auto;
+        padding: 40px;
+    }
+
+    .entrada {
+        width: 90%;
+    }
+
+    .InicioGoogle {
+        width: 300px;
+    }
+
+    .LogoEdupork {
+        width: 250px;
+    }
+    
+}
+
+/* -----------------------------------------------------
+   📱 REGISTRO — Ajustes responsive para móviles y tablets
+-------------------------------------------------------- */
+
+/* 📱 Teléfonos pequeños (hasta 480px) */
+@media (max-width: 480px) {
+
+    .body__registro {
+        height: auto;
+        flex-direction: column;
+        padding: 20px 0;
+    }
+
+    .container-form {
+        width: 90%;
+        padding: 20px;
+        border-radius: 20px;
+        box-shadow: none;
+    }
+
+    .form__registro {
+        gap: 10px;
+    }
+
+    .label__registro {
+        font-size: 14px;
+        text-align: left;
+    }
+
+    input, select, textarea {
+        width: 100%;
+        font-size: 0.9rem;
+        padding: 8px;
+    }
+
+    fieldset {
+        width: 90%;
+    }
+
+    .button-r {
+        width: 80%;
+        padding: 10px;
+        font-size: 0.9rem;
+    }
+
+    /* Imágenes decorativas */
+    .logoedupork,
+    .rancho,
+    .pasto,
+    .nubes,
+    .nubes2,
+    .porcino {
+        display: none; /* Se ocultan para priorizar el formulario */
+    }
+}
+
+/* 📱 Tablets (481px a 768px) */
+@media (min-width: 481px) and (max-width: 768px) {
+
+    .container-form {
+        width: 80%;
+        padding: 25px;
+        border-radius: 25px;
+    }
+
+    fieldset {
+        width: 80%;
+    }
+
+    .button-r {
+        width: 60%;
+    }
+
+    .logoedupork,
+    .nubes,
+    .nubes2,
+    .porcino {
+        width: 25vw;
+    }
+
+    .rancho {
+        width: 35vw;
+    }
+}
+
+/* 💻 Laptops pequeñas (769px a 1024px) */
+@media (min-width: 769px) and (max-width: 1024px) {
+    .container-form {
+        width: 60%;
+        padding: 30px;
+    }
+
+    .form__registro {
+        gap: 12px;
+    }
+
+    .button-r {
+        width: 50%;
+    }
+
+    .logoedupork {
+        width: 18vw;
+    }
+
+    .rancho {
+        width: 28vw;
     }
 }
