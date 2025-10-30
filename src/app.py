@@ -266,12 +266,12 @@ def porcinos_filtro():
 
 #Ruta para consultar el historial de pesos de los porcinos
 @app.route('/porcino/historial_pesos', methods = ['GET'])
-def historial_pesos():
+def consulta_general_historial_pesos():
   """
   Consultar el historial de pesos de los porcinos registrados
   ---
   tags:
-    - Porcinos
+    - Porcinos Historial
   responses:
     200:
       description: Lista del historial de pesos de los porcinos registrados
@@ -284,12 +284,45 @@ def historial_pesos():
                     FROM transaccion_peso tp
                     JOIN usuario u
                     ON tp.id_usuario = u.id_usuario
+                    ORDER BY fecha_documento DESC
                     """)
         historial = cur.fetchall()
         if historial:
           return jsonify({'Historial': historial, 'Mensaje': 'Listado del historial de los pesos de los porcinos registrados'})
         else:
           return jsonify({'Mensaje': 'No hay historial de pesos registrados'})
+  except Exception as err:
+    print(err)
+    return jsonify({'Mensaje': 'Error'}), 500
+
+#Rura para consultar el historial de pesos de un solo porcino
+@app.route('/porcino/historial_pesos/<int:id>', methods = ['GET'])
+def consulta_porcino_historial(id):
+  """
+  Consulta por ID del historial de los pesos de un porcino
+  ---
+  tags:
+    - Porcinos Historial
+  responses:
+    200:
+      description: Listado historial de pesos por ID 
+  """
+  try:
+    with config['development'].conn() as conn:
+      with conn.cursor() as cur:
+        cur.execute("""
+                    SELECT tp.id_documento,tp.fecha_documento,tp.fecha_pesaje,tp.id_porcino,tp.peso_final,u.nombre,tp.descripcion
+                    FROM transaccion_peso tp
+                    JOIN usuario u
+                    ON tp.id_usuario = u.id_usuario
+                    WHERE id_porcino = %s
+                    ORDER BY fecha_documento DESC
+                    """, (id,))
+        historial = cur.fetchall()
+        if historial:
+          return jsonify({'Historial': historial, 'Mensaje': f'Listado del historial de los pesos del porcino con ID {id}'}), 200
+        else:
+          return jsonify({'Mensaje': f'No hay historial de pesos para el porcino con ID {id}'})
   except Exception as err:
     print(err)
     return jsonify({'Mensaje': 'Error'}), 500
@@ -301,7 +334,7 @@ def conteo_transacciones():
     Conteo de transacciones de pesos actualizados
     ---
     tags:
-      - Porcinos
+      - Porcinos Historial
     responses:
       200:
         description: Número de transacciones registradas en la base de datos
@@ -335,7 +368,7 @@ def actualizar_peso_porcinos():
   Registro de transaccion de peso y actualizacion del peso del porcino
   ---
   tags:
-    - Porcinos
+    - Porcinos Historial
   parameters: 
   - name: body
     in: body
@@ -606,15 +639,13 @@ def consulta_indi_raza(id):
   try:
     with config['development'].conn() as conn:
       with conn.cursor() as cur:
-        cur.execute('SELECT * FROM etapa WHERE id_raza = %s',
-                    (id))
-    etapa = cur.fetchone()
-    print(etapa)
-    if etapa:
-      return jsonify({'Raza': etapa, 'Mensaje': 'Raza consultada'})
+        cur.execute('SELECT * FROM raza WHERE id_raza = %s',
+                    (id,))
+    raza = cur.fetchone()
+    if raza:
+      return jsonify({'razas': [raza], 'Mensaje': 'Raza consultada'})
     else:
-      return jsonify({'Mensaje': 'Error al consultar la etapa'})
-      
+      return jsonify({'Mensaje': f'No hay raza con ID {id}'})
   except Exception as err:
     print(err)
     return jsonify({'Mesaje':'Error en la base de datos'})
@@ -794,9 +825,9 @@ def consulta_indi_etapa(id):
     etapa = cur.fetchone()
     print(etapa)
     if etapa:
-      return jsonify({'Etapa_vida': etapa, 'Mensaje': 'Etapa de vida consultada'})
+      return jsonify({'etapas': [etapa], 'Mensaje': 'Etapa de vida consultada'})
     else:
-      return jsonify({'Mensaje': 'Error al consultar la etapa'})
+      return jsonify({'Mensaje': f'No hay etapa con ID {id}'})
   except Exception as err:
     print(err)
     return jsonify( {'Mensaje': 'Error en la base de datos'} )
@@ -887,7 +918,7 @@ def actualizar_etapa_vida(id):
                     (nombre,desc,id))
         conn.commit()
 
-    return jsonify({'Mensaje': 'Raza actulizada correctamente'})
+    return jsonify({'Mensaje': 'Etapa de vida actulizada correctamente'})
   except Exception as err:
     print(err)
     return jsonify({'Mesaje':'Error en la base de datos'})

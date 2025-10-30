@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -146,7 +146,7 @@
                         <th></th>
                         <th>ID</th>
                         <th>Sexo</th>
-                        <th>Raza</th>
+                        <th>Raza</th> 
                         <th>Etapa de vida</th>
                         <th>Peso Final</th>
                         <th>Estado</th>
@@ -158,7 +158,6 @@
                 </tbody>
             </table>
         </section>
-        
     </section>
     <!-- DIALOGS -->
     <!-- DIALOG DE GESTIONAR RAZA -->
@@ -171,15 +170,15 @@
                 <h2>Gestionar Raza</h2>
                 <hr>
             </div>
-            <div class="container__search__bar bar--gestion">
+            <form class="container__search__bar bar--gestion" onsubmit="event.preventDefault(); consulta_indi_raza(mostrar = true)">
                 <div class="conta__lupa__inp">
-                    <img src="/src/static/iconos/icon lupa.svg" alt="">
-                    <input type = "number" class = "input__id" id="input_id_raza" placeholder = "Ingrese el ID de la raza" min="0" oninput = "this.value = Math.abs(this.value)">
+                    <img src="/src/static/iconos/icon lupa.svg" alt="lupa">
+                    <input type = "number" class = "input__id" id="input_id_raza" placeholder = "Ingrese el ID de la raza" min="0" oninput = "this.value = Math.abs(this.value)" required>
                 </div>
                 <div>
-                    <button type="button" class="btn">Consultar</button>
+                    <button type="submit" class="btn">Consultar</button>
                 </div>
-            </div>
+            </form>
             <div class="container__btn__agregar">
                 <img src="/src/static/iconos/icon add.svg" alt="" class="svg__add">
                 <button type="button" class="btn btn--agregar" onclick="abrirDialog('dialog-registrar-raza')">Agregar Raza</button>
@@ -211,15 +210,15 @@
                 <h2>Gestionar Etapas</h2>
                 <hr>
             </div>
-            <div class="container__search__bar bar--gestion">
+            <form class="container__search__bar bar--gestion" onsubmit="event.preventDefault(); consulta_indi_etapas(mostrar = true)">
                 <div class="conta__lupa__inp">
                     <img src="/src/static/iconos/icon lupa.svg" alt="">
-                    <input type = "number" class = "input__id" id="input_id_raza" placeholder = "Ingrese el ID de la etapa" min="0" oninput = "this.value = Math.abs(this.value)">
+                    <input type = "number" class = "input__id" id="input_id_etapa" placeholder = "Ingrese el ID de la etapa" min="0" oninput = "this.value = Math.abs(this.value)" required>
                 </div>
                 <div>
-                    <button type="button" class="btn">Consultar</button>
+                    <button type="submit" class="btn">Consultar</button>
                 </div>
-            </div>
+            </form>
             <div class="container__btn__agregar">
                 <img src="/src/static/iconos/icon add.svg" alt="" class="svg__add">
                 <button type="button" class="btn btn--agregar" onclick="abrirDialog('dialog-registrar-etapa')" >Agregar Etapas</button>
@@ -252,15 +251,15 @@
                 <h2>Historial de pesos</h2>
                 <hr>
             </div>
-            <div class="container__search__bar bar--gestion">
+            <form class="container__search__bar bar--gestion" onsubmit="event.preventDefault(); consulta_porcino_historial(mostrar = true)">
                 <div class="conta__lupa__inp">
                     <img src="/src/static/iconos/icon lupa.svg" alt="">
-                    <input type = "number" class = "input__id" id="input_id_hp" placeholder = "Ingrese el ID del porcino" min="0" oninput = "this.value = Math.abs(this.value)">
+                    <input type = "number" class = "input__id" id="input_id_hp" placeholder = "Ingrese el ID del porcino" min="0" oninput = "this.value = Math.abs(this.value)" required>
                 </div>
                 <div>
-                    <button type="button" class="btn">Consultar</button>
+                    <button type="submit" class="btn">Consultar</button>
                 </div>
-            </div>
+            </form>
             <div class="container__btn__agregar">
                 <img src="/src/static/iconos/icon actua.svg" alt="" class="svg__add">
                 <button type="button" class="btn btn--agregar" onclick="abrirDialog('dialog-actualizar-peso')">Actualizar peso</button>

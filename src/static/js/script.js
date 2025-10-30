@@ -145,20 +145,36 @@ function cerrarDialog(dialogId) {
     }
 }
 
-function llenarSelectDesdeLista(lista, selectId, valorSeleccionado, keyId, keyNombre) {
+function llenarSelectDesdeLista(lista, selectId, valorSeleccionado, keyId, keyNombre, placeholder = "") {
     const select = document.getElementById(selectId);
     if (!select) return;
+
     select.innerHTML = ""; // limpiar
+
+    // Si hay un placeholder, agregarlo primero
+    if (placeholder && placeholder.trim() !== "") {
+        const option_place = document.createElement("option");
+        option_place.value = "";
+        option_place.textContent = placeholder;
+        option_place.disabled = true;
+        option_place.selected = !valorSeleccionado; // seleccionado si no hay valor
+        select.appendChild(option_place);
+    }
+
+    // Agregar opciones desde la lista
     lista.forEach(item => {
         const option = document.createElement("option");
         option.value = item[keyId];
         option.textContent = item[keyNombre];
-        if (item[keyNombre] === valorSeleccionado || item[keyId] === valorSeleccionado) {
+
+        if (item[keyId] == valorSeleccionado || item[keyNombre] == valorSeleccionado) {
             option.selected = true;
         }
+
         select.appendChild(option);
     });
 }
+
 
 
 // -------------------
@@ -318,8 +334,8 @@ function crearDialogEdit(item, uniqueId){
             const razas = await consultar_razas();
             const etapas = await consultar_etapas();
             
-            llenarSelectDesdeLista(razas.razas, `Raza-actualizar-${uniqueId}`, item.raza, "id_raza", "nombre");
-            llenarSelectDesdeLista(etapas.etapas, `Etapa-de-vida-actualizar-${uniqueId}`, item.etapa, "id_etapa", "nombre");
+            llenarSelectDesdeLista(razas.razas, `Raza-actualizar-${uniqueId}`,item.raza, "id_raza", "nombre","");
+            llenarSelectDesdeLista(etapas.etapas, `Etapa-de-vida-actualizar-${uniqueId}`,item.etapa, "id_etapa", "nombre","");
         } catch (error) {
             console.error("Error cargando los selects:", error)
         }
@@ -492,7 +508,14 @@ function crearSelects(filtro,opciones){
 
 function porcino_filtros() {
     try {
+        const input__id = document.getElementById('input_id');
         const filter = document.getElementById("filter_porcino");
+        input__id.addEventListener('input', () => {
+            filter.disabled = parseInt(input__id.value) !== 0;
+            if (parseInt(input__id.value) === 0){
+                consulta_general_porcinos()
+            }
+        });
         const opciones = {
             "sexo" : ["Macho","Hembra"],
             "estado" : ["Activo","Inactivo"],
@@ -521,30 +544,35 @@ function porcino_filtros() {
 
 async function consulta_filtros() {
     try {
-        const filtro = document.getElementById('filter_porcino').value;
+        const filtro = document.getElementById('filter_porcino');
         const valor = document.getElementById('filter__options__2').value;
-        const info = {
-            "filtro" : filtro,
-            "valor" : valor
-        }
-        const promesa = await fetch(`${URL_BASE}/porcino/filtros`, 
-            {
-                method : 'POST',
-                body : JSON.stringify(info),
-                headers : {
-                    "Content-type" : "application/json"
-                }
-            }
-        )
-        const response = await promesa.json()
-        if (Object.keys(response).length != 1){
-            mostrar_porcinos(response)
+        if (filtro.disabled === true){
+            const input_id = document.getElementById('input_id').value;
+            return consulta_individual_porcino(input_id, true)
         } else{
-            Swal.fire({
-            title: "Mensaje",
-            text: `${response.Mensaje}`,
-            icon: "error",
-        });
+            const info = {
+                "filtro" : filtro.value,
+                "valor" : valor
+            }
+            const promesa = await fetch(`${URL_BASE}/porcino/filtros`, 
+                {
+                    method : 'POST',
+                    body : JSON.stringify(info),
+                    headers : {
+                        "Content-type" : "application/json"
+                    }
+                }
+            )
+            const response = await promesa.json()
+            if (Object.keys(response).length != 1){
+                mostrar_porcinos(response)
+            } else{
+                Swal.fire({
+                title: "Mensaje",
+                text: `${response.Mensaje}`,
+                icon: "error",
+            });
+            }
         }
     } catch (error) {
         console.error(error)
@@ -846,14 +874,32 @@ function crearDialogEyeHistorial(item, uniqueId){
         {label: 'Descripcion', value: item.descripcion, id: 'descripcion-eye'},
     ]
 
-    const camposHTML = campos.map(campo => `
-        <div class = "container__label__input">
-            <label for="${campo.id}-${uniqueId}">${campo.label}</label>
-            <input type="text" class="campo-info" id="${campo.id}-${uniqueId}" placeholder="${campo.value}" readonly>
+    const camposHTML = campos.map(campo => {
+        if (campo.label === 'Descripcion'){
+            return `
+            <textarea id="textare_eye_historial" readonly>
+                ${item.descripcion}
+            </textarea>
+            `
+        }else{
+            return `
+            <div class = "container__label__input">
+                <label for="${campo.id}-${uniqueId}">${campo.label}</label>
+                <input type="text" class="campo-info" id="${campo.id}-${uniqueId}" placeholder="${campo.value}" readonly>
+            </div>
+            `
+        }
+    }
+    ).join('');
+    
+    
+    const HTML = `
+        <div class="lay_content_histirial">
+            ${camposHTML}
         </div>
-        `).join('');
+    `
 
-    return crearDialogBaseRaza(`dialog-eye-historial-${uniqueId}`, 'dialog-icon-eye', 'Informacion de la transacción', camposHTML, 'Cerrar', 'button-cerrar', uniqueId, 'cerrarDialog',`dialog-eye-historial-${uniqueId}`);
+    return crearDialogBaseRaza(`dialog-eye-historial-${uniqueId}`, 'dialog-icon-eye', 'Informacion de la transacción', HTML, 'Cerrar', 'button-cerrar', uniqueId, 'cerrarDialog',`dialog-eye-historial-${uniqueId}`);
 }
 
 
@@ -882,6 +928,31 @@ async function consulta_gen_historial_pesos(){
         console.error(error)
     }
 }
+
+async function consulta_porcino_historial(mostrar = false){
+    try{
+        const id = document.getElementById('input_id_hp').value;
+        const promesa = await fetch(`${URL_BASE}/porcino/historial_pesos/${id}`);
+        const response = await promesa.json()
+        console.log(response)
+        if (response.Mensaje === `No hay historial de pesos para el porcino con ID ${id}`){
+            cerrarDialog('dialog__his__peso');
+            Swal.fire({
+                title: "Mensaje",
+                text: response.Mensaje,
+                icon: "error"
+            });
+            return null;
+        }
+        if (mostrar){
+            mostrar_historial(response)
+        }
+        return response
+    }catch(error){
+        console.error(error)
+    }
+}
+
 
 async function conteoNumeroConsecutivo() {
     try {
@@ -951,11 +1022,7 @@ async function actualizar_peso_historial() {
     }
 }
 
-
-
-
-
-
+ 
 // -------------------
 // GESTION DE DE RAZAS
 // -------------------
@@ -1118,6 +1185,29 @@ async function consultar_razas() {
     }
 }
 
+async function consulta_indi_raza(mostrar = false){
+    try {
+        const id = document.getElementById('input_id_raza').value;
+        const promesa = await fetch(`${URL_BASE}/raza/${id}`);
+        const response = await promesa.json();
+        if (response.Mensaje === `No hay raza con ID ${id}`){
+            cerrarDialog('dialog__ges__raz');
+            Swal.fire({
+                title: "Mensaje",
+                text: response.Mensaje,
+                icon: "error"
+            });
+            return null;
+        }
+        if (mostrar){
+            mostrar_raza(response)
+        }
+        return response
+    } catch (error) {
+        console.error(error)
+    }
+}
+
 async function registrar_raza() {
     try {
         const nombre = document.getElementById('nombre_raza').value;
@@ -1176,7 +1266,22 @@ async function actualizar_raza(id) {
             }
         })
         const response = await promesa.json()
-        consultar_razas()
+        if (response.Mensaje === 'Raza actulizada correctamente'){
+            cerrarDialog(`dialog-edit-raza-${id}`)
+            cerrarDialog('dialog__ges__raz')
+            consultar_razas()
+            Swal.fire({
+                title: "Mensaje",
+                text: `${response.Mensaje}`,
+                icon: "success",
+            });
+        } else{
+            Swal.fire({
+                title: "Mensaje",
+                text: `${response.Mensaje}`,
+                icon: "error",
+            });
+        }
         return response
     } catch (error) {
         console.error(error)
@@ -1332,6 +1437,31 @@ async function consultar_etapas() {
     }
 }
 
+async function consulta_indi_etapas(mostrar = false){
+    try {
+        const id = document.getElementById('input_id_etapa').value;
+        const promesa =  await fetch(`${URL_BASE}/etapa_vida/${id}`);
+        const response = await promesa.json();
+        console.log(response)
+        if (response.Mensaje === `No hay etapa con ID ${id}`){
+            cerrarDialog('dialog__ges__eta');
+            Swal.fire({
+                title: "Mensaje",
+                text: response.Mensaje,
+                icon: "error"
+            });
+            return null;
+        }
+        if (mostrar) {
+            mostrar_etapas(response)
+        }
+        return response
+    } catch (error) {
+        console.log()
+    }
+}
+
+
 async function registrar_etapas(){
     try {
         const nombre = document.getElementById('nombre_etapa').value;
@@ -1390,7 +1520,23 @@ async function actualizar_etapa(id) {
             }
         })
         const response = await promesa.json();
-        consultar_etapas()
+        if (response.Mensaje === 'Etapa de vida actulizada correctamente'){
+            cerrarDialog(`dialog-edit-etapa-${id}`)
+            cerrarDialog('dialog__ges__eta')
+            consultar_etapas()
+            Swal.fire({
+                title: "Mensaje",
+                text: `${response.Mensaje}`,
+                icon: "success",
+            });
+        } else{
+            Swal.fire({
+                title: "Mensaje",
+                text: `${response.Mensaje}`,
+                icon: "error",
+            });
+        }
+
         return response
     } catch (error) {
         console.error(error)
@@ -1426,7 +1572,6 @@ async function eliminar_etapa(id) {
         console.error(error)
     }
 }
-
 
 // -------------------
 // GESTION DE ALIMENTOS
