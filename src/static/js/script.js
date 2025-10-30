@@ -34,316 +34,101 @@ nav_bar.forEach((item) => item.addEventListener('click',bar_funct));
 
 // MANEJO DE RUTAS DEL LOGIN Y REGISTRO DE USUARIOS
 
-    async function registro_usuarios(event) {
-        event.preventDefault(); 
 
-        try {
-            const nombre = document.getElementById('fname').value;
-            const tipo_identificacion = document.getElementById('tipo_identificacion').value;
-            const numero_identificacion = document.getElementById('n.i').value;
-            const correo = document.getElementById('correo').value;
-            const contraseña = document.getElementById('password').value;
-            const constraseña_confirm = document.getElementById('confirmPassword').value;
+async function registro_usuarios() {
+    try {
+        const nombre = document.getElementById('fname').value;
+        const tipo_identificacion = document.getElementById('tipo_identificacion').value;
+        const numero_identificacion = document.getElementById('n.i').value;
+        const correo = document.getElementById('correo').value;
+        const contraseña = document.getElementById('password').value;
+        const constraseña_confirm = document.getElementById('confirmPassword').value;
 
-            
-        if ((constraseña_confirm == contraseña) && (contraseña != '')) {
+        if ((constraseña_confirm == contraseña) && (contraseña != '')){
             const user = {
-                numero_identificacion: numero_identificacion,
-                nombre: nombre,
-                correo: correo,
-                contraseña: contraseña,
-                estado: "Activo",
-                id_tipo_identificacion: tipo_identificacion,
-            };
-
-            console.log(user);
-
-            fetch(`${URL_BASE}/users`, {
-                method: 'POST',
-                body: JSON.stringify(user),
-                headers: {
-                    "Content-type": "application/json"
-                }
-            })
-            .then(response => response.json())
-            .then(() => {
-                Swal.fire({
-                    title: "Mensaje",
-                    text: `Usuario registrado correctamente`,
-                    icon: "success",
-                    confirmButtonText: "Ir a la pagina",
+                "numero_identificacion" : numero_identificacion,
+                "nombre" : nombre,
+                "correo" : correo,
+                "contraseña" : contraseña,
+                "estado" : "Activo",
+                "id_tipo_identificacion" : tipo_identificacion,
+            }
+            fetch(`${URL_BASE}/users`, 
+                {
+                    method: 'POST',
+                    body: JSON.stringify(user),
+                    headers : {
+                        "Content-type" : "application/json"
+                    }
+                }).then(response => {
                 }).then(() => {
-                    localStorage.setItem("usuario", JSON.stringify({
-                        nombre: nombre,
-                        numero_identificacion: numero_identificacion,
-                        correo: correo
-                    }));
-                    location.href = "home.html";
-                });
-            });
-        } else {
+                    Swal.fire({
+                        title: "Mensaje",
+                        text: `Usuario registrado correctamente`,
+                        icon: "success"
+                    });
+                })
+        } else{
             Swal.fire({
                 title: "Mensaje",
-                text: `Las contraseñas no coinciden`,
-                icon: "error",
-                scrollbarPadding: false
-            });
-        }
-
-        } catch (error) {
-            console.error(error);
-        }
-    }
-
-async function login() {
-    try {
-        const correo = document.getElementById('entrada1').value;
-        const contraseña = document.getElementById('entrada2').value;
-
-        if (!correo || !contraseña) {
-            Swal.fire({
-                title: "Error",
-                text: "Por favor completa todos los campos",
-                icon: "warning"
-            });
-            return;
-        }
-
-        const user = {
-            "correo": correo,
-            "contraseña": contraseña
-        }
-
-        const response = await fetch(`${URL_BASE}/login`, {
-            method: 'POST',
-            body: JSON.stringify(user),
-            headers: {
-                "Content-Type": "application/json"
-            },
-        });
-
-        const data = await response.json();
-
-        console.log("Respuesta del servidor:", data);
-        console.log("Status:", response.status);
-
-        if (response.ok && data.Mensaje === 'Las credenciales son correctas') {
-            localStorage.setItem("token", data.token);
-            localStorage.setItem("usuario", JSON.stringify({
-                nombre: data.nombre,
-                numero_identificacion: data.numero_identificacion,
-                correo: data.correo
-            }));
-            
-            Swal.fire({
-                title: "¡Éxito!",
-                text: "Inicio de sesión exitoso",
-                icon: "success",
-                timer: 1500,
-                showConfirmButton: false
-            }).then(() => {
-                location.href = 'home.html';
-            });
-            
-        } else {
-            let errorMessage = data.Mensaje || "Error desconocido";
-            
-            Swal.fire({
-                title: "Error",
-                text: errorMessage,
+                text: `Las constraseñas no coinciden`,
                 icon: "error"
             });
         }
 
     } catch (error) {
-        console.error("Error en login:", error);
-        Swal.fire({
-            title: "Error de conexión",
-            text: "No se pudo conectar con el servidor",
-            icon: "error"
-        });
+        console.error(error)
     }
 }
 
-// FUNCIONAMIENTO DE LA API DE GOOGLE//
-
-window.onload = function () {
-    const googleButtonContainer = document.getElementById("google-btn-container");
-
-    if (googleButtonContainer) {
-        google.accounts.id.initialize({
-            client_id: "887853903603-sbo2ffg27v2o12navndev9okvno8t4fn.apps.googleusercontent.com",
-            callback: handleCredentialResponse
-        });
-
-        google.accounts.id.renderButton(googleButtonContainer, {
-            theme: "outline",
-            size: "large",
-            shape: "pill",
-            text: "signup_with",
-            logo_alignment: "center",
-            width: "400px"
-        });
-    }
-}
-
-
-function handleCredentialResponse(response) {
-    const idToken = response.credential;
-    console.log("Token recibido:", idToken);
-
-    fetch(`${URL_BASE}/api/auth/google`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ token: idToken })
-    })
-    .then(res => res.json())
-    .then(data => {
-        localStorage.setItem("token", data.token);
-        localStorage.setItem("usuario", JSON.stringify({
-        nombre: data.nombre,
-        numero_identificacion: data.numero_identificacion,
-        correo: data.correo
-}));
-
-        console.log("Respuesta del backend:", data);
-
-        Swal.fire({
-            icon: "success",
-            timer: 1500,
-            title: "¡Bienvenido a Edupork!",
-            text: `Hola ${data.nombre}, tu acceso con Google fue exitoso.`,
-            showConfirmButton: false
-        }).then(() => {
-            location.href = "home.html"; 
-        });
-    })
-    .catch(err => {
-        console.error("Error en el login:", err);
-        Swal.fire({
-            icon: "error",
-            title: "Error de conexión",
-            text: err.message || "No se pudo conectar con el servidor."
-        });
-    });
-}
-
-
-async function cargarDatosPerfil() {
-    const token = localStorage.getItem('token');
-        if (!token) {
-    Swal.fire({
-        icon: 'warning',
-        title: 'Sesión no iniciada',
-        text: 'Por favor inicia sesión para ver Edupork.',
-        confirmButtonText: 'Ir al login'
-    }).then(() => {
-        window.location.href = 'index.html'; 
-    });
-        return;
-    }
-
+async function login() {
     try {
-        const respuesta = await fetch(`${URL_BASE}/perfil`, {
-            method: 'GET',
-            headers: {
-                'Authorization': `Bearer ${token}`
+        const correo  = document.getElementById('entrada1').value;
+        const contraseña  = document.getElementById('entrada2').value;
+
+        const user = {
+            "correo" : correo,
+            "contraseña" : contraseña
+        }
+
+        fetch(`${URL_BASE}/login`,
+            {
+                method: 'POST',
+                body: JSON.stringify(user),
+                headers : {
+                    "Content-type" : "application/json"
                 }
-            });
-
-    const datos = await respuesta.json();
-
-    if (!respuesta.ok) {
-            Swal.fire({
-            icon: 'error',
-            title: 'Sesión inválida',
-            text: datos.Mensaje || 'No se pudo cargar el perfil.',
-            confirmButtonText: 'Volver a iniciar sesión'
-        }).then(() => {
-            localStorage.removeItem('token');
-            localStorage.removeItem('usuario');
-            window.location.href = 'index.html';
-        });
-        return;
-    }
-
-    document.getElementById('nombreUsuario').textContent = datos.nombre;
-    document.getElementById('identificacionUsuario').textContent = datos.numero_identificacion;
-    document.getElementById('correoUsuario').textContent = datos.correo;
+            }).then(response => {
+                return response.json()
+            }).then(response => {
+                if (response.Mensaje === 'Las crendenciales son correctas'){
+                    location.href = 'home.html'
+                } else if (response.Mensaje === 'Contraseña incorrecta'){
+                    Swal.fire({
+                        title: "Mensaje",
+                        text: `Constraseña incorrecta`,
+                        icon: "error"
+                    });
+                } else if (response.Mensaje === 'Usuario no encontrado'){
+                    Swal.fire({
+                        title: "Mensaje",
+                        text: `Usuario no encontrado`,
+                        icon: "error"
+                    });
+                } else{
+                    Swal.fire({
+                        text: `Error en la base de datos`,
+                        title: "Mensaje",
+                        icon: "error"
+                    });
+                }
+            })
 
     } catch (error) {
-        console.error("Error en la petición:", error);
-        Swal.fire({
-            icon: 'error',
-            title: 'Error de conexión',
-            text: 'No se pudo conectar con el servidor.',
-            confirmButtonText: 'Reintentar'
-        });
+        console.error(error)
     }
 }
 
-// CERRAR SESIÓN
-function cerrarSesion() {
-    Swal.fire({
-        title: "¿Cerrar sesión?",
-        text: "Estás seguro de que quieres salir",
-        icon: "question",
-        showCancelButton: true,
-        confirmButtonText: "Sí, salir",
-        cancelButtonText: "Cancelar"
-    }).then((result) => {
-        if (result.isConfirmed) {
-            localStorage.removeItem("token");
-            localStorage.removeItem("usuario");
-            location.href = "index.html";
-        }
-    });
-}
-
-function mostrarNombreUsuario() {
-    const usuario = JSON.parse(localStorage.getItem("usuario"));
-    if (usuario && usuario.nombre) {
-        const nombreSpan = document.getElementById("nombreUsuarioTexto");
-    if (nombreSpan) {
-        nombreSpan.textContent = usuario.nombre;
-        }
-    }
-}
-
-// CONTROL DEL MENU DESPLEGABLE
-document.addEventListener("DOMContentLoaded", () => {
-    mostrarNombreUsuario();
-
-    const btnPerfil = document.getElementById("btnPerfil");
-    const menu = document.getElementById("usuarioMenu");
-
-    if (btnPerfil && menu) {
-        btnPerfil.addEventListener("click", (e) => {
-            e.stopPropagation();
-            menu.style.display = menu.style.display === "block" ? "none" : "block";
-        });
-
-        window.addEventListener("click", () => {
-            menu.style.display = "none";
-        });
-    } 
-
-    const btnLogout = document.getElementById("btnLogout");
-    if (btnLogout) {
-        btnLogout.addEventListener("click", (e) => {
-            e.preventDefault();
-            cerrarSesion();
-        });
-    }
-
-    const cerrarSesionBtn = document.getElementById("cerrarSesionBtn");
-    if (cerrarSesionBtn) {
-        cerrarSesionBtn.addEventListener("click", (e) => {
-            e.preventDefault();
-            cerrarSesion();
-    });
-    }
-});
 
 // Funciones para abrir y cerrar diálogos
 function abrirDialog(dialogId) {
@@ -626,16 +411,9 @@ function crearIconoEdit() {
 }
 
 async function consulta_general_porcinos() {
-    try {
-        const token = localStorage.getItem('token');
-        const response = await fetch(`${URL_BASE}/porcino`, 
-            {
-                method : 'GET',
-                headers : {
-                    "Content-type" : 'application/json',
-                    'Authorization': `Bearer ${token}`
-                }            
-            });
+    try 
+    {
+        const response = await fetch(`${URL_BASE}/porcino`);
         if (!response.ok) throw new Error(`Error: ${response.status}`);
         const porcinos = await response.json();
         mostrar_porcinos(porcinos);
@@ -651,14 +429,10 @@ async function consulta_general_porcinos() {
 
 async function consulta_individual_porcino(id, mostrar = false) {
     try {
-        const token = localStorage.getItem("token");
         const promesa = await fetch(`${URL_BASE}/porcino/${id}`, {
         method: 'GET',
-        headers : {
-            "Content-type" : "application/json",
-            'Authorization': `Bearer ${token}`
-        }
-    })
+        headers: { "Content-type": "application/json" }
+        });
         const response = await promesa.json(); 
         if (response.Mensaje === 'Porcino no encontrado') {
         Swal.fire({
@@ -770,8 +544,7 @@ function porcino_filtros() {
 
 async function consulta_filtros() {
     try {
-        const token = localStorage.getItem("token");
-        const filtro = document.getElementById('filter_porcino').value;
+        const filtro = document.getElementById('filter_porcino');
         const valor = document.getElementById('filter__options__2').value;
         if (filtro.disabled === true){
             const input_id = document.getElementById('input_id').value;
@@ -808,7 +581,6 @@ async function consulta_filtros() {
 
 async function agregar_porcino(){
     try {
-        const token = localStorage.getItem("token");
         const id_porcino = document.getElementById('id_porcino').value;
         const peso_inicial = document.getElementById('peso_inicial').value;
         const peso_final = document.getElementById('peso_final').value;
@@ -833,8 +605,7 @@ async function agregar_porcino(){
             method : 'POST',
             body : JSON.stringify(porcino),
             headers : {
-                "Content-type" : "application/json",
-                'Authorization': `Bearer ${token}`
+                "Content-type" : "application/json"
             }
         })
         const response = await promesa.json()
@@ -861,7 +632,6 @@ async function agregar_porcino(){
 
 async function actualizar_porcino(id_porcino) {
     try {
-        const token = localStorage.getItem("token");
         const peso_inicial = document.getElementById(`Peso-inicial-actualizar-${id_porcino}`).value;
         const peso_final = document.getElementById(`Peso-final-actualizar-${id_porcino}`).value;
         const fecha = document.getElementById(`Fecha-de-nacimiento-actualizar-${id_porcino}`).value;
@@ -870,7 +640,7 @@ async function actualizar_porcino(id_porcino) {
         const etapa = document.getElementById(`Etapa-de-vida-actualizar-${id_porcino}`).value;
         const estado = document.getElementById(`Estado-actualizar-${id_porcino}`).value;
         const descripcion = document.getElementById(`Descripcion-actualizar-${id_porcino}`).value;
-        
+
         const porcino = {
             "peso_inicial" : peso_inicial,
             "peso_final" : peso_final,
@@ -886,8 +656,7 @@ async function actualizar_porcino(id_porcino) {
                 method : "PUT",
                 body : JSON.stringify(porcino),
                 headers : {
-                    "Content-type" : "application/json",
-                    'Authorization': `Bearer ${token}`
+                    "Content-type" : "application/json"
                 }
             }
         );
@@ -916,17 +685,10 @@ async function actualizar_porcino(id_porcino) {
 
 
 function eliminar_porcino(id_porcino){
-    const token = localStorage.getItem("token");
     const input = document.getElementById(`input-eliminar-${id_porcino}`);
     const id_input = document.getElementById(`input-eliminar-${id_porcino}`).value;
     if (id_input == id_porcino){
-        fetch(`${URL_BASE}/porcino/${id_porcino}`, {
-            method: 'DELETE',
-            headers : {
-                "Content-type" : "application/json",
-                'Authorization': `Bearer ${token}`
-            }
-        })
+        fetch(`${URL_BASE}/porcino/${id_porcino}`, {method: 'DELETE'})
         .then( response => {
             if (!response.ok) throw new Error(`Error: ${response.status}`);
             return response.json()
@@ -1413,16 +1175,7 @@ function crearDialogBaseRaza(id, clase, titulo, contenido, textoBoton, claseBoto
 
 async function consultar_razas() {
     try {
-        const token = localStorage.getItem("token");
-        const promesa = await fetch(`${URL_BASE}/raza`, 
-            {
-                method: 'GET',
-                headers : {
-                    "Content-type" : "application/json",
-                    'Authorization': `Bearer ${token}`
-                }
-            }
-        );
+        const promesa = await fetch(`${URL_BASE}/raza`, {method: 'GET'});
         if (!promesa.ok) throw new Error(`Error: ${promesa.status}`);
         const response = await promesa.json();
         mostrar_raza(response)
@@ -1457,7 +1210,6 @@ async function consulta_indi_raza(mostrar = false){
 
 async function registrar_raza() {
     try {
-        const token = localStorage.getItem("token");
         const nombre = document.getElementById('nombre_raza').value;
         const descri = document.getElementById('descripcion_raza').value;
 
@@ -1470,8 +1222,7 @@ async function registrar_raza() {
             method : 'POST',
             body : JSON.stringify(raza),
             headers: {
-                "Content-type" : "application/json",
-                'Authorization': `Bearer ${token}`
+                "Content-type" : "application/json"
             }
         })
         const response = await promesa.json()
@@ -1499,7 +1250,6 @@ async function registrar_raza() {
 
 async function actualizar_raza(id) {
     try {
-        const token = localStorage.getItem("token");
         const nombre = document.getElementById(`nombre-raza-actualizar-${id}`).value;
         const descri = document.getElementById(`descripcion-raza-actualizar-${id}`).value;
 
@@ -1512,8 +1262,7 @@ async function actualizar_raza(id) {
             method : 'PUT',
             body : JSON.stringify(raza),
             headers: {
-                "Content-type" : "application/json",
-                'Authorization': `Bearer ${token}`
+                "Content-type" : "application/json"
             }
         })
         const response = await promesa.json()
@@ -1541,19 +1290,10 @@ async function actualizar_raza(id) {
 
 async function eliminar_raza(id){
     try {
-        const token = localStorage.getItem("token");
         const input = document.getElementById(`input-eliminar-r-${id}`);
         const value_input = document.getElementById(`input-eliminar-r-${id}`).value;
         if (value_input == id){
-            const promesa = await fetch(`${URL_BASE}/raza/${id}`, 
-                {
-                    method : 'DELETE',
-                    headers : {
-                        "Content-type" : "application/json",
-                        'Authorization': `Bearer ${token}`
-                    }
-                }
-            );
+            const promesa = await fetch(`${URL_BASE}/raza/${id}`, {method : 'DELETE'});
             const response = await promesa.json();
             consultar_razas()
             cerrarDialog(`dialog-delete-conf-r-${id}`);
@@ -1688,16 +1428,7 @@ function crearDialogDeleteEtapa(item, uniqueId){
 
 async function consultar_etapas() {
     try{
-        const token = localStorage.getItem("token");
-        const promesa = await fetch(`${URL_BASE}/etapa_vida`, 
-            {
-                method: 'GET',
-                headers : {
-                    "Content-type" : "application/json",
-                    'Authorization': `Bearer ${token}`
-                }
-            }
-        );
+        const promesa = await fetch(`${URL_BASE}/etapa_vida`, {method: 'GET'});
         const response = await promesa.json();
         mostrar_etapas(response)
         return response
@@ -1733,7 +1464,6 @@ async function consulta_indi_etapas(mostrar = false){
 
 async function registrar_etapas(){
     try {
-        const token = localStorage.getItem("token");
         const nombre = document.getElementById('nombre_etapa').value;
         const descri = document.getElementById('descripcion_etapa').value;
 
@@ -1746,8 +1476,7 @@ async function registrar_etapas(){
             method : 'POST',
             body: JSON.stringify(etapa),
             headers : {
-                "Content-type" : "application/json",
-                'Authorization': `Bearer ${token}`
+                "Content-type" : "application/json"
             }
         })
         const response = await promesa.json()
@@ -1775,7 +1504,6 @@ async function registrar_etapas(){
 
 async function actualizar_etapa(id) {
     try {
-        const token = localStorage.getItem("token");
         const nombre = document.getElementById(`nombre-etapa-actualizar-${id}`).value;
         const descri = document.getElementById(`descripcion-etapa-actualizar-${id}`).value;
 
@@ -1789,7 +1517,6 @@ async function actualizar_etapa(id) {
             body: JSON.stringify(etapa),
             headers : {
                 "Content-type" : "application/json",
-                'Authorization': `Bearer ${token}`
             }
         })
         const response = await promesa.json();
@@ -1818,17 +1545,12 @@ async function actualizar_etapa(id) {
 
 async function eliminar_etapa(id) {
     try {
-        const token = localStorage.getItem("token");
         const input = document.getElementById(`input-eliminar-e-${id}`);
         const value_input = document.getElementById(`input-eliminar-e-${id}`).value;
 
         if (value_input == id){
             const promesa = await fetch(`${URL_BASE}/etapa_vida/${id}`, {
                 method: 'DELETE',
-                headers : {
-                    "Content-type" : "application/json",
-                    'Authorization': `Bearer ${token}`
-                }
             })
             const response = await promesa.json();
             consultar_etapas()
@@ -1854,7 +1576,6 @@ async function eliminar_etapa(id) {
 // -------------------
 // GESTION DE ALIMENTOS
 // -------------------
-
 
 function consulta_alimentos(){
     const contenido = document.getElementById("contenido");
