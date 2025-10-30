@@ -83,6 +83,26 @@ def perfil():
 # RUTA PARA VALIDACION DE LOGIN
 @app.route('/login', methods=['POST'])
 def login():
+    """
+    Validacion de credenciales para iniciar sesion
+    ---
+    tags:
+      - login
+    parameters: 
+      - name: body
+        in: body
+        required: true
+        schema:
+          type: object
+          properties:
+            correo:
+              type: string
+            contraseña:
+              type: string
+    responses:
+      200:
+        description: Las credenciales coiciden 
+    """
     try:
         data = request.get_json()
         
