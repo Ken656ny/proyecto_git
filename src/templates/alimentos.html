@@ -50,7 +50,7 @@
                         </a>
                     </li>
                     <li>
-                        <a href="/src/templates/porcinos.html" onclick="redirectWithDelay(event, 'porcinos.html')">
+                        <a href="/src/templates/porcinos.html" onclick="manejarClickPorcino(event)">
                             <img src="../static/iconos/icon pig.svg" width="20px" alt="" class="icons-bar">
                             <span>Porcinos</span>
                         </a>
@@ -129,14 +129,9 @@
                 <button type="button" class="btn" onclick="consulta_individual_alimento()">Consultar</button>
             </div>
         </section>
-
-
-        <div class="container__btn__options">
-            <div class="container__btn__agregar">
-                <img src="/src/static/iconos/icon add.svg" alt="" class="svg__add">
-                <button type="button" class="btn btn--agregar"
-                    onclick="location.href = '/src/templates/add_alimento.html' ">Agregar alimento</button>
-            </div>
+        <div class="container__btn__agregar">
+            <img src="/src/static/iconos/icon add.svg" alt="" class="svg__add">
+            <button type="button" class="btn btn--agregar" onclick="manejarClickPorcino(event)" onclick="location.href = 'add_alimento.html' ">Agregar</button>
         </div>
 
 
