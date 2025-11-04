@@ -97,6 +97,7 @@ async function login() {
                 body: JSON.stringify(user),
                 headers : {
                     "Content-type" : "application/json"
+                    
                 }
             }).then(response => {
                 return response.json()
