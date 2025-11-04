@@ -538,8 +538,16 @@ SECCION DE NOTIFICACIONES
     margin: auto;
     border: 1px solid var(--color-bor-contain);
     border-radius: 40px;
-    display: grid;
-    grid-template-rows: 50px 75px 85px 50px 75px 75px auto;
+    display: flex;
+    flex-direction:  column;
+    gap: 1em;
+    overflow-y: scroll;
+}
+
+.section_hoy_noti, .section_anteriores_noti{
+    display: flex;
+    flex-direction: column;
+    gap: 1em;
 }
 
 .titulo__noti{
@@ -548,19 +556,25 @@ SECCION DE NOTIFICACIONES
     margin: 24px 53px auto;
 }
 
+
 .menssage__noti{
     width: 925px;
     height: auto;
     margin: auto;
     padding: 15px;
     background-color: #AFAEAE;
-    color: #ffffff;
+    color: #3c4b40;
     border: 1px solid var(--color-bor-contain);
     border-radius: 15px;
-    box-shadow: 0px 4px 4px 0px rgba(0, 0, 0, 0.25);
+    box-shadow: 0px 4px 4px 0px #00000040;
     font-family: var(--fuente--contenido);
 }
 
+.menssage__noti__title__fecha{
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}
 
 .btn--noti{
     background-color: var(--color--btn--sin--hover);

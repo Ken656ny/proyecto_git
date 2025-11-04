@@ -195,7 +195,6 @@ function crearFilaPorcino(item) {
             <td class="td__border__l">
                 <img src="/src/static/iconos/registro pig.svg" alt="" class="svg__pig">
             </td>
-            
             <td>${item.id_porcino}</td>
             <td>${item.sexo}</td>
             <td>${item.raza}</td>
@@ -513,8 +512,9 @@ function porcino_filtros() {
         input__id.addEventListener('input', () => {
             filter.disabled = parseInt(input__id.value) !== 0;
             if (parseInt(input__id.value) === 0){
-                consulta_general_porcinos()
+                return consulta_general_porcinos()
             }
+            
         });
         const opciones = {
             "sexo" : ["Macho","Hembra"],
@@ -522,6 +522,8 @@ function porcino_filtros() {
             "peso_final" : ["Escriba el peso final"]
         }
         filter.addEventListener('change', () => {
+            input__id.readOnly = true;
+            input__id.disabled = true;
             if (opciones[filter.value]){
                 crearSelects(filter.value,opciones[filter.value])
             } else{
@@ -545,11 +547,12 @@ function porcino_filtros() {
 async function consulta_filtros() {
     try {
         const filtro = document.getElementById('filter_porcino');
-        const valor = document.getElementById('filter__options__2').value;
+        console.log(filtro)
         if (filtro.disabled === true){
             const input_id = document.getElementById('input_id').value;
             return consulta_individual_porcino(input_id, true)
         } else{
+            const valor = document.getElementById('filter__options__2').value;
             const info = {
                 "filtro" : filtro.value,
                 "valor" : valor
@@ -1022,7 +1025,7 @@ async function actualizar_peso_historial() {
     }
 }
 
- 
+
 // -------------------
 // GESTION DE DE RAZAS
 // -------------------
@@ -1671,6 +1674,45 @@ function consulta_individual_alimento(){
             `;
         });
     });
+}
+
+// --------------------------
+// GESTION DE NOTIFICACIONES
+// --------------------------
+
+function mostrar_notificaciones(notificaciones){
+    const info = notificaciones.Notificaciones.map(item => crear_fila_notificaciones(item)).join('');
+    document.getElementById('section_hoy_noti').innerHTML = info
+}
+
+function crear_fila_notificaciones(item){
+    return `
+        <div class="menssage__noti">
+            <div class="menssage__noti__title__fecha">
+                <h3>${item.titulo} - ${item.tipo}</h3>
+                <h3>${item.fecha_creacion}</h3>
+            </div>
+            <p>${item.mensaje}</p>
+        </div>
+    `
+}
+
+async function consultar_notificaciones() {
+    try {
+        // EN ESTE ID DEBE IR EL ID DEL USUARIO QUE TIENE LA SESION ABIERTA
+        const id = 3
+        const promesa = await fetch(`${URL_BASE}/notificaciones/${id}`,
+            {
+                method : 'GET',
+            }
+        )
+        const response = await promesa.json()
+        console.log(response)
+        mostrar_notificaciones(response)
+        return response 
+    } catch (error) {
+        console.error(error)
+    }
 }
 
 

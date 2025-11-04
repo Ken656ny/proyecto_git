@@ -1127,5 +1127,35 @@ def eliminar_alimento(id):
   except Exception as e:
       return jsonify({"error": str(e)})
 
+#RUTA PARA CONSULTAR LAS NOTIFICAIONES DEL USUARIO
+@app.route("/notificaciones/<int:id>", methods = ['GET'])
+def consulta_notificaiones(id):
+  """
+  Consulta de notificaiones de un usuario
+  ---
+  tags:
+    - Notificaiones
+  responses:
+    200:
+      description: Lista de notificaiones de un usuario
+  """
+  try:
+    with config['development'].conn() as conn:
+      with conn.cursor() as cursor:
+        cursor.execute("""
+                      SELECT id_notificacion,titulo, mensaje, tipo,fecha_creacion
+                      FROM notificaciones 
+                      WHERE id_usuario_destinatario = %s
+                      ORDER BY fecha_creacion DESC
+                      """, (id))
+    info = cursor.fetchall()
+    if info:
+      return jsonify({'Mensaje' : 'Lista de notificaciones', 'Notificaciones' : info})
+    else:
+      return jsonify({'Mensaje': 'No hay notificaciones'})
+  except Exception as err:
+    print(err)
+    return jsonify({'Mensaje': 'Error'})
+
 if __name__ == '__main__':
     app.run(debug=True)
