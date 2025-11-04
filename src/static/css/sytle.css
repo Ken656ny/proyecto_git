@@ -238,7 +238,7 @@ input:focus, select:focus {
 legend {
     padding: 28px 8px;
     text-align: center;
-    font-size: 0.9em;
+    font-size: 0.5em;
 }
 
 fieldset {
@@ -498,14 +498,15 @@ SECCION DE NOTIFICACIONES
 .section__noti{
     display: grid;
     grid-template-rows: 85px 75px auto;
-    gap: 15px;
+    gap: 15px; 
+    overflow: hidden;
 }
 
 .container__noti{
     background-color: var(--color--fondos);
     width: 985px;
     height: 425px;
-    margin: 120px auto;
+    margin: 70px auto;
     border: 1px solid var(--color-bor-contain);
     border-radius: 40px;
     display: grid;

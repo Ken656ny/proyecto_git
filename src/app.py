@@ -10,7 +10,7 @@ from flasgger import Swagger
 # IMPORTO EL DICCIONARIO CONFIG EN LA POSICION DEVELOPMENT PARA ACCEDER LA INFORMACION DE CONEXION DE LA
 # BASE DE DATOS, DENTRO DE ESA CLASE HAY UN CLASSMETHOD QUE RETORNA LA CONEXION CON LA BASE DE DATOS
 from config import config
-
+from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime ,date
 
 #LIBRERIAS PARA LA FUNCIONALIDAD DE AUTENTICACION DE GOOGLE
@@ -103,7 +103,6 @@ def rol_requerido(rol_requerido):
 
 # RUTA PARA VALIDACION DE LOGIN
 @app.route('/login', methods=['POST'])
-
 def login():
     try:
         data = request.get_json()
@@ -120,7 +119,7 @@ def login():
                 user = cur.fetchone()
         
         if user:
-            if user['contrasena'] == contraseña:
+            if check_password_hash(user['contrasena'], contraseña):
                 token = generar_token(user, es_google=False)
                 return jsonify({
                     'Mensaje': 'Las credenciales son correctas',
@@ -162,25 +161,23 @@ def google_login():
         name = idinfo.get('name', '')
         proveedor = 'Google'
 
-        conn = config['development'].conn()
-        cursor = conn.cursor()
+        with config['development'].conn() as conn:
+            with conn.cursor() as cursor:
+                cursor.execute("SELECT id_usuario_externo, nombre, rol FROM usuario_externo WHERE correo = %s", (email,))
+                user = cursor.fetchone()
 
-
-        cursor.execute("SELECT id_usuario_externo, nombre, rol FROM usuario_externo WHERE correo = %s", (email,))
-        user = cursor.fetchone()
-
-        if not user:
-
-            cursor.execute("""
-                INSERT INTO usuario_externo (correo, nombre, proveedor, rol)
-                VALUES (%s, %s, %s, 'Aprendiz')""", (email, name, proveedor))
-            id_usuario_externo = cursor.lastrowid
-            conn.commit()
-            rol = 'Aprendiz'
-        else:
-            id_usuario_externo = user["id_usuario_externo"]
-            name = user["nombre"]
-            rol = user["rol"]
+                if not user:
+                    cursor.execute("""
+                        INSERT INTO usuario_externo (correo, nombre, proveedor, rol)
+                        VALUES (%s, %s, %s, 'Aprendiz')
+                    """, (email, name, proveedor))
+                    id_usuario_externo = cursor.lastrowid
+                    conn.commit()
+                    rol = 'Aprendiz'
+                else:
+                    id_usuario_externo = user["id_usuario_externo"]
+                    name = user["nombre"]
+                    rol = user["rol"]
 
         usuario = {
             "numero_identificacion": id_usuario_externo,
@@ -198,10 +195,13 @@ def google_login():
             "proveedor": proveedor,
             "rol": rol,
             "token": token
-        })
+        }), 200
 
     except ValueError:
         return jsonify({"status": "error", "message": "Token inválido"}), 400
+    except Exception as err:
+        print(f"Error en google_login: {err}")
+        return jsonify({"status": "error", "message": "Error interno"}), 500
 
 # RUTA PARA REGISTRAR USUARIOS NUEVOS
 @app.route('/users', methods = ['POST'])
@@ -237,23 +237,37 @@ def registro_usuarios():
       description: Usuario agregado
   """
   try:
-    user = request.get_json()
-    num_identi = user['numero_identificacion']
-    nom = user['nombre']
-    correo = user['correo']
-    contra = user['contraseña']
-    estado = user['estado']
-    id_tipo_iden = user['id_tipo_identificacion']
-    
-    with config['development'].conn() as conn:
-      with conn.cursor() as cur:
-        cur.execute('INSERT INTO usuario (nombre,numero_identificacion,correo,contrasena,estado,rol,id_tipo_identificacion) values (%s,%s,%s,%s,%s,%s,%s)',
-                  (nom,num_identi,correo,contra,estado,"Aprendiz",id_tipo_iden))
-        conn.commit()
-    return jsonify({'Mensaje': f'Usuario registrado'})
+        user = request.get_json()
+
+        if not user:
+            return jsonify({'Mensaje': 'Datos no recibidos'}), 400
+
+        nom = user['nombre']
+        correo = user['correo']
+        contra = user['contraseña']
+        estado = user['estado']
+        id_tipo_iden = user['id_tipo_identificacion']
+        num_identi = user['numero_identificacion']
+
+        contra_hash = generate_password_hash(contra)
+
+        with config['development'].conn() as conn:
+            with conn.cursor() as cur:
+                cur.execute('SELECT * FROM usuario WHERE correo = %s', (correo,))
+                if cur.fetchone():
+                    return jsonify({'Mensaje': 'El correo ya está registrado'}), 409
+
+                cur.execute('''
+                    INSERT INTO usuario (nombre, numero_identificacion, correo, contrasena, estado, rol, id_tipo_identificacion)
+                    VALUES (%s, %s, %s, %s, %s, %s, %s)
+                ''', (nom, num_identi, correo, contra_hash, estado, "Aprendiz", id_tipo_iden))
+                conn.commit()
+
+        return jsonify({'Mensaje': 'Usuario registrado exitosamente'}), 201
+
   except Exception as err:
-    print(err)
-    return jsonify({'Mensaje':'Error el usuario no pudo ser registrado'})
+    print(f"Error en registro_usuarios: {err}")
+    return jsonify({'Mensaje': 'Error, el usuario no pudo ser registrado'}), 500
 
 
 #RUTA DE PERFIL
@@ -300,6 +314,8 @@ def perfil():
 
 # RUTA PARA CONSULTAR TODOS LOS PORCINOS
 @app.route('/porcino', methods=['GET'])
+@token_requerido
+@rol_requerido('Admin')
 def consulta_general_porcinos():
   """
   Consulta general de los porcinos registrados en la base de datos
@@ -325,6 +341,8 @@ def consulta_general_porcinos():
 
 # RUTA PARA CONSULTAR UN PORCINO POR SU ID
 @app.route('/porcino/<int:id>', methods=['GET'])
+@token_requerido
+@rol_requerido('Admin')
 def consulta_individual_porcinos(id):
   """
   Consulta individual por ID de los porcinos registrados en la base de datos
@@ -364,6 +382,8 @@ def consulta_individual_porcinos(id):
 
 #Ruta para filtrar los porcinos
 @app.route('/porcino/filtros', methods = ['POST'])
+@token_requerido
+@rol_requerido('Admin')
 def porcinos_filtro():
   """
   Consulta por filtro de los porcinos registrado en la base de datos
@@ -430,6 +450,8 @@ def porcinos_filtro():
 
 #Ruta para consultar el historial de pesos de los porcinos
 @app.route('/porcino/historial_pesos', methods = ['GET'])
+@token_requerido
+@rol_requerido('Admin')
 def historial_pesos():
   """
   Consultar el historial de pesos de los porcinos registrados
@@ -460,6 +482,8 @@ def historial_pesos():
 
 
 @app.route('/porcino/historial_pesos/conteo_transacciones', methods=['GET'])
+@token_requerido
+@rol_requerido('Admin')
 def conteo_transacciones():
     """
     Conteo de transacciones de pesos actualizados
@@ -475,8 +499,6 @@ def conteo_transacciones():
             with conn.cursor() as cur:
                 cur.execute("SELECT COUNT(*) FROM transaccion_peso;")
                 conteo = cur.fetchone()
-                print(conteo)
-
                 if conteo:
                     # Si es dict o tupla, tomar solo el número
                     total = list(conteo.values())[0] if isinstance(conteo, dict) else conteo[0]
@@ -494,6 +516,8 @@ def conteo_transacciones():
 
 
 @app.route('/porcino/historial_pesos/actualizar', methods = ['POST'])
+@token_requerido
+@rol_requerido('Admin')
 def actualizar_peso_porcinos():
   """
   Registro de transaccion de peso y actualizacion del peso del porcino
@@ -546,6 +570,8 @@ def actualizar_peso_porcinos():
 
 # RUTA PARA REGISTRAR A UN PORCINO
 @app.route('/porcino', methods=['POST'])
+@token_requerido
+@rol_requerido('Admin')
 def registrar_porcinos():
   """
   Registrar nuevo porcino en la base de datos
@@ -634,6 +660,8 @@ def registrar_porcinos():
 
 # RUTA PARA ACTUALIZAR LA INFORMACION DE UN PORCINO POR SU ID
 @app.route('/porcino/<int:id>', methods=['PUT'])
+@token_requerido
+@rol_requerido('Admin')
 def actualizar_porcino(id):
   
   """
@@ -697,6 +725,8 @@ def actualizar_porcino(id):
 
 # RUTA PARA ELIMINAR PORCINO POR ID
 @app.route('/porcino/<int:id>', methods=['DELETE'])
+@token_requerido
+@rol_requerido('Admin')
 def eliminar_porcino(id):
   """
   Eliminar registro por ID de un porcino registrado en la base de datos
@@ -725,6 +755,8 @@ def eliminar_porcino(id):
 
 # RUTA PARA CONSULTAR TODAS LAS RAZAS
 @app.route('/raza', methods = ['GET'])
+@token_requerido
+@rol_requerido('Admin')
 def consulta_gen_raza():
   """
   Consulta general de las razas registradas en la base de datos
@@ -752,6 +784,8 @@ def consulta_gen_raza():
 
 # RUTA PARA CONSULTAR UNA RAZA POR SU ID
 @app.route('/raza/<int:id>', methods = ['GET'])
+@token_requerido
+@rol_requerido('Admin')
 def consulta_indi_raza(id):
   """
   Consulta individual por ID de las razas registradas en la base de datos
@@ -786,6 +820,8 @@ def consulta_indi_raza(id):
 
 # RUTA PARA REGISTRAR RAZAS
 @app.route('/raza', methods = ['POST'])
+@token_requerido
+@rol_requerido('Admin')
 def registrar_raza():
   """
   Registrar nueva etapa en la base de datos
@@ -825,6 +861,8 @@ def registrar_raza():
 
 # RUTA PARA ACTUALIZAR LA INFORMACION DE UNA RAZA POR SU ID
 @app.route('/raza/<int:id>', methods = ['PUT'])
+@token_requerido
+@rol_requerido('Admin')
 def actualizar_raza(id):
   """
   Actualizar etapa por id
@@ -869,6 +907,8 @@ def actualizar_raza(id):
 
 # RUTA PARA ELIMINAR UNA RAZA POR SU ID
 @app.route('/raza/<int:id>', methods = ['DELETE'])
+@token_requerido
+@rol_requerido('Admin')
 def eliminar_raza(id):
   """
   Eliminar registro por ID de una etapa registrado en la base de datos
@@ -904,6 +944,8 @@ def eliminar_raza(id):
 
 #RUTA PARA CONSULTAR TODAS LAS ETAPAS DE VIDA
 @app.route('/etapa_vida', methods = ['GET'])
+@token_requerido
+@rol_requerido('Admin')
 def consulta_gen_etapa(): 
   """
   Consulta de etapas de vida
@@ -935,6 +977,8 @@ def consulta_gen_etapa():
 
 # RUTA PARA CONSULTAR UN ETAPA DE VIDA POR SU ID
 @app.route('/etapa_vida/<int:id>', methods = ['GET'])
+@token_requerido
+@rol_requerido('Admin')
 def consulta_indi_etapa(id):
   """
   Consulta individual por ID de los porcinos registrados en la base de datos
@@ -968,6 +1012,8 @@ def consulta_indi_etapa(id):
 
 # RUTA PARA REGISTRAR UNA ETAPA DE VIDA
 @app.route('/etapa_vida', methods = ['POST'])
+@token_requerido
+@rol_requerido('Admin')
 def registrar_etapa():
   """
   Registrar nueva etapa de vida en la base de datos
@@ -1015,6 +1061,8 @@ def registrar_etapa():
 
 # RUTA PARA ACTUALIZAR LA INFORMACION DE UNA ETAPA DE VIDA POR SU ID
 @app.route('/etapa_vida/<int:id>', methods = ['PUT'])
+@token_requerido
+@rol_requerido('Admin')
 def actualizar_etapa_vida(id):
   """
   Actualizar etapa de vida por id
@@ -1059,6 +1107,8 @@ def actualizar_etapa_vida(id):
 
 # RUTA PARA ELIMINAR UNA ETAPA DE VIDA POR SU ID
 @app.route('/etapa_vida/<int:id>', methods = ['DELETE'])
+@token_requerido
+@rol_requerido('Admin')
 def eliminar_etapa_vida(id):
   """
   Eliminar registro por ID de una etapa de vida registrado en la base de datos
@@ -1097,6 +1147,7 @@ def eliminar_etapa_vida(id):
 
 # RUTA PARA CONSULTAR TODOS LOS ALIMENTOS
 @app.route("/alimentos", methods=["GET"])
+@token_requerido
 def consulta_alimento():
   """
   Consultar de Alimentos
@@ -1151,6 +1202,7 @@ def consulta_alimento():
 
 # RUTA PARA CONSULTAR UN ALIMENTO POR SU ID
 @app.route("/consulta_indi_alimento/<nombre>", methods=["GET"])
+@token_requerido
 def consulta_individual_alimento(nombre):
   try:
       with config['development'].conn() as conn:
@@ -1165,6 +1217,8 @@ def consulta_individual_alimento(nombre):
 
 # RUTA PARA REGISTRAR UN ALIMENTO
 @app.route("/registrar_alimento/", methods=["POST"])
+@token_requerido
+@rol_requerido('Admin')
 def registrar_alimento():
   """
   Consultar de Alimentos
@@ -1214,6 +1268,8 @@ def registrar_alimento():
 
 # RUTA PARA ELIMINAR UN ALIMENTO POR SU ID
 @app.route("/eliminar_alimento/<int:id>", methods=["DELETE"])
+@token_requerido
+@rol_requerido('Admin')
 def eliminar_alimento(id):
   """
   Consultar de Alimentos

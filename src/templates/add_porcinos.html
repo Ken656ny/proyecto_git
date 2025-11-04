@@ -46,7 +46,7 @@
                         </a>
                     </li>
                     <li>
-                        <a href="/src/templates/porcinos.html" onclick="redirectWithDelay(event, 'porcinos.html')">
+                        <a href="/src/templates/porcinos.html" onclick="manejarClickPorcino(event)">
                             <img src="../static/iconos/icon pig.svg" width="20px" alt="" class="icons-bar">
                             <span>Porcinos</span>
                         </a>
@@ -160,7 +160,7 @@
                 <label for="descripcion"> Descripción </label>
                 <textarea name="" id="descripcion" class="input__add__por" placeholder="Descripcion del animal."></textarea>
             </div>
-            <button type="submit" class="btn btn--guardar">Agregar Porcino</button>
+            <button type="submit" class="btn btn--guardar" onclick="manejarClickPorcino(event)">Agregar Porcino</button>
         </form>
     </section>
     <script src="/src/static/js/script.js"></script>
