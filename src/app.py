@@ -51,7 +51,7 @@ def generar_token(usuario, es_google=False):
         "correo": usuario["correo"],
         "es_google": es_google,
         "rol": usuario.get("rol", "Aprendiz"),
-        "exp": datetime.now(timezone.utc) + timedelta(minutes=10)
+        "exp": datetime.now(timezone.utc) + timedelta(hours=1)
     }
     token = jwt.encode(payload, app.secret_key, algorithm="HS256")
     return token
@@ -70,7 +70,7 @@ def token_requerido(f):
             
             datos = jwt.decode(token, app.secret_key, algorithms=["HS256"])
             request.usuario = datos
-            print("Datos decodificados:", datos)
+            # print("Datos decodificados:", datos)
             
         except jwt.ExpiredSignatureError:
             return jsonify({"Mensaje": "Sesión expirada"}), 401
@@ -1261,22 +1261,6 @@ def consulta_alimento():
 
     except Exception as e:
         return jsonify({"error": str(e)})
-
-
-# RUTA PARA CONSULTAR UN ALIMENTO POR SU ID
-@app.route("/consulta_indi_alimento/<nombre>", methods=["GET"])
-@token_requerido
-def consulta_individual_alimento(nombre):
-  try:
-      with config['development'].conn() as conn:
-          with conn.cursor() as cur:
-              cur.execute("DELETE FROM alimento_tiene_elemento WHERE id_alimento = %s", (id,))
-              cur.execute("DELETE FROM alimentos WHERE id_alimento = %s", (id,))
-              conn.commit()
-      return jsonify({"mensaje": f"Alimento con id {id} eliminado correctamente"})
-  except Exception as e:
-      return jsonify({"error": str(e)})
-
 
 # RUTA PARA REGISTRAR UN ALIMENTO
 @app.route("/registrar_alimento/", methods=["POST"])

@@ -476,11 +476,12 @@ function crearDialogDeleteEtapa(item, uniqueId){
 async function crearDialogActualizarPesoHistorial(){
     const nm = await conteoNumeroConsecutivo();
     const porcinos = await consulta_general_porcinos();
+    const usuario = JSON.parse(localStorage.getItem("usuario"));
     const campos = [
         { label: 'Fecha de pesaje', id: 'fecha-pesaje-actu', type: 'date', required: true },
         { label: 'ID porcino', id: 'id-porcino-actu', type: 'select', options: porcinos.Porcinos.map(por => por.id_porcino), required: true, placeholder: "Seleccione el ID del porcino" },
         { label: 'Peso final', id: 'peso-final-actu', type: 'number', required: true, placeholder: "Digite el peso en Kg" },
-        { label: 'Usuario', id: 'id-usuario-actu', type: 'text', required: true, placeholder: "Juan Tovar", value: 3 },
+        { label: 'Usuario', id: 'id-usuario-actu', type: 'text', required: true, placeholder: `${usuario.nombre}`, value: `${usuario.numero_identificacion}` },
     ];
 
     const camposHTML = campos.map(campo => {
@@ -574,6 +575,7 @@ async function crearDialogActualizarPesoHistorial(){
 }
 
 function actualizarPreview(porcino, peso, elementoTexto) {
+    const usuario_sesion = JSON.parse(localStorage.getItem("usuario"));
     if (!porcino) {
         elementoTexto.textContent = "Seleccione el ID del porcino...";
         return;
@@ -582,11 +584,11 @@ function actualizarPreview(porcino, peso, elementoTexto) {
     const sexo = porcino.Porcinos[0].sexo || "XX";
     const etapa = porcino.Porcinos[0].etapa || "XX";
     const id = porcino.Porcinos[0].id_porcino || "XX";
-    const usuario = "Juan Tovar";
+    
 
     elementoTexto.textContent = `
         El porcino identificado con el ID ${id}, siendo de raza ${raza}, sexo ${sexo} y etapa de vida ${etapa},
-        después de su último pesaje registrado por el usuario ${usuario}, presenta un peso de ${peso || "XX"} Kg.
+        después de su último pesaje registrado por el usuario ${usuario_sesion.nombre}, presenta un peso de ${peso || "XX"} Kg.
     `;
 }
 
@@ -754,6 +756,8 @@ async function consulta_filtros() {
 async function consulta_general_porcinos() {
     try {
         await verifyToken();
+        const usuario = localStorage.getItem("usuario");
+        console.log(usuario)
         const response = await fetch(`${URL_BASE}/porcino`, {
             headers: getAuthHeaders()
         });
@@ -963,13 +967,14 @@ function crearFilaHistorial(item){
 }
 
 function crearDialogEyeHistorial(item, uniqueId){
+    const usuario_sesion = JSON.parse(localStorage.getItem('usuario'));
     const campos = [
         {label: 'ID', value: item.id_documento, id: 'id-documento'},
         {label: 'Fecha Documento', value: item.fecha_documento, id: 'fecha-documento-eye'},
         {label: 'Fecha Pesaje', value: item.fecha_pesaje, id: 'fecha-pesaje-eye'},
         {label: 'ID porcino', value: item.id_porcino, id: 'id-porcino-eye'},
         {label: 'Peso registrado', value: item.peso_final, id: 'peso-registrado-eye'},
-        {label: 'Usuario', value: item.nombre, id: 'nombre-usuario-eye'},
+        {label: 'Usuario', value: `${usuario_sesion.nombre}`, id: 'nombre-usuario-eye'},
         {label: 'Descripcion', value: item.descripcion, id: 'descripcion-eye'},
     ]
 

@@ -569,7 +569,8 @@ SECCION DE PORCINOS
     background-repeat: no-repeat;
     background-position: bottom;
     background-size: 100%;
-    background-attachment: fixed
+    background-attachment: fixed;
+    min-height: 100vh;
 }
 .body_dietas{
     display: grid;
