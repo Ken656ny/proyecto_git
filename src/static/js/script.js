@@ -125,6 +125,7 @@ function crearDialogBase(id, clase, titulo, contenido, textoBoton, claseBoton, u
 }
 
 function crearDialogBaseRaza(id, clase, titulo, contenido, textoBoton, claseBoton, uniqueId, funct, params) {
+    
     const dialog = document.createElement("dialog");
     
     dialog.className = clase;
@@ -475,7 +476,7 @@ function crearDialogDeleteEtapa(item, uniqueId){
 
 async function crearDialogActualizarPesoHistorial(){
     const nm = await conteoNumeroConsecutivo();
-    const porcinos = await consulta_general_porcinos();
+    // const porcinos = await consulta_general_porcinos();
     const usuario = JSON.parse(localStorage.getItem("usuario"));
     const campos = [
         { label: 'Fecha de pesaje', id: 'fecha-pesaje-actu', type: 'date', required: true },
@@ -602,13 +603,13 @@ function mostrar_porcinos(porcinos) {
 }
 
 function crearFilaPorcino(item) {
+    console.log("q")
     const uniqueId = item.id_porcino;
     return `
         <tr class="registro" porcino-id="${uniqueId}">
             <td class="td__border__l">
                 <img src="/src/static/iconos/registro pig.svg" alt="" class="svg__pig">
             </td>
-            
             <td>${item.id_porcino}</td>
             <td>${item.sexo}</td>
             <td>${item.raza}</td>
@@ -687,6 +688,7 @@ function crearSelects(filtro,opciones){
 
 function porcino_filtros() {
     try {
+        console.log("filtro")
         const input__id = document.getElementById('input_id');
         const filter = document.getElementById("filter_porcino");
         input__id.addEventListener('input', () => {
@@ -746,6 +748,8 @@ async function consulta_filtros() {
             text: `${response.Mensaje}`,
             icon: "error",
         });
+
+        
         }
     } catch (error) {
         console.error(error)
@@ -755,9 +759,9 @@ async function consulta_filtros() {
 
 async function consulta_general_porcinos() {
     try {
+        console.log("historial_pesos")
         await verifyToken();
         const usuario = localStorage.getItem("usuario");
-        console.log(usuario)
         const response = await fetch(`${URL_BASE}/porcino`, {
             headers: getAuthHeaders()
         });
@@ -1274,6 +1278,7 @@ function crearDialogBaseRaza(id, clase, titulo, contenido, textoBoton, claseBoto
 
 async function consultar_razas() {
     try {
+        console.log("razas")
         await verifyToken();
         const promesa = await fetch(`${URL_BASE}/raza`, {
             method: 'GET',
@@ -1466,6 +1471,7 @@ function crearIconosAccionesEtapa(id){
 
 async function consultar_etapas() {
     try{
+        console.log("etapas")
         await verifyToken();
         const promesa = await fetch(`${URL_BASE}/etapa_vida`, {
             method: 'GET',
