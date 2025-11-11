@@ -1,4 +1,4 @@
-const URL_BASE = 'http://127.0.0.1:5000'
+const URL_BASE = 'http://10.4.215.104:5000'
 
 // =============================================
 // FUNCIONES AUXILIARES Y UTILIDADES
