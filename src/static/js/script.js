@@ -2131,3 +2131,91 @@ document.addEventListener('DOMContentLoaded', function() {
     crearDialogActualizarPesoHistorial();
 });
 
+function timesleep(){
+   let tiempoInactividad;
+let tiempoCierre;
+let cuentaRegresiva = 30;
+let modalAbierto = false; // bandera para saber si el modal está abierto
+
+function iniciarTemporizador() {
+  tiempoInactividad = setTimeout(() => {
+    mostrarAlerta();
+  }, 5000); 
+}
+
+function mostrarAlerta() {
+  modalAbierto = true; // modal abierto
+  cuentaRegresiva = 30;
+
+  Swal.fire({
+  title: 'mucho tiempo de inactividad, ¿sigues aquí?',
+  html: `<p>Tu sesión se cerrará en <b id="contador">${cuentaRegresiva}</b> segundos.</p>`,
+  imageUrl: '/src/static/iconos/cerdito.sueño.png',   
+  imageWidth: 200,                  
+  imageHeight: 200,                  
+  imageAlt: 'Cerdito con sueño 😴', 
+  showCancelButton: true,
+  confirmButtonText: 'Sí, continuar',
+  cancelButtonText: 'Cerrar sesión',
+    allowOutsideClick: false,
+    allowEscapeKey: false,
+    didOpen: () => {
+      const contadorElem = Swal.getHtmlContainer().querySelector('#contador');
+
+      tiempoCierre = setInterval(() => {
+        cuentaRegresiva--;
+        contadorElem.textContent = cuentaRegresiva;
+
+        if (cuentaRegresiva <= 0) {
+          clearInterval(tiempoCierre);
+          Swal.close();
+          modalAbierto = false;
+          cerrarSesion();
+        }
+      }, 1000);
+
+      // Eventos de los botones
+      const confirmButton = Swal.getConfirmButton();
+      const cancelButton = Swal.getCancelButton();
+
+      confirmButton.addEventListener('click', () => {
+        clearInterval(tiempoCierre);
+        Swal.close();
+        modalAbierto = false;
+        reiniciarInactividad();
+      });
+
+      cancelButton.addEventListener('click', () => {
+        clearInterval(tiempoCierre);
+        Swal.close();
+        modalAbierto = false;
+        cerrarSesion();
+      });
+    },
+  });
+}
+
+function cerrarSesion() {
+  Swal.fire({
+    icon: 'info',
+    title: 'Sesión cerrada',
+    text: 'Tu sesión fue cerrada por inactividad.',
+    timer: 2000,
+    showConfirmButton: false
+  }).then(() => {
+    window.location.href = '/src/templates/index.html';
+  });
+}
+
+function reiniciarInactividad() {
+  if (!modalAbierto) {
+    clearTimeout(tiempoInactividad);
+    iniciarTemporizador();
+  }
+}
+
+window.onload = iniciarTemporizador;
+document.onmousemove = reiniciarInactividad;
+document.onkeydown = reiniciarInactividad;
+document.onclick = reiniciarInactividad;
+}
