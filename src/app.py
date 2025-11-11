@@ -789,11 +789,45 @@ def consulta_gen_etapa():
     
     with config['development'].conn() as conn:
       with conn.cursor() as cur:
-        cur.execute('SELECT * FROM etapa_vida')
+        cur.execute("""
+            SELECT 
+                ev.id_etapa, 
+                ev.nombre AS nombre_etapa, 
+                ev.peso_min, 
+                ev.peso_max, 
+                ev.duracion_dias,
+                ev.duracion_semanas,
+                e.nombre as nombre_elemento,
+                rn.porcentaje
+            FROM etapa_vida ev
+            LEFT JOIN requerimientos_nutricionales rn ON ev.id_etapa = rn.id_etapa
+            LEFT JOIN elementos e ON rn.id_elemento = e.id_elemento
+            ORDER BY ev.id_etapa;
+        """)
     
-    info = cur.fetchall()
-    if info:
-      return jsonify({'Mensaje': 'Lista de etapas registradas', 'etapas': info})
+    
+    filas = cur.fetchall()
+    etapas = {}
+    for fila in filas:
+      id_etapa = fila['id_etapa']
+      if id_etapa not in etapas:
+        etapas[id_etapa] = {
+          "id_etapa" : id_etapa,
+          "nombre_etapa" : fila['nombre_etapa'],
+          "peso_min" : fila['peso_min'],
+          "peso_max" : fila['peso_max'],
+          "duracion_dias" : fila['duracion_dias'],
+          "duracion_semanas" : fila['duracion_semanas'],
+          "requerimientos" : []
+        }
+      if fila['nombre_elemento']:
+        etapas[id_etapa]['requerimientos'].append({
+          "nombre_elemento" : fila["nombre_elemento"],
+          "porcentaje" : fila['porcentaje']
+        })
+      
+    if etapas:
+      return jsonify({'Mensaje': 'Lista de etapas registradas', 'etapas': etapas}), 200
     else:
       return jsonify({'Mensaje': 'No hay etapas registradas'})
   except Exception as err:
@@ -864,17 +898,37 @@ def registrar_etapa():
       description: Error en la base de datos
   """
   try:
+    
     data = request.get_json()
-    nombre = data['nombre']
-    desc = data['descripcion']
+    nombre_etapa = data['nombre_etapa']
+    peso_min = data['peso_min']
+    peso_max = data['peso_max']
+    duracion_dias = data['duracion_dias']
+    duracion_semanas = data['duracion_semanas']
+    requerimientos = data['requerimientos']
+    descripcion = data['descripcion']
     
     with config['development'].conn() as conn:
       with conn.cursor() as cur:
-        cur.execute('INSERT INTO etapa_vida VALUES (null,%s,%s)',
-                    (nombre,desc))
+        cur.execute("""
+                    INSERT INTO etapa_vida(nombre,peso_min,peso_max,duracion_dias,duracion_semanas,descripcion)
+                    VALUES (%s,%s,%s,%s,%s,%s)
+                    """, (nombre_etapa,peso_min,peso_max,duracion_dias,duracion_semanas,descripcion))
+        
+        id_etapa = cur.lastrowid
+        
+        if requerimientos:
+          for req in requerimientos:
+            id_elemento = req['id_elemento']
+            porcentaje = req['porcentaje']
+            if id_elemento and porcentaje is not None:
+              cur.execute("""
+                          INSERT INTO requerimientos_nutricionales(id_etapa,id_elemento,porcentaje)
+                          VALUES (%s,%s,%s)
+                          """, (id_etapa,id_elemento,porcentaje))
         conn.commit()
 
-    return jsonify({'Mensaje': 'Etapa de vida registrada correctamente'})
+    return jsonify({'Mensaje': 'Etapa de vida registrada correctamente'}), 201
   except Exception as err:
     print(err)
     return jsonify({'Mesaje':'Error en la base de datos'})
@@ -909,13 +963,36 @@ def actualizar_etapa_vida(id):
   """
   try:
     data = request.get_json()
-    nombre = data['nombre']
-    desc = data['descripcion']
+    nombre_etapa = data['nombre_etapa']
+    peso_min = data['peso_min']
+    peso_max = data['peso_max']
+    duracion_dias = data['duracion_dias']
+    duracion_semanas = data['duracion_semanas']
+    requerimientos = data['requerimientos']
+    descripcion = data['descripcion']
     
     with config['development'].conn() as conn:
       with conn.cursor() as cur:
-        cur.execute('UPDATE etapa_vida SET nombre = %s, descripcion = %s WHERE id_etapa = %s',
-                    (nombre,desc,id))
+        cur.execute("""
+                    UPDATE etapa_vida
+                    SET nombre = %s, peso_min = %s, peso_max = %s, duracion_dias = %s, duracion_semanas = %s, descripcion = %s
+                    WHERE id_etapa = %s
+                    """, (nombre_etapa,peso_min,peso_max,duracion_dias,duracion_semanas,descripcion,id))
+        
+        cur.execute("""
+                    DELETE FROM requerimientos_nutricionales
+                    WHERE id_etapa = %s
+                    """, (id,))
+        
+        if requerimientos:
+          for req in requerimientos:
+            id_elemento = req['id_elemento']
+            porcentaje = req['porcentaje']
+            if id_elemento and porcentaje is not None:
+              cur.execute("""
+                          INSERT INTO requerimientos_nutricionales(id_etapa,id_elemento,porcentaje)
+                          VALUES (%s,%s,%s)
+                          """, (id,id_elemento,porcentaje))
         conn.commit()
 
     return jsonify({'Mensaje': 'Etapa de vida actulizada correctamente'})
