@@ -23,9 +23,11 @@ app.secret_key = 'secretkey'
 CORS(app, supports_credentials=True)
 Swagger(app)
 
-cargar_imagenes = os.path.join(os.getcwd(), "static", "imagenes")
-os.makedirs(cargar_imagenes, exist_ok=True)  
+cargar_imagenes = os.path.join(os.path.dirname(__file__), "static", "imagenes_base_de_datos")
+os.makedirs(cargar_imagenes, exist_ok=True)
 app.config["cargar_imagenes"] = cargar_imagenes
+
+
 
 
 
@@ -798,7 +800,8 @@ def registrar_alimento():
             filename = secure_filename(imagen_file.filename)
             ruta = os.path.join(app.config["cargar_imagenes"], filename)
             imagen_file.save(ruta)
-            imagen_web = f"/static/imagenes/{filename}"
+            imagen_web = f"/static/imagenes_base_de_datos/{filename}"
+
         else:
             imagen_web = None
         with config['development'].conn() as conn:
@@ -833,11 +836,10 @@ def registrar_alimento():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-      
 @app.route("/consulta_indi_alimento_disponible/<nombre>", methods=["GET"])
 def consulta_individual_alimento_disponible(nombre):
     """
-    Consultar un alimento individual (solo si está disponible)
+    Consultar un alimento individual (si está activo o disponible)
     """
     try:
         with config['development'].conn() as conn:
@@ -853,7 +855,7 @@ def consulta_individual_alimento_disponible(nombre):
                     FROM alimentos a
                     JOIN alimento_tiene_elemento ate ON a.id_alimento = ate.id_alimento
                     JOIN elementos e ON e.id_elemento = ate.id_elemento
-                    WHERE a.nombre = %s AND a.estado = 'disponible'
+                    WHERE a.nombre = %s AND a.estado IN ('Activo', 'disponible')
                 """, (nombre,))
                 
                 filas = cur.fetchall()
@@ -881,8 +883,6 @@ def consulta_individual_alimento_disponible(nombre):
                 
     except Exception as e:
         return jsonify({"error": str(e)})
-
-
 
 @app.route("/consulta_indi_alimento/<nombre>", methods=["GET"])
 def consulta_individual_alimento(nombre):
@@ -948,7 +948,8 @@ def actualizar_alimento(id_alimento):
             filename = secure_filename(imagen_file.filename)
             ruta = os.path.join(app.config["cargar_imagenes"], filename)
             imagen_file.save(ruta)
-            imagen_web = f"/static/imagenes/{filename}"
+            imagen_web = f"/static/imagenes_base_de_datos/{filename}"
+
 
         with config['development'].conn() as conn:
             with conn.cursor() as cur:

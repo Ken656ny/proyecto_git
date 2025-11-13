@@ -1716,7 +1716,7 @@ function dietas() {
                 alimentos_en_dieta.innerHTML += `
                     <div class="alimentos_dietas">
                         <div class="imagen_alimento_dieta">
-                            <img src="${element.imagen}" 
+                            <img src="${URL_BASE}${element.imagen}" 
                                  onerror="this.onerror=null; this.src='/src/static/iconos/imagen no encontrada.svg'; this.classList.add('sin_imagen_alimento_dieta')" 
                                  alt="no hay imagen">
                         </div>
@@ -1756,7 +1756,7 @@ function consulta_individual_alimento_disponible() {
         return;
     }
 
-    fetch(`${URL_BASE}/consulta_indi_alimento/${nombre}`)
+    fetch(`${URL_BASE}/consulta_indi_alimento_disponible/${nombre}`)
         .then(res => {
             if (!res.ok) throw new Error(`Error HTTP ${res.status}`);
             return res.json();
@@ -1782,7 +1782,7 @@ function consulta_individual_alimento_disponible() {
             alimentos_en_dieta.innerHTML = `
                 <div class="alimentos_dietas">
                     <div class="imagen_alimento_dieta">
-                        <img src="${element.imagen}" 
+                      <img src="${URL_BASE}${element.imagen}" 
                              onerror="this.onerror=null; this.src='/src/static/iconos/imagen no encontrada.svg'; this.classList.add('sin_imagen_alimento_dieta')" 
                              alt="no hay imagen">
                     </div>
