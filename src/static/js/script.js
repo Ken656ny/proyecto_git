@@ -1,4 +1,4 @@
-const URL_BASE = 'https://127.0.0.1:5000'
+const URL_BASE = 'http://127.0.0.1:5000'
 
 // Al cargar la página, insertar el diálogo
 document.addEventListener('DOMContentLoaded', function () {

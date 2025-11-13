@@ -145,7 +145,7 @@
     ];
     formData.append("elementos", JSON.stringify(elementos));
 
-    fetch("https://127.0.0.1:5000/registrar_alimento", {
+    fetch("http://127.0.0.1:5000/registrar_alimento", {
         method: "POST",
         body: formData
     })
