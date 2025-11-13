@@ -40,7 +40,7 @@ def generar_token(usuario, es_google=False):
         "correo": usuario["correo"],
         "es_google": es_google,
         "rol": usuario.get("rol", "Aprendiz"),
-        "exp": datetime.now(timezone.utc) + timedelta(minutes=10)
+        "exp": datetime.now(timezone.utc) + timedelta(minutes=60)
     }
     token = jwt.encode(payload, app.secret_key, algorithm="HS256")
     return token
@@ -59,7 +59,6 @@ def token_requerido(f):
             
             datos = jwt.decode(token, app.secret_key, algorithms=["HS256"])
             request.usuario = datos
-            print("Datos decodificados:", datos)
             
         except jwt.ExpiredSignatureError:
             return jsonify({"Mensaje": "Sesión expirada"}), 401
@@ -257,6 +256,10 @@ def registro_usuarios():
                 if cur.fetchone():
                     return jsonify({'Mensaje': 'El correo ya está registrado'}), 409
 
+                cur.execute('SELECT * FROM usuario WHERE numero_identificacion = %s', (num_identi))
+                if cur.fetchone():
+                  return jsonify({'Mensaje': 'El número de identificación está en uso'}), 409
+                
                 cur.execute('''
                     INSERT INTO usuario (nombre, numero_identificacion, correo, contrasena, estado, rol, id_tipo_identificacion)
                     VALUES (%s, %s, %s, %s, %s, %s, %s)

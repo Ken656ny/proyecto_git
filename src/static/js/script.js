@@ -66,7 +66,7 @@ function llenarSelectDesdeLista(lista, selectId, valorSeleccionado, keyId, keyNo
             option.selected = true;
         }
         select.appendChild(option);
-    });
+    }); 
 }
 
 function crearIconoEdit() {
@@ -1066,7 +1066,7 @@ function crearFilaRaza(item){
     const uniqueId = item.id_raza;
     return `
     <tr class="registro registro__dia">
-        <td class="td__border__l">${item.id_raza}</td>
+        <td class="td__border__l">${item.id_raza}</td> 
         <td>${item.nombre}</td>
         <td>${item.descripcion}</td>
         <td class="td__border__r">
@@ -1473,62 +1473,105 @@ function consulta_individual_alimento(){
 // FUNCIONES DE AUTENTICACIÓN Y USUARIO
 // =============================================
 
-async function registro_usuarios(event) {
-    event.preventDefault(); 
-    try {
-        const nombre = document.getElementById('fname').value;
-        const tipo_identificacion = document.getElementById('tipo_identificacion').value;
-        const numero_identificacion = document.getElementById('n.i').value;
-        const correo = document.getElementById('correo').value;
-        const contraseña = document.getElementById('password').value;
-        const constraseña_confirm = document.getElementById('confirmPassword').value;
-            
-        if ((constraseña_confirm == contraseña) && (contraseña != '')) {
-            const user = {
-                numero_identificacion: numero_identificacion,
-                nombre: nombre,
-                correo: correo,
-                contraseña: contraseña,
-                estado: "Activo",
-                id_tipo_identificacion: tipo_identificacion,
-            };
-
-            fetch(`${URL_BASE}/users`, {
-                method: 'POST',
-                body: JSON.stringify(user),
-                headers: {
-                    "Content-type": "application/json"
-                }
-            })
-            .then(response => response.json())
-            .then(() => {
-                Swal.fire({
-                    title: "Mensaje",
-                    text: `Usuario registrado correctamente. Ahora inicia sesión`,
-                    icon: "success",
-                    timer: 1700,
-                    showConfirmButton: false
-                }).then(() => {
-                    localStorage.setItem("usuario", JSON.stringify({
-                        nombre: nombre,
-                        numero_identificacion: numero_identificacion,
-                        correo: correo
-                    }));
-                    location.href = "index.html";
-                });
-            });
-        } else {
-            Swal.fire({
-                title: "Mensaje",
-                text: `Las contraseñas no coinciden`,
-                icon: "error",
-                scrollbarPadding: false
-            });
-        }
-    } catch (error) {
-        console.error(error);
-    }
+function ContrasenaRobusta(password) {
+    const regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,}$/;
+    return regex.test(password);
 }
+
+async function registro_usuarios(event) {
+  event.preventDefault();
+  try {
+    const nombre = document.getElementById('fname').value;
+    const tipo_identificacion = document.getElementById('tipo_identificacion').value;
+    const numero_identificacion = document.getElementById('n.i').value;
+    const correo = document.getElementById('correo').value;
+    const contraseña = document.getElementById('password').value;
+    const constraseña_confirm = document.getElementById('confirmPassword').value;
+    
+    if (!ContrasenaRobusta(contraseña)) {
+      Swal.fire({
+        title: "Contraseña débil",
+        html: `
+            <div style="text-align: left;">
+                <p>Tu contraseña debe contener:</p>
+                <ul>
+                    <li> Mínimo 8 caracteres</li>
+                    <li> Una letra mayúscula</li>
+                    <li> Una letra minúscula</li>
+                    <li> Un número</li>
+                    <li> Un carácter especial</li>
+                </ul>
+            </div>
+        `,
+        icon: "error",
+        confirmButtonText: "Entendido",
+        confirmButtonColor: "#60836a"
+      });
+      return;
+    }
+
+
+    if (constraseña_confirm !== contraseña) {
+      Swal.fire({
+        title: "Mensaje",
+        text: `Las contraseñas no coinciden`,
+        icon: "error",
+        scrollbarPadding: false
+      });
+      return;
+    }
+
+
+    const user = {
+      numero_identificacion: numero_identificacion,
+      nombre: nombre,
+      correo: correo,
+      contraseña: contraseña,
+      estado: "Activo",
+      id_tipo_identificacion: tipo_identificacion,
+    };
+
+    const response = await fetch(`${URL_BASE}/users`, {
+      method: 'POST',
+      body: JSON.stringify(user),
+      headers: {
+        "Content-type": "application/json"
+      }
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+
+    Swal.fire({
+    title: "Mensaje",
+        text: data.Mensaje || "Ocurrió un error al registrar el usuario",
+        icon: "error",
+        confirmButtonColor: "#60836a"
+    });
+    eturn;
+}
+
+    Swal.fire({
+      title: "Mensaje",
+      text: `Usuario registrado correctamente. Ahora inicia sesión`,
+      icon: "success",
+      timer: 1700,
+      showConfirmButton: false
+    }).then(() => {
+      localStorage.setItem("usuario", JSON.stringify({
+        nombre: nombre,
+        numero_identificacion: numero_identificacion,
+        correo: correo
+      }));
+      location.href = "index.html";
+    });
+
+  } catch (error) {
+    console.error(error);
+  }
+}
+
 
 async function login() {
     try {
@@ -1672,6 +1715,7 @@ async function cargarDatosPerfil() {
         if (datos.es_google) {
             document.getElementById('identificacionLinea').style.display = 'none';
         } else {
+            
             document.getElementById('identificacionUsuario').textContent = datos.numero_identificacion;
         }
 
@@ -1717,15 +1761,6 @@ function mostrarNombreUsuario() {
 // =============================================
 // FUNCIONES DE NAVEGACIÓN Y UI
 // =============================================
-
-// REDIRECCION DE FORMA LENTA HACIA LOS HTML
-function redirectWithDelay(event, url) {
-    event.preventDefault();
-    console.log("Esperando antes de redirigir...");
-    setTimeout(() => {
-        window.location.href = url;  
-    }, 1000);
-}
 
 // FUNCIONALIDAD PARA LA BARRA DE NAVEGACION
 const nav_bar = document.querySelectorAll('.nav__item')
@@ -1845,12 +1880,7 @@ function manejarClickPorcino(event) {
         event.stopPropagation(); // Evita que otros eventos se ejecuten
         return false;
     }
-    // Si tiene permisos, ejecuta tu función original
-    redirectWithDelay(event, 'porcinos.html');
-    return true;
 }
-
-
 
 // =============================================
 // EVENT LISTENER PRINCIPAL (AL FINAL)
@@ -1860,5 +1890,5 @@ document.addEventListener('DOMContentLoaded', function() {
     crearDialogRegistrarRaza();
     crearDialogRegistrarEtapa();
     crearDialogActualizarPesoHistorial();
-});
 
+});
