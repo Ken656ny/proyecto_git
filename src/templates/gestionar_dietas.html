@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="/src/static/css/sytle.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11.17.2/dist/sweetalert2.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <title>Edupork</title>
+</head>
+
+<body class="body_dietas">
+    <section class="section-nav-bar">
+        <div id="barra_lateral" class="barra-lateral">
+            <div id="abrirnav">
+                <div class="logo-edupork">
+                    <img id="cerdo" class="nombre" src="../static/iconos/cerdo.png" width="20px" alt="">
+                    <span>Edupork</span>
+                </div>
+            </div>
+            <nav class="navegacion">
+                <ul class="ul-navegacion">
+                    <li>
+                        <a href="/src/templates/home.html" onclick="redirectWithDelay(event, 'home.html')">
+                            <!--dar estilo -->
+                            <img src="../static/iconos/home icon.svg" width="20px" alt="" class="icons-bar">
+                            <span>Home</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="/src/templates/notificaciones.html"
+                            onclick="redirectWithDelay(event, 'notificaciones.html')">
+
+                            <img src="../static/iconos/notificacions.svg" width="20px" alt="" class="icons-bar">
+                            <span>Notificaciones </span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="/src/templates/porcinos.html" onclick="redirectWithDelay(event, 'porcinos.html')">
+                            <img src="../static/iconos/icon pig.svg" width="20px" alt="" class="icons-bar">
+                            <span>Porcinos</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="/src/templates/alimentos.html" onclick="redirectWithDelay(event, 'alimentos.html')"
+                            class="flex-icons">
+
+                            <img src="../static/iconos/icon wheate.svg" title="alimentos" width="20px" alt=""
+                                class="icons-bar">
+                            <span>Alimentos</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="/src/templates/gestionar_dietas.html"
+                            onclick="redirectWithDelay(event, 'gestionar_dietas.html')">
+                            <img src="../static/iconos/icon plate.svg" width="20px" alt="" class="icons-bar">
+                            <span>Dietas</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="">
+                            <img src="../static/iconos/icon page.svg" alt="" class="icons-bar">
+                            <span>Informes</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="/src/templates/perfil.html" onclick="redirectWithDelay(event, 'perfil.html')">
+                            <img src="../static/iconos/icon user.svg" width="20px" alt="" class="icons-bar">
+                            <span>Usuario</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="/src/templates/configuracion.html"
+                            onclick="redirectWithDelay(event, 'configuracion.html')">
+                            <img src="../static/iconos/icon setting.svg" width="20px" alt="" class="icons-bar">
+                            <span>Configuración</span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    </section>
+    <section class="contenido_dietas">
+
+
+        <header class="container container__title_dietas">
+            <h1>Crear Dietas</h1>
+        </header>
+
+
+        <section class="container container__search__bar_dietas">
+             <div class="separador">
+                <img src="/src/static/iconos/icon lupa.svg" alt="">
+                <input type="text" class="input__id" id="id_alimento" placeholder="Nombre del alimento"
+                    list="lista_alimentos">
+                <datalist id="lista_alimentos"></datalist>
+            </div>
+            <div class="final_buttom">
+                <button type="button" class="btn" onclick="consulta_individual_alimento_disponible()">Consultar</button>
+            </div>
+            <label onclick="dietas()" class="contenedor">
+                <p class="color_linea">consultar todo</p>
+            </label>
+        </section>
+
+
+        <section id="contenedor_dietas" class="container container_dietas">
+            <label class="contenedor1">
+                <input type="checkbox" id="check1">
+                <span class="custom-checkbox"></span>
+                <p class="color_p">Ver alimentos seleccionados</p>
+            </label>
+            <div class="alimentos_en_dieta" id="alimentos_en_dieta">
+            </div>
+            <button type="button" class="btn1" onclick="consulta_individual_porcino()">Guardar</button>
+        </section>
+
+
+
+            <section class="container buscador_etapa_dietas">
+                <form class="formulario_buscar">
+                    <div class="container__filtro">
+                        <img src="/src/static/iconos/icon filter.svg" alt="" id="svg__filter">
+                        <select name="" id="" class="filter">
+                            <option value="" disabled selected>Seleccione la Etapa de vida</option>
+                            <option value=""></option>
+                            <option value="">Raza</option>
+                            <option value="">Etapa de vida</option>
+                            <option value="">Peso final</option>
+                            <option value="">Estado</option>
+                            <option value="">Consultar todo</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn" onclick="consulta_individual_porcino()">Consultar</button>
+                </form>
+            </section>
+
+            <section class="container container_requerimientos_alimento">
+
+
+            </section>
+            <section class="container container_requerimientos_etapa">
+                <div class="titulo_requerimientos">
+                    <h5>requerimientos nutricionales de la etapa</h5>
+                </div>
+                <div class="requerimientos">
+
+                </div>
+            </section>
+
+    </section>
+
+    <script src="/src/static/js/script.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script>
+        dietas();
+    </script>
+</body>
+
+</html>

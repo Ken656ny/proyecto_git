@@ -17,7 +17,7 @@ function redirectWithDelay(event, url) {
 
     // Esperar 1 segundo (1000 ms) antes de redirigir
     setTimeout(() => {
-        window.location.href = url;  
+        window.location.href = url;
     }, 1000);
 }
 
@@ -30,7 +30,7 @@ function bar_funct(){
     item.classList.remove('active'));
     this.classList.add('active');
 }
-nav_bar.forEach((item) => item.addEventListener('click',bar_funct));
+nav_bar.forEach((item) => item.addEventListener('click', bar_funct));
 
 // MANEJO DE RUTAS DEL LOGIN Y REGISTRO DE USUARIOS
 
@@ -46,19 +46,19 @@ async function registro_usuarios() {
 
         if ((constraseña_confirm == contraseña) && (contraseña != '')){
             const user = {
-                "numero_identificacion" : numero_identificacion,
-                "nombre" : nombre,
-                "correo" : correo,
-                "contraseña" : contraseña,
-                "estado" : "Activo",
-                "id_tipo_identificacion" : tipo_identificacion,
+                "numero_identificacion": numero_identificacion,
+                "nombre": nombre,
+                "correo": correo,
+                "contraseña": contraseña,
+                "estado": "Activo",
+                "id_tipo_identificacion": tipo_identificacion,
             }
             fetch(`${URL_BASE}/users`, 
                 {
                     method: 'POST',
                     body: JSON.stringify(user),
-                    headers : {
-                        "Content-type" : "application/json"
+                    headers: {
+                        "Content-type": "application/json"
                     }
                 }).then(response => {
                 }).then(() => {
@@ -67,8 +67,9 @@ async function registro_usuarios() {
                         text: `Usuario registrado correctamente`,
                         icon: "success"
                     });
+
                 })
-        } else{
+        } else {
             Swal.fire({
                 title: "Mensaje",
                 text: `Las constraseñas no coinciden`,
@@ -83,39 +84,39 @@ async function registro_usuarios() {
 
 async function login() {
     try {
-        const correo  = document.getElementById('entrada1').value;
-        const contraseña  = document.getElementById('entrada2').value;
+        const correo = document.getElementById('entrada1').value;
+        const contraseña = document.getElementById('entrada2').value;
 
         const user = {
-            "correo" : correo,
-            "contraseña" : contraseña
+            "correo": correo,
+            "contraseña": contraseña
         }
 
         fetch(`${URL_BASE}/login`,
             {
                 method: 'POST',
                 body: JSON.stringify(user),
-                headers : {
-                    "Content-type" : "application/json"
+                headers: {
+                    "Content-type": "application/json"
                 }
             }).then(response => {
                 return response.json()
             }).then(response => {
                 if (response.Mensaje === 'Las crendenciales son correctas'){
                     location.href = 'home.html'
-                } else if (response.Mensaje === 'Contraseña incorrecta'){
+                } else if (response.Mensaje === 'Contraseña incorrecta') {
                     Swal.fire({
                         title: "Mensaje",
                         text: `Constraseña incorrecta`,
                         icon: "error"
                     });
-                } else if (response.Mensaje === 'Usuario no encontrado'){
+                } else if (response.Mensaje === 'Usuario no encontrado') {
                     Swal.fire({
                         title: "Mensaje",
                         text: `Usuario no encontrado`,
                         icon: "error"
                     });
-                } else{
+                } else {
                     Swal.fire({
                         text: `Error en la base de datos`,
                         title: "Mensaje",
@@ -1576,105 +1577,6 @@ async function eliminar_etapa(id) {
     }
 }
 
-// -------------------
-// GESTION DE ALIMENTOS
-// -------------------
-
-function consulta_alimentos(){
-    const contenido = document.getElementById("contenido");
-    fetch(`${URL_BASE}/alimentos`,{method: "GET"})
-    .then(res=>res.json())
-    .then(data=>{
-        contenido.innerHTML=""; 
-        data.mensaje.forEach(element => {
-                const mapa = {};
-                element.elementos.forEach(e => {
-                mapa[e.nombre] = e.valor;
-                });
-
-            contenido.innerHTML+=`
-            <tr class="nuevo1">
-                <td class="nuevo td__border__l"><img class="svg__pig" src="/src/static/iconos/logo alimentospng.png"></td>
-                <td class="nuevo">${element.id_alimento}</td>
-                <td class="nuevo">${element.nombre}</td>
-                <td class="nuevo">${mapa["Materia_seca"]}</td>
-                <td class="nuevo">${mapa["Energia_metabo"]}</td>
-                <td class="nuevo">${mapa["Proteina_cruda"]}</td>
-                <td class="nuevo">${mapa["Fibra_cruda"]}</td>
-                <td class="nuevo">${element.estado}</td>
-                <td class="nuevo td__border__r">
-
-                <img src="/src/static/iconos/icon eye.svg " class="icon-eye">
-
-                <img src="/src/static/iconos/edit icon.svg" class="icon-edit">
-
-                <img class="eliminar" onclick="eliminar_alimento(${element.id_alimento})" src="/src/static/iconos/delete icon.svg" class="icon-edit">
-                </td>
-            </tr>
-            `
-        });
-    })
-}
-
-function eliminar_alimento(id){
-    fetch(`${URL_BASE}/eliminar_alimento/${id}`,{method:"delete"})
-    .then(res=>res.json())
-    .then(data=>{
-        alert("eliminado correctamente")
-        window.location.reload()
-    })
-}
-
-function consulta_individual_alimento(){
-    const nombre = document.getElementById("id_alimento").value;
-    contenido.innerHTML = "";
-
-    fetch(`${URL_BASE}/consulta_indi_alimento/${nombre}`)
-    .then(res => res.json())
-    .then(data => {
-        if (!data.mensaje) {
-            contenido.innerHTML = `
-                <tr>
-                    <td colspan="9" class="nuevo td__border__l"> No se encontró ningún alimento con ese nombre, por favor digite el nombre completo</td>
-                </tr>
-            `;
-            return;
-        }
-
-        let alimentos = [];
-
-        if (Array.isArray(data.mensaje)) {
-            alimentos = data.mensaje;
-        } else {
-            alimentos = [data.mensaje];
-        }
-
-        alimentos.forEach(element => {
-            const mapa = {};
-            element.elementos.forEach(e => {
-                mapa[e.nombre] = e.valor;
-            });
-
-            contenido.innerHTML += `
-                <tr class="nuevo1">
-                    <td class="nuevo td__border__l"><img class="svg__pig" src="/comida.png"></td>
-                    <td class="nuevo">${element.id_alimento}</td>
-                    <td class="nuevo">${element.nombre}</td>
-                    <td class="nuevo">${mapa["Materia_seca"]}</td>
-                    <td class="nuevo">${mapa["Energia_metabo"]}</td>
-                    <td class="nuevo">${mapa["Proteina_cruda"]}</td>
-                    <td class="nuevo">${mapa["Fibra_cruda"]}</td>
-                    <td class="nuevo">${alimentos.estado}</td>
-                    <td class="nuevo td__border__r">
-                        <img src="/src/static/iconos/icon eye.svg" class="icon-eye">
-                        <img src="/src/static/iconos/edit icon.svg" class="icon-edit">
-                        <img class="eliminar" onclick="eliminar(${element.id_alimento})" src="/src/static/iconos/delete icon.svg" class="icon-edit">
-                    </td>
-                </tr>
-            `;
-        });
-    });
-}
 
 // --------------------------
 // GESTION DE NOTIFICACIONES
@@ -1715,10 +1617,995 @@ async function consultar_notificaciones() {
     }
 }
 
+// -------------------
+// GESTION DE ALIMENTOS
+// -------------------
+
+function consulta_alimentos() {
+    const contenido = document.getElementById("contenido");
+    fetch(`${URL_BASE}/alimentos`, { method: "GET" })
+        .then(res => res.json())
+        .then(data => {
+            console.log(data)
+            contenido.innerHTML = "";
+            data.mensaje.forEach(element => {
+                const mapa = {};
+                element.elementos.forEach(e => {
+                    mapa[e.nombre] = e.valor;
+                });
+
+                contenido.innerHTML += `
+            <tr class="nuevo1">
+                <td class="nuevo td__border__l"><img class="svg__pig" src="/src/static/iconos/logo alimentospng.png"></td>
+                <td class="nuevo">${element.id_alimento}</td>
+                <td class="nuevo">${element.nombre}</td>
+                <td class="nuevo">${mapa["Materia_seca"]}</td>
+                <td class="nuevo">${mapa["Energia_metabo"]}</td>
+                <td class="nuevo">${mapa["Proteina_cruda"]}</td>
+                <td class="nuevo">${mapa["Fibra_cruda"]}</td>
+                <td class="nuevo">${element.estado}</td>
+                <td class="nuevo td__border__r">
+
+                <img src="/src/static/iconos/icon eye.svg " class="icon-eye">
+
+                <img src="/src/static/iconos/edit icon.svg" class="icon-edit">
+
+                <img class="eliminar" onclick="eliminar_alimento(${element.id_alimento})" src="/src/static/iconos/delete icon.svg" class="icon-edit">
+                </td>
+            </tr>
+            `
+            });
+        })
+}
+
+function eliminar_alimento(id) {
+    fetch(`${URL_BASE}/eliminar_alimento/${id}`, { method: "delete" })
+        .then(res => res.json())
+        .then(data => {
+            console.log("eliminado correctamente")
+            alert("eliminado correctamente")
+            window.location.reload()
+        })
+}
+
+async function consulta_individual_alimento() {
+  const nombre = document.getElementById("id_alimento").value.trim();
+  const contenido = document.getElementById("contenido");
+  contenido.innerHTML = "";
+
+  if (!nombre) {
+    Swal.fire({
+      icon: "warning",
+      title: "Campo vacío",
+      text: "Por favor ingresa un nombre de alimento para buscar.",
+      confirmButtonColor: "#3085d6",
+      customClass: { popup: "swal-elevado" }
+    });
+    return;
+  }
+
+  try {
+    const response = await fetch(`${URL_BASE}/consulta_indi_alimento/${nombre}`);
+    const data = await response.json();
+
+    if (!response.ok || !data.mensaje) {
+      Swal.fire({
+        icon: "error",
+        title: "No encontrado",
+        text: "No se encontró ningún alimento con ese nombre.",
+        confirmButtonColor: "#d33",
+        customClass: { popup: "swal-elevado" }
+      });
+      return;
+    }
+
+    // 🔹 Convierte en array si no lo es
+    const alimentos = Array.isArray(data.mensaje) ? data.mensaje : [data.mensaje];
+
+    alimentos.forEach(element => {
+      const mapa = {};
+      element.elementos.forEach(e => {
+        mapa[e.nombre] = e.valor;
+      });
+
+      contenido.innerHTML += `
+        <tr class="nuevo1">
+          <td class="nuevo td__border__l"><img class="svg__alimento" src="/src/static/iconos/logo alimentospng.png"></td>
+          <td class="nuevo">${element.id_alimento}</td>
+          <td class="nuevo">${element.nombre}</td>
+          <td class="nuevo">${mapa["Materia_seca"] || ''}</td>
+          <td class="nuevo">${mapa["Energia_metabo"] || ''}</td>
+          <td class="nuevo">${mapa["Proteina_cruda"] || ''}</td>
+          <td class="nuevo">${mapa["Fibra_cruda"] || ''}</td>
+          <td class="nuevo">${element.estado}</td>
+          <td class="nuevo td__border__r">
+              <img src="/src/static/iconos/icon eye.svg" onclick="abrirModal('eye', ${element.id_alimento})" class="icon-eye">
+              <img src="/src/static/iconos/edit icon.svg" onclick="abrirModal('edit', ${element.id_alimento})" class="icon-edit">
+              <img src="/src/static/iconos/delete icon.svg" onclick="abrirModal('dele', ${element.id_alimento})" class="icon-delete">
+          </td>
+        </tr>
+
+        <!-- Modal ver -->
+        <dialog class="dialog-icon-eye modal-info" id="modal-eye-${element.id_alimento}">
+          <div class="title-dialog">
+            <h2>Información del alimento</h2>
+            <hr>
+          </div>
+          <div class="modal-info-content">
+            <section class="modal-column">
+              <p>Nombre del alimento</p>
+              <input class="input__id" value="${element.nombre}" readonly>
+              <p>Proteína cruda (%)</p>
+              <input class="input__id" value="${mapa["Proteina_cruda"] || ''}" readonly>
+              <p>Materia seca (%)</p>
+              <input class="input__id" value="${mapa["Materia_seca"] || ''}" readonly>
+              <p>Energía metabolizable (Kcal/kg)</p>
+              <input class="input__id" value="${mapa["Energia_metabo"] || ''}" readonly>
+            </section>
+
+            <section class="modal-column">
+              <p>Fibra cruda (%)</p>
+              <input class="input__id" value="${mapa["Fibra_cruda"] || ''}" readonly>
+              <p>Extracto etéreo (%)</p>
+              <input class="input__id" value="${mapa["Extracto_etereo"] || ''}" readonly>
+              <p>Calcio (%)</p>
+              <input class="input__id" value="${mapa["Calcio"] || ''}" readonly>
+              <p>Fósforo (%)</p>
+              <input class="input__id" value="${mapa["Fosforo"] || ''}" readonly>
+            </section>
+          </div>
+          <div class="modal-footer">
+            <button onclick="cerrarModal('eye', ${element.id_alimento})" class="btn">Cerrar</button>
+          </div>
+        </dialog>
+
+        <!-- Modal eliminar -->
+        <dialog class="dialog-icon-dele modal-info" id="modal-dele-${element.id_alimento}">
+          <div class="title-dialog">
+            <h2>Eliminar registro del alimento</h2>
+          </div>
+          <hr>
+          <p>Eliminar el registro sin saber si el alimento tiene trazabilidad puede alterar el sistema.  
+          Es preferible cambiar el estado del alimento a inactivo.</p>
+          <span>¿Está seguro que quiere eliminar este registro?</span>
+          <div class="container-button-dele1">
+            <button class="button-eliminar" onclick="eliminar_alimento(${element.id_alimento})">Eliminar</button>
+            <button class="button-cerrar" onclick="cerrarModal('dele', ${element.id_alimento})">Cancelar</button>
+          </div>
+        </dialog>
+      `;
+    });
+
+  } catch (error) {
+    console.error("Error al consultar alimento:", error);
+    Swal.fire({
+      icon: "error",
+      title: "Error inesperado",
+      text: "Ocurrió un problema al consultar el alimento.",
+      confirmButtonColor: "#d33",
+      customClass: { popup: "swal-elevado" }
+    });
+  }
+}
+
+const abrirnav = document.getElementById("abrirnav")
+const barra_lateral = document.getElementById("barra_lateral")
+const spans = barra_lateral.querySelectorAll("span")
+
+abrirnav.addEventListener("click", () => {
+    barra_lateral.classList.toggle("mini-barra-lateral")
+    spans.forEach(span => {
+        span.classList.toggle("oculto")
+    })
+})
+
+
+function consulta_alimentos() {
+    const contenido = document.getElementById("contenido");
+    fetch(`${URL_BASE}/alimentos`, { method: "GET" })
+        .then(res => res.json())
+        .then(data => {
+            console.log(data)
+            contenido.innerHTML = "";
+            data.mensaje.forEach(element => {
+                const mapa = {};
+                element.elementos.forEach(e => {
+                    mapa[e.nombre] = e.valor;
+                });
+                contenido.innerHTML += `
+            <tr class="nuevo1">
+                <td class="nuevo td__border__l">
+                    <img class="svg__alimento" src="/src/static/iconos/logo alimentospng.png">
+                </td>
+                <td class="nuevo">${element.id_alimento}</td>
+                <td class="nuevo">${element.nombre}</td>
+                <td class="nuevo">${mapa["Materia_seca"]}</td>
+                <td class="nuevo">${mapa["Energia_metabo"]}</td>
+                <td class="nuevo">${mapa["Proteina_cruda"]}</td>
+                <td class="nuevo">${mapa["Fibra_cruda"]}</td>
+                <td class="nuevo">${element.estado}</td>
+                <td class="nuevo td__border__r">
+
+                    <!-- Abrir modal ver -->
+                    <img src="/src/static/iconos/icon eye.svg" 
+                         onclick="abrirModal('eye', ${element.id_alimento})" 
+                         class="icon-eye">
+
+                    <!-- Abrir modal editar -->
+                    <img src="/src/static/iconos/edit icon.svg"  
+                         onclick="abrirModal('edit', ${element.id_alimento})" 
+                         class="icon-edit">
+
+                    <!-- Abrir modal eliminar -->
+                    <img src="/src/static/iconos/delete icon.svg" 
+                         onclick="abrirModal('dele', ${element.id_alimento})" 
+                         class="icon-delete">
+
+                </td>
+            </tr>
+
+            <!-- Modal ver -->
+<dialog class="dialog-icon-eye modal-info" id="modal-eye-${element.id_alimento}">
+  <div class="title-dialog">
+    <h2>Información del Alimento</h2>
+    <hr>
+  </div>
+
+  <div class="modal-info-content">
+    <!-- Columna 1 -->
+    <section class="modal-column">
+      <p>Nombre del alimento</p>
+      <input class="input__id" value="${element.nombre}" readonly>
+
+      <p>Proteína cruda (%)</p>
+      <input class="input__id" value="${mapa['Proteina_cruda']}" readonly>
+
+      <p>Materia seca (%)</p>
+      <input class="input__id" value="${mapa['Materia_seca']}" readonly>
+
+      <p>Energía metabolizable (Kcal/kg)</p>
+      <input class="input__id" value="${mapa['Energia_metabo']}" readonly>
+    </section>
+
+    <!-- Columna 2 -->
+    <section class="modal-column">
+      <p>Fibra cruda (%)</p>
+      <input class="input__id" value="${mapa['Fibra_cruda']}" readonly>
+
+      <p>Extracto etéreo (%)</p>
+      <input class="input__id" value="${mapa['Extracto_etereo']}" readonly>
+
+      <p>Calcio (%)</p>
+      <input class="input__id" value="${mapa['Calcio']}" readonly>
+
+      <p>Fósforo (%)</p>
+      <input class="input__id" value="${mapa['Fosforo']}" readonly>
+    </section>
+
+    <!-- Columna 3 -->
+    <section class="modal-column">
+      <p>Sodio (%)</p>
+      <input class="input__id" value="${mapa['Sodio']}" readonly>
+
+      <p>Arginina (%)</p>
+      <input class="input__id" value="${mapa['Arginina']}" readonly>
+
+      <p>Lisina (%)</p>
+      <input class="input__id" value="${mapa['Lisina']}" readonly>
+
+      <p>Treitona (%)</p>
+      <input class="input__id" value="${mapa['Treitona']}" readonly>
+    </section>
+
+    <!-- Columna 4 -->
+    <section class="modal-column">
+      <p>Metionina (%)</p>
+      <input class="input__id" value="${mapa['Metionina']}" readonly>
+
+      <p>Metionina + Cisteína (%)</p>
+      <input class="input__id" value="${mapa['Metionina_Cisteina']}" readonly>
+
+      <p>Triptófano (%)</p>
+      <input class="input__id" value="${mapa['Triptofano']}" readonly>
+    </section>
+  </div>
+
+  <div class="modal-footer">
+    <button onclick="cerrarModal('eye', ${element.id_alimento})" class="btn">
+      Cerrar
+    </button>
+  </div>
+</dialog>
+
+<!-- Modal editar -->
+<dialog class="dialog-icon-edit modal-info" id="modal-edit-${element.id_alimento}">
+  <div class="title-dialog">
+    <h2>Editar Alimento</h2>
+    <hr>
+  </div>
+
+  <div class="modal-info-content">
+    <!-- Columna 1 -->
+    <section class="modal-column">
+      <p>Nombre del alimento</p>
+      <input  id="edit-nombre-${element.id_alimento}" class="input__id" value="${element.nombre}">
+
+      <p>Proteína cruda (%)</p>
+      <input type="number" id="edit-Proteina_cruda-${element.id_alimento}" class="input__id" value="${mapa['Proteina_cruda'] || ''}">
+
+      <p>Materia seca (%)</p>
+      <input type="number" id="edit-Materia_seca-${element.id_alimento}" class="input__id" value="${mapa['Materia_seca'] || ''}">
+
+      <p>Energía metabolizable (Kcal/kg)</p>
+      <input type="number" id="edit-Energia_metabo-${element.id_alimento}" class="input__id" value="${mapa['Energia_metabo'] || ''}">
+
+            <p>Estado</p>
+      <select id="edit-estado-${element.id_alimento}" class="input__id">
+        <option value="activo" ${element.estado === 'activo' ? 'selected' : ''}>Activo</option>
+        <option value="inactivo" ${element.estado === 'inactivo' ? 'selected' : ''}>Inactivo</option>
+      </select>
+    </section>
+
+    <!-- Columna 2 -->
+    <section class="modal-column">
+      <p>Fibra cruda (%)</p>
+      <input type="number" id="edit-Fibra_cruda-${element.id_alimento}" class="input__id" value="${mapa['Fibra_cruda'] || ''}">
+
+      <p>Extracto etéreo (%)</p>
+      <input type="number" id="edit-Extracto_etereo-${element.id_alimento}" class="input__id" value="${mapa['Extracto_etereo'] || ''}">
+
+      <p>Calcio (%)</p>
+      <input type="number" id="edit-Calcio-${element.id_alimento}" class="input__id" value="${mapa['Calcio'] || ''}">
+
+      <p>Fósforo (%)</p>
+      <input type="number" id="edit-Fosforo-${element.id_alimento}" class="input__id" value="${mapa['Fosforo'] || ''}">
+    </section>
+
+    <!-- Columna 3 -->
+    <section class="modal-column">
+      <p>Sodio (%)</p>
+      <input type="number" id="edit-Sodio-${element.id_alimento}" class="input__id" value="${mapa['Sodio'] || ''}">
+
+      <p>Arginina (%)</p>
+      <input type="number" id="edit-Arginina-${element.id_alimento}" class="input__id" value="${mapa['Arginina'] || ''}">
+
+      <p>Lisina (%)</p>
+      <input type="number" id="edit-Lisina-${element.id_alimento}" class="input__id" value="${mapa['Lisina'] || ''}">
+
+      <p>Treitona (%)</p>
+      <input type="number" id="edit-Treitona-${element.id_alimento}" class="input__id" value="${mapa['Treitona'] || ''}">
+    </section>
+
+    <!-- Columna 4 -->
+    <section class="modal-column">
+      <p>Metionina (%)</p>
+      <input type="number" id="edit-Metionina-${element.id_alimento}" class="input__id" value="${mapa['Metionina'] || ''}">
+
+      <p>Metionina + Cisteína (%)</p>
+      <input type="number" id="edit-Metionina_Cisteina-${element.id_alimento}" class="input__id" value="${mapa['Metionina_Cisteina'] || ''}">
+
+      <p>Triptófano (%)</p>
+      <input type="number" id="edit-Triptofano-${element.id_alimento}" class="input__id" value="${mapa['Triptofano'] || ''}">
+
+      <p>Imagen (opcional)</p>
+      <input  type="file" id="edit-imagen-${element.id_alimento}" class="input__id" accept="image/*">
+    </section>
+  </div>
+
+  <div class="modal-footer">
+    <button onclick="cerrarModal('edit', ${element.id_alimento})" class="btn">Cancelar</button>
+    <button onclick="guardarCambios(${element.id_alimento})" class="btn">Guardar</button>
+  </div>
+</dialog>
+
+
+
+<!-- Modal eliminar -->
+<dialog class="dialog-icon-dele" id="modal-dele-${element.id_alimento}">
+  <div class="title-dialog">
+    <h2>Eliminar registro del alimento</h2>
+  </div>
+  <hr>
+  <p>Eliminar el registro sin saber si el alimento tiene trazabilidad puede alterar el sistema.  
+     Es preferible cambiar el estado del alimento a inactivo.</p>
+  <span>¿Está seguro que quiere eliminar este registro?</span>
+  <div class="container-button-dele1">
+    <button class="btn" onclick="eliminar_alimento(${element.id_alimento})">Eliminar</button>
+    <button class="btn" onclick="cerrarModal('dele', ${element.id_alimento})">Cancelar</button>
+  </div>
+</dialog>
+            `
+            });
+        })
+}
+
+function consulta_individual_alimento() {
+    const nombre = document.getElementById("id_alimento").value;
+    const contenido = document.getElementById("contenido");
+    contenido.innerHTML = "";
+
+    fetch(`${URL_BASE}/consulta_indi_alimento/${nombre}`)
+        .then(res => res.json())
+        .then(data => {
+            if (!data.mensaje) {
+                Swal.fire({
+                    title: "Mensaje",
+                    text: "Alimento no encontrado",
+                    icon: "error",
+                    confirmButtonText: "OK"
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        window.location.reload();
+                    }
+                });
+                return;
+            }
+
+            let alimentos = Array.isArray(data.mensaje) ? data.mensaje : [data.mensaje];
+
+            alimentos.forEach(element => {
+                const mapa = {};
+                element.elementos.forEach(e => {
+                    mapa[e.nombre] = e.valor;
+                });
+
+                contenido.innerHTML += `
+                    <tr class="nuevo1">
+                        <td class="nuevo td__border__l"><img class="svg__alimento" src="/src/static/iconos/logo alimentospng.png"></td>
+                        <td class="nuevo">${element.id_alimento}</td>
+                        <td class="nuevo">${element.nombre}</td>
+                        <td class="nuevo">${mapa["Materia_seca"] || ''}</td>
+                        <td class="nuevo">${mapa["Energia_metabo"] || ''}</td>
+                        <td class="nuevo">${mapa["Proteina_cruda"] || ''}</td>
+                        <td class="nuevo">${mapa["Fibra_cruda"] || ''}</td>
+                        <td class="nuevo">${element.estado}</td>
+                        <td class="nuevo td__border__r">
+                            <img src="/src/static/iconos/icon eye.svg" onclick="abrirModal('eye', ${element.id_alimento})" class="icon-eye">
+                            <img src="/src/static/iconos/edit icon.svg" onclick="abrirModal('edit', ${element.id_alimento})" 
+                         class="icon-edit" class="icon-edit">
+                            <img src="/src/static/iconos/delete icon.svg" onclick="abrirModal('dele', ${element.id_alimento})" class="icon-delete">
+                        </td>
+                    </tr>
+
+                    <!-- Modal ver -->
+                   <dialog class="dialog-icon-eye modal-info" id="modal-eye-${element.id_alimento}">
+  <div class="title-dialog">
+    <h2>Información del Alimento</h2>
+    <hr>
+  </div>
+
+  <div class="modal-info-content">
+    <!-- Columna 1 -->
+    <section class="modal-column">
+      <p>Nombre del alimento</p>
+      <input  class="input__id" value="${element.nombre}" readonly>
+
+      <p>Proteína cruda (%)</p>
+      <input type="number" class="input__id" value="${mapa['Proteina_cruda']}" readonly>
+
+      <p>Materia seca (%)</p>
+      <input type="number" class="input__id" value="${mapa['Materia_seca']}" readonly>
+
+      <p>Energía metabolizable (Kcal/kg)</p>
+      <input type="number" class="input__id" value="${mapa['Energia_metabo']}" readonly>
+    </section>
+
+    <!-- Columna 2 -->
+    <section class="modal-column">
+      <p>Fibra cruda (%)</p>
+      <input type="number" class="input__id" value="${mapa['Fibra_cruda']}" readonly>
+
+      <p>Extracto etéreo (%)</p>
+      <input type="number" class="input__id" value="${mapa['Extracto_etereo']}" readonly>
+
+      <p>Calcio (%)</p>
+      <input type="number" class="input__id" value="${mapa['Calcio']}" readonly>
+
+      <p>Fósforo (%)</p>
+      <input type="number" class="input__id" value="${mapa['Fosforo']}" readonly>
+    </section>
+
+    <!-- Columna 3 -->
+    <section class="modal-column">
+      <p>Sodio (%)</p>
+      <input type="number" class="input__id" value="${mapa['Sodio']}" readonly>
+
+      <p>Arginina (%)</p>
+      <input type="number" class="input__id" value="${mapa['Arginina']}" readonly>
+
+      <p>Lisina (%)</p>
+      <input type="number" class="input__id" value="${mapa['Lisina']}" readonly>
+
+      <p>Treitona (%)</p>
+      <input type="number" class="input__id" value="${mapa['Treitona']}" readonly>
+    </section>
+
+    <!-- Columna 4 -->
+    <section class="modal-column">
+      <p>Metionina (%)</p>
+      <input type="number" class="input__id" value="${mapa['Metionina']}" readonly>
+
+      <p>Metionina + Cisteína (%)</p>
+      <input type="number" class="input__id" value="${mapa['Metionina_Cisteina']}" readonly>
+
+      <p>Triptófano (%)</p>
+      <input type="number" class="input__id" value="${mapa['Triptofano']}" readonly>
+    </section>
+  </div>
+
+  <div class="modal-footer">
+    <button onclick="cerrarModal('eye', ${element.id_alimento})" class="btn">
+      Cerrar
+    </button>
+  </div>
+</dialog>
+
+<!-- Modal editar -->
+<dialog class="dialog-icon-edit modal-info" id="modal-edit-${element.id_alimento}">
+  <div class="title-dialog">
+    <h2>Editar Alimento</h2>
+    <hr>
+  </div>
+
+  <div class="modal-info-content">
+    <!-- Columna 1 -->
+    <section class="modal-column">
+      <p>Nombre del alimento</p>
+      <input  id="edit-nombre-${element.id_alimento}" class="input__id" value="${element.nombre}">
+
+      <p>Proteína cruda (%)</p>
+      <input type="number" id="edit-Proteina_cruda-${element.id_alimento}" class="input__id" value="${mapa['Proteina_cruda'] || ''}">
+
+      <p>Materia seca (%)</p>
+      <input type="number" id="edit-Materia_seca-${element.id_alimento}" class="input__id" value="${mapa['Materia_seca'] || ''}">
+
+      <p>Energía metabolizable (Kcal/kg)</p>
+      <input type="number" id="edit-Energia_metabo-${element.id_alimento}" class="input__id" value="${mapa['Energia_metabo'] || ''}">
+
+            <p>Estado</p>
+      <select id="edit-estado-${element.id_alimento}" class="input__id">
+        <option value="activo" ${element.estado === 'activo' ? 'selected' : ''}>Activo</option>
+        <option value="inactivo" ${element.estado === 'inactivo' ? 'selected' : ''}>Inactivo</option>
+      </select>
+    </section>
+
+    <!-- Columna 2 -->
+    <section class="modal-column">
+      <p>Fibra cruda (%)</p>
+      <input type="number" id="edit-Fibra_cruda-${element.id_alimento}" class="input__id" value="${mapa['Fibra_cruda'] || ''}">
+
+      <p>Extracto etéreo (%)</p>
+      <input type="number" id="edit-Extracto_etereo-${element.id_alimento}" class="input__id" value="${mapa['Extracto_etereo'] || ''}">
+
+      <p>Calcio (%)</p>
+      <input type="number" id="edit-Calcio-${element.id_alimento}" class="input__id" value="${mapa['Calcio'] || ''}">
+
+      <p>Fósforo (%)</p>
+      <input type="number" id="edit-Fosforo-${element.id_alimento}" class="input__id" value="${mapa['Fosforo'] || ''}">
+    </section>
+
+    <!-- Columna 3 -->
+    <section class="modal-column">
+      <p>Sodio (%)</p>
+      <input type="number" id="edit-Sodio-${element.id_alimento}" class="input__id" value="${mapa['Sodio'] || ''}">
+
+      <p>Arginina (%)</p>
+      <input type="number" id="edit-Arginina-${element.id_alimento}" class="input__id" value="${mapa['Arginina'] || ''}">
+
+      <p>Lisina (%)</p>
+      <input type="number" id="edit-Lisina-${element.id_alimento}" class="input__id" value="${mapa['Lisina'] || ''}">
+
+      <p>Treitona (%)</p>
+      <input type="number" id="edit-Treitona-${element.id_alimento}" class="input__id" value="${mapa['Treitona'] || ''}">
+    </section>
+
+    <!-- Columna 4 -->
+    <section class="modal-column">
+      <p>Metionina (%)</p>
+      <input type="number" id="edit-Metionina-${element.id_alimento}" class="input__id" value="${mapa['Metionina'] || ''}">
+
+      <p>Metionina + Cisteína (%)</p>
+      <input type="number" id="edit-Metionina_Cisteina-${element.id_alimento}" class="input__id" value="${mapa['Metionina_Cisteina'] || ''}">
+
+      <p>Triptófano (%)</p>
+      <input type="number" id="edit-Triptofano-${element.id_alimento}" class="input__id" value="${mapa['Triptofano'] || ''}">
+
+      <p>Imagen (opcional)</p>
+      <input  type="file" id="edit-imagen-${element.id_alimento}" class="input__id" accept="image/*">
+    </section>
+  </div>
+
+  <div class="modal-footer">
+    <button onclick="cerrarModal('edit', ${element.id_alimento})" class="btn">Cancelar</button>
+    <button onclick="guardarCambios(${element.id_alimento})" class="btn">Guardar</button>
+  </div>
+</dialog>
+<!-- Modal eliminar -->
+<dialog class="dialog-icon-dele" id="modal-dele-${element.id_alimento}">
+  <div class="title-dialog">
+    <h2>Eliminar registro del alimento</h2>
+  </div>
+  <hr>
+  <p>Eliminar el registro sin saber si el alimento tiene trazabilidad puede alterar el sistema.  
+     Es preferible cambiar el estado del alimento a inactivo.</p>
+  <span>¿Está seguro que quiere eliminar este registro?</span>
+  <div class="container-button-dele1">
+    <button class="button-eliminar" onclick="eliminar_alimento(${element.id_alimento})">Eliminar</button>
+    <button class="button-cerrar" onclick="cerrarModal('dele', ${element.id_alimento})">Cancelar</button>
+  </div>
+</dialog>
+                `;
+            });
+        })
+        .catch(err => {
+            console.error(err);
+            Swal.fire({
+                title: "Error",
+                text: "Hubo un problema al consultar el alimento",
+                icon: "error",
+                confirmButtonText: "OK"
+            }).then((result) => {
+                if (result.isConfirmed) {
+                  consulta_individual_alimento()
+                }
+            });
+            return;
+        });
+}
+
+async function guardarCambios(id_alimento) {
+  const formData = new FormData();
+
+  const nombre = document.getElementById(`edit-nombre-${id_alimento}`).value.trim();
+  const estado = document.getElementById(`edit-estado-${id_alimento}`).value;
+  const imagen = document.getElementById(`edit-imagen-${id_alimento}`).files[0];
+
+  const elementos = [
+    { id_elemento: 1,  valor: parseFloat(document.getElementById(`edit-Proteina_cruda-${id_alimento}`).value) || 0 },
+    { id_elemento: 2,  valor: parseFloat(document.getElementById(`edit-Fosforo-${id_alimento}`).value) || 0 },
+    { id_elemento: 3,  valor: parseFloat(document.getElementById(`edit-Treitona-${id_alimento}`).value) || 0 },
+    { id_elemento: 4,  valor: parseFloat(document.getElementById(`edit-Fibra_cruda-${id_alimento}`).value) || 0 },
+    { id_elemento: 5,  valor: parseFloat(document.getElementById(`edit-Sodio-${id_alimento}`).value) || 0 },
+    { id_elemento: 6,  valor: parseFloat(document.getElementById(`edit-Metionina-${id_alimento}`).value) || 0 },
+    { id_elemento: 7,  valor: parseFloat(document.getElementById(`edit-Materia_seca-${id_alimento}`).value) || 0 },
+    { id_elemento: 8,  valor: parseFloat(document.getElementById(`edit-Extracto_etereo-${id_alimento}`).value) || 0 },
+    { id_elemento: 9,  valor: parseFloat(document.getElementById(`edit-Arginina-${id_alimento}`).value) || 0 },
+    { id_elemento: 10, valor: parseFloat(document.getElementById(`edit-Metionina_Cisteina-${id_alimento}`).value) || 0 },
+    { id_elemento: 11, valor: parseFloat(document.getElementById(`edit-Energia_metabo-${id_alimento}`).value) || 0 },
+    { id_elemento: 12, valor: parseFloat(document.getElementById(`edit-Calcio-${id_alimento}`).value) || 0 },
+    { id_elemento: 13, valor: parseFloat(document.getElementById(`edit-Lisina-${id_alimento}`).value) || 0 },
+    { id_elemento: 14, valor: parseFloat(document.getElementById(`edit-Triptofano-${id_alimento}`).value) || 0 }
+  ];
+
+  formData.append("nombre", nombre);
+  formData.append("estado", estado);
+  formData.append("elementos", JSON.stringify(elementos));
+  if (imagen) formData.append("imagen", imagen);
+
+  try {
+    const response = await fetch(`${URL_BASE}/actualizar_alimento/${id_alimento}`, {
+      method: "POST",
+      body: formData
+    });
+
+    const data = await response.json();
+
+    if (response.ok) {
+      if (data.imagen) {
+        const preview = document.getElementById(`preview-imagen-${id_alimento}`);
+        if (preview) preview.src = data.imagen + "?t=" + new Date().getTime();
+      }
+
+      cerrarModal("edit", id_alimento);
+      Swal.fire({
+        icon: "success",
+        title: "Actualizado correctamente",
+        text: "El alimento se actualizó exitosamente."
+      }).then(() => consulta_alimentos());
+    } else {
+      cerrarModal("edit", id_alimento);
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: data.error || "No se pudo actualizar el alimento."
+      }).then(() => abrirModal("edit", id_alimento));
+    }
+  } catch (error) {
+    console.error("Error al actualizar:", error);
+    cerrarModal("edit", id_alimento);
+    Swal.fire({
+      icon: "error",
+      title: "Error inesperado",
+      text: "Ocurrió un problema al intentar actualizar el alimento."
+    }).then(() => abrirModal("edit", id_alimento));
+  }
+}
+function abrirModal(tipo, id) {
+    document.getElementById(`modal-${tipo}-${id}`).showModal();
+}
+function cerrarModal(tipo, id) {
+    document.getElementById(`modal-${tipo}-${id}`).close();
+}
+async function eliminar_alimento(id) {
+  try {
+    const response = await fetch(`${URL_BASE}/eliminar_alimento/${id}`, { method: "DELETE" });
+    const data = await response.json();
+
+    cerrarModal("dele", id);
+
+    if (response.ok) {
+      setTimeout(() => {
+        Swal.fire({
+          icon: "success",
+          title: "Eliminado",
+          text: "El alimento se eliminó correctamente.",
+          confirmButtonColor: "#3085d6",
+          background: "#fff",
+          heightAuto: false
+        }).then(() => consulta_alimentos());
+      }, 200);
+    } else {
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: data.error || "No se pudo eliminar el alimento.",
+        confirmButtonColor: "#3085d6",
+        background: "#fff",
+        heightAuto: false
+      }).then(() => {
+        abrirModal("dele", id);
+      });
+    }
+  } catch (error) {
+    console.error("Error al eliminar:", error);
+    Swal.fire({
+      icon: "error",
+      title: "Error inesperado",
+      text: "Ocurrió un problema al eliminar el alimento.",
+      confirmButtonColor: "#3085d6",
+      background: "#fff",
+      heightAuto: false
+    }).then(() => {
+      abrirModal("dele", id);
+    });
+  }
+}
+
+
+
+async function cargarAutocompletado() {
+  try {
+    const response = await fetch(`${URL_BASE}/alimentos`);
+    if (!response.ok) throw new Error("Error al obtener alimentos");
+
+    const data = await response.json();
+
+    // Aquí está el arreglo real
+    const alimentos = data.mensaje || [];
+
+    const lista = document.getElementById("lista_alimentos");
+    lista.innerHTML = "";
+
+    alimentos.forEach(alimento => {
+      const option = document.createElement("option");
+      option.value = alimento.nombre; // usa el campo correcto
+      lista.appendChild(option);
+    });
+
+  } catch (error) {
+    console.error("Error cargando autocompletado:", error);
+  }
+}
+function dietas() {
+    const alimentos_en_dieta = document.getElementById("alimentos_en_dieta");
+
+    fetch(`${URL_BASE}/alimentos_disponible`)
+        .then(res => {
+            if (!res.ok) throw new Error(`Error HTTP ${res.status}`);
+            return res.json();
+        })
+        .then(data => {
+            console.log(data);
+            alimentos_en_dieta.innerHTML = "";
+
+            if (!data.mensaje || data.mensaje.length === 0) {
+                Swal.fire({
+                    icon: "info",
+                    title: "Sin alimentos disponibles",
+                    text: "Actualmente no hay alimentos registrados o activos.",
+                    confirmButtonColor: "#3085d6"
+                });
+                alimentos_en_dieta.innerHTML = `
+                    <p class="sin-alimentos">No hay alimentos disponibles actualmente.</p>
+                `;
+                return;
+            }
+
+            data.mensaje.forEach(element => {
+                alimentos_en_dieta.innerHTML += `
+                    <div class="alimentos_dietas">
+                        <div class="imagen_alimento_dieta">
+                            <img src="${URL_BASE}${element.imagen}" 
+                                 onerror="this.onerror=null; this.src='/src/static/iconos/imagen no encontrada.svg'; this.classList.add('sin_imagen_alimento_dieta')" 
+                                 alt="no hay imagen">
+                        </div>
+                        <div class="descripcion_dietas">
+                            <p><strong>Nombre:</strong> ${element.nombre}</p>
+                            <p><strong>Cantidad (Kg):</strong></p>
+                            <input type="number" min="0" class="input_dietas" id="cantidad-${element.nombre}" placeholder="Cantidad">
+                        </div>
+                    </div>
+                `;
+            });
+        })
+        .catch(err => {
+            console.error(err);
+            Swal.fire({
+                icon: "error",
+                title: "Error al cargar los alimentos",
+                text: "Ocurrió un problema al obtener los alimentos disponibles.",
+                confirmButtonColor: "#d33"
+            });
+            alimentos_en_dieta.innerHTML = `<p>Error al cargar los alimentos.</p>`;
+        });
+}
+
+
+function consulta_individual_alimento_disponible() {
+    const nombre = document.getElementById("id_alimento").value.trim();
+    const alimentos_en_dieta = document.getElementById("alimentos_en_dieta");
+
+    if (!nombre) {
+        Swal.fire({
+            icon: "warning",
+            title: "Campo vacío",
+            text: "Por favor, escribe el nombre del alimento antes de consultar.",
+            confirmButtonColor: "#f1c40f"
+        });
+        return;
+    }
+
+    fetch(`${URL_BASE}/consulta_indi_alimento_disponible/${nombre}`)
+        .then(res => {
+            if (!res.ok) throw new Error(`Error HTTP ${res.status}`);
+            return res.json();
+        })
+        .then(data => {
+            alimentos_en_dieta.innerHTML = "";
+
+            if (!data.mensaje) {
+                Swal.fire({
+                    icon: "info",
+                    title: "Alimento no encontrado",
+                    text: `No se encontró el alimento "${nombre}".`,
+                    confirmButtonColor: "#3085d6"
+                });
+                alimentos_en_dieta.innerHTML = `
+                    <p class="sin-alimentos">No se encontró el alimento "${nombre}".</p>
+                `;
+                return;
+            }
+
+            const element = data.mensaje;
+
+            alimentos_en_dieta.innerHTML = `
+                <div class="alimentos_dietas">
+                    <div class="imagen_alimento_dieta">
+                      <img src="${URL_BASE}${element.imagen}" 
+                             onerror="this.onerror=null; this.src='/src/static/iconos/imagen no encontrada.svg'; this.classList.add('sin_imagen_alimento_dieta')" 
+                             alt="no hay imagen">
+                    </div>
+                    <div class="descripcion_dietas">
+                        <p><strong>Nombre:</strong> ${element.nombre}</p>
+                        <p><strong>Cantidad (Kg):</strong></p>
+                        <input type="number" min="0" class="input_dietas" id="cantidad-${element.nombre}" placeholder="Cantidad">
+                    </div>
+                </div>
+            `;
+        })
+        .catch(err => {
+            console.error(err);
+            Swal.fire({
+                icon: "error",
+                title: "Error al consultar el alimento",
+                text: "Ocurrió un problema al realizar la consulta.",
+                confirmButtonColor: "#d33"
+            });
+            alimentos_en_dieta.innerHTML = `<p>Error al consultar el alimento.</p>`;
+        });
+    }
+
+function timesleep(){
+   let tiempoInactividad;
+let tiempoCierre;
+let cuentaRegresiva = 30;
+let modalAbierto = false; // bandera para saber si el modal está abierto
+
+function iniciarTemporizador() {
+  tiempoInactividad = setTimeout(() => {
+    mostrarAlerta();
+  }, 5000); 
+}
+
+function mostrarAlerta() {
+  modalAbierto = true; // modal abierto
+  cuentaRegresiva = 30;
+
+  Swal.fire({
+  title: 'mucho tiempo de inactividad, ¿sigues aquí?',
+  html: `<p>Tu sesión se cerrará en <b id="contador">${cuentaRegresiva}</b> segundos.</p>`,
+  imageUrl: '/src/static/iconos/cerdito.sueño.png',   
+  imageWidth: 200,                  
+  imageHeight: 200,                  
+  imageAlt: 'Cerdito con sueño 😴', 
+  showCancelButton: true,
+  confirmButtonText: 'Sí, continuar',
+  cancelButtonText: 'Cerrar sesión',
+    allowOutsideClick: false,
+    allowEscapeKey: false,
+    didOpen: () => {
+      const contadorElem = Swal.getHtmlContainer().querySelector('#contador');
+
+      tiempoCierre = setInterval(() => {
+        cuentaRegresiva--;
+        contadorElem.textContent = cuentaRegresiva;
+
+        if (cuentaRegresiva <= 0) {
+          clearInterval(tiempoCierre);
+          Swal.close();
+          modalAbierto = false;
+          cerrarSesion();
+        }
+      }, 1000);
+
+      // Eventos de los botones
+      const confirmButton = Swal.getConfirmButton();
+      const cancelButton = Swal.getCancelButton();
+
+      confirmButton.addEventListener('click', () => {
+        clearInterval(tiempoCierre);
+        Swal.close();
+        modalAbierto = false;
+        reiniciarInactividad();
+      });
+
+      cancelButton.addEventListener('click', () => {
+        clearInterval(tiempoCierre);
+        Swal.close();
+        modalAbierto = false;
+        cerrarSesion();
+      });
+    },
+  });
+}
+
+function cerrarSesion() {
+  Swal.fire({
+    icon: 'info',
+    title: 'Sesión cerrada',
+    text: 'Tu sesión fue cerrada por inactividad.',
+    timer: 2000,
+    showConfirmButton: false
+  }).then(() => {
+    window.location.href = '/src/templates/index.html';
+  });
+}
+
+function reiniciarInactividad() {
+  if (!modalAbierto) {
+    clearTimeout(tiempoInactividad);
+    iniciarTemporizador();
+  }
+}
+
+window.onload = iniciarTemporizador;
+document.onmousemove = reiniciarInactividad;
+document.onkeydown = reiniciarInactividad;
+document.onclick = reiniciarInactividad;
+}
 
 const cerdo = document.getElementById("cerdo");
 const barralateral = document.querySelector(".barra-lateral");
-const spans = document.querySelectorAll("span");
 const menu=document.querySelector(".menu")
 
 menu.children[1].style.display="none"
@@ -1755,3 +2642,44 @@ cerdo.addEventListener("click", () => {
         span.classList.toggle("oculto");
     });
 });
+
+
+// //CONFIRMACION DE CONTRASEÑA EN EL APARTADO DE REGISTRO
+
+// function ConfirmarContraseña(event) {
+//     event.preventDefault();
+
+//     const contraseña1 = document.getElementById("password").value;
+//     const contraseña2 = document.getElementById("confirmPassword").value;
+//     const mensaje = document.getElementById("mensaje");
+
+//     if (contraseña1 === contraseña2) {
+//         mensaje.textContent = "Registro exitoso. Redirigiendo...";
+//         mensaje.classList.add("success");
+//         mensaje.classList.remove("alerta");
+//         mensaje.style.display = "block";
+
+//         setTimeout(() => {
+//             window.location.href = "index.html";
+//         }, 1000);
+
+//     } else {
+//         mensaje.textContent = "Las contraseñas no coinciden. Por favor, inténtelo de nuevo.";
+//         mensaje.classList.add("alerta");
+//         mensaje.classList.remove("success");
+//         mensaje.style.display = "block";
+//         return false;
+//     }
+// }
+
+//     function ValidarPassword() {
+//     let password = document.getElementById("password").value;
+//     let confirmpassword = document.getElementById("confirmpassword").value;
+//     let mensajerror = document.getElementById("mesajerror");
+//     if (password !== confirmpassword){
+//         alert ("Contraseña no coinciden")
+//         return false
+
+//         alert ("Contraseña correcta")
+//         return true
+//     }}
