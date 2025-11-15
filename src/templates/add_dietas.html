@@ -15,7 +15,7 @@
     <title>Edupork</title>
 </head>
 
-<body class="body__porcinos">
+<body class="body_dietas">
     <section class="section-nav-bar" >
         <div class="container-user">
             <div class="container__btn__perfil">
@@ -88,80 +88,81 @@
             </nav>
         </div>
     </section>
-    <section class="section__porcinos" >
+    <section class="contenido_dietas">
 
-        <section class="container__logo__user">
-            <div class="container__back__logo">
-                <img src="/src/static/iconos/back icon.svg" alt="icon back" class="icon__back">
-                <a href="/src/templates/home.html">
-                    <img src="/src/static/iconos/Logo.svg" alt="Logo Edupork" class="logo">
-                </a>
-            </div>
-            <div class="container__user__btn">
-                <img src="/src/static/iconos/icon user.svg" alt="" class="svg__user">
-                <button type="button" class="btn__perfil">cristhian</button>
-            </div>
-        </section>
 
-        <header class="container container__title">
-            <h1>Gestionar Alimentos</h1>
+        <header class="container container__title_dietas">
+            <h1>Crear Dietas</h1>
         </header>
 
-        <section class="container container__search__bar_alimentos">
-            <div class="separador">
+
+        <section class="container container__search__bar_dietas">
+             <div class="separador">
                 <img src="/src/static/iconos/icon lupa.svg" alt="">
                 <input type="text" class="input__id" id="id_alimento" placeholder="Nombre del alimento"
                     list="lista_alimentos">
                 <datalist id="lista_alimentos"></datalist>
-                <label onclick="consulta_alimentos()" class="contenedor">
-                    <p class="color_linea">consultar todo</p>
-                </label>
             </div>
             <div class="final_buttom">
-                <button type="button" class="btn" onclick="consulta_individual_alimento()">Consultar</button>
+                <button type="button" class="btn" onclick="consulta_individual_alimento_disponible()">Consultar</button>
             </div>
+            <label onclick="dietas()" class="contenedor">
+                <p class="color_linea">consultar todo</p>
+            </label>
         </section>
 
 
-        <div class="container__btn__options">
-            <div class="container__btn__agregar">
-                <img src="/src/static/iconos/icon add.svg" alt="" class="svg__add">
-                <button type="button" class="btn btn--agregar"
-                    onclick="location.href = '/src/templates/add_alimento.html' ">Agregar alimento</button>
+        <section id="contenedor_dietas" class="container container_dietas">
+            <label class="contenedor1">
+                <input type="checkbox" id="check1">
+                <span class="custom-checkbox"></span>
+                <p class="color_p">Ver alimentos seleccionados</p>
+            </label>
+            <div class="alimentos_en_dieta" id="alimentos_en_dieta">
             </div>
-        </div>
-
-
-
-        <section class="container__registros">
-            <table class="table__registros">
-                <thead>
-                    <tr>
-                        <th></th>
-                        <th>ID </th>
-                        <th>Nombre </th>
-                        <th>Materia <br> seca(%)</th>
-                        <th>Energia <br> metabolizable(%)</th>
-                        <th>Proteina<br> cruda(%)</th>
-                        <th>Fibra <br> cruda(%)</th>
-                        <th onclick="ordenarTabla('estado')">Estado <span id="flecha-estado"></span></th>
-                        <th>Acciones</th>
-                    </tr>
-
-                </thead>
-                <tbody class="registros" id="contenido">
-
-                </tbody>
-            </table>
+            <button type="button" class="btn1" onclick="consulta_individual_porcino()">Guardar</button>
         </section>
+
+
+
+            <section class="container buscador_etapa_dietas">
+                <form class="formulario_buscar">
+                    <div class="container__filtro">
+                        <img src="/src/static/iconos/icon filter.svg" alt="" id="svg__filter">
+                        <select name="" id="" class="filter">
+                            <option value="" disabled selected>Seleccione la Etapa de vida</option>
+                            <option value=""></option>
+                            <option value="">Raza</option>
+                            <option value="">Etapa de vida</option>
+                            <option value="">Peso final</option>
+                            <option value="">Estado</option>
+                            <option value="">Consultar todo</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn" onclick="consulta_individual_porcino()">Consultar</button>
+                </form>
+            </section>
+
+            <section class="container container_requerimientos_alimento">
+
+
+            </section>
+            <section class="container container_requerimientos_etapa">
+                <div class="titulo_requerimientos">
+                    <h5>requerimientos nutricionales de la etapa</h5>
+                </div>
+                <div class="requerimientos">
+
+                </div>
+            </section>
+
     </section>
-    <script src="/src/static/js/script.js"></script>
-    <script>
-        consulta_alimentos();
-        cargarAutocompletado();
-        timesleep();
-      
 
+    <script src="/src/static/js/script.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script>
+        dietas();
     </script>
 </body>
 

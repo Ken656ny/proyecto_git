@@ -57,7 +57,7 @@
                         </a>
                     </li>
                     <li>
-                        <a href="#">
+                        <a href="/src/templates/gestionar_dietas.html">
                             <img src="../static/iconos/icon plate.svg" width="20px" alt="" class="icons-bar">
                             <span>Dietas</span>
                         </a>
@@ -84,8 +84,6 @@
             </nav>
         </div>
     </section>
-    <section class="section__add__por" >
-
     <section class="section__add__por">
         <section class="container__logo__user">
             <div class="container__back__logo">
@@ -153,6 +151,7 @@
         </form>
     </section>
 
+    <script src="/src/static/js/script.js"></script>
     <script>
         document.getElementById("formRegistrar").addEventListener("submit", function (e) {
     e.preventDefault();
@@ -195,7 +194,6 @@
         { id: 14, valor: parseFloat(document.getElementById("energia_m").value) || 0 }
     ];
     formData.append("elementos", JSON.stringify(elementos));
-
     fetch("http://127.0.0.1:5000/registrar_alimento", {
         method: "POST",
         body: formData
@@ -215,6 +213,7 @@
                 allowOutsideClick: false,
                 allowEscapeKey: false
             }).then(result => {
+                console.log(result)
                 if (result.isConfirmed) {
                     window.location.href = "alimentos.html";
                 }

@@ -352,8 +352,6 @@ def conteo_transacciones():
             with conn.cursor() as cur:
                 cur.execute("SELECT COUNT(*) FROM transaccion_peso;")
                 conteo = cur.fetchone()
-                print(conteo)
-
                 if conteo:
                     # Si es dict o tupla, tomar solo el número
                     total = list(conteo.values())[0] if isinstance(conteo, dict) else conteo[0]
@@ -1143,6 +1141,7 @@ def consulta_individual_alimento(nombre):
                       a.id_alimento, 
                       a.nombre AS nombre_alimento, 
                       e.nombre AS nombre_elemento, 
+                      a.estado,
                       ate.valor 
                   FROM alimentos a
                   JOIN alimento_tiene_elemento ate ON a.id_alimento = ate.id_alimento
@@ -1158,6 +1157,7 @@ def consulta_individual_alimento(nombre):
               alimento = {
                   "id_alimento": filas[0]["id_alimento"],
                   "nombre": filas[0]["nombre_alimento"],
+                  "estado": filas[0]["estado"],
                   "elementos": []
               }
               
@@ -1243,7 +1243,7 @@ def registrar_alimento():
             imagen_web = None
         with config['development'].conn() as conn:
             with conn.cursor() as cur:
-                id_usuario = 1066872759
+                id_usuario = 3
                 cur.execute(
                     """
                     INSERT INTO alimentos (nombre, estado, imagen, id_usuario)
@@ -1321,47 +1321,6 @@ def consulta_individual_alimento_disponible(nombre):
     except Exception as e:
         return jsonify({"error": str(e)})
 
-@app.route("/consulta_indi_alimento/<nombre>", methods=["GET"])
-def consulta_individual_alimento(nombre):
-    try:
-        with config['development'].conn() as conn:
-            with conn.cursor() as cur:
-                cur.execute("""
-                    SELECT 
-                        a.id_alimento, 
-                        a.nombre AS nombre_alimento, 
-                        e.nombre AS nombre_elemento,
-                        a.estado,
-                        ate.valor 
-                    FROM alimentos a
-                    JOIN alimento_tiene_elemento ate ON a.id_alimento = ate.id_alimento
-                    JOIN elementos e ON e.id_elemento = ate.id_elemento
-                    WHERE a.nombre = %s
-                """, (nombre,))
-                
-                filas = cur.fetchall()
-                
-                if not filas:
-                    return jsonify({"mensaje": None})
-                
-                alimento = {
-                    "id_alimento": filas[0]["id_alimento"],
-                    "nombre": filas[0]["nombre_alimento"],
-                    "estado": filas[0]["estado"],  
-                    "elementos": []
-                }
-                
-                for fila in filas:
-                    alimento["elementos"].append({
-                        "nombre": fila["nombre_elemento"],
-                        "valor": float(fila["valor"])
-                    })
-                
-                return jsonify({"mensaje": alimento})
-    except Exception as e:
-        return jsonify({"error": str(e)})
-      
-      
 @app.route("/actualizar_alimento/<int:id_alimento>", methods=["PUT", "POST"])
 def actualizar_alimento(id_alimento):
     try:

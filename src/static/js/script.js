@@ -417,8 +417,8 @@ async function consulta_general_porcinos() {
         if (!response.ok) throw new Error(`Error: ${response.status}`);
         const porcinos = await response.json();
         mostrar_porcinos(porcinos);
-        consultar_razas();
-        consultar_etapas();
+        // consultar_razas();
+        // consultar_etapas();
         porcino_filtros();
         consulta_gen_historial_pesos();
         return porcinos
@@ -1788,18 +1788,6 @@ async function consulta_individual_alimento() {
   }
 }
 
-const abrirnav = document.getElementById("abrirnav")
-const barra_lateral = document.getElementById("barra_lateral")
-const spans = barra_lateral.querySelectorAll("span")
-
-abrirnav.addEventListener("click", () => {
-    barra_lateral.classList.toggle("mini-barra-lateral")
-    spans.forEach(span => {
-        span.classList.toggle("oculto")
-    })
-})
-
-
 function consulta_alimentos() {
     const contenido = document.getElementById("contenido");
     fetch(`${URL_BASE}/alimentos`, { method: "GET" })
@@ -2027,6 +2015,7 @@ function consulta_individual_alimento() {
     fetch(`${URL_BASE}/consulta_indi_alimento/${nombre}`)
         .then(res => res.json())
         .then(data => {
+            console.log("resultados;",data)
             if (!data.mensaje) {
                 Swal.fire({
                     title: "Mensaje",
@@ -2524,7 +2513,7 @@ let modalAbierto = false; // bandera para saber si el modal está abierto
 function iniciarTemporizador() {
   tiempoInactividad = setTimeout(() => {
     mostrarAlerta();
-  }, 5000); 
+  }, 1200000); 
 }
 
 function mostrarAlerta() {
@@ -2606,6 +2595,7 @@ document.onclick = reiniciarInactividad;
 
 const cerdo = document.getElementById("cerdo");
 const barralateral = document.querySelector(".barra-lateral");
+const spans = barralateral.querySelectorAll("span")
 const menu=document.querySelector(".menu")
 
 menu.children[1].style.display="none"
@@ -2642,44 +2632,3 @@ cerdo.addEventListener("click", () => {
         span.classList.toggle("oculto");
     });
 });
-
-
-// //CONFIRMACION DE CONTRASEÑA EN EL APARTADO DE REGISTRO
-
-// function ConfirmarContraseña(event) {
-//     event.preventDefault();
-
-//     const contraseña1 = document.getElementById("password").value;
-//     const contraseña2 = document.getElementById("confirmPassword").value;
-//     const mensaje = document.getElementById("mensaje");
-
-//     if (contraseña1 === contraseña2) {
-//         mensaje.textContent = "Registro exitoso. Redirigiendo...";
-//         mensaje.classList.add("success");
-//         mensaje.classList.remove("alerta");
-//         mensaje.style.display = "block";
-
-//         setTimeout(() => {
-//             window.location.href = "index.html";
-//         }, 1000);
-
-//     } else {
-//         mensaje.textContent = "Las contraseñas no coinciden. Por favor, inténtelo de nuevo.";
-//         mensaje.classList.add("alerta");
-//         mensaje.classList.remove("success");
-//         mensaje.style.display = "block";
-//         return false;
-//     }
-// }
-
-//     function ValidarPassword() {
-//     let password = document.getElementById("password").value;
-//     let confirmpassword = document.getElementById("confirmpassword").value;
-//     let mensajerror = document.getElementById("mesajerror");
-//     if (password !== confirmpassword){
-//         alert ("Contraseña no coinciden")
-//         return false
-
-//         alert ("Contraseña correcta")
-//         return true
-//     }}
