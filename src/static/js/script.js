@@ -1154,11 +1154,13 @@ function crearDialogBaseRaza(id, clase, titulo, contenido, textoBoton, claseBoto
                 <h2>${titulo}</h2>
                 <hr>
             </div>
-            <div class="info_raza_etapa">${contenido}</div>
+            ${funct ? `
+                <div class="${funct.toLowerCase() === 'registrar_etapas' ? 'layout_registrar_etapa' : 'info_raza_etapa'}">${contenido}</div>
+            ` : ''}
             ${textoBoton ? `
                 <div class="container-button-${claseBoton.includes('cerrar') ? 'close' : 'guardar'}">
                     <button 
-                    type="${['cerrar', 'continuar'].includes(textoBoton.toLowerCase()) ? 'button' : 'submit'}"
+                    type="${['cerrar', 'continuar','siguiente'].includes(textoBoton.toLowerCase()) ? 'button' : 'submit'}"
                     class="${claseBoton}"
                     ${textoBoton.toLowerCase() === 'cerrar' ? `onclick="cerrarDialog('${id}')"` : ""}
                     ${funct && funct.toLowerCase() === 'eliminar_raza' 
@@ -1338,8 +1340,10 @@ function crearFilaEtapa(item){
     return `
         <tr class="registro registro__dia">
             <td class="td__border__l">${item.id_etapa}</td>
-            <td>${item.nombre}</td>
-            <td>${item.descripcion}</td>
+            <td>${item.nombre_etapa}</td>
+            <td>${item.peso_min}</td>
+            <td>${item.peso_max}</td>
+
             <td class="td__border__r">
                 ${crearIconosAccionesEtapa(uniqueId)}
             </td>
@@ -1359,36 +1363,181 @@ function crearIconosAccionesEtapa(id){
     `
 }
 
-function crearDialogRegistrarEtapa(){
-    const campos = [
-        {label: "Nombre", id: "nombre_etapa", required: false},
-        {label: "Descripcion", id: "descripcion_etapa", required: true}
+function crearDialogRegistrarEtapa() {
+    // ===========================
+    // 1. Campos del STEP 1
+    // ===========================
+    const campos1 = [
+        {label: "Nombre", id: "nombre_etapa", required: false, placeholder : "Ingrese el nombre de la etapa..."},
+        {label: 'Peso Minimo (Kg)', id: 'peso_min_etapa', required: false, type : "number", placeholder : "Ingrese el peso minimo..."},
+        {label: 'Peso Maximo (Kg)', id: 'peso_max_etapa', required: false, type : "number", placeholder : "Ingrese el peso maximo..."},
+        {label: 'Dias de duración', id: 'dias_dura_etapa', required: false, type : "number", placeholder : "Duración en días..."},
+        {label: 'Semana de duración', id: 'semanas_dura_etapa', required: false, type : "number", placeholder : "Duración en semanas..."},
+        {label: 'Descripcion (Opcional)', id: 'descripcion_etapa', required: true, type : "text", placeholder : "Descripción..."},
+    ];
+
+    const htmlStep1 = campos1.map(c => `
+        <div class="container__label__input">
+            <label>${c.label}</label>
+            <input type="${c.type || 'text'}" id="${c.id}" min="0" placeholder="${c.placeholder}">
+        </div>
+    `).join('');
+
+    // ===========================
+    // 2. Campo del STEP 2
+    // ===========================
+    
+    const campos2 = [
+        {label: "E. Metabolizable (Kcal/Kg)", id: "r-energia-metabo", required: false, type: "number", placeholder : "Ingrese la Energia Metabolizable"},
+        {label: "Proteína Cruda (%)", id: "r-proteina-cruda", required: false, type: "number", placeholder : "Ingrese la Proteina Cruda"},
+        {label: "Fibra Cruda (%)", id: "r-fibra-cruda", required: false, type: "number", placeholder : "Ingrese la Fibra Cruda"},
+        {label: "Extracto Etéreo (%)", id: "r-extracto-etereo", required: false, type: "number", placeholder : "Ingrese la Extracto Etéreo"},
+        {label: "Calcio (%)", id: "r-calcio", required: false, type: "number", placeholder : "Ingrese el Calcio"},
+        {label: "Fosforo Disponible (%)", id: "r-fosforo-disponible", required: false, type: "number", placeholder : "Ingrese el Fosforo Disponible"},
+        {label: "Sodio (%)", id: "r-sodio", required: false, type: "number", placeholder : "Ingrese el sodio"},
+        {label: "Arginina (%)", id: "r-arginina", required: false, type: "number", placeholder : "Ingrese la Arginina"},
+        {label: "Lisina (%)", id: "r-lisina", required: false, type: "number", placeholder : "Ingrese la Lisina"},
+        {label: "Treonina (%)", id: "r-treonina", required: false, type: "number", placeholder : "Ingrese la Treonina"},
+        {label: "Metionina (%)", id: "r-metionina", required: false, type: "number", placeholder : "Ingrese la Metionina"},
+        {label: "Metionina + Cisteína (%)", id: "r-metionina-cisteina", required: false, type: "number", placeholder : "Ingrese la Metionina + Cisteína"},
+        {label: "Triptófano (%)", id: "r-triptofano", required: false, type: "number", placeholder : "Ingrese el Triptófano"},
     ]
-    const camposHTML = campos.map(campo => {
-        return `
-                <div class = "container__label__input">
-                    <label for="${campo.id}">${campo.label}</label>
-                    <input type="text" class="campo-info" id="${campo.id}" ${campo.required ? '' : 'required'}>
-                </div>
-            `
-    }).join('');
-    return crearDialogBaseRaza('dialog-registrar-etapa', 'dialog-icon-eye', 'Registar Etapa de vida', camposHTML, "Guardar", 'button-guardar', '','registrar_etapas','')
+
+    const htmlStep2 = campos2.map(campo => `
+        <div class="container__label__input">
+            <label>${campo.label}</label>
+            <input type="${campo.type || 'text'}" id="${campo.id}" placeholder="${campo.placeholder} min="0"">
+        </div>
+    `).join('');
+
+    // ===========================
+    // 3. Creamos STEP 1 y STEP 2
+    // ===========================
+    
+    const contenido = `
+        <div id="step1" class="step">
+            ${htmlStep1}
+        </div>
+
+        <div id="step2" class="step">
+            ${htmlStep2}
+        </div>
+    `;
+
+    // ===========================
+    // 4. Crear el modal como siempre
+    // ===========================
+    crearDialogBaseRaza(
+        'dialog-registrar-etapa',
+        'dialog-icon-eye',
+        'Registrar Etapa de vida',
+        contenido,
+        'Siguiente',                  
+        'button-guardar',             // CLASE REAL DEL BOTÓN
+        '',
+        'registrar_etapas', 
+        ''
+    );
+
+    // ===========================
+    // 4. Activar steps correctamente
+    // ===========================
+    setTimeout(() => {
+        activarSteps("dialog-registrar-etapa", ".button-guardar");
+    }, 50);
+}
+
+
+function activarSteps(modalId, botonSelector) {
+
+    const modal = document.getElementById(modalId);
+    const btn_siguiente = modal.querySelector(botonSelector);
+    const grid = document.querySelector(".layout_registrar_etapa");
+
+    const step1 = modal.querySelector("#step1");
+    const step2 = modal.querySelector("#step2");
+
+    if (!step1 || !step2) return;
+
+    // Estado inicial correcto
+    step1.classList.add("active");
+    step2.classList.remove("active");
+
+    // Crear botón Atrás
+    const btnAtras = document.createElement("button");
+    btnAtras.textContent = "Atrás";
+    btnAtras.classList = "btn-atras button-eliminar";
+    btnAtras.style.display = "none";
+    
+    // crear boton guardar
+    const btn_guardar = document.createElement("button");
+    btn_guardar.textContent = "Guardar"
+    btn_guardar.classList = "button-eliminar";
+    btn_guardar.style.display = "none";
+    btn_guardar.type = "submit"
+
+    btn_siguiente.parentElement.appendChild(btnAtras);
+    btn_siguiente.parentElement.appendChild(btn_guardar);
+
+    // BOTÓN SIGUIENTE / GUARDAR
+    btn_siguiente.addEventListener("click", () => {
+
+        // Si estamos en STEEP 1 → pasar a STEP 2
+        if (step1.classList.contains("active")) {
+
+            step1.classList.remove("active");
+            step1.classList.add("hidden");
+
+            step2.classList.remove("hidden");
+            step2.classList.add("active");
+
+            grid.style.gridTemplateColumns = "repeat(4,1fr)";
+
+            btnAtras.style.display = "inline-block";
+            btn_guardar.style.display = "inline-block";
+            btn_siguiente.style.display = "none";
+
+        };
+    });
+
+    // BOTÓN ATRÁS
+    btnAtras.addEventListener("click", () => {
+
+        btn_siguiente.textContent = "Siguiente";
+        step2.classList.remove("active");
+
+        step2.classList.add("hidden");
+
+        step1.classList.remove("hidden");
+        step1.classList.add("active");
+
+        grid.style.gridTemplateColumns = "repeat(2,1fr)";
+
+        btnAtras.style.display = "none";
+        btn_guardar.style.display = "none";
+        btn_siguiente.style.display = "inline-block";
+    });
 }
 
 function crearDialogEyeEtapa(item, uniqueId){
-    const campos = [
-        {label: 'ID', value: item.id_etapa, id: 'id-etapa'},
-        {label: 'Nombre', value: item.nombre, id: 'nombre-etapa'},
-        {label: 'Descripcion', value: item.descripcion, id: 'descripcion-etapa'},
-    ]
-    const camposHTML = campos.map(campo => `
+    const campos1 = [
+        {label: "ID etapa", id: "e-id-etapa", value: item.id_etapa},
+        {label: "Nombre", id: "e-nombre-etapa", value: item.nombre_etapa},
+        {label: 'Peso Minimo (Kg)', id: 'e-peso-min-etapa', value: item.peso_min},
+        {label: 'Peso Maximo (Kg)', id: 'e-peso-max-etapa', value : item.peso_max},
+        {label: 'Dias de duración', id: 'e-dias-dura-etapa', value: item.duracion_dias},
+        {label: 'Semana de duración', id: 'e-semanas-dura-etapa', value : item.duracion_semanas},
+        {label: 'Descripcion (Opcional)', id: 'e-descripcion-etapa', value: item.descripcion},
+    ];
+
+    const camposHTML = campos1.map(campo => `
         <div class = "container__label__input">
             <label for="${campo.id}-${uniqueId}">${campo.label}</label>
             <input type="text" class="campo-info" id="${campo.id}-${uniqueId}" placeholder="${campo.value}" readonly>
         </div>
     `).join('');
-    return crearDialogBaseRaza(`dialog-eye-etapa-${uniqueId}`, 'dialog-icon-eye', 'Informacion de la Etpa de vida', camposHTML, 'Cerrar', 'button-cerrar', uniqueId)
-}
+    return crearDialogBaseRaza(`dialog-eye-etapa-${uniqueId}`, 'dialog-icon-eye', 'Informacion de la Etapa de vida', camposHTML, 'Cerrar', 'button-cerrar', uniqueId, 'cerrarDialog',`dialog-eye-etapa-${uniqueId}`)
+}g
 
 function crearDialogEditEtapa(item, uniqueId){
     const camposEditables = [
@@ -1468,12 +1617,28 @@ async function consulta_indi_etapas(mostrar = false){
 
 async function registrar_etapas(){
     try {
-        const nombre = document.getElementById('nombre_etapa').value;
-        const descri = document.getElementById('descripcion_etapa').value;
-
         const etapa = {
-            nombre : nombre,
-            descripcion : descri
+            "nombre_etapa" : document.getElementById('nombre_etapa').value,
+            "descripcion" : document.getElementById("descripcion_etapa").value,
+            "peso_min": document.getElementById("peso_min_etapa").value,
+            "peso_max": document.getElementById("peso_max_etapa").value,
+            "duracion_dias" : document.getElementById("dias_dura_etapa").value,
+            "duracion_semanas" : document.getElementById("semanas_dura_etapa").value,
+            "requerimientos" : [
+                { id_elemento: 1, porcentaje: parseFloat(document.getElementById("r-proteina-cruda").value) || 0 },
+                { id_elemento: 2, porcentaje: parseFloat(document.getElementById("r-treonina").value) || 0 },
+                { id_elemento: 3, porcentaje: parseFloat(document.getElementById("r-fosforo-disponible").value) || 0 },
+                { id_elemento: 4, porcentaje: parseFloat(document.getElementById("r-fibra-cruda").value) || 0 },
+                { id_elemento: 5, porcentaje: parseFloat(document.getElementById("r-sodio").value) || 0 },
+                { id_elemento: 6, porcentaje: parseFloat(document.getElementById("r-metionina").value) || 0 },
+                { id_elemento: 8, porcentaje: parseFloat(document.getElementById("r-extracto-etereo").value) || 0 },
+                { id_elemento: 9, porcentaje: parseFloat(document.getElementById("r-arginina").value) || 0 },
+                { id_elemento: 10,porcentaje: parseFloat(document.getElementById("r-metionina-cisteina").value) || 0 },
+                { id_elemento: 11,porcentaje: parseFloat(document.getElementById("r-calcio").value) || 0 },
+                { id_elemento: 12,porcentaje: parseFloat(document.getElementById("r-lisina").value) || 0 },
+                { id_elemento: 13,porcentaje: parseFloat(document.getElementById("r-triptofano").value) || 0 },
+                { id_elemento: 14,porcentaje: parseFloat(document.getElementById("r-energia-metabo").value) || 0 }
+            ]
         }
 
         const promesa = await fetch(`${URL_BASE}/etapa_vida`, {

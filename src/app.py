@@ -803,6 +803,7 @@ def consulta_gen_etapa():
                 ev.peso_max, 
                 ev.duracion_dias,
                 ev.duracion_semanas,
+                ev.descripcion,
                 e.nombre as nombre_elemento,
                 rn.porcentaje
             FROM etapa_vida ev
@@ -810,9 +811,8 @@ def consulta_gen_etapa():
             LEFT JOIN elementos e ON rn.id_elemento = e.id_elemento
             ORDER BY ev.id_etapa;
         """)
-    
-    
-    filas = cur.fetchall()
+        filas = cur.fetchall()
+        
     etapas = {}
     for fila in filas:
       id_etapa = fila['id_etapa']
@@ -824,6 +824,7 @@ def consulta_gen_etapa():
           "peso_max" : fila['peso_max'],
           "duracion_dias" : fila['duracion_dias'],
           "duracion_semanas" : fila['duracion_semanas'],
+          "descripcion" : fila['descripcion'],
           "requerimientos" : []
         }
       if fila['nombre_elemento']:
@@ -831,8 +832,9 @@ def consulta_gen_etapa():
           "nombre_elemento" : fila["nombre_elemento"],
           "porcentaje" : fila['porcentaje']
         })
-      
+    
     if etapas:
+      etapas = list(etapas.values())
       return jsonify({'Mensaje': 'Lista de etapas registradas', 'etapas': etapas}), 200
     else:
       return jsonify({'Mensaje': 'No hay etapas registradas'})
@@ -860,12 +862,48 @@ def consulta_indi_etapa(id):
   try:
     with config['development'].conn() as conn:
       with conn.cursor() as cur:
-        cur.execute('SELECT * FROM etapa_vida WHERE id_etapa = %s',
-                    (id))
-    etapa = cur.fetchone()
-    print(etapa)
+        cur.execute("""
+            SELECT 
+                ev.id_etapa, 
+                ev.nombre AS nombre_etapa, 
+                ev.peso_min, 
+                ev.peso_max, 
+                ev.duracion_dias,
+                ev.duracion_semanas,
+                e.nombre as nombre_elemento,
+                rn.porcentaje
+            FROM etapa_vida ev
+            LEFT JOIN requerimientos_nutricionales rn ON ev.id_etapa = rn.id_etapa
+            LEFT JOIN elementos e ON rn.id_elemento = e.id_elemento
+            WHERE ev.id_etapa = %s
+            ORDER BY ev.id_etapa
+        """,(id,))
+    
+        filas = cur.fetchall()
+    
+    etapa = {}
+    for fila in filas:
+      id_etapa = fila['id_etapa']
+      if id_etapa not in etapa:
+        etapa[id_etapa] = {
+          "id_etapa" : id_etapa,
+          "nombre_etapa" : fila['nombre_etapa'],
+          "peso_min" : fila['peso_min'],
+          "peso_max" : fila['peso_max'],
+          "duracion_dias" : fila['duracion_dias'],
+          "duracion_semanas" : fila['duracion_semanas'],
+          "requerimientos" : []
+        }
+      
+      if fila['nombre_elemento']:
+        etapa[id_etapa]['requerimientos'].append({
+          "nombre_elemento" : fila["nombre_elemento"],
+          "porcentaje" : fila["porcentaje"]
+        })
+      
     if etapa:
-      return jsonify({'etapas': [etapa], 'Mensaje': 'Etapa de vida consultada'})
+      etapa = list(etapa.values())
+      return jsonify({'etapas': etapa, 'Mensaje': 'Etapa de vida consultada'})
     else:
       return jsonify({'Mensaje': f'No hay etapa con ID {id}'})
   except Exception as err:
@@ -1032,7 +1070,14 @@ def eliminar_etapa_vida(id):
   try:
     with config['development'].conn() as conn:
       with conn.cursor() as cur:
-        cur.execute('DELETE FROM etapa_vida WHERE id_etapa = %s',
+        cur.execute("""
+                    DELETE FROM requerimientos_nutricionales
+                    WHERE id_etapa = %s
+                    """, (id))
+        cur.execute("""
+                    DELETE FROM etapa_vida 
+                    WHERE id_etapa = %s
+                    """,
                     (id))
         conn.commit()
     return jsonify({'Mensaje': 'Etapa de vida eliminada correctamente'})

@@ -1057,7 +1057,7 @@ SECCION DE PORCINOS
 
 
 
-/* CODIGO DE LA SECCION DE LOS REGISTROS DE LOS PORCINOS */
+/* CODIGO DE LA SECCION DE LOS REGISTROS CONSULTADOS DE LA BASE DE DATOS DE LOS PORCINOS */
 
 .container__registros{
     background-color: var(--color--fondos);
@@ -1221,13 +1221,61 @@ th{
 }
 
 
+.layout_registrar_etapa{
+    display: grid;
+    grid-template-columns: repeat(2,1fr);
+    column-gap: 1em;
+}
+
+/* STEP 1 → participa del grid del padre */
+#step1 {
+    display: contents !important;
+}
+
+/* Cuando esté oculto */
+#step1.hidden {
+    display: none !important;
+}
+
+/* STEP 2 → por defecto oculto */
+#step2 {
+    display: none;
+}
+
+/* STEP 2 cuando está activo */
+#step2.active {
+    display: contents !important;
+}
+
+/* Regla general de steps */
+.step {
+    display: none;
+}
+
+/* Step visible */
+.step.active {
+    display: contents !important;
+}
+
+/* Botón guardar/siguiente a la derecha */
+.container-button-guardar .button-guardar {
+    order: 2;
+}
+
+
+.layout_registrar_etapa > #step2 > .container__label__input > label{
+    font-size: 12px;
+}
+
 /* CONTAINER DEL BOTTON CERRAR */
 
 .container-button-close, .container-button-guardar, .container-button-dele{
     margin-top: 1em;
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
+    justify-content: center;
     align-items: center;
+    gap: 0.5em;
 }
 container-button-dele1{
     margin-top: 7em;
