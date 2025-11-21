@@ -279,34 +279,64 @@ def registro_usuarios():
 def perfil():
     try:
         usuario_token = request.usuario
-        usuario = None
+        # user_id es el id_usuario (normal) o id_usuario_externo (google)
+        user_id = usuario_token["id_usuario"] 
+        es_google = usuario_token.get("es_google", False)
         
+        datos_usuario_db = None
+        # Inicializar a None para que no se envíe a la respuesta si no se encuentra
+        numero_identificacion = None 
+
         with config['development'].conn() as conn:
             with conn.cursor() as cur:
-                cur.execute("SELECT nombre, correo, rol FROM usuario WHERE id_usuario = %s", 
-                          (usuario_token["id_usuario"],))
-                usuario = cur.fetchone()
                 
-                if not usuario:
-                    cur.execute("SELECT nombre, correo, rol FROM usuario_externo WHERE id_usuario_externo = %s", 
-                              (usuario_token["id_usuario"],))
-                    usuario = cur.fetchone()
-        
-        if not usuario:
-            return jsonify({"Mensaje": "Usuario no encontrado"}), 404
-        
+                if not es_google:
+                    # USUARIO NORMAL:
+                    # Traemos todas las columnas necesarias, incluyendo numero_identificacion.
+                    cur.execute("""
+                        SELECT nombre, correo, rol, numero_identificacion 
+                        FROM usuario 
+                        WHERE id_usuario = %s
+                    """, (user_id,))
+                    datos_usuario_db = cur.fetchone()
+                    
+                    if datos_usuario_db:
+                        # Aseguramos la asignación de las columnas
+                        nombre = datos_usuario_db['nombre']
+                        correo = datos_usuario_db['correo']
+                        rol = datos_usuario_db['rol']
+                        # Obtener el valor de la columna 'numero_identificacion'
+                        numero_identificacion = datos_usuario_db['numero_identificacion'] 
+                else:
+                    # USUARIO EXTERNO (GOOGLE)
+                    cur.execute("""
+                        SELECT nombre, correo, rol 
+                        FROM usuario_externo 
+                        WHERE id_usuario_externo = %s
+                    """, (user_id,))
+                    datos_usuario_db = cur.fetchone()
+                    
+                    if datos_usuario_db:
+                        nombre = datos_usuario_db['nombre']
+                        correo = datos_usuario_db['correo']
+                        rol = datos_usuario_db['rol']
+
+                if not datos_usuario_db:
+                    return jsonify({"Mensaje": "Usuario no encontrado"}), 404
+
+
         perfil_data = {
-            "nombre": usuario_token["nombre"],
-            "correo": usuario_token["correo"],
-            "es_google": usuario_token.get("es_google", False),
-            "rol": usuario_token.get("rol", "Aprendiz")
+            "nombre": nombre,
+            "correo": correo,
+            "rol": rol,
+            "es_google": es_google,
         }
-        
-        if not usuario_token.get("es_google", False):
-            perfil_data["numero_identificacion"] = usuario_token["id_usuario"]
-        
+
+        if numero_identificacion is not None and not es_google:
+            perfil_data["numero_identificacion"] = numero_identificacion
+
         return jsonify(perfil_data)
-        
+
     except Exception as e:
         print(f"Error en perfil: {str(e)}")
         return jsonify({"Mensaje": "Error interno del servidor"}), 500

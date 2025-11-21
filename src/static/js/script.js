@@ -1643,40 +1643,69 @@ async function login() {
 // FUNCIONAMIENTO DE LA API DE GOOGLE
 function handleCredentialResponse(response) {
     const idToken = response.credential;
-    console.log("Token recibido:", idToken);
+    console.log("Token recibido de Google:", idToken);
+
+    if (!idToken) {
+        Swal.fire({
+            icon: "error",
+            title: "Error de autenticación",
+            text: "No se recibió el token de Google. Intenta nuevamente."
+        });
+        return;
+    }
 
     fetch(`${URL_BASE}/api/auth/google`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ token: idToken })
+        method: "POST",
+        headers: { 
+            "Content-Type": "application/json",
+            "Accept": "application/json"
+        },
+        body: JSON.stringify({ token: idToken })
     })
-    .then(res => res.json())
+    .then(async (res) => {
+        const data = await res.json();
+        
+        if (!res.ok) {
+            throw new Error(data.message || `Error ${res.status}: ${res.statusText}`);
+        }
+        return data;
+    })
     .then(data => {
-      localStorage.setItem("token", data.token);
-      localStorage.setItem("usuario", JSON.stringify({
-        nombre: data.nombre,
-        numero_identificacion: data.numero_identificacion,
-        correo: data.correo,
-        rol: data.rol
-      }));
+        if (!data.token) {
+            throw new Error("El servidor no devolvió el token de autenticación.");
+        }
+        
+        if (data.status !== "success") {
+            throw new Error(data.message || "Error en la autenticación");
+        }
+        localStorage.setItem("token", data.token);
+        localStorage.setItem("usuario", JSON.stringify({
+            nombre: data.nombre,
+            numero_identificacion: data.numero_identificacion,
+            correo: data.correo,
+            rol: data.rol
+        }));
 
-      Swal.fire({
-        icon: "success",
-        timer: 1500,
-        title: "¡Bienvenido a Edupork!",
-        text: `Hola ${data.nombre}, tu acceso con Google fue exitoso.`,
-        showConfirmButton: false
-      }).then(() => {
-        location.href = "home.html";
-      });
+        Swal.fire({
+            icon: "success",
+            timer: 1500,
+            title: "¡Bienvenido a Edupork!",
+            text: `Hola ${data.nombre}, tu acceso con Google fue exitoso.`,
+            showConfirmButton: false
+        }).then(() => {
+            location.href = "home.html";
+        });
     })
     .catch(err => {
-      console.error("Error en el login:", err);
-      Swal.fire({
-        icon: "error",
-        title: "Error de conexión",
-        text: err.message || "No se pudo conectar con el servidor."
-      });
+        console.error("Error completo en login:", err);
+        localStorage.removeItem("token");
+        localStorage.removeItem("usuario");
+        
+        Swal.fire({
+            icon: "error",
+            title: "Error de acceso",
+            text: err.message || "No se pudo completar el inicio de sesión con Google."
+        });
     });
 }
 
