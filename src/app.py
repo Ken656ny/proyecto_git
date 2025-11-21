@@ -279,20 +279,16 @@ def registro_usuarios():
 def perfil():
     try:
         usuario_token = request.usuario
-        # user_id es el id_usuario (normal) o id_usuario_externo (google)
         user_id = usuario_token["id_usuario"] 
         es_google = usuario_token.get("es_google", False)
         
         datos_usuario_db = None
-        # Inicializar a None para que no se envíe a la respuesta si no se encuentra
         numero_identificacion = None 
 
         with config['development'].conn() as conn:
             with conn.cursor() as cur:
                 
                 if not es_google:
-                    # USUARIO NORMAL:
-                    # Traemos todas las columnas necesarias, incluyendo numero_identificacion.
                     cur.execute("""
                         SELECT nombre, correo, rol, numero_identificacion 
                         FROM usuario 
@@ -301,14 +297,11 @@ def perfil():
                     datos_usuario_db = cur.fetchone()
                     
                     if datos_usuario_db:
-                        # Aseguramos la asignación de las columnas
                         nombre = datos_usuario_db['nombre']
                         correo = datos_usuario_db['correo']
                         rol = datos_usuario_db['rol']
-                        # Obtener el valor de la columna 'numero_identificacion'
                         numero_identificacion = datos_usuario_db['numero_identificacion'] 
                 else:
-                    # USUARIO EXTERNO (GOOGLE)
                     cur.execute("""
                         SELECT nombre, correo, rol 
                         FROM usuario_externo 
