@@ -1786,172 +1786,6 @@ async function consultar_notificaciones() {
 // GESTION DE ALIMENTOS
 // -------------------
 
-function consulta_alimentos() {
-    const contenido = document.getElementById("contenido");
-    fetch(`${URL_BASE}/alimentos`, { method: "GET" })
-        .then(res => res.json())
-        .then(data => {
-            console.log(data)
-            contenido.innerHTML = "";
-            data.mensaje.forEach(element => {
-                const mapa = {};
-                element.elementos.forEach(e => {
-                    mapa[e.nombre] = e.valor;
-                });
-
-                contenido.innerHTML += `
-            <tr class="nuevo1">
-                <td class="nuevo td__border__l"><img class="svg__pig" src="/src/static/iconos/logo alimentospng.png"></td>
-                <td class="nuevo">${element.id_alimento}</td>
-                <td class="nuevo">${element.nombre}</td>
-                <td class="nuevo">${mapa["Materia_seca"]}</td>
-                <td class="nuevo">${mapa["Energia_metabo"]}</td>
-                <td class="nuevo">${mapa["Proteina_cruda"]}</td>
-                <td class="nuevo">${mapa["Fibra_cruda"]}</td>
-                <td class="nuevo">${element.estado}</td>
-                <td class="nuevo td__border__r">
-
-                <img src="/src/static/iconos/icon eye.svg " class="icon-eye">
-
-                <img src="/src/static/iconos/edit icon.svg" class="icon-edit">
-
-                <img class="eliminar" onclick="eliminar_alimento(${element.id_alimento})" src="/src/static/iconos/delete icon.svg" class="icon-edit">
-                </td>
-            </tr>
-            `
-            });
-        })
-}
-
-function eliminar_alimento(id) {
-    fetch(`${URL_BASE}/eliminar_alimento/${id}`, { method: "delete" })
-        .then(res => res.json())
-        .then(data => {
-            console.log("eliminado correctamente")
-            alert("eliminado correctamente")
-            window.location.reload()
-        })
-}
-
-async function consulta_individual_alimento() {
-  const nombre = document.getElementById("id_alimento").value.trim();
-  const contenido = document.getElementById("contenido");
-  contenido.innerHTML = "";
-
-  if (!nombre) {
-    Swal.fire({
-      icon: "warning",
-      title: "Campo vacío",
-      text: "Por favor ingresa un nombre de alimento para buscar.",
-      confirmButtonColor: "#3085d6",
-      customClass: { popup: "swal-elevado" }
-    });
-    return;
-  }
-
-  try {
-    const response = await fetch(`${URL_BASE}/consulta_indi_alimento/${nombre}`);
-    const data = await response.json();
-
-    if (!response.ok || !data.mensaje) {
-      Swal.fire({
-        icon: "error",
-        title: "No encontrado",
-        text: "No se encontró ningún alimento con ese nombre.",
-        confirmButtonColor: "#d33",
-        customClass: { popup: "swal-elevado" }
-      });
-      return;
-    }
-
-    // 🔹 Convierte en array si no lo es
-    const alimentos = Array.isArray(data.mensaje) ? data.mensaje : [data.mensaje];
-
-    alimentos.forEach(element => {
-      const mapa = {};
-      element.elementos.forEach(e => {
-        mapa[e.nombre] = e.valor;
-      });
-
-      contenido.innerHTML += `
-        <tr class="nuevo1">
-          <td class="nuevo td__border__l"><img class="svg__alimento" src="/src/static/iconos/logo alimentospng.png"></td>
-          <td class="nuevo">${element.id_alimento}</td>
-          <td class="nuevo">${element.nombre}</td>
-          <td class="nuevo">${mapa["Materia_seca"] || ''}</td>
-          <td class="nuevo">${mapa["Energia_metabo"] || ''}</td>
-          <td class="nuevo">${mapa["Proteina_cruda"] || ''}</td>
-          <td class="nuevo">${mapa["Fibra_cruda"] || ''}</td>
-          <td class="nuevo">${element.estado}</td>
-          <td class="nuevo td__border__r">
-              <img src="/src/static/iconos/icon eye.svg" onclick="abrirModal('eye', ${element.id_alimento})" class="icon-eye">
-              <img src="/src/static/iconos/edit icon.svg" onclick="abrirModal('edit', ${element.id_alimento})" class="icon-edit">
-              <img src="/src/static/iconos/delete icon.svg" onclick="abrirModal('dele', ${element.id_alimento})" class="icon-delete">
-          </td>
-        </tr>
-
-        <!-- Modal ver -->
-        <dialog class="dialog-icon-eye modal-info" id="modal-eye-${element.id_alimento}">
-          <div class="title-dialog">
-            <h2>Información del alimento</h2>
-            <hr>
-          </div>
-          <div class="modal-info-content">
-            <section class="modal-column">
-              <p>Nombre del alimento</p>
-              <input class="input__id" value="${element.nombre}" readonly>
-              <p>Proteína cruda (%)</p>
-              <input class="input__id" value="${mapa["Proteina_cruda"] || ''}" readonly>
-              <p>Materia seca (%)</p>
-              <input class="input__id" value="${mapa["Materia_seca"] || ''}" readonly>
-              <p>Energía metabolizable (Kcal/kg)</p>
-              <input class="input__id" value="${mapa["Energia_metabo"] || ''}" readonly>
-            </section>
-
-            <section class="modal-column">
-              <p>Fibra cruda (%)</p>
-              <input class="input__id" value="${mapa["Fibra_cruda"] || ''}" readonly>
-              <p>Extracto etéreo (%)</p>
-              <input class="input__id" value="${mapa["Extracto_etereo"] || ''}" readonly>
-              <p>Calcio (%)</p>
-              <input class="input__id" value="${mapa["Calcio"] || ''}" readonly>
-              <p>Fósforo (%)</p>
-              <input class="input__id" value="${mapa["Fosforo"] || ''}" readonly>
-            </section>
-          </div>
-          <div class="modal-footer">
-            <button onclick="cerrarModal('eye', ${element.id_alimento})" class="btn">Cerrar</button>
-          </div>
-        </dialog>
-
-        <!-- Modal eliminar -->
-        <dialog class="dialog-icon-dele modal-info" id="modal-dele-${element.id_alimento}">
-          <div class="title-dialog">
-            <h2>Eliminar registro del alimento</h2>
-          </div>
-          <hr>
-          <p>Eliminar el registro sin saber si el alimento tiene trazabilidad puede alterar el sistema.  
-          Es preferible cambiar el estado del alimento a inactivo.</p>
-          <span>¿Está seguro que quiere eliminar este registro?</span>
-          <div class="container-button-dele1">
-            <button class="button-eliminar" onclick="eliminar_alimento(${element.id_alimento})">Eliminar</button>
-            <button class="button-cerrar" onclick="cerrarModal('dele', ${element.id_alimento})">Cancelar</button>
-          </div>
-        </dialog>
-      `;
-    });
-
-  } catch (error) {
-    console.error("Error al consultar alimento:", error);
-    Swal.fire({
-      icon: "error",
-      title: "Error inesperado",
-      text: "Ocurrió un problema al consultar el alimento.",
-      confirmButtonColor: "#d33",
-      customClass: { popup: "swal-elevado" }
-    });
-  }
-}
 
 function consulta_alimentos() {
     const contenido = document.getElementById("contenido");
@@ -1972,9 +1806,9 @@ function consulta_alimentos() {
                 </td>
                 <td class="nuevo">${element.id_alimento}</td>
                 <td class="nuevo">${element.nombre}</td>
+                <td class="nuevo">${mapa["Proteina_cruda"]}</td>
                 <td class="nuevo">${mapa["Materia_seca"]}</td>
                 <td class="nuevo">${mapa["Energia_metabo"]}</td>
-                <td class="nuevo">${mapa["Proteina_cruda"]}</td>
                 <td class="nuevo">${mapa["Fibra_cruda"]}</td>
                 <td class="nuevo">${element.estado}</td>
                 <td class="nuevo td__border__r">
@@ -2007,8 +1841,8 @@ function consulta_alimentos() {
   <div class="modal-info-content">
     <!-- Columna 1 -->
     <section class="modal-column">
-      <p>Nombre del alimento</p>
-      <input class="input__id" value="${element.nombre}" readonly>
+    <p>Nombre del alimento</p>
+    <input class="input__id" value="${element.nombre}" readonly>
 
       <p>Proteína cruda (%)</p>
       <input class="input__id" value="${mapa['Proteina_cruda']}" readonly>
@@ -2180,7 +2014,6 @@ function consulta_individual_alimento() {
     fetch(`${URL_BASE}/consulta_indi_alimento/${nombre}`)
         .then(res => res.json())
         .then(data => {
-            console.log("resultados;",data)
             if (!data.mensaje) {
                 Swal.fire({
                     title: "Mensaje",
@@ -2208,9 +2041,9 @@ function consulta_individual_alimento() {
                         <td class="nuevo td__border__l"><img class="svg__alimento" src="/src/static/iconos/logo alimentospng.png"></td>
                         <td class="nuevo">${element.id_alimento}</td>
                         <td class="nuevo">${element.nombre}</td>
+                        <td class="nuevo">${mapa["Proteina_cruda"] || ''}</td>
                         <td class="nuevo">${mapa["Materia_seca"] || ''}</td>
                         <td class="nuevo">${mapa["Energia_metabo"] || ''}</td>
-                        <td class="nuevo">${mapa["Proteina_cruda"] || ''}</td>
                         <td class="nuevo">${mapa["Fibra_cruda"] || ''}</td>
                         <td class="nuevo">${element.estado}</td>
                         <td class="nuevo td__border__r">
@@ -2525,8 +2358,6 @@ async function eliminar_alimento(id) {
   }
 }
 
-
-
 async function cargarAutocompletado() {
   try {
     const response = await fetch(`${URL_BASE}/alimentos`);
@@ -2603,72 +2434,6 @@ function dietas() {
             alimentos_en_dieta.innerHTML = `<p>Error al cargar los alimentos.</p>`;
         });
 }
-
-
-function consulta_individual_alimento_disponible() {
-    const nombre = document.getElementById("id_alimento").value.trim();
-    const alimentos_en_dieta = document.getElementById("alimentos_en_dieta");
-
-    if (!nombre) {
-        Swal.fire({
-            icon: "warning",
-            title: "Campo vacío",
-            text: "Por favor, escribe el nombre del alimento antes de consultar.",
-            confirmButtonColor: "#f1c40f"
-        });
-        return;
-    }
-
-    fetch(`${URL_BASE}/consulta_indi_alimento_disponible/${nombre}`)
-        .then(res => {
-            if (!res.ok) throw new Error(`Error HTTP ${res.status}`);
-            return res.json();
-        })
-        .then(data => {
-            alimentos_en_dieta.innerHTML = "";
-
-            if (!data.mensaje) {
-                Swal.fire({
-                    icon: "info",
-                    title: "Alimento no encontrado",
-                    text: `No se encontró el alimento "${nombre}".`,
-                    confirmButtonColor: "#3085d6"
-                });
-                alimentos_en_dieta.innerHTML = `
-                    <p class="sin-alimentos">No se encontró el alimento "${nombre}".</p>
-                `;
-                return;
-            }
-
-            const element = data.mensaje;
-
-            alimentos_en_dieta.innerHTML = `
-                <div class="alimentos_dietas">
-                    <div class="imagen_alimento_dieta">
-                      <img src="${URL_BASE}${element.imagen}" 
-                             onerror="this.onerror=null; this.src='/src/static/iconos/imagen no encontrada.svg'; this.classList.add('sin_imagen_alimento_dieta')" 
-                             alt="no hay imagen">
-                    </div>
-                    <div class="descripcion_dietas">
-                        <p><strong>Nombre:</strong> ${element.nombre}</p>
-                        <p><strong>Cantidad (Kg):</strong></p>
-                        <input type="number" min="0" class="input_dietas" id="cantidad-${element.nombre}" placeholder="Cantidad">
-                    </div>
-                </div>
-            `;
-        })
-        .catch(err => {
-            console.error(err);
-            Swal.fire({
-                icon: "error",
-                title: "Error al consultar el alimento",
-                text: "Ocurrió un problema al realizar la consulta.",
-                confirmButtonColor: "#d33"
-            });
-            alimentos_en_dieta.innerHTML = `<p>Error al consultar el alimento.</p>`;
-        });
-    }
-
 function timesleep(){
    let tiempoInactividad;
 let tiempoCierre;
