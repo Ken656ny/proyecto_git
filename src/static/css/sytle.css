@@ -361,7 +361,7 @@ BARRA LATERAL
     position: fixed;
     display: flex;
     flex-direction: column;
-    width: 250px;
+    width: 80px;
     height: 100vh;
     padding: 2rem 1rem;
     background-color: var(--color--prede);
@@ -834,6 +834,9 @@ SECCION DE PORCINOS
     align-items: center;
     gap: 10px;
 }
+label.contenedor{
+    order: +1;
+}
 .final_buttom{
     margin-right: 15px;
 }
@@ -910,8 +913,48 @@ SECCION DE PORCINOS
     margin-left: 2%;
     margin-bottom: 7%;
     font-family: var(--fuente--contenido);
-
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+    align-items: center;
 }
+
+.requisitos_nutricionales {
+    display: flex;
+    background-color: #ECE6F0;
+    border-radius: 10px;
+    color: #2C3D31;
+    border: 1px solid black;
+    width: 90%;
+    justify-content:space-around;
+    align-items: center;
+    margin-bottom: 2%;
+}
+.requisitos_nutricionales1 {
+    display: flex;
+    background-color: #ECE6F0;
+    border-radius: 10px;
+    color: #2C3D31;
+    border: 1px solid black;
+    width: 100%;
+    justify-content:space-around;
+    align-items: center;
+    margin-left: 2%;
+    gap: 5%;
+    padding: 20px 10px;
+}
+.requisitos_nutricionales1 h5 label,
+.columnas_nutricionales1 h5 label {
+    display: inline-block;
+    width: 20px;     /* Puedes subir o bajar este valor */
+    text-align: left;
+}
+
+
+.columnas_nutricionales p {
+    text-align: left !important; /* Por si algún estilo lo sobreescribe */
+}
+
 .container_requerimientos_etapa{
     grid-column: 6/10;
     grid-row: 6/11;
@@ -924,9 +967,9 @@ SECCION DE PORCINOS
     margin-left: 2%;
     font-family: var(--fuente--contenido);
     display: flex;
-    justify-content: center;
     flex-direction: column;
     align-items: center;
+    text-align: left;
     
 }
 
@@ -960,6 +1003,15 @@ SECCION DE PORCINOS
     height: 40px;
     padding-left: 35px;
     border-radius: 10px;
+    color: #7C7A7A;
+    border: 1px solid var(--color-bor-contain);
+    outline: none;
+}
+.filter_dietas{
+    width: 500px;
+    height: 40px;
+    padding-left: 35px;
+    border-radius: 50px;
     color: #7C7A7A;
     border: 1px solid var(--color-bor-contain);
     outline: none;
@@ -2187,6 +2239,7 @@ DIETASSSSSSSS
   gap: 10px;
 }
 
+
 .modal-column p {
   font-weight: bold;
   color: #2f4932;
@@ -2277,7 +2330,7 @@ DIETASSSSSSSS
 }
 
 .titulo_requerimientos{
-    margin-top: 2%;
+    margin-top: 3px;
     display: flex;
     flex-direction: column;
     justify-content: left;
@@ -2287,8 +2340,18 @@ DIETASSSSSSSS
     border: 1px solid black;
     padding: 5px;
     background-color: #ECE6F0;
-    border-radius: 50px;
+    border-radius: 10px;
     color: #2C3D31;
+}
+
+.valor {
+    display: inline-block; /* Mantiene el valor en la misma línea */
+    width: 10px;           /* O el ancho que quieras fijo */
+}
+
+.requerimientos_alimentos_dietas{
+    display: flex;
+    flex-direction: row;
 }
 
 .requerimientos_etapa{
@@ -2304,6 +2367,8 @@ DIETASSSSSSSS
     border-radius: 50px;
     color: #2C3D31;
 }
+
+
 
 /* ---------------------
 RESPONSIVE BAR

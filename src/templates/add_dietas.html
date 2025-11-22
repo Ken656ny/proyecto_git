@@ -16,7 +16,7 @@
 </head>
 
 <body class="body_dietas">
-    <section class="section-nav-bar" >
+    <section class="section-nav-bar">
         <div class="container-user">
             <div class="container__btn__perfil">
                 <img src="../static/iconos/icon user.svg" alt="" width="25" class="svg__user__2">
@@ -37,7 +37,8 @@
             <nav class="navegacion">
                 <ul class="ul-navegacion">
                     <li>
-                        <a href="/src/templates/home.html" onclick="redirectWithDelay(event, 'home.html')" > <!--dar estilo -->
+                        <a href="/src/templates/home.html" onclick="redirectWithDelay(event, 'home.html')">
+                            <!--dar estilo -->
                             <img src="../static/iconos/home icon.svg" width="20px" alt="" class="icons-bar">
                             <span>Home</span>
                         </a>
@@ -56,7 +57,8 @@
                     </li>
                     <li>
                         <a href="/src/templates/alimentos.html" onclick="redirectWithDelay(event, 'alimentos.html')">
-                            <img src="../static/iconos/icon wheate.svg" title="alimentos" width="20px" alt="" class="icons-bar">
+                            <img src="../static/iconos/icon wheate.svg" title="alimentos" width="20px" alt=""
+                                class="icons-bar">
                             <span>Alimentos</span>
                         </a>
                     </li>
@@ -79,7 +81,8 @@
                         </a>
                     </li>
                     <li>
-                        <a href="/src/templates/configuracion.html" onclick="redirectWithDelay(event, 'configuracion.html')">
+                        <a href="/src/templates/configuracion.html"
+                            onclick="redirectWithDelay(event, 'configuracion.html')">
                             <img src="../static/iconos/icon setting.svg" width="20px" alt="" class="icons-bar">
                             <span>Configuración</span>
                         </a>
@@ -90,14 +93,13 @@
     </section>
     <section class="contenido_dietas">
 
-
         <header class="container container__title_dietas">
             <h1>Crear Dietas</h1>
         </header>
 
 
         <section class="container container__search__bar_dietas">
-             <div class="separador">
+            <div class="separador">
                 <img src="/src/static/iconos/icon lupa.svg" alt="">
                 <input type="text" class="input__id" id="id_alimento" placeholder="Nombre del alimento"
                     list="lista_alimentos">
@@ -125,44 +127,154 @@
 
 
 
-            <section class="container buscador_etapa_dietas">
-                <form class="formulario_buscar">
-                    <div class="container__filtro">
-                        <img src="/src/static/iconos/icon filter.svg" alt="" id="svg__filter">
-                        <select name="" id="" class="filter">
-                            <option value="" disabled selected>Seleccione la Etapa de vida</option>
-                            <option value=""></option>
-                            <option value="">Raza</option>
-                            <option value="">Etapa de vida</option>
-                            <option value="">Peso final</option>
-                            <option value="">Estado</option>
-                            <option value="">Consultar todo</option>
-                        </select>
+        <section class="container buscador_etapa_dietas">
+            <form class="formulario_buscar">
+                <div class="container__filtro">
+                    <img src="/src/static/iconos/icon filter.svg" alt="" id="svg__filter">
+                    <select name="" id="select-etapas" class="filter_dietas">
+                        <option value="" disabled selected>Seleccione la Etapa de vida</option>
+                    </select>
+                </div>
+            </form>
+        </section>
+
+        <section class="container container_requerimientos_alimento">
+            <div class="requerimintos_nutricionales_alimentos">
+                <div class="requisitos_nutricionales1">
+                    <div class="columnas_nutricionales1">
+                        <h5>materia seca: <label id="materia_seca_label">(%)</label></h5>
+                        <h5>Energia M: <label id="energia_metabolizable_label">Kcal/K</label></h5>
+                        <h5>proteina cruda: <label id="proteina_cruda_label">(%)</label></h5>
+                        <h5>fibra cruda: <label id="fibra_cruda_label">(%)</label></h5>
+                        <h5>Extracto Etereo: <label id="extracto_etereo_label">(%)</label></h5>
+                        <h5>Calcio: <label id="calcio_label">(%)</label></h5>
+                        <h5>Fosforo Disponible: <label id="fosforo_disponible_label">(%)</label></h5>
                     </div>
-                    <button type="submit" class="btn" onclick="consulta_individual_porcino()">Consultar</button>
-                </form>
-            </section>
 
-            <section class="container container_requerimientos_alimento">
+                    <div class="columnas_nutricionales1">
+                        <h5>sodio: <label id="sodio_label">(%)</label></h5>
+                        <h5>Arginina: <label id="arginina_label">(%)</label></h5>
+                        <h5>Lisina: <label id="lisina_label">(%)</label></h5>
+                        <h5>Treonina: <label id="treonina_label">(%)</label></h5>
+                        <h5>Metionina: <label id="metionina_label">(%)</label></h5>
+                        <h5>Metionina+cistenina: <label id="metionina_cistenina_label">(%)</label></h5>
+                        <h5>Triptófano: <label id="triptofano_label">(%)</label></h5>
+                    </div>
 
-
-            </section>
-            <section class="container container_requerimientos_etapa">
-                <div class="titulo_requerimientos">
-                    <h5>requerimientos nutricionales de la etapa</h5>
-                </div>
-                <div class="requerimientos">
 
                 </div>
-            </section>
+            </div>
+            <canvas id="nutricionCircular" width="100px" height="100px"></canvas>
+
+
+            </canvas>
+        </section>
+
+
+        <section class="container container_requerimientos_etapa">
+            <div class="titulo_requerimientos">
+                <h5>requerimientos nutricionales de la etapa</h5>
+            </div>
+            <div class="requisitos_nutricionales">
+                <div class="columnas_nutricionales">
+                    <p>materia seca: <span id="materia_seca" class="valor"> (%) </span></p>
+                    <p>Energia metabolizable: <span id="energia_metabolizable" class="valor">Kcal/k</span></p>
+                    <p>proteina cruda: <span id="proteina_cruda" class="valor">(%)</span></p>
+                    <p>fibra cruda: <span id="fibra_cruda" class="valor">(%)</span></p>
+                    <p>Extracto Etereo: <span id="extracto_etereo" class="valor">(%)</span></p>
+                    <p>Calcio: <span id="calcio" class="valor">(%)</span></p>
+                    <p>Fosforo Disponible: <span id="fosforo_disponible" class="valor">(%)</span></p>
+                </div>
+
+                <div class="columnas_nutricionales">
+                    <p>sodio: <span id="sodio" class="valor">(%)</span></p>
+                    <p>Arginina: <span id="arginina" class="valor">(%)</span></p>
+                    <p>Lisina: <span id="lisina" class="valor">(%)</span></p>
+                    <p>Treonina: <span id="treonina" class="valor">(%)</span></p>
+                    <p>Metionina: <span id="metionina" class="valor">(%)</span></p>
+                    <p>Metionina + cistenina: <span id="metionina_cistenina" class="valor">(%)</span></p>
+                    <p>Triptófano: <span id="triptofano" class="valor">(%)</span></p>
+                </div>
+            </div>
+
+
+
+        </section>
 
     </section>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
     <script src="/src/static/js/script.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <script>
         dietas();
+        rellenar_etapa_vida_en_dietas();
+        grafica();
+        const h5Mapping = {
+            "MS": "materia_seca_label",
+            "EM-C": "energia_metabolizable_label",
+            "PC": "proteina_cruda_label",
+            "FC": "fibra_cruda_label",
+            "EE": "extracto_etereo_label",
+            "CAL": "calcio_label",
+            "F.DIS": "fosforo_disponible_label",
+            "SOD": "sodio_label",
+            "ARG": "arginina_label",
+            "LIS": "lisina_label",
+            "TREO": "treonina_label",
+            "MET": "metionina_label",
+            "M+CIS": "metionina_cistenina_label",
+            "TRIP": "triptofano_label"
+        };
+
+        function mostrarMezcla() {
+            const alimentosSeleccionados = [];
+
+            document.querySelectorAll(".input_dietas").forEach(input => {
+                const cantidad = parseFloat(input.value || 0);
+                const id = parseInt(input.dataset.id);
+                if (cantidad > 0) {
+                    alimentosSeleccionados.push({ id_alimento: id, kg: cantidad });
+                }
+            });
+
+            if (alimentosSeleccionados.length === 0) {
+                Object.values(h5Mapping).forEach(id => {
+                    const label = document.getElementById(id);
+                    if (label) label.innerText = "0";
+                });
+                return;
+            }
+
+            fetch(`${URL_BASE}/mezcla_nutricional`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ alimentos: alimentosSeleccionados })
+            })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.mezcla_nutricional) {
+                        for (const nutriente in data.mezcla_nutricional) {
+                            const labelId = h5Mapping[nutriente];
+                            if (labelId) {
+                                const label = document.getElementById(labelId);
+                                if (label) label.innerText = data.mezcla_nutricional[nutriente];
+                            }
+                        }
+                    }
+                })
+                .catch(err => console.error(err));
+        }
+
+        // Escucha cambios en los inputs
+        document.addEventListener("input", (e) => {
+            if (e.target.matches(".input_dietas")) {
+                mostrarMezcla();
+            }
+        });
+
     </script>
 </body>
 

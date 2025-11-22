@@ -1116,6 +1116,44 @@ def consulta_notificaiones(id):
     return jsonify({'Mensaje': 'Error'})
 
 
+@app.route("/ultima_notificacion/<int:id>", methods=['GET'])
+def ultima_notificacion_usuario(id):
+    """
+    Obtiene la última notificación de un usuario
+    ---
+    tags:
+      - Notificaciones
+    responses:
+      200:
+        description: Última notificación de un usuario
+    """
+    try:
+        with config['development'].conn() as conn:
+            with conn.cursor() as cursor:
+                cursor.execute("""
+                    SELECT id_notificacion, titulo, mensaje, tipo, fecha_creacion
+                    FROM notificaciones 
+                    WHERE id_usuario_destinatario = %s
+                    ORDER BY fecha_creacion DESC
+                    LIMIT 1
+                """, (id,))  
+                info = cursor.fetchone()  
+
+        if info:
+            if hasattr(info['fecha_creacion'], 'strftime'):
+                info['fecha_creacion'] = info['fecha_creacion'].strftime('%Y-%m-%d %H:%M:%S')
+
+            return jsonify({
+                'Mensaje': 'Última notificación',
+                'Notificacion': info
+            })
+        else:
+            return jsonify({'Mensaje': 'No hay notificaciones'})
+
+    except Exception as err:
+        print("Error en /ultima_notificacion/<id>:", err)
+        return jsonify({'Mensaje': 'Error', 'Detalle': str(err)})
+
 # ----------------------------
 # SECCION GESTIONAR ALIMENTOS
 # ----------------------------
@@ -1430,7 +1468,122 @@ def actualizar_alimento(id_alimento):
     except Exception as e:
         print("Error en actualización:", e)
         return jsonify({"error": str(e)}), 500
+@app.route("/eliminar_alimento/<int:id>", methods=["DELETE"])
+def eliminar_alimento(id):
+  try:
+      with config['development'].conn() as conn:
+          with conn.cursor() as cur:
+              cur.execute("DELETE FROM alimento_tiene_elemento WHERE id_alimento = %s", (id,))
+              cur.execute("DELETE FROM alimentos WHERE id_alimento = %s", (id,))
+              conn.commit()
+      return jsonify({"mensaje": f"Alimento con id {id} eliminado correctamente"})
+  except Exception as e:
+      return jsonify({"error": str(e)})
+    
+    
+    
+# DIETAS
+@app.route("/mezcla_nutricional", methods=["POST"])
+def mezcla_nutricional():
+    """
+    Calcula la mezcla nutricional de varios alimentos según sus kg
+    ---
+    tags:
+      - Mezcla Nutricional
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              alimentos:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id_alimento:
+                      type: integer
+                    kg:
+                      type: number
+    responses:
+      200:
+        description: Composición nutricional de la mezcla
+    """
+    try:
+        datos = request.get_json()
+        alimentos_input = datos.get("alimentos", [])
 
+        if not alimentos_input:
+            return jsonify({"error": "No se recibieron alimentos"}), 400
+
+        total_kg = sum(a["kg"] for a in alimentos_input)
+        if total_kg <= 0:
+            return jsonify({"error": "El total de kg debe ser mayor que 0"}), 400
+
+        # Lista de nutrientes finales
+        nutrientes = ["MS","EM-C","PC","FC","EE","CAL","F.DIS","SOD","ARG","LIS","MET","M+CIS","TREO","TRIP"]
+
+        # Mapear nombres exactos de la BD a los códigos
+        nombre_bd_a_clave = {
+            "proteina_cruda": "PC",
+            "fosforo": "F.DIS",
+            "treonina": "TREO",
+            "fibra_cruda": "FC",
+            "sodio": "SOD",
+            "metionina": "MET",
+            "materia_seca": "MS",
+            "extracto_etereo": "EE",
+            "arginina": "ARG",
+            "metionina_cisteina": "M+CIS",
+            "energia_metabo": "EM-C",
+            "calcio": "CAL",
+            "lisina": "LIS",
+            "triptofano": "TRIP"
+        }
+
+        mezcla = {nutriente: 0 for nutriente in nutrientes}
+        porcentajes = []
+
+        with config['development'].conn() as conn:
+            with conn.cursor() as cur:
+                for a in alimentos_input:
+                    cur.execute("""
+                        SELECT e.nombre AS nombre_elemento, ate.valor
+                        FROM alimento_tiene_elemento ate
+                        JOIN elementos e ON e.id_elemento = ate.id_elemento
+                        WHERE ate.id_alimento = %s
+                    """, (a["id_alimento"],))
+                    elementos = cur.fetchall()
+
+                    nutr_alimento = {}
+                    for n in elementos:
+                        nombre_lower = n["nombre_elemento"].lower()  # pasar a minúsculas
+                        clave = nombre_bd_a_clave.get(nombre_lower)
+                        if clave:
+                            nutr_alimento[clave] = float(n["valor"])
+
+                    # Sumar ponderadamente según los kg
+                    for nutriente in nutrientes:
+                        mezcla[nutriente] += nutr_alimento.get(nutriente, 0) * a["kg"]
+
+                    # Guardar porcentaje del alimento
+                    porcentajes.append({
+                        "id_alimento": a["id_alimento"],
+                        "porcentaje": round(a["kg"] * 100 / total_kg, 2)
+                    })
+
+        # Dividir entre el total de kg para obtener el promedio ponderado
+        for nutriente in mezcla:
+            mezcla[nutriente] = round(mezcla[nutriente] / total_kg, 2)
+
+        return jsonify({
+            "mezcla_nutricional": mezcla,
+            "porcentajes_alimentos": porcentajes
+        })
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 if __name__ == '__main__':
     app.run(debug=True)
