@@ -191,6 +191,10 @@ function mostrar_porcinos(porcinos) {
 
 function crearFilaPorcino(item) {
     const uniqueId = item.id_porcino;
+    crearDialogEye(item, uniqueId)
+    crearDialogEdit(item, uniqueId)
+    crearDialogDelete(item, uniqueId)
+    crearDialogDeleteConfirm(uniqueId)
     return `
         <tr class="registro" porcino-id="${uniqueId}">
             <td class="td__border__l">
@@ -205,11 +209,6 @@ function crearFilaPorcino(item) {
             <td class="td__border__r">
                 ${crearIconosAcciones(uniqueId)}
             </td>
-            
-            ${crearDialogEye(item, uniqueId)}
-            ${crearDialogEdit(item, uniqueId)}
-            ${crearDialogDelete(item, uniqueId)}
-            ${crearDialogDeleteConfirm(uniqueId)}
         </tr>`;
 }
 
@@ -672,7 +671,7 @@ async function actualizar_porcino(id_porcino) {
                 text: `${response.Mensaje}`,
                 icon: "success"
             });
-            consulta_general_porcinos()
+            
         } else{
             Swal.fire({
                 title: "Mensaje",
@@ -727,6 +726,7 @@ function mostrar_historial(historial){
 
 function crearFilaHistorial(item){
     const uniqueId = item.id_documento;
+    crearDialogEyeHistorial(item,uniqueId)
     return `
         <tr class="registro registro__dia">
             <td class="td__border__l"> ${item.id_documento} </td>
@@ -736,14 +736,13 @@ function crearFilaHistorial(item){
             <td class="td__border__r">
                 <img src="/src/static/iconos/icon eye.svg" alt="" class="icon-eye" onclick="abrirDialog('dialog-eye-historial-${uniqueId}')">
             </td>
-            ${crearDialogEyeHistorial(item,uniqueId)}
         </tr>
     `;
 }
 
 async function crearDialogActualizarPesoHistorial(){
     const nm = await conteoNumeroConsecutivo();
-    const porcinos = await consulta_general_porcinos();
+    //const porcinos = await consulta_general_porcinos();
     const campos = [
         { label: 'Fecha de pesaje', id: 'fecha-pesaje-actu', type: 'date', required: true },
         { label: 'ID porcino', id: 'id-porcino-actu', type: 'select', options: porcinos.Porcinos.map(por => por.id_porcino), required: true, placeholder: "Seleccione el ID del porcino" },
@@ -906,7 +905,6 @@ function crearDialogEyeHistorial(item, uniqueId){
     return crearDialogBaseRaza(`dialog-eye-historial-${uniqueId}`, 'dialog-icon-eye', 'Informacion de la transacción', HTML, 'Cerrar', 'button-cerrar', uniqueId, 'cerrarDialog',`dialog-eye-historial-${uniqueId}`);
 }
 
-
 async function consulta_gen_historial_pesos(){
     try {
         const promesa = await fetch(`${URL_BASE}/porcino/historial_pesos`, 
@@ -1040,6 +1038,10 @@ function mostrar_raza(razas){
 
 function crearFilaRaza(item){
     const uniqueId = item.id_raza;
+    crearDialogEyeRaza(item, uniqueId)
+    crearDialogEditRaza(item, uniqueId)
+    crearDialogtDeleteRaza(item, uniqueId)
+    crearDialogDeleteConfirmRaza(uniqueId)
     return `
     <tr class="registro registro__dia">
         <td class="td__border__l">${item.id_raza}</td>
@@ -1048,10 +1050,6 @@ function crearFilaRaza(item){
         <td class="td__border__r">
             ${crearIconosAccionesRaza(uniqueId)}
         </td>
-            ${crearDialogEyeRaza(item, uniqueId)}
-            ${crearDialogEditRaza(item, uniqueId)}
-            ${crearDialogtDeleteRaza(item, uniqueId)}
-            ${crearDialogDeleteConfirmRaza(uniqueId)}
     </tr>
     `
 }
@@ -1154,8 +1152,8 @@ function crearDialogBaseRaza(id, clase, titulo, contenido, textoBoton, claseBoto
                 <h2>${titulo}</h2>
                 <hr>
             </div>
-            ${funct ? `
-                <div class="${funct.toLowerCase() === 'registrar_etapas' ? 'layout_registrar_etapa' : 'info_raza_etapa'}">${contenido}</div>
+            ${textoBoton ? `
+                <div class="${textoBoton.toLowerCase() === 'siguiente' ? 'layout_registrar_etapa' : 'info_raza_etapa'}">${contenido}</div>
             ` : ''}
             ${textoBoton ? `
                 <div class="container-button-${claseBoton.includes('cerrar') ? 'close' : 'guardar'}">
@@ -1331,26 +1329,26 @@ async function eliminar_raza(id){
 
 function mostrar_etapas(etapas){
     const contenedor = document.getElementById('etapas_vida') 
-    if (!contenedor) return; 
+    if (!contenedor) return;
     contenedor.innerHTML = etapas.etapas.map(item => crearFilaEtapa(item)).join('');
 }
 
 function crearFilaEtapa(item){
     const uniqueId = item.id_etapa;
+    crearDialogEyeEtapa(item, uniqueId)
+    crearDialogEditEtapa(item, uniqueId)
+    crearDialogDeleteEtapa(item, uniqueId)
+    crearDialogDeleteConfirmEtapa(uniqueId)
     return `
         <tr class="registro registro__dia">
             <td class="td__border__l">${item.id_etapa}</td>
-            <td>${item.nombre_etapa}</td>
+            <td>${item.nombre}</td>
             <td>${item.peso_min}</td>
             <td>${item.peso_max}</td>
 
             <td class="td__border__r">
                 ${crearIconosAccionesEtapa(uniqueId)}
             </td>
-            ${crearDialogEyeEtapa(item, uniqueId)}
-            ${crearDialogEditEtapa(item, uniqueId)}
-            ${crearDialogDeleteEtapa(item, uniqueId)}
-            ${crearDialogDeleteConfirmEtapa(uniqueId)}
         </tr>
     `
 }
@@ -1443,16 +1441,187 @@ function crearDialogRegistrarEtapa() {
     // 4. Activar steps correctamente
     // ===========================
     setTimeout(() => {
-        activarSteps("dialog-registrar-etapa", ".button-guardar");
+        activarSteps("dialog-registrar-etapa", ".button-guardar", 'add');
+    }, 50);
+}
+
+function crearDialogEyeEtapa(item, uniqueId){
+    // ===========================
+    // 1. Campos del STEP 1
+    // ===========================
+    const campos1 = [
+        {label: "ID etapa", id: `eye-id-etapa-${uniqueId}`, value: item.id_etapa},
+        {label: "Nombre", id: `eye-nombre-etapa-${uniqueId}`, value: item.nombre},
+        {label: 'Peso Minimo (Kg)', id: `eye-peso-min-etapa-${uniqueId}`, value: item.peso_min},
+        {label: 'Peso Maximo (Kg)', id: `eye-peso-max-etapa-${uniqueId}`, value : item.peso_max},
+        {label: 'Dias de duración', id: `eye-dias-dura-etapa-${uniqueId}`, value: item.duracion_dias},
+        {label: 'Semana de duración', id: `eye-semanas-dura-etapa-${uniqueId}`, value : item.duracion_semanas},
+        {label: 'Descripcion (Opcional)', id: `eye-descripcion-etapa-${uniqueId}`, value: item.descripcion},
+    ];
+
+    const htmlStep1 = campos1.map(campo => `
+        <div class = "container__label__input">
+        <label for="${campo.id}-${uniqueId}">${campo.label}</label>
+        <input type="text" class="campo-info" id="${campo.id}-${uniqueId}" placeholder="${campo.value}" readonly>
+        </div>
+        `).join('');
+
+    // ===========================
+    // 2. Campos del STEP 2
+    // ===========================
+    
+    const mapaReq = {};
+    item.requerimientos.forEach(req => {
+        mapaReq[req.nombre_elemento.toLowerCase()] = req.porcentaje || 0;
+    });
+
+    const campos2 = [
+        { label: "E. Metabolizable (Kcal/Kg)", id: `eye-energia-metabo-${uniqueId}`, valor: mapaReq["energia_metabo"] },
+        { label: "Proteína Cruda (%)", id: `eye-proteina-cruda-${uniqueId}`, valor: mapaReq["proteina_cruda"] },
+        { label: "Fibra Cruda (%)", id: `eye-fibra-cruda-${uniqueId}`, valor: mapaReq["fibra_cruda"] },
+        { label: "Extracto Etéreo (%)", id: `eye-extracto-etereo-${uniqueId}`, valor: mapaReq["extracto_etereo"] },
+        { label: "Calcio (%)", id: `eye-calcio-${uniqueId}`, valor: mapaReq["calcio"] },
+        { label: "Fosforo Disponible (%)", id: `eye-fosforo-disponible-${uniqueId}`, valor: mapaReq["fosforo"] },
+        { label: "Sodio (%)", id: `eye-sodio-${uniqueId}`, valor: mapaReq["sodio"] },
+        { label: "Arginina (%)", id: `eye-arginina-${uniqueId}`, valor: mapaReq["arginina"] },
+        { label: "Lisina (%)", id: `eye-lisina-${uniqueId}`, valor: mapaReq["lisina"] },
+        { label: "Treonina (%)", id: `eye-treonina-${uniqueId}`, valor: mapaReq["treonina"] },
+        { label: "Metionina (%)", id: `eye-metionina-${uniqueId}`, valor: mapaReq["metionina"] },
+        { label: "Metionina + Cisteína (%)", id: `eye-metionina-cisteina-${uniqueId}`, valor: mapaReq["metionina_cisteina"] },
+        { label: "Triptófano (%)", id: `eye-triptofano-${uniqueId}`, valor: mapaReq["triptofano"] },
+    ];
+
+    
+    const htmlStep2 = campos2.map(campo => `
+        <div class="container__label__input">
+        <label>${campo.label}</label>
+        <input type="${campo.type || 'text'}" id="${campo.id}" placeholder="${campo.valor || 0}" readonly>
+        </div>
+        `).join('');
+
+    const contenido = `
+        <div id="step1" class="step">
+        ${htmlStep1}
+        </div>
+        
+        <div id="step2" class="step">
+        ${htmlStep2}
+        </div>
+        `;
+        
+    crearDialogBaseRaza(`dialog-eye-etapa-${uniqueId}`, 'dialog-icon-eye', 'Informacion de la Etapa de vida', contenido, 'Siguiente', 'button-guardar', uniqueId, 'cerrarDialog',`dialog-eye-etapa-${uniqueId}`)
+    
+    setTimeout(() => {
+        activarSteps(`dialog-eye-etapa-${uniqueId}`, ".button-guardar", 'eye');
     }, 50);
 }
 
 
-function activarSteps(modalId, botonSelector) {
+function crearDialogEditEtapa(item, uniqueId){
+    // ===========================
+    // 1. Campos del STEP 1
+    // ===========================
+    const campos1 = [
+        {label: "ID etapa", id: `edit-id-etapa`, value: item.id_etapa, editable:false},
+        {label: "Nombre", id: `edit-nombre-etapa`, value: item.nombre, editable: true},
+        {label: 'Peso Minimo (Kg)', id: `edit-peso-min-etapa`, value: item.peso_min, editable: true },
+        {label: 'Peso Maximo (Kg)', id: `edit-peso-max-etapa`, value : item.peso_max, editable: true},
+        {label: 'Dias de duración', id: `edit-dias-dura-etapa`, value: item.duracion_dias, editable: true},
+        {label: 'Semana de duración', id: `edit-semanas-dura-etapa`, value : item.duracion_semanas, editable: true},
+        {label: 'Descripcion (Opcional)', id: `edit-descripcion-etapa`, value: item.descripcion, editable: true},
+    ];
+
+    const htmlStep1 = campos1.map(campo => {
+        const fieldId = campo.id.replace(/\s+/g, '-') + '-' + 'actualizar' + '-' +uniqueId;
+        return `
+        <div class = "container__label__input">
+            <label for="${fieldId}">${campo.label}</label>
+            <div class="container-inputs">
+                <input type="text" id="${fieldId}" value="${campo.value}" ${campo.editable ? '' : 'disabled'}>
+                ${campo.editable ? crearIconoEdit() : ''}
+                </div>
+                </div>
+                `;
+            }).join('');
+    
+
+    // ===========================
+    // 2. Campos del STEP 2
+    // ===========================
+    
+    const mapaReq = {};
+    item.requerimientos.forEach(req => {
+        console.log(req)
+        mapaReq[req.nombre_elemento.toLowerCase()] = req.porcentaje || 0;
+    });
+
+    const campos2 = [
+        { label: "E. Metabolizable (Kcal/Kg)", id: `edit-energia-metabo`, valor: mapaReq["energia_metabo"], editable: true },
+        { label: "Proteína Cruda (%)", id: `edit-proteina-cruda`, valor: mapaReq["proteina_cruda"], editable: true },
+        { label: "Fibra Cruda (%)", id: `edit-fibra-cruda`, valor: mapaReq["fibra_cruda"], editable: true },
+        { label: "Extracto Etéreo (%)", id: `edit-extracto-etereo`, valor: mapaReq["extracto_etereo"], editable: true },
+        { label: "Calcio (%)", id: `edit-calcio`, valor: mapaReq["calcio"], editable: true },
+        { label: "Fosforo Disponible (%)", id: `edit-fosforo-disponible`, valor: mapaReq["fosforo"], editable: true },
+        { label: "Sodio (%)", id: `edit-sodio`, valor: mapaReq["sodio"], editable: true },
+        { label: "Arginina (%)", id: `edit-arginina`, valor: mapaReq["arginina"], editable: true },
+        { label: "Lisina (%)", id: `edit-lisina`, valor: mapaReq["lisina"], editable: true },
+        { label: "Treonina (%)", id: `edit-treonina`, valor: mapaReq["treonina"], editable: true },
+        { label: "Metionina (%)", id: `edit-metionina`, valor: mapaReq["metionina"], editable: true },
+        { label: "Metionina + Cisteína (%)", id: `edit-metionina-cisteina`, valor: mapaReq["metionina_cisteina"], editable: true },
+        { label: "Triptófano (%)", id: `edit-triptofano`, valor: mapaReq["triptofano"], editable: true },
+    ];
+    
+    const htmlStep2 = campos2.map(campo => {
+    const fieldId = campo.id.replace(/\s+/g, '-') + '-' + 'actualizar' + '-' +uniqueId;
+    return `
+    <div class = "container__label__input">
+        <label for="${fieldId}">${campo.label}</label>
+        <div class="container-inputs">
+            <input type="text" id="${fieldId}" value="${campo.valor || 0}" ${campo.editable ? '' : 'disabled'}>
+            ${campo.editable ? crearIconoEdit() : ''}
+            </div>
+            </div>
+            `;
+        }).join('');
+
+    const contenido = `
+        <div id="step1" class="step">
+        ${htmlStep1}
+        </div>
+        
+        <div id="step2" class="step">
+            ${htmlStep2}
+        </div>
+        `;
+    
+    crearDialogBaseRaza(`dialog-edit-etapa-${uniqueId}`, 'dialog-icon-eye', 'Actualizar datos de la Etapa de Vida', contenido, 'Siguiente', 'button-guardar', uniqueId,'actualizar_etapa','')
+    setTimeout(() => {
+        activarSteps(`dialog-edit-etapa-${uniqueId}`, ".button-guardar", 'edit');
+    }, 50);
+}
+
+function crearDialogDeleteConfirmEtapa(uniqueId){
+    const contenido = `
+        <p>Escriba debajo el ID "${uniqueId}" y presione eliminar si asi lo desea</p>
+        <input id="input-eliminar-e-${uniqueId}" class="input__add__por" type="number" oninput="this.value = Math.abs(this.value)" placeholder= "Ingrese el ID">
+    `;
+    return crearDialogBaseRaza(`dialog-delete-conf-e-${uniqueId}`, 'dialog-icon-dele', 'Eliminar Etapa de Vida', contenido, 'Eliminar','button-eliminar', uniqueId,'eliminar_etapa')
+}
+
+function crearDialogDeleteEtapa(item, uniqueId){
+    const contenido =  `
+    <p>Eliminar el registro sin saber si la etapa de vida tiene trazabilidad puede que altere el funcionamiento del sistema.</p>
+    <span>¿Está seguro que quiere eliminar este registro?</span>
+    `;
+
+    return crearDialogBaseRaza(`dialog-delete-etapa-${uniqueId}`, 'dialog-icon-dele', 'Eliminar Etapa de Vida', contenido, 'Continuar','button-eliminar', uniqueId,'eliminar_etapa')
+}
+
+function activarSteps(modalId, botonSelector, funct) {
 
     const modal = document.getElementById(modalId);
     const btn_siguiente = modal.querySelector(botonSelector);
-    const grid = document.querySelector(".layout_registrar_etapa");
+    const grid = modal.querySelector(".layout_registrar_etapa");
 
     const step1 = modal.querySelector("#step1");
     const step2 = modal.querySelector("#step2");
@@ -1468,6 +1637,7 @@ function activarSteps(modalId, botonSelector) {
     btnAtras.textContent = "Atrás";
     btnAtras.classList = "btn-atras button-eliminar";
     btnAtras.style.display = "none";
+    btnAtras.type = "button";
     
     // crear boton guardar
     const btn_guardar = document.createElement("button");
@@ -1494,9 +1664,10 @@ function activarSteps(modalId, botonSelector) {
             grid.style.gridTemplateColumns = "repeat(4,1fr)";
 
             btnAtras.style.display = "inline-block";
-            btn_guardar.style.display = "inline-block";
+            if (funct != 'eye'){
+                btn_guardar.style.display = "inline-block";
+            } 
             btn_siguiente.style.display = "none";
-
         };
     });
 
@@ -1517,66 +1688,6 @@ function activarSteps(modalId, botonSelector) {
         btn_guardar.style.display = "none";
         btn_siguiente.style.display = "inline-block";
     });
-}
-
-function crearDialogEyeEtapa(item, uniqueId){
-    const campos1 = [
-        {label: "ID etapa", id: "e-id-etapa", value: item.id_etapa},
-        {label: "Nombre", id: "e-nombre-etapa", value: item.nombre_etapa},
-        {label: 'Peso Minimo (Kg)', id: 'e-peso-min-etapa', value: item.peso_min},
-        {label: 'Peso Maximo (Kg)', id: 'e-peso-max-etapa', value : item.peso_max},
-        {label: 'Dias de duración', id: 'e-dias-dura-etapa', value: item.duracion_dias},
-        {label: 'Semana de duración', id: 'e-semanas-dura-etapa', value : item.duracion_semanas},
-        {label: 'Descripcion (Opcional)', id: 'e-descripcion-etapa', value: item.descripcion},
-    ];
-
-    const camposHTML = campos1.map(campo => `
-        <div class = "container__label__input">
-            <label for="${campo.id}-${uniqueId}">${campo.label}</label>
-            <input type="text" class="campo-info" id="${campo.id}-${uniqueId}" placeholder="${campo.value}" readonly>
-        </div>
-    `).join('');
-    return crearDialogBaseRaza(`dialog-eye-etapa-${uniqueId}`, 'dialog-icon-eye', 'Informacion de la Etapa de vida', camposHTML, 'Cerrar', 'button-cerrar', uniqueId, 'cerrarDialog',`dialog-eye-etapa-${uniqueId}`)
-}g
-
-function crearDialogEditEtapa(item, uniqueId){
-    const camposEditables = [
-        {label: 'ID', value: item.id_etapa, id: 'id-etapa', editable: false},
-        {label: 'Nombre', value: item.nombre, id: 'nombre-etapa', editable: true},
-        {label: 'Descripcion', value: item.descripcion, id: 'descripcion-etapa', editable: true},
-    ]
-
-    const camposHTML = camposEditables.map(campo => {
-        const fieldId = campo.id.replace(/\s+/g, '-') + '-' + 'actualizar' + '-' +uniqueId;
-        return `
-        <div class = "container__label__input">
-            <label for="${fieldId}">${campo.label}</label>
-            <div class="container-inputs">
-                <input type="text" id="${fieldId}" value="${campo.value}" ${campo.editable ? '' : 'disabled'}>
-                ${campo.editable ? crearIconoEdit() : ''}
-            </div>
-        </div>
-        `;
-    }).join('');
-
-    return crearDialogBaseRaza(`dialog-edit-etapa-${uniqueId}`, 'dialog-icon-eye', 'Actualizar datos de la Etapa de Vida', camposHTML, 'Guardar', 'button-guardar', uniqueId,'actualizar_etapa','')
-}
-
-function crearDialogDeleteConfirmEtapa(uniqueId){
-    const contenido = `
-        <p>Escriba debajo el ID "${uniqueId}" y presione eliminar si asi lo desea</p>
-        <input id="input-eliminar-e-${uniqueId}" class="input__add__por" type="number" oninput="this.value = Math.abs(this.value)" placeholder= "Ingrese el ID">
-    `;
-    return crearDialogBaseRaza(`dialog-delete-conf-e-${uniqueId}`, 'dialog-icon-dele', 'Eliminar Etapa de Vida', contenido, 'Eliminar','button-eliminar', uniqueId,'eliminar_etapa')
-}
-
-function crearDialogDeleteEtapa(item, uniqueId){
-    const contenido =  `
-        <p>Eliminar el registro sin saber si la etapa de vida tiene trazabilidad puede que altere el funcionamiento del sistema.</p>
-        <span>¿Está seguro que quiere eliminar este registro?</span>
-    `;
-
-    return crearDialogBaseRaza(`dialog-delete-etapa-${uniqueId}`, 'dialog-icon-dele', 'Eliminar Etapa de Vida', contenido, 'Continuar','button-eliminar', uniqueId,'eliminar_etapa')
 }
 
 async function consultar_etapas() {
@@ -1618,7 +1729,7 @@ async function consulta_indi_etapas(mostrar = false){
 async function registrar_etapas(){
     try {
         const etapa = {
-            "nombre_etapa" : document.getElementById('nombre_etapa').value,
+            "nombre" : document.getElementById('nombre_etapa').value,
             "descripcion" : document.getElementById("descripcion_etapa").value,
             "peso_min": document.getElementById("peso_min_etapa").value,
             "peso_max": document.getElementById("peso_max_etapa").value,
@@ -1626,18 +1737,18 @@ async function registrar_etapas(){
             "duracion_semanas" : document.getElementById("semanas_dura_etapa").value,
             "requerimientos" : [
                 { id_elemento: 1, porcentaje: parseFloat(document.getElementById("r-proteina-cruda").value) || 0 },
-                { id_elemento: 2, porcentaje: parseFloat(document.getElementById("r-treonina").value) || 0 },
-                { id_elemento: 3, porcentaje: parseFloat(document.getElementById("r-fosforo-disponible").value) || 0 },
+                { id_elemento: 2, porcentaje: parseFloat(document.getElementById("r-fosforo-disponible").value) || 0 },
+                { id_elemento: 3, porcentaje: parseFloat(document.getElementById("r-treonina").value) || 0 },
                 { id_elemento: 4, porcentaje: parseFloat(document.getElementById("r-fibra-cruda").value) || 0 },
                 { id_elemento: 5, porcentaje: parseFloat(document.getElementById("r-sodio").value) || 0 },
                 { id_elemento: 6, porcentaje: parseFloat(document.getElementById("r-metionina").value) || 0 },
                 { id_elemento: 8, porcentaje: parseFloat(document.getElementById("r-extracto-etereo").value) || 0 },
                 { id_elemento: 9, porcentaje: parseFloat(document.getElementById("r-arginina").value) || 0 },
                 { id_elemento: 10,porcentaje: parseFloat(document.getElementById("r-metionina-cisteina").value) || 0 },
-                { id_elemento: 11,porcentaje: parseFloat(document.getElementById("r-calcio").value) || 0 },
-                { id_elemento: 12,porcentaje: parseFloat(document.getElementById("r-lisina").value) || 0 },
-                { id_elemento: 13,porcentaje: parseFloat(document.getElementById("r-triptofano").value) || 0 },
-                { id_elemento: 14,porcentaje: parseFloat(document.getElementById("r-energia-metabo").value) || 0 }
+                { id_elemento: 11,porcentaje: parseFloat(document.getElementById("r-energia-metabo").value) || 0 },
+                { id_elemento: 12,porcentaje: parseFloat(document.getElementById("r-calcio").value) || 0 },
+                { id_elemento: 13,porcentaje: parseFloat(document.getElementById("r-lisina").value) || 0 },
+                { id_elemento: 14,porcentaje: parseFloat(document.getElementById("r-triptofano").value) || 0 },
             ]
         }
 
@@ -1673,12 +1784,28 @@ async function registrar_etapas(){
 
 async function actualizar_etapa(id) {
     try {
-        const nombre = document.getElementById(`nombre-etapa-actualizar-${id}`).value;
-        const descri = document.getElementById(`descripcion-etapa-actualizar-${id}`).value;
-
         const etapa = {
-            nombre : nombre,
-            descripcion : descri
+            "nombre" : document.getElementById(`edit-nombre-etapa-actualizar-${id}`).value,
+            "descripcion" : document.getElementById(`edit-descripcion-etapa-actualizar-${id}`).value,
+            "peso_min": document.getElementById(`edit-peso-min-etapa-actualizar-${id}`).value,
+            "peso_max": document.getElementById(`edit-peso-max-etapa-actualizar-${id}`).value,
+            "duracion_dias" : document.getElementById(`edit-dias-dura-etapa-actualizar-${id}`).value,
+            "duracion_semanas" : document.getElementById(`edit-semanas-dura-etapa-actualizar-${id}`).value,
+            "requerimientos" : [
+                { id_elemento: 1, porcentaje: parseFloat(document.getElementById(`edit-proteina-cruda-actualizar-${id}`).value) || 0 },
+                { id_elemento: 2, porcentaje: parseFloat(document.getElementById(`edit-fosforo-disponible-actualizar-${id}`).value) || 0 },
+                { id_elemento: 3, porcentaje: parseFloat(document.getElementById(`edit-treonina-actualizar-${id}`).value) || 0 },
+                { id_elemento: 4, porcentaje: parseFloat(document.getElementById(`edit-fibra-cruda-actualizar-${id}`).value) || 0 },
+                { id_elemento: 5, porcentaje: parseFloat(document.getElementById(`edit-sodio-actualizar-${id}`).value) || 0 },
+                { id_elemento: 6, porcentaje: parseFloat(document.getElementById(`edit-metionina-actualizar-${id}`).value) || 0 },
+                { id_elemento: 8, porcentaje: parseFloat(document.getElementById(`edit-extracto-etereo-actualizar-${id}`).value) || 0 },
+                { id_elemento: 9, porcentaje: parseFloat(document.getElementById(`edit-arginina-actualizar-${id}`).value) || 0 },
+                { id_elemento: 10,porcentaje: parseFloat(document.getElementById(`edit-metionina-cisteina-actualizar-${id}`).value) || 0 },
+                { id_elemento: 11,porcentaje: parseFloat(document.getElementById(`edit-energia-metabo-actualizar-${id}`).value) || 0 },
+                { id_elemento: 12,porcentaje: parseFloat(document.getElementById(`edit-calcio-actualizar-${id}`).value) || 0 },
+                { id_elemento: 13,porcentaje: parseFloat(document.getElementById(`edit-lisina-actualizar-${id}`).value) || 0 },
+                { id_elemento: 14,porcentaje: parseFloat(document.getElementById(`edit-triptofano-actualizar-${id}`).value) || 0 },
+            ]
         }
 
         const promesa = await fetch(`${URL_BASE}/etapa_vida/${id}`, {

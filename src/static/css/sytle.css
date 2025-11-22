@@ -1301,7 +1301,7 @@ container-button-dele1{
     position: relative;
 }
 
-.info-porcino > div > div > .vector-edit, .info_raza_etapa > div > div .vector-edit{
+.info-porcino > div > div > .vector-edit, .info_raza_etapa > div > div .vector-edit, .layout_registrar_etapa > div > div .vector-edit{
     position: absolute;
     right: 0;
     bottom: 1px;

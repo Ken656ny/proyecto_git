@@ -798,12 +798,13 @@ def consulta_gen_etapa():
         cur.execute("""
             SELECT 
                 ev.id_etapa, 
-                ev.nombre AS nombre_etapa, 
+                ev.nombre, 
                 ev.peso_min, 
                 ev.peso_max, 
                 ev.duracion_dias,
                 ev.duracion_semanas,
                 ev.descripcion,
+                e.id_elemento,
                 e.nombre as nombre_elemento,
                 rn.porcentaje
             FROM etapa_vida ev
@@ -819,7 +820,7 @@ def consulta_gen_etapa():
       if id_etapa not in etapas:
         etapas[id_etapa] = {
           "id_etapa" : id_etapa,
-          "nombre_etapa" : fila['nombre_etapa'],
+          "nombre" : fila['nombre'],
           "peso_min" : fila['peso_min'],
           "peso_max" : fila['peso_max'],
           "duracion_dias" : fila['duracion_dias'],
@@ -829,6 +830,7 @@ def consulta_gen_etapa():
         }
       if fila['nombre_elemento']:
         etapas[id_etapa]['requerimientos'].append({
+          "id_elemento" : fila['id_elemento'],
           "nombre_elemento" : fila["nombre_elemento"],
           "porcentaje" : fila['porcentaje']
         })
@@ -865,11 +867,12 @@ def consulta_indi_etapa(id):
         cur.execute("""
             SELECT 
                 ev.id_etapa, 
-                ev.nombre AS nombre_etapa, 
+                ev.nombre, 
                 ev.peso_min, 
                 ev.peso_max, 
                 ev.duracion_dias,
                 ev.duracion_semanas,
+                e.id_elemento,
                 e.nombre as nombre_elemento,
                 rn.porcentaje
             FROM etapa_vida ev
@@ -887,16 +890,17 @@ def consulta_indi_etapa(id):
       if id_etapa not in etapa:
         etapa[id_etapa] = {
           "id_etapa" : id_etapa,
-          "nombre_etapa" : fila['nombre_etapa'],
+          "nombre_etapa" : fila['nombre'],
           "peso_min" : fila['peso_min'],
           "peso_max" : fila['peso_max'],
           "duracion_dias" : fila['duracion_dias'],
           "duracion_semanas" : fila['duracion_semanas'],
           "requerimientos" : []
         }
-      
+        
       if fila['nombre_elemento']:
         etapa[id_etapa]['requerimientos'].append({
+          "id_elemento" : fila['id_elemento'],
           "nombre_elemento" : fila["nombre_elemento"],
           "porcentaje" : fila["porcentaje"]
         })
@@ -944,7 +948,7 @@ def registrar_etapa():
   try:
     
     data = request.get_json()
-    nombre_etapa = data['nombre_etapa']
+    nombre_etapa = data['nombre']
     peso_min = data['peso_min']
     peso_max = data['peso_max']
     duracion_dias = data['duracion_dias']
@@ -1007,7 +1011,7 @@ def actualizar_etapa_vida(id):
   """
   try:
     data = request.get_json()
-    nombre_etapa = data['nombre_etapa']
+    nombre_etapa = data['nombre']
     peso_min = data['peso_min']
     peso_max = data['peso_max']
     duracion_dias = data['duracion_dias']
