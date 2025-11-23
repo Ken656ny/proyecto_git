@@ -191,10 +191,6 @@ function mostrar_porcinos(porcinos) {
 
 function crearFilaPorcino(item) {
     const uniqueId = item.id_porcino;
-    crearDialogEye(item, uniqueId)
-    crearDialogEdit(item, uniqueId)
-    crearDialogDelete(item, uniqueId)
-    crearDialogDeleteConfirm(uniqueId)
     return `
         <tr class="registro" porcino-id="${uniqueId}">
             <td class="td__border__l">
@@ -214,186 +210,467 @@ function crearFilaPorcino(item) {
 
 function crearIconosAcciones(id) {
     return `
-        <img src="/src/static/iconos/icono eye.svg" alt="" class="icon-eye" onclick="abrirDialog('dialog-eye-${id}')">
-        <img src="/src/static/iconos/edit icon.svg" alt="" class="icon-edit" onclick="abrirDialog('dialog-edit-${id}')">
-        <img src="/src/static/iconos/delete icon.svg" alt="" class="icon-delete" onclick="abrirDialog('dialog-delete-${id}')">
+        <img src="/src/static/iconos/icono eye.svg" class="icon-eye" data-id="${id}" data-type="porcino">
+        <img src="/src/static/iconos/edit icon.svg" class="icon-edit" data-id="${id}" data-type="porcino">
+        <img src="/src/static/iconos/delete icon.svg" class="icon-delete" data-id="${id}" data-type="porcino">
     `;
 }
 
-function crearDialogEye(item, uniqueId) {
-    let fechaBD = item.fecha_nacimiento
-    let fecha = new Date(fechaBD)
-    let fecha_formateada = fecha.toISOString().split("T")[0];
-    const campos = [
-        { label: 'ID', value: item.id_porcino, id: 'ID' },
-        { label: 'Peso inicial', value: `${item.peso_inicial} KG`, id: 'Peso-ini' },
-        { label: 'Peso final', value: `${item.peso_final} KG`, id: 'Peso-fin' },
-        { label: 'Fecha de nacimiento', value: fecha_formateada, id: 'Fecha-naci' },
-        { label: 'Sexo', value: item.sexo, id: 'Sexo' },
-        { label: 'Raza', value: item.raza, id: 'Raza' },
-        { label: 'Etapa de vida', value: item.etapa, id: 'Etapa-vida' },
-        { label: 'Descripción', value: item.descripcion, id: 'Descri' },
-        { label: 'Estado', value: item.estado, id: 'Estado' }
-    ];
+// function crearDialogEye(item, uniqueId) {
+//     let fechaBD = item.fecha_nacimiento
+//     let fecha = new Date(fechaBD)
+//     let fecha_formateada = fecha.toISOString().split("T")[0];
+//     const campos = [
+//         { label: 'ID', value: item.id_porcino, id: 'ID' },
+//         { label: 'Peso inicial', value: `${item.peso_inicial} KG`, id: 'Peso-ini' },
+//         { label: 'Peso final', value: `${item.peso_final} KG`, id: 'Peso-fin' },
+//         { label: 'Fecha de nacimiento', value: fecha_formateada, id: 'Fecha-naci' },
+//         { label: 'Sexo', value: item.sexo, id: 'Sexo' },
+//         { label: 'Raza', value: item.raza, id: 'Raza' },
+//         { label: 'Etapa de vida', value: item.etapa, id: 'Etapa-vida' },
+//         { label: 'Descripción', value: item.descripcion, id: 'Descri' },
+//         { label: 'Estado', value: item.estado, id: 'Estado' }
+//     ];
 
-    const camposHTML = campos.map(campo => `
-    <div class = "container__label__input">
-        <label for="${campo.id}-${uniqueId}">${campo.label}</label>
-        <input type="text" class="campo-info" id="${campo.id}-${uniqueId}" placeholder="${campo.value}" readonly>
-    </div>
-    `).join('');
+//     const camposHTML = campos.map(campo => `
+//     <div class = "container__label__input">
+//         <label for="${campo.id}-${uniqueId}">${campo.label}</label>
+//         <input type="text" class="campo-info" id="${campo.id}-${uniqueId}" placeholder="${campo.value}" readonly>
+//     </div>
+//     `).join('');
 
-    return crearDialogBase(`dialog-eye-${uniqueId}`, 'dialog-icon-eye', 'Informacion del Porcino', camposHTML, 'Cerrar', 'button-cerrar', uniqueId,'prueba');
-}
+//     return crearDialogBase(`dialog-eye-${uniqueId}`, 'dialog-icon-eye', 'Informacion del Porcino', camposHTML, 'Cerrar', 'button-cerrar', uniqueId,'prueba');
+// }
 
-function crearDialogEdit(item, uniqueId){
-    let fechaBD = item.fecha_nacimiento
-    let fecha = new Date(fechaBD)
-    let fecha_formateada = fecha.toISOString().split("T")[0];
-    const camposEditables = [
-        { label: 'ID', value: item.id_porcino, editable: false },
-        { label: 'Peso inicial', value: item.peso_inicial, editable: true },
-        { label: 'Peso final', value: item.peso_final, editable: false },
-        { label: 'Fecha de nacimiento', value: fecha_formateada, editable: true },
-        { label: 'Sexo', value: item.sexo, editable: true },
-        { label: 'Raza', value: item.raza, editable: true },
-        { label: 'Etapa de vida', value: item.etapa, editable: true },
-        { label: 'Descripcion', value: item.descripcion, editable: true },
-        { label: 'Estado', value: item.estado, editable: true }
-    ];
+// function crearDialogEdit(item, uniqueId){
+//     let fechaBD = item.fecha_nacimiento
+//     let fecha = new Date(fechaBD)
+//     let fecha_formateada = fecha.toISOString().split("T")[0];
+//     const camposEditables = [
+//         { label: 'ID', value: item.id_porcino, editable: false },
+//         { label: 'Peso inicial', value: item.peso_inicial, editable: true },
+//         { label: 'Peso final', value: item.peso_final, editable: false },
+//         { label: 'Fecha de nacimiento', value: fecha_formateada, editable: true },
+//         { label: 'Sexo', value: item.sexo, editable: true },
+//         { label: 'Raza', value: item.raza, editable: true },
+//         { label: 'Etapa de vida', value: item.etapa, editable: true },
+//         { label: 'Descripcion', value: item.descripcion, editable: true },
+//         { label: 'Estado', value: item.estado, editable: true }
+//     ];
 
-    const camposHTML = camposEditables.map(campo => {
-        const fieldId = campo.label.replace(/\s+/g, '-') + '-'+ 'actualizar' + '-' + uniqueId;
-        if (campo.label === 'Raza' || campo.label === 'Etapa de vida') {
-        return `
-            <div class="container__label__input">
-                <label for="${fieldId}">${campo.label}</label>
-                <div class="container-inputs">
-                    <select id="${fieldId}" ${campo.editable ? '' : 'disabled'}>
-                        <option value="">Cargando...</option>
-                    </select>
-                    ${campo.editable ? crearIconoEdit() : ''}
-                </div>
-            </div>
-        `;
-    } else if (campo.label === "Fecha de nacimiento") {
-        return `
-            <div class="container__label__input">
-                <label for="${fieldId}">${campo.label}</label>
-                <div class="container-inputs">
-                    <input type="date" id="${fieldId}" value="${campo.value}" ${campo.editable ? '' : 'disabled'}>
-                    ${campo.editable ? crearIconoEdit() : ''}
-                </div>
-            </div>
-        `;
-    } else if (campo.label === "Sexo"){
-        return `
-            <div class="container__label__input">
-                <label for="${fieldId}">${campo.label}</label>
-                <div class="container-inputs">
-                    <select id="${fieldId}" ${campo.editable ? '' : 'disabled'}>
-                        <option value="${campo.value}">${campo.value}</option>
-                        <option value="Macho">Macho</option>
-                        <option value="Hembra">Hembra</option>
-                    </select>
-                    ${campo.editable ? crearIconoEdit() : ''}
-                </div>
-            </div>
-        `;
-    } else if (campo.label === "Estado"){
-        return `
-            <div class="container__label__input">
-                <label for="${fieldId}">${campo.label}</label>
-                <div class="container-inputs">
-                    <select id="${fieldId}" ${campo.editable ? '' : 'disabled'}>
-                        <option value="${campo.value}">${campo.value}</option>
-                        <option value="Activo">Activo</option>
-                        <option value="Inactivo">Inactivo</option>
-                    </select>
-                    ${campo.editable ? crearIconoEdit() : ''}
-                </div>
-            </div>
-        `;
-    }else {
-        return `
-            <div class="container__label__input">
-                <label for="${fieldId}">${campo.label}</label>
-                <div class="container-inputs">
-                    <input type="text" id="${fieldId}" value="${campo.value}" ${campo.editable ? '' : 'disabled'}>
-                    ${campo.editable ? crearIconoEdit() : ''}
-                </div>
-            </div>
-        `;
+//     const camposHTML = camposEditables.map(campo => {
+//         const fieldId = campo.label.replace(/\s+/g, '-') + '-'+ 'actualizar' + '-' + uniqueId;
+//         if (campo.label === 'Raza' || campo.label === 'Etapa de vida') {
+//         return `
+//             <div class="container__label__input">
+//                 <label for="${fieldId}">${campo.label}</label>
+//                 <div class="container-inputs">
+//                     <select id="${fieldId}" ${campo.editable ? '' : 'disabled'}>
+//                         <option value="">Cargando...</option>
+//                     </select>
+//                     ${campo.editable ? crearIconoEdit() : ''}
+//                 </div>
+//             </div>
+//         `;
+//     } else if (campo.label === "Fecha de nacimiento") {
+//         return `
+//             <div class="container__label__input">
+//                 <label for="${fieldId}">${campo.label}</label>
+//                 <div class="container-inputs">
+//                     <input type="date" id="${fieldId}" value="${campo.value}" ${campo.editable ? '' : 'disabled'}>
+//                     ${campo.editable ? crearIconoEdit() : ''}
+//                 </div>
+//             </div>
+//         `;
+//     } else if (campo.label === "Sexo"){
+//         return `
+//             <div class="container__label__input">
+//                 <label for="${fieldId}">${campo.label}</label>
+//                 <div class="container-inputs">
+//                     <select id="${fieldId}" ${campo.editable ? '' : 'disabled'}>
+//                         <option value="${campo.value}">${campo.value}</option>
+//                         <option value="Macho">Macho</option>
+//                         <option value="Hembra">Hembra</option>
+//                     </select>
+//                     ${campo.editable ? crearIconoEdit() : ''}
+//                 </div>
+//             </div>
+//         `;
+//     } else if (campo.label === "Estado"){
+//         return `
+//             <div class="container__label__input">
+//                 <label for="${fieldId}">${campo.label}</label>
+//                 <div class="container-inputs">
+//                     <select id="${fieldId}" ${campo.editable ? '' : 'disabled'}>
+//                         <option value="${campo.value}">${campo.value}</option>
+//                         <option value="Activo">Activo</option>
+//                         <option value="Inactivo">Inactivo</option>
+//                     </select>
+//                     ${campo.editable ? crearIconoEdit() : ''}
+//                 </div>
+//             </div>
+//         `;
+//     }else {
+//         return `
+//             <div class="container__label__input">
+//                 <label for="${fieldId}">${campo.label}</label>
+//                 <div class="container-inputs">
+//                     <input type="text" id="${fieldId}" value="${campo.value}" ${campo.editable ? '' : 'disabled'}>
+//                     ${campo.editable ? crearIconoEdit() : ''}
+//                 </div>
+//             </div>
+//         `;
+//     }
+
+//     }).join('');
+
+//     setTimeout(async () => {
+//         try {
+//             const razas = await consultar_razas();
+//             const etapas = await consultar_etapas();
+            
+//             llenarSelectDesdeLista(razas.razas, `Raza-actualizar-${uniqueId}`,item.raza, "id_raza", "nombre","");
+//             llenarSelectDesdeLista(etapas.etapas, `Etapa-de-vida-actualizar-${uniqueId}`,item.etapa, "id_etapa", "nombre","");
+//         } catch (error) {
+//             console.error("Error cargando los selects:", error)
+//         }
+//     })
+
+//     return crearDialogBase(`dialog-edit-${uniqueId}`, 'dialog-icon-edit', 'Actualizar datos del porcino', camposHTML, 'Guardar', 'button-guardar', uniqueId,'actualizar_porcino','');
+// }
+
+// function crearDialogDeleteConfirm(uniqueId){
+//     const contenido = `
+//         <p>Escriba debajo el ID "${uniqueId}" y presione eliminar si asi lo desea</p>
+//         <input id="input-eliminar-${uniqueId}" class="input__add__por" type="number" oninput="this.value = Math.abs(this.value)" placeholder= "Ingrese el ID">
+//     `;
+//     return crearDialogBase(`dialog-delete-conf-${uniqueId}`, 'dialog-icon-dele', 'Eliminar registro del porcino', contenido, 'Eliminar','button-eliminar', uniqueId,'eliminar_porcino')
+// }
+
+// function crearDialogDelete(item, uniqueId) {
+//     const contenido = `
+//         <p>Eliminar el registro sin saber si el porcino tiene trazabilidad puede que altere el funcionamiento del sistema, es preferible que cambie el estado del porcino a inactivo.</p>
+//         <span>¿Está seguro que quiere eliminar este registro?</span>
+//     `;
+//     return crearDialogBase(`dialog-delete-${uniqueId}`, 'dialog-icon-dele', 'Eliminar registro del porcino', contenido, 'Continuar', 'button-eliminar', uniqueId,'eliminar_porcino');
+// }
+
+
+// function crearDialogBase(id, clase, titulo, contenido, textoBoton, claseBoton, uniqueId, funct, params) {
+//     const dialog = document.createElement("dialog");
+    
+//     dialog.className = clase;
+//     dialog.id = id;
+//     dialog.innerHTML = `
+//         <div class="container__btn__close">
+//             <button type="button" class="btn__close" onclick="cerrarDialog('${id}')">X</button>
+//         </div>
+//         ${clase ? `
+//             <form onsubmit="event.preventDefault(); ${funct}('${uniqueId}')" ${clase.toLowerCase() === 'dialog-icon-dele' ? '' : 'class="container__items__dialogs"' }>
+//                 <div class="title-dialog">
+//                     <h2>${titulo}</h2>
+//                     <hr>
+//                 </div>
+//                 ${clase ? ` 
+//                 <div class="${clase.toLowerCase() === 'dialog-icon-dele' ? 'info-delete' : "info-porcino"}"> ${contenido} </div>
+//                 ` : ""}
+//                 ${textoBoton ? `
+//                 <div class="container-button-${claseBoton.includes('cerrar') ? 'close' : 'guardar'}">
+//                     <button type="${textoBoton.toLowerCase() === 'cerrar' || textoBoton.toLowerCase() === 'continuar' ? 'button' : 'submit'}"
+//                         class="${claseBoton}"
+//                         ${textoBoton.toLowerCase() === 'cerrar' ? `onclick="cerrarDialog('${id}')"` : ""}
+//                         ${textoBoton.toLowerCase() === 'continuar' ? `onclick="abrirDialog('dialog-delete-conf-${uniqueId}')"` : ""}
+//                         >
+//                         ${textoBoton}
+//                     </button>
+//                 </div>` : ""}
+//             </form>
+//         ` : ""}
+//     `;
+//     document.body.appendChild(dialog)
+//     return ''
+// }
+
+
+async function openModalEye(type, id) {
+    const modal = document.getElementById("modal-eye");
+    const content = document.getElementById('eye-content');
+    const title = document.getElementById("modal-eye-title");
+    const button = document.getElementById("button-eye");
+
+    // Limpias contenido previo
+    content.innerHTML = "";
+    content.className = "";
+
+    if (type === "porcino") {
+        title.textContent = "Información del Porcino";
+        content.classList.add("info-porcino");
+        await cargarInfoPorcino(id, content);
     }
 
-    }).join('');
+    if (type === "raza") {
+        title.textContent = "Información de la Raza";
+        content.classList.add("info_raza_etapa");
+        await cargarInfoRaza(id, content);
+    }
 
-    setTimeout(async () => {
-        try {
-            const razas = await consultar_razas();
-            const etapas = await consultar_etapas();
-            
-            llenarSelectDesdeLista(razas.razas, `Raza-actualizar-${uniqueId}`,item.raza, "id_raza", "nombre","");
-            llenarSelectDesdeLista(etapas.etapas, `Etapa-de-vida-actualizar-${uniqueId}`,item.etapa, "id_etapa", "nombre","");
-        } catch (error) {
-            console.error("Error cargando los selects:", error)
-        }
-    })
+    if (type === "etapa") {
+        title.textContent = "Información de la Etapa de Vida";
+        content.classList.add("layout_registrar_etapa")
+        button.onclick = "";
+        button.textContent = "Siguiente";
+        setTimeout(() => {
+            activarSteps('modal-eye', '.button-guardar', "eye")
+        }, 50);
+        await cargarInfoEtapa(id, content);
+    }
 
-    return crearDialogBase(`dialog-edit-${uniqueId}`, 'dialog-icon-edit', 'Actualizar datos del porcino', camposHTML, 'Guardar', 'button-guardar', uniqueId,'actualizar_porcino','');
+    modal.showModal();
+
 }
 
-function crearDialogDeleteConfirm(uniqueId){
-    const contenido = `
-        <p>Escriba debajo el ID "${uniqueId}" y presione eliminar si asi lo desea</p>
-        <input id="input-eliminar-${uniqueId}" class="input__add__por" type="number" oninput="this.value = Math.abs(this.value)" placeholder= "Ingrese el ID">
-    `;
-    return crearDialogBase(`dialog-delete-conf-${uniqueId}`, 'dialog-icon-dele', 'Eliminar registro del porcino', contenido, 'Eliminar','button-eliminar', uniqueId,'eliminar_porcino')
-}
+function resetModalEye() {
+    const modal = document.getElementById("modal-eye");
+    const content = document.getElementById("eye-content");
 
-function crearDialogDelete(item, uniqueId) {
-    const contenido = `
-        <p>Eliminar el registro sin saber si el porcino tiene trazabilidad puede que altere el funcionamiento del sistema, es preferible que cambie el estado del porcino a inactivo.</p>
-        <span>¿Está seguro que quiere eliminar este registro?</span>
-    `;
-    return crearDialogBase(`dialog-delete-${uniqueId}`, 'dialog-icon-dele', 'Eliminar registro del porcino', contenido, 'Continuar', 'button-eliminar', uniqueId,'eliminar_porcino');
-}
-
-
-function crearDialogBase(id, clase, titulo, contenido, textoBoton, claseBoton, uniqueId, funct, params) {
-    const dialog = document.createElement("dialog");
+    // 1. Resetear Grid si existe
+    const grid = modal.querySelector(".layout_registrar_etapa");
+    if (grid) {
+        grid.style.gridTemplateColumns = "";
+    }
     
-    dialog.className = clase;
-    dialog.id = id;
-    dialog.innerHTML = `
-        <div class="container__btn__close">
-            <button type="button" class="btn__close" onclick="cerrarDialog('${id}')">X</button>
-        </div>
-        ${clase ? `
-            <form onsubmit="event.preventDefault(); ${funct}('${uniqueId}')" ${clase.toLowerCase() === 'dialog-icon-dele' ? '' : 'class="container__items__dialogs"' }>
-                <div class="title-dialog">
-                    <h2>${titulo}</h2>
-                    <hr>
-                </div>
-                ${clase ? ` 
-                <div class="${clase.toLowerCase() === 'dialog-icon-dele' ? 'info-delete' : "info-porcino"}"> ${contenido} </div>
-                ` : ""}
-                ${textoBoton ? `
-                <div class="container-button-${claseBoton.includes('cerrar') ? 'close' : 'guardar'}">
-                    <button type="${textoBoton.toLowerCase() === 'cerrar' || textoBoton.toLowerCase() === 'continuar' ? 'button' : 'submit'}"
-                        class="${claseBoton}"
-                        ${textoBoton.toLowerCase() === 'cerrar' ? `onclick="cerrarDialog('${id}')"` : ""}
-                        ${textoBoton.toLowerCase() === 'continuar' ? `onclick="abrirDialog('dialog-delete-conf-${uniqueId}')"` : ""}
-                        >
-                        ${textoBoton}
-                    </button>
-                </div>` : ""}
-            </form>
-        ` : ""}
-    `;
-    document.body.appendChild(dialog)
-    return ''
+    // 2. Limpiar contenido dinámico
+    content.innerHTML = "";
+    content.className = "";
+    
+    
+    // 3. Eliminar botones creados por activarSteps()
+    const btnAtras = modal.querySelector(".btn-atras");
+    if (btnAtras) btnAtras.remove();
+
+    const btnGuardar = modal.querySelector(".button-eliminar[type='submit']");
+    if (btnGuardar) btnGuardar.remove();
+
+    // 4. Restaurar estado de Steps (si existen)
+    const step1 = modal.querySelector("#step1");
+    const step2 = modal.querySelector("#step2");
+
+    if (step1 && step2) {
+        step1.classList.add("active");
+        step1.classList.remove("hidden");
+
+        step2.classList.remove("active");
+        step2.classList.add("hidden");
+    }
+
+    // 5. Restaurar el botón principal
+    const mainBtn = document.getElementById("button-eye");
+    if (mainBtn) {
+        mainBtn.textContent = "Cerrar";
+        mainBtn.style.display = "inline-block";
+        mainBtn.onclick = () => modal.close();
+    }
 }
+
+async function cargarInfoPorcino(id, container) {
+    const data = await consulta_individual_porcino(id, false);
+    const p = data.Porcinos[0];
+
+    container.innerHTML = `
+        <div class="container__label__input">
+            <label>ID</label>
+            <input type="text" value="${p.id_porcino}" disabled>
+        </div>
+
+        <div class="container__label__input">
+            <label>Peso Inicial (Kg)</label>
+            <input type="text" value="${p.peso_inicial}" disabled>
+        </div>
+
+        <div class="container__label__input">
+            <label>Peso Final (Kg)</label>
+            <input type="text" value="${p.peso_final}" disabled>
+        </div>
+
+        <div class="container__label__input">
+            <label>Fecha Nacimiento</label>
+            <input type="text" value="${p.fecha_nacimiento}" disabled>
+        </div>
+
+        <div class="container__label__input">
+            <label>Sexo</label>
+            <input type="text" value="${p.sexo}" disabled>
+        </div>
+
+        <div class="container__label__input">
+            <label>Raza</label>
+            <input type="text" value="${p.raza}" disabled>
+        </div>
+
+        <div class="container__label__input">
+            <label>Etapa de Vida</label>
+            <input type="text" value="${p.etapa}" disabled>
+        </div>
+
+        <div class="container__label__input">
+            <label>Estado</label>
+            <input type="text" value="${p.estado}" disabled>
+        </div>
+
+        <div class="container__label__input">
+            <label>Descripcion</label>
+            <input type="text" value="${p.descripcion}" disabled>
+        </div>
+    `;
+}
+
+async function cargarInfoRaza(id, container) {
+    try {
+        const data = await consulta_indi_raza(id, false);
+        console.log(data)
+        const r = data.razas[0];
+    
+        container.innerHTML = `
+        <div class="container__label__input">
+            <label>ID</label>
+            <input type="text" value="${r.id_raza}" disabled>
+        </div>
+        
+        <div class="container__label__input">
+            <label>Nombre</label>
+            <input type="text" value="${r.nombre}" disabled>
+        </div>
+        
+        <div class="container__label__input">
+            <label>Descripción</label>
+            <textarea disabled>${r.descripcion}</textarea>
+        </div>
+        `;
+    } catch (error) {
+        console.error(error)
+    }
+}
+
+async function cargarInfoEtapa(id, container) {
+    const data = await consulta_indi_etapas(id, false);
+    const e = data.etapas[0];
+    const mapaReq = {};
+    
+    e.requerimientos.forEach(req => {
+        mapaReq[req.nombre_elemento.toLowerCase()] = req.porcentaje || 0;
+    });
+    
+    container.innerHTML = `
+    <div id="step1" class="step">
+        <div class="container__label__input">
+        <label>ID Etapa:</label>
+        <input type="text" value="${e.id_etapa}" disabled>
+        </div>
+        
+        <div class="container__label__input">
+        <label>Nombre de Etapa</label>
+        <input type="text" value="${e.nombre_etapa}" disabled>
+        </div>
+        
+        <div class="container__label__input">
+        <label>Peso Mínimo (Kg)</label>
+        <input type="text" value="${e.peso_min}" disabled>
+        </div>
+        
+        <div class="container__label__input">
+        <label>Peso Máximo (Kg)</label>
+        <input type="text" value="${e.peso_max}" disabled>
+        </div>
+        
+        <div class="container__label__input">
+        <label>Dias de Duración</label>
+        <input type="text" value="${e.duracion_dias}" disabled>
+        </div>
+        
+        <div class="container__label__input">
+        <label>Semanas de Duración</label>
+        <input type="text" value="${e.duracion_semanas}" disabled>
+        </div>
+        
+        <div class="container__label__input">
+        <label>Descripcion (Opcional)</label>
+        <input type="text" value="${e.descripcion}" disabled>
+        </div>
+    </div>
+    
+
+    <div id="step2" class="step">
+
+        <div class="container__label__input">
+            <label>E. Metabolizable (Kcal/Kg)</label>
+            <input type="text" value="${mapaReq['energia_metabo'] || 0}" disabled>
+        </div>
+        
+        <div class="container__label__input">
+            <label>Proteína Cruda (%)</label>
+            <input type="text" value="${mapaReq['proteina_cruda'] || 0 }" disabled>
+        </div>
+
+        <div class="container__label__input">
+            <label>Fibra Cruda (%)</label>
+            <input type="text" value="${mapaReq['fibra_cruda'] || 0}" disabled>
+        </div>
+
+        <div class="container__label__input">
+            <label>Extracto Etéreo (%)</label>
+            <input type="text" value="${mapaReq['extracto_etereo'] || 0}" disabled>
+        </div>
+
+        <div class="container__label__input">
+            <label>Calcio (%)</label>
+            <input type="text" value="${mapaReq['calcio'] || 0}" disabled>
+        </div>
+
+        <div class="container__label__input">
+            <label>Fosforo (%)</label>
+            <input type="text" value="${mapaReq['fosforo'] || 0}" disabled>
+        </div>
+
+        <div class="container__label__input">
+            <label>Sodio (%)</label>
+            <input type="text" value="${mapaReq['sodio'] || 0}" disabled>
+        </div>
+
+        <div class="container__label__input">
+            <label>Arginina (%)</label>
+            <input type="text" value="${mapaReq['arginina'] || 0}" disabled>
+        </div>
+
+        <div class="container__label__input">
+            <label>Lisina (%)</label>
+            <input type="text" value="${mapaReq['lisina'] || 0}" disabled>
+        </div>
+
+        <div class="container__label__input">
+            <label>Treonina (%)</label>
+            <input type="text" value="${mapaReq['treonina'] || 0}" disabled>
+        </div>
+
+        <div class="container__label__input">
+            <label>Metionina</label>
+            <input type="text" value="${mapaReq['metionina'] || 0}" disabled>
+        </div>
+
+        <div class="container__label__input">
+            <label>Metionina + Cisteína (%)</label>
+            <input type="text" value="${mapaReq['metionina_cisteina'] || 0}" disabled>
+        </div>
+
+        <div class="container__label__input">
+            <label>Triptófano (%)</label>
+            <input type="text" value="${mapaReq['triptofano'] || 0}" disabled>
+        </div>
+
+    </div>
+    
+    `;
+}
+
 
 function crearIconoEdit() {
     return `
@@ -416,8 +693,8 @@ async function consulta_general_porcinos() {
         if (!response.ok) throw new Error(`Error: ${response.status}`);
         const porcinos = await response.json();
         mostrar_porcinos(porcinos);
-        // consultar_razas();
-        // consultar_etapas();
+        consultar_razas();
+        consultar_etapas();
         porcino_filtros();
         consulta_gen_historial_pesos();
         return porcinos
@@ -547,7 +824,6 @@ function porcino_filtros() {
 async function consulta_filtros() {
     try {
         const filtro = document.getElementById('filter_porcino');
-        console.log(filtro)
         if (filtro.disabled === true){
             const input_id = document.getElementById('input_id').value;
             return consulta_individual_porcino(input_id, true)
@@ -1038,10 +1314,6 @@ function mostrar_raza(razas){
 
 function crearFilaRaza(item){
     const uniqueId = item.id_raza;
-    crearDialogEyeRaza(item, uniqueId)
-    crearDialogEditRaza(item, uniqueId)
-    crearDialogtDeleteRaza(item, uniqueId)
-    crearDialogDeleteConfirmRaza(uniqueId)
     return `
     <tr class="registro registro__dia">
         <td class="td__border__l">${item.id_raza}</td>
@@ -1056,9 +1328,9 @@ function crearFilaRaza(item){
 
 function crearIconosAccionesRaza(id) {
     return `
-        <img src="/src/static/iconos/icono eye.svg" alt="" class="icon-eye" onclick="abrirDialog('dialog-eye-raza-${id}')">
-        <img src="/src/static/iconos/edit icon.svg" alt="" class="icon-edit" onclick="abrirDialog('dialog-edit-raza-${id}')">
-        <img src="/src/static/iconos/delete icon.svg" alt="" class="icon-delete" onclick="abrirDialog('dialog-delete-raza-${id}')">
+        <img src="/src/static/iconos/icono eye.svg" class="icon-eye" data-id="${id}" data-type="raza">
+        <img src="/src/static/iconos/edit icon.svg" class="icon-edit" data-id="${id}" data-type="raza">
+        <img src="/src/static/iconos/delete icon.svg" class="icon-delete" data-id="${id}" data-type="raza">
     `;
 }
 
@@ -1077,61 +1349,61 @@ function crearDialogRegistrarRaza(){
     return crearDialogBaseRaza(`dialog-registrar-raza`, 'dialog-icon-eye', 'Registrar Raza', camposHTML, 'Guardar', 'button-guardar', '', 'registrar_raza','');
 }
 
-function crearDialogEyeRaza(item, uniqueId){
-    const campos = [
-        {label: 'ID', value: item.id_raza, id: 'id-raza'},
-        {label: 'Nombre', value: item.nombre, id: 'nombre-raza'},
-        {label: 'Descripcion', value: item.descripcion, id: 'descripcion-raza'},
-    ]
+// function crearDialogEyeRaza(item, uniqueId){
+//     const campos = [
+//         {label: 'ID', value: item.id_raza, id: 'id-raza'},
+//         {label: 'Nombre', value: item.nombre, id: 'nombre-raza'},
+//         {label: 'Descripcion', value: item.descripcion, id: 'descripcion-raza'},
+//     ]
 
-    const camposHTML = campos.map(campo => `
-        <div class = "container__label__input">
-            <label for="${campo.id}-${uniqueId}">${campo.label}</label>
-            <input type="text" class="campo-info" id="${campo.id}-${uniqueId}" placeholder="${campo.value}" readonly>
-        </div>
-        `).join('');
+//     const camposHTML = campos.map(campo => `
+//         <div class = "container__label__input">
+//             <label for="${campo.id}-${uniqueId}">${campo.label}</label>
+//             <input type="text" class="campo-info" id="${campo.id}-${uniqueId}" placeholder="${campo.value}" readonly>
+//         </div>
+//         `).join('');
 
-    return crearDialogBaseRaza(`dialog-eye-raza-${uniqueId}`, 'dialog-icon-eye', 'Informacion de la Raza', camposHTML, 'Cerrar', 'button-cerrar', uniqueId, 'cerrarDialog',`dialog-eye-raza-${uniqueId}`);
-}
+//     return crearDialogBaseRaza(`dialog-eye-raza-${uniqueId}`, 'dialog-icon-eye', 'Informacion de la Raza', camposHTML, 'Cerrar', 'button-cerrar', uniqueId, 'cerrarDialog',`dialog-eye-raza-${uniqueId}`);
+// }
 
-function crearDialogEditRaza(item, uniqueId){
-    const camposEditables = [
-        {label: 'ID', value: item.id_raza, editable: false, id: "id-raza"},
-        {label: 'Nombre', value: item.nombre, editable: true, id: "nombre-raza"},
-        {label: 'Descripcion', value: item.descripcion, editable:true, id: "descripcion-raza"},
-    ]
+// function crearDialogEditRaza(item, uniqueId){
+//     const camposEditables = [
+//         {label: 'ID', value: item.id_raza, editable: false, id: "id-raza"},
+//         {label: 'Nombre', value: item.nombre, editable: true, id: "nombre-raza"},
+//         {label: 'Descripcion', value: item.descripcion, editable:true, id: "descripcion-raza"},
+//     ]
 
-    const camposHTML = camposEditables.map(campo => {
-        const fieldId = campo.id.replace(/\s+/g, '-') + '-' + 'actualizar' + '-' +uniqueId;
-        return `
-        <div class = "container__label__input">
-            <label for="${fieldId}">${campo.label}</label>
-            <div class="container-inputs">
-                <input type="text" id="${fieldId}" value="${campo.value}" ${campo.editable ? '' : 'disabled'}>
-                ${campo.editable ? crearIconoEdit() : ''}
-            </div>
-        </div>
-        `;
-    }).join('');
+//     const camposHTML = camposEditables.map(campo => {
+//         const fieldId = campo.id.replace(/\s+/g, '-') + '-' + 'actualizar' + '-' +uniqueId;
+//         return `
+//         <div class = "container__label__input">
+//             <label for="${fieldId}">${campo.label}</label>
+//             <div class="container-inputs">
+//                 <input type="text" id="${fieldId}" value="${campo.value}" ${campo.editable ? '' : 'disabled'}>
+//                 ${campo.editable ? crearIconoEdit() : ''}
+//             </div>
+//         </div>
+//         `;
+//     }).join('');
 
-    return crearDialogBaseRaza(`dialog-edit-raza-${uniqueId}`, 'dialog-icon-eye', 'Actualizar datos de la Raza', camposHTML, 'Guardar', 'button-guardar', uniqueId, 'actualizar_raza','')
-}
+//     return crearDialogBaseRaza(`dialog-edit-raza-${uniqueId}`, 'dialog-icon-eye', 'Actualizar datos de la Raza', camposHTML, 'Guardar', 'button-guardar', uniqueId, 'actualizar_raza','')
+// }
 
-function crearDialogDeleteConfirmRaza(uniqueId){
-    const contenido = `
-        <p>Escriba debajo el ID "${uniqueId}" y presione eliminar si asi lo desea</p>
-        <input id="input-eliminar-r-${uniqueId}" class="input__add__por" type="number" oninput="this.value = Math.abs(this.value)" placeholder= "Ingrese el ID">
-    `;
-    return crearDialogBaseRaza(`dialog-delete-conf-r-${uniqueId}`, 'dialog-icon-dele', 'Eliminar Raza', contenido, 'Eliminar','button-eliminar', uniqueId,'eliminar_raza')
-}
+// function crearDialogDeleteConfirmRaza(uniqueId){
+//     const contenido = `
+//         <p>Escriba debajo el ID "${uniqueId}" y presione eliminar si asi lo desea</p>
+//         <input id="input-eliminar-r-${uniqueId}" class="input__add__por" type="number" oninput="this.value = Math.abs(this.value)" placeholder= "Ingrese el ID">
+//     `;
+//     return crearDialogBaseRaza(`dialog-delete-conf-r-${uniqueId}`, 'dialog-icon-dele', 'Eliminar Raza', contenido, 'Eliminar','button-eliminar', uniqueId,'eliminar_raza')
+// }
 
-function crearDialogtDeleteRaza(item, uniqueId){
-    const contenido =  `
-        <p>Eliminar el registro sin saber si la raza tiene trazabilidad puede que altere el funcionamiento del sistema.</p>
-        <span>¿Está seguro que quiere eliminar este registro?</span>
-    `;
-    return crearDialogBaseRaza(`dialog-delete-raza-${uniqueId}`, 'dialog-icon-dele', 'Eliminar Raza', contenido, 'Continuar', 'button-eliminar', uniqueId, 'eliminar_raza', '')
-}
+// function crearDialogtDeleteRaza(item, uniqueId){
+//     const contenido =  `
+//         <p>Eliminar el registro sin saber si la raza tiene trazabilidad puede que altere el funcionamiento del sistema.</p>
+//         <span>¿Está seguro que quiere eliminar este registro?</span>
+//     `;
+//     return crearDialogBaseRaza(`dialog-delete-raza-${uniqueId}`, 'dialog-icon-dele', 'Eliminar Raza', contenido, 'Continuar', 'button-eliminar', uniqueId, 'eliminar_raza', '')
+// }
 
 
 function crearDialogBaseRaza(id, clase, titulo, contenido, textoBoton, claseBoton, uniqueId, funct, params) {
@@ -1189,10 +1461,10 @@ async function consultar_razas() {
     }
 }
 
-async function consulta_indi_raza(mostrar = false){
+async function consulta_indi_raza(id_raza, mostrar = false){
     try {
         const id = document.getElementById('input_id_raza').value;
-        const promesa = await fetch(`${URL_BASE}/raza/${id}`);
+        const promesa = await fetch(`${URL_BASE}/raza/${id || id_raza}`);
         const response = await promesa.json();
         if (response.Mensaje === `No hay raza con ID ${id}`){
             cerrarDialog('dialog__ges__raz');
@@ -1335,10 +1607,6 @@ function mostrar_etapas(etapas){
 
 function crearFilaEtapa(item){
     const uniqueId = item.id_etapa;
-    crearDialogEyeEtapa(item, uniqueId)
-    crearDialogEditEtapa(item, uniqueId)
-    crearDialogDeleteEtapa(item, uniqueId)
-    crearDialogDeleteConfirmEtapa(uniqueId)
     return `
         <tr class="registro registro__dia">
             <td class="td__border__l">${item.id_etapa}</td>
@@ -1355,9 +1623,9 @@ function crearFilaEtapa(item){
 
 function crearIconosAccionesEtapa(id){
     return `
-    <img src="/src/static/iconos/icono eye.svg" alt="" class="icon-eye" id="abrir-dieye" onclick="abrirDialog('dialog-eye-etapa-${id}')">
-    <img src="/src/static/iconos/edit icon.svg" alt="" class="icon-edit" id="abrir-diedit" onclick="abrirDialog('dialog-edit-etapa-${id}')">
-    <img src="/src/static/iconos/delete icon.svg" alt="" class="icon-delete" id="abrir-didele" onclick="abrirDialog('dialog-delete-etapa-${id}')">
+        <img src="/src/static/iconos/icono eye.svg" class="icon-eye" data-id="${id}" data-type="etapa">
+        <img src="/src/static/iconos/edit icon.svg" class="icon-edit" data-id="${id}" data-type="etapa">
+        <img src="/src/static/iconos/delete icon.svg" class="icon-delete" data-id="${id}" data-type="etapa">
     `
 }
 
@@ -1445,177 +1713,176 @@ function crearDialogRegistrarEtapa() {
     }, 50);
 }
 
-function crearDialogEyeEtapa(item, uniqueId){
-    // ===========================
-    // 1. Campos del STEP 1
-    // ===========================
-    const campos1 = [
-        {label: "ID etapa", id: `eye-id-etapa-${uniqueId}`, value: item.id_etapa},
-        {label: "Nombre", id: `eye-nombre-etapa-${uniqueId}`, value: item.nombre},
-        {label: 'Peso Minimo (Kg)', id: `eye-peso-min-etapa-${uniqueId}`, value: item.peso_min},
-        {label: 'Peso Maximo (Kg)', id: `eye-peso-max-etapa-${uniqueId}`, value : item.peso_max},
-        {label: 'Dias de duración', id: `eye-dias-dura-etapa-${uniqueId}`, value: item.duracion_dias},
-        {label: 'Semana de duración', id: `eye-semanas-dura-etapa-${uniqueId}`, value : item.duracion_semanas},
-        {label: 'Descripcion (Opcional)', id: `eye-descripcion-etapa-${uniqueId}`, value: item.descripcion},
-    ];
+// function crearDialogEyeEtapa(item, uniqueId){
+//     // ===========================
+//     // 1. Campos del STEP 1
+//     // ===========================
+//     const campos1 = [
+//         {label: "ID etapa", id: `eye-id-etapa-${uniqueId}`, value: item.id_etapa},
+//         {label: "Nombre", id: `eye-nombre-etapa-${uniqueId}`, value: item.nombre},
+//         {label: 'Peso Minimo (Kg)', id: `eye-peso-min-etapa-${uniqueId}`, value: item.peso_min},
+//         {label: 'Peso Maximo (Kg)', id: `eye-peso-max-etapa-${uniqueId}`, value : item.peso_max},
+//         {label: 'Dias de duración', id: `eye-dias-dura-etapa-${uniqueId}`, value: item.duracion_dias},
+//         {label: 'Semana de duración', id: `eye-semanas-dura-etapa-${uniqueId}`, value : item.duracion_semanas},
+//         {label: 'Descripcion (Opcional)', id: `eye-descripcion-etapa-${uniqueId}`, value: item.descripcion},
+//     ];
 
-    const htmlStep1 = campos1.map(campo => `
-        <div class = "container__label__input">
-        <label for="${campo.id}-${uniqueId}">${campo.label}</label>
-        <input type="text" class="campo-info" id="${campo.id}-${uniqueId}" placeholder="${campo.value}" readonly>
-        </div>
-        `).join('');
+//     const htmlStep1 = campos1.map(campo => `
+//         <div class = "container__label__input">
+//         <label for="${campo.id}-${uniqueId}">${campo.label}</label>
+//         <input type="text" class="campo-info" id="${campo.id}-${uniqueId}" placeholder="${campo.value}" readonly>
+//         </div>
+//         `).join('');
 
-    // ===========================
-    // 2. Campos del STEP 2
-    // ===========================
+//     // ===========================
+//     // 2. Campos del STEP 2
+//     // ===========================
     
-    const mapaReq = {};
-    item.requerimientos.forEach(req => {
-        mapaReq[req.nombre_elemento.toLowerCase()] = req.porcentaje || 0;
-    });
+//     const mapaReq = {};
+//     item.requerimientos.forEach(req => {
+//         mapaReq[req.nombre_elemento.toLowerCase()] = req.porcentaje || 0;
+//     });
 
-    const campos2 = [
-        { label: "E. Metabolizable (Kcal/Kg)", id: `eye-energia-metabo-${uniqueId}`, valor: mapaReq["energia_metabo"] },
-        { label: "Proteína Cruda (%)", id: `eye-proteina-cruda-${uniqueId}`, valor: mapaReq["proteina_cruda"] },
-        { label: "Fibra Cruda (%)", id: `eye-fibra-cruda-${uniqueId}`, valor: mapaReq["fibra_cruda"] },
-        { label: "Extracto Etéreo (%)", id: `eye-extracto-etereo-${uniqueId}`, valor: mapaReq["extracto_etereo"] },
-        { label: "Calcio (%)", id: `eye-calcio-${uniqueId}`, valor: mapaReq["calcio"] },
-        { label: "Fosforo Disponible (%)", id: `eye-fosforo-disponible-${uniqueId}`, valor: mapaReq["fosforo"] },
-        { label: "Sodio (%)", id: `eye-sodio-${uniqueId}`, valor: mapaReq["sodio"] },
-        { label: "Arginina (%)", id: `eye-arginina-${uniqueId}`, valor: mapaReq["arginina"] },
-        { label: "Lisina (%)", id: `eye-lisina-${uniqueId}`, valor: mapaReq["lisina"] },
-        { label: "Treonina (%)", id: `eye-treonina-${uniqueId}`, valor: mapaReq["treonina"] },
-        { label: "Metionina (%)", id: `eye-metionina-${uniqueId}`, valor: mapaReq["metionina"] },
-        { label: "Metionina + Cisteína (%)", id: `eye-metionina-cisteina-${uniqueId}`, valor: mapaReq["metionina_cisteina"] },
-        { label: "Triptófano (%)", id: `eye-triptofano-${uniqueId}`, valor: mapaReq["triptofano"] },
-    ];
+//     const campos2 = [
+//         { label: "E. Metabolizable (Kcal/Kg)", id: `eye-energia-metabo-${uniqueId}`, valor: mapaReq["energia_metabo"] },
+//         { label: "Proteína Cruda (%)", id: `eye-proteina-cruda-${uniqueId}`, valor: mapaReq["proteina_cruda"] },
+//         { label: "Fibra Cruda (%)", id: `eye-fibra-cruda-${uniqueId}`, valor: mapaReq["fibra_cruda"] },
+//         { label: "Extracto Etéreo (%)", id: `eye-extracto-etereo-${uniqueId}`, valor: mapaReq["extracto_etereo"] },
+//         { label: "Calcio (%)", id: `eye-calcio-${uniqueId}`, valor: mapaReq["calcio"] },
+//         { label: "Fosforo Disponible (%)", id: `eye-fosforo-disponible-${uniqueId}`, valor: mapaReq["fosforo"] },
+//         { label: "Sodio (%)", id: `eye-sodio-${uniqueId}`, valor: mapaReq["sodio"] },
+//         { label: "Arginina (%)", id: `eye-arginina-${uniqueId}`, valor: mapaReq["arginina"] },
+//         { label: "Lisina (%)", id: `eye-lisina-${uniqueId}`, valor: mapaReq["lisina"] },
+//         { label: "Treonina (%)", id: `eye-treonina-${uniqueId}`, valor: mapaReq["treonina"] },
+//         { label: "Metionina (%)", id: `eye-metionina-${uniqueId}`, valor: mapaReq["metionina"] },
+//         { label: "Metionina + Cisteína (%)", id: `eye-metionina-cisteina-${uniqueId}`, valor: mapaReq["metionina_cisteina"] },
+//         { label: "Triptófano (%)", id: `eye-triptofano-${uniqueId}`, valor: mapaReq["triptofano"] },
+//     ];
 
     
-    const htmlStep2 = campos2.map(campo => `
-        <div class="container__label__input">
-        <label>${campo.label}</label>
-        <input type="${campo.type || 'text'}" id="${campo.id}" placeholder="${campo.valor || 0}" readonly>
-        </div>
-        `).join('');
+//     const htmlStep2 = campos2.map(campo => `
+//         <div class="container__label__input">
+//         <label>${campo.label}</label>
+//         <input type="${campo.type || 'text'}" id="${campo.id}" placeholder="${campo.valor || 0}" readonly>
+//         </div>
+//         `).join('');
 
-    const contenido = `
-        <div id="step1" class="step">
-        ${htmlStep1}
-        </div>
+//     const contenido = `
+//         <div id="step1" class="step">
+//         ${htmlStep1}
+//         </div>
         
-        <div id="step2" class="step">
-        ${htmlStep2}
-        </div>
-        `;
+//         <div id="step2" class="step">
+//         ${htmlStep2}
+//         </div>
+//         `;
         
-    crearDialogBaseRaza(`dialog-eye-etapa-${uniqueId}`, 'dialog-icon-eye', 'Informacion de la Etapa de vida', contenido, 'Siguiente', 'button-guardar', uniqueId, 'cerrarDialog',`dialog-eye-etapa-${uniqueId}`)
+//     crearDialogBaseRaza(`dialog-eye-etapa-${uniqueId}`, 'dialog-icon-eye', 'Informacion de la Etapa de vida', contenido, 'Siguiente', 'button-guardar', uniqueId, 'cerrarDialog',`dialog-eye-etapa-${uniqueId}`)
     
-    setTimeout(() => {
-        activarSteps(`dialog-eye-etapa-${uniqueId}`, ".button-guardar", 'eye');
-    }, 50);
-}
+//     setTimeout(() => {
+//         activarSteps(`dialog-eye-etapa-${uniqueId}`, ".button-guardar", 'eye');
+//     }, 50);
+// }
 
 
-function crearDialogEditEtapa(item, uniqueId){
-    // ===========================
-    // 1. Campos del STEP 1
-    // ===========================
-    const campos1 = [
-        {label: "ID etapa", id: `edit-id-etapa`, value: item.id_etapa, editable:false},
-        {label: "Nombre", id: `edit-nombre-etapa`, value: item.nombre, editable: true},
-        {label: 'Peso Minimo (Kg)', id: `edit-peso-min-etapa`, value: item.peso_min, editable: true },
-        {label: 'Peso Maximo (Kg)', id: `edit-peso-max-etapa`, value : item.peso_max, editable: true},
-        {label: 'Dias de duración', id: `edit-dias-dura-etapa`, value: item.duracion_dias, editable: true},
-        {label: 'Semana de duración', id: `edit-semanas-dura-etapa`, value : item.duracion_semanas, editable: true},
-        {label: 'Descripcion (Opcional)', id: `edit-descripcion-etapa`, value: item.descripcion, editable: true},
-    ];
+// function crearDialogEditEtapa(item, uniqueId){
+//     // ===========================
+//     // 1. Campos del STEP 1
+//     // ===========================
+//     const campos1 = [
+//         {label: "ID etapa", id: `edit-id-etapa`, value: item.id_etapa, editable:false},
+//         {label: "Nombre", id: `edit-nombre-etapa`, value: item.nombre, editable: true},
+//         {label: 'Peso Minimo (Kg)', id: `edit-peso-min-etapa`, value: item.peso_min, editable: true },
+//         {label: 'Peso Maximo (Kg)', id: `edit-peso-max-etapa`, value : item.peso_max, editable: true},
+//         {label: 'Dias de duración', id: `edit-dias-dura-etapa`, value: item.duracion_dias, editable: true},
+//         {label: 'Semana de duración', id: `edit-semanas-dura-etapa`, value : item.duracion_semanas, editable: true},
+//         {label: 'Descripcion (Opcional)', id: `edit-descripcion-etapa`, value: item.descripcion, editable: true},
+//     ];
 
-    const htmlStep1 = campos1.map(campo => {
-        const fieldId = campo.id.replace(/\s+/g, '-') + '-' + 'actualizar' + '-' +uniqueId;
-        return `
-        <div class = "container__label__input">
-            <label for="${fieldId}">${campo.label}</label>
-            <div class="container-inputs">
-                <input type="text" id="${fieldId}" value="${campo.value}" ${campo.editable ? '' : 'disabled'}>
-                ${campo.editable ? crearIconoEdit() : ''}
-                </div>
-                </div>
-                `;
-            }).join('');
+//     const htmlStep1 = campos1.map(campo => {
+//         const fieldId = campo.id.replace(/\s+/g, '-') + '-' + 'actualizar' + '-' +uniqueId;
+//         return `
+//         <div class = "container__label__input">
+//             <label for="${fieldId}">${campo.label}</label>
+//             <div class="container-inputs">
+//                 <input type="text" id="${fieldId}" value="${campo.value}" ${campo.editable ? '' : 'disabled'}>
+//                 ${campo.editable ? crearIconoEdit() : ''}
+//                 </div>
+//                 </div>
+//                 `;
+//             }).join('');
     
 
-    // ===========================
-    // 2. Campos del STEP 2
-    // ===========================
+//     // ===========================
+//     // 2. Campos del STEP 2
+//     // ===========================
     
-    const mapaReq = {};
-    item.requerimientos.forEach(req => {
-        console.log(req)
-        mapaReq[req.nombre_elemento.toLowerCase()] = req.porcentaje || 0;
-    });
+//     const mapaReq = {};
+//     item.requerimientos.forEach(req => {
+//         mapaReq[req.nombre_elemento.toLowerCase()] = req.porcentaje || 0;
+//     });
 
-    const campos2 = [
-        { label: "E. Metabolizable (Kcal/Kg)", id: `edit-energia-metabo`, valor: mapaReq["energia_metabo"], editable: true },
-        { label: "Proteína Cruda (%)", id: `edit-proteina-cruda`, valor: mapaReq["proteina_cruda"], editable: true },
-        { label: "Fibra Cruda (%)", id: `edit-fibra-cruda`, valor: mapaReq["fibra_cruda"], editable: true },
-        { label: "Extracto Etéreo (%)", id: `edit-extracto-etereo`, valor: mapaReq["extracto_etereo"], editable: true },
-        { label: "Calcio (%)", id: `edit-calcio`, valor: mapaReq["calcio"], editable: true },
-        { label: "Fosforo Disponible (%)", id: `edit-fosforo-disponible`, valor: mapaReq["fosforo"], editable: true },
-        { label: "Sodio (%)", id: `edit-sodio`, valor: mapaReq["sodio"], editable: true },
-        { label: "Arginina (%)", id: `edit-arginina`, valor: mapaReq["arginina"], editable: true },
-        { label: "Lisina (%)", id: `edit-lisina`, valor: mapaReq["lisina"], editable: true },
-        { label: "Treonina (%)", id: `edit-treonina`, valor: mapaReq["treonina"], editable: true },
-        { label: "Metionina (%)", id: `edit-metionina`, valor: mapaReq["metionina"], editable: true },
-        { label: "Metionina + Cisteína (%)", id: `edit-metionina-cisteina`, valor: mapaReq["metionina_cisteina"], editable: true },
-        { label: "Triptófano (%)", id: `edit-triptofano`, valor: mapaReq["triptofano"], editable: true },
-    ];
+//     const campos2 = [
+//         { label: "E. Metabolizable (Kcal/Kg)", id: `edit-energia-metabo`, valor: mapaReq["energia_metabo"], editable: true },
+//         { label: "Proteína Cruda (%)", id: `edit-proteina-cruda`, valor: mapaReq["proteina_cruda"], editable: true },
+//         { label: "Fibra Cruda (%)", id: `edit-fibra-cruda`, valor: mapaReq["fibra_cruda"], editable: true },
+//         { label: "Extracto Etéreo (%)", id: `edit-extracto-etereo`, valor: mapaReq["extracto_etereo"], editable: true },
+//         { label: "Calcio (%)", id: `edit-calcio`, valor: mapaReq["calcio"], editable: true },
+//         { label: "Fosforo Disponible (%)", id: `edit-fosforo-disponible`, valor: mapaReq["fosforo"], editable: true },
+//         { label: "Sodio (%)", id: `edit-sodio`, valor: mapaReq["sodio"], editable: true },
+//         { label: "Arginina (%)", id: `edit-arginina`, valor: mapaReq["arginina"], editable: true },
+//         { label: "Lisina (%)", id: `edit-lisina`, valor: mapaReq["lisina"], editable: true },
+//         { label: "Treonina (%)", id: `edit-treonina`, valor: mapaReq["treonina"], editable: true },
+//         { label: "Metionina (%)", id: `edit-metionina`, valor: mapaReq["metionina"], editable: true },
+//         { label: "Metionina + Cisteína (%)", id: `edit-metionina-cisteina`, valor: mapaReq["metionina_cisteina"], editable: true },
+//         { label: "Triptófano (%)", id: `edit-triptofano`, valor: mapaReq["triptofano"], editable: true },
+//     ];
     
-    const htmlStep2 = campos2.map(campo => {
-    const fieldId = campo.id.replace(/\s+/g, '-') + '-' + 'actualizar' + '-' +uniqueId;
-    return `
-    <div class = "container__label__input">
-        <label for="${fieldId}">${campo.label}</label>
-        <div class="container-inputs">
-            <input type="text" id="${fieldId}" value="${campo.valor || 0}" ${campo.editable ? '' : 'disabled'}>
-            ${campo.editable ? crearIconoEdit() : ''}
-            </div>
-            </div>
-            `;
-        }).join('');
+//     const htmlStep2 = campos2.map(campo => {
+//     const fieldId = campo.id.replace(/\s+/g, '-') + '-' + 'actualizar' + '-' +uniqueId;
+//     return `
+//     <div class = "container__label__input">
+//         <label for="${fieldId}">${campo.label}</label>
+//         <div class="container-inputs">
+//             <input type="text" id="${fieldId}" value="${campo.valor || 0}" ${campo.editable ? '' : 'disabled'}>
+//             ${campo.editable ? crearIconoEdit() : ''}
+//             </div>
+//             </div>
+//             `;
+//         }).join('');
 
-    const contenido = `
-        <div id="step1" class="step">
-        ${htmlStep1}
-        </div>
+//     const contenido = `
+//         <div id="step1" class="step">
+//         ${htmlStep1}
+//         </div>
         
-        <div id="step2" class="step">
-            ${htmlStep2}
-        </div>
-        `;
+//         <div id="step2" class="step">
+//             ${htmlStep2}
+//         </div>
+//         `;
     
-    crearDialogBaseRaza(`dialog-edit-etapa-${uniqueId}`, 'dialog-icon-eye', 'Actualizar datos de la Etapa de Vida', contenido, 'Siguiente', 'button-guardar', uniqueId,'actualizar_etapa','')
-    setTimeout(() => {
-        activarSteps(`dialog-edit-etapa-${uniqueId}`, ".button-guardar", 'edit');
-    }, 50);
-}
+//     crearDialogBaseRaza(`dialog-edit-etapa-${uniqueId}`, 'dialog-icon-eye', 'Actualizar datos de la Etapa de Vida', contenido, 'Siguiente', 'button-guardar', uniqueId,'actualizar_etapa','')
+//     setTimeout(() => {
+//         activarSteps(`dialog-edit-etapa-${uniqueId}`, ".button-guardar", 'edit');
+//     }, 50);
+// }
 
-function crearDialogDeleteConfirmEtapa(uniqueId){
-    const contenido = `
-        <p>Escriba debajo el ID "${uniqueId}" y presione eliminar si asi lo desea</p>
-        <input id="input-eliminar-e-${uniqueId}" class="input__add__por" type="number" oninput="this.value = Math.abs(this.value)" placeholder= "Ingrese el ID">
-    `;
-    return crearDialogBaseRaza(`dialog-delete-conf-e-${uniqueId}`, 'dialog-icon-dele', 'Eliminar Etapa de Vida', contenido, 'Eliminar','button-eliminar', uniqueId,'eliminar_etapa')
-}
+// function crearDialogDeleteConfirmEtapa(uniqueId){
+//     const contenido = `
+//         <p>Escriba debajo el ID "${uniqueId}" y presione eliminar si asi lo desea</p>
+//         <input id="input-eliminar-e-${uniqueId}" class="input__add__por" type="number" oninput="this.value = Math.abs(this.value)" placeholder= "Ingrese el ID">
+//     `;
+//     return crearDialogBaseRaza(`dialog-delete-conf-e-${uniqueId}`, 'dialog-icon-dele', 'Eliminar Etapa de Vida', contenido, 'Eliminar','button-eliminar', uniqueId,'eliminar_etapa')
+// }
 
-function crearDialogDeleteEtapa(item, uniqueId){
-    const contenido =  `
-    <p>Eliminar el registro sin saber si la etapa de vida tiene trazabilidad puede que altere el funcionamiento del sistema.</p>
-    <span>¿Está seguro que quiere eliminar este registro?</span>
-    `;
+// function crearDialogDeleteEtapa(item, uniqueId){
+//     const contenido =  `
+//     <p>Eliminar el registro sin saber si la etapa de vida tiene trazabilidad puede que altere el funcionamiento del sistema.</p>
+//     <span>¿Está seguro que quiere eliminar este registro?</span>
+//     `;
 
-    return crearDialogBaseRaza(`dialog-delete-etapa-${uniqueId}`, 'dialog-icon-dele', 'Eliminar Etapa de Vida', contenido, 'Continuar','button-eliminar', uniqueId,'eliminar_etapa')
-}
+//     return crearDialogBaseRaza(`dialog-delete-etapa-${uniqueId}`, 'dialog-icon-dele', 'Eliminar Etapa de Vida', contenido, 'Continuar','button-eliminar', uniqueId,'eliminar_etapa')
+// }
 
 function activarSteps(modalId, botonSelector, funct) {
 
@@ -1627,6 +1894,8 @@ function activarSteps(modalId, botonSelector, funct) {
     const step2 = modal.querySelector("#step2");
 
     if (!step1 || !step2) return;
+
+    grid.style.gridTemplateColumns = "repeat(2,1fr)";
 
     // Estado inicial correcto
     step1.classList.add("active");
@@ -1701,12 +1970,11 @@ async function consultar_etapas() {
     }
 }
 
-async function consulta_indi_etapas(mostrar = false){
+async function consulta_indi_etapas(id_etapa, mostrar = false){
     try {
         const id = document.getElementById('input_id_etapa').value;
-        const promesa =  await fetch(`${URL_BASE}/etapa_vida/${id}`);
+        const promesa =  await fetch(`${URL_BASE}/etapa_vida/${id || id_etapa}`);
         const response = await promesa.json();
-        console.log(response)
         if (response.Mensaje === `No hay etapa con ID ${id}`){
             cerrarDialog('dialog__ges__eta');
             Swal.fire({
@@ -2924,3 +3192,22 @@ cerdo.addEventListener("click", () => {
         span.classList.toggle("oculto");
     });
 });
+
+
+document.addEventListener("click", (e) => {
+    const icon = e.target.closest(".icon-eye, .icon-edit, .icon-delete");
+    if (!icon) return;
+
+    const id = icon.dataset.id;
+    const type = icon.dataset.type;
+
+    if (icon.classList.contains("icon-eye")) {
+        openModalEye(type, id);
+    } else if (icon.classList.contains("icon-edit")) {
+        openModalEdit(type, id);
+    } else if (icon.classList.contains("icon-delete")) {
+        openModalDelete(type, id);
+    }
+});
+
+document.getElementById("modal-eye").addEventListener("close", resetModalEye);

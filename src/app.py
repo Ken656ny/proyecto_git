@@ -872,6 +872,7 @@ def consulta_indi_etapa(id):
                 ev.peso_max, 
                 ev.duracion_dias,
                 ev.duracion_semanas,
+                ev.descripcion,
                 e.id_elemento,
                 e.nombre as nombre_elemento,
                 rn.porcentaje
@@ -895,6 +896,7 @@ def consulta_indi_etapa(id):
           "peso_max" : fila['peso_max'],
           "duracion_dias" : fila['duracion_dias'],
           "duracion_semanas" : fila['duracion_semanas'],
+          "descripcion" : fila['descripcion'],
           "requerimientos" : []
         }
         

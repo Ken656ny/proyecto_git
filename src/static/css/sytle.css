@@ -1208,7 +1208,7 @@ th{
     padding: 10px 8px;
 }
 
-.info_raza_etapa > div > input, .info_raza_etapa > div > div > input {
+.info_raza_etapa > div > input, .info_raza_etapa > div > div > input, .info_raza_etapa > div > textarea {
     width: 100%;
 }
 
