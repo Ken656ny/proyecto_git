@@ -13,7 +13,6 @@ function redirectWithDelay(event, url) {
     event.preventDefault(); // Evita que el enlace redirija de inmediato
 
     // Aquí puedes poner una animación o efecto antes de redirigir
-    console.log("Esperando antes de redirigir...");
 
     // Esperar 1 segundo (1000 ms) antes de redirigir
     setTimeout(() => {
@@ -547,7 +546,6 @@ function porcino_filtros() {
 async function consulta_filtros() {
     try {
         const filtro = document.getElementById('filter_porcino');
-        console.log(filtro)
         if (filtro.disabled === true) {
             const input_id = document.getElementById('input_id').value;
             return consulta_individual_porcino(input_id, true)
@@ -937,7 +935,6 @@ async function consulta_porcino_historial(mostrar = false) {
         const id = document.getElementById('input_id_hp').value;
         const promesa = await fetch(`${URL_BASE}/porcino/historial_pesos/${id}`);
         const response = await promesa.json()
-        console.log(response)
         if (response.Mensaje === `No hay historial de pesos para el porcino con ID ${id}`) {
             cerrarDialog('dialog__his__peso');
             Swal.fire({
@@ -1594,7 +1591,6 @@ async function consulta_indi_etapas(mostrar = false) {
         const id = document.getElementById('input_id_etapa').value;
         const promesa = await fetch(`${URL_BASE}/etapa_vida/${id}`);
         const response = await promesa.json();
-        console.log(response)
         if (response.Mensaje === `No hay etapa con ID ${id}`) {
             cerrarDialog('dialog__ges__eta');
             Swal.fire({
@@ -1609,7 +1605,6 @@ async function consulta_indi_etapas(mostrar = false) {
         }
         return response
     } catch (error) {
-        console.log()
     }
 }
 
@@ -1773,7 +1768,6 @@ async function consultar_notificaciones() {
             }
         )
         const response = await promesa.json()
-        console.log(response)
         mostrar_notificaciones(response)
         return response
     } catch (error) {
@@ -1791,7 +1785,6 @@ function consulta_alimentos() {
     fetch(`${URL_BASE}/alimentos`, { method: "GET" })
         .then(res => res.json())
         .then(data => {
-            console.log(data)
             contenido.innerHTML = "";
             data.mensaje.forEach(element => {
                 const mapa = {};
@@ -2393,7 +2386,6 @@ function dietas() {
             return res.json();
         })
         .then(data => {
-            console.log(data);
             alimentos_en_dieta.innerHTML = "";
 
             if (!data.mensaje || data.mensaje.length === 0) {
@@ -2410,7 +2402,6 @@ function dietas() {
             }
 
             data.mensaje.forEach(element => {
-                console.log(data)
 
                 // MAPA DE NUTRIENTES
                 const mapa = {
@@ -2507,23 +2498,31 @@ function dietas() {
 </dialog>
 
 <!-- Tarjeta del alimento -->
+
 <div class="alimentos_dietas">
+
+    <!-- CÍRCULO SUPERIOR IZQUIERDO -->
+    <div class="circulo-seleccion" onclick="toggleInput(${element.id_alimento})"></div>
+
     <div class="imagen_alimento_dieta">
         <img src="${URL_BASE}${element.imagen}" 
              onclick="abrirModal('eye', ${element.id_alimento})"
              onerror="this.onerror=null; this.src='/src/static/iconos/imagen no encontrada.svg'; this.classList.add('sin_imagen_alimento_dieta')"
-             alt="no hay imagen">
+             alt="no hay imagen" style="cursor:pointer;">
     </div>
 
     <div class="descripcion_dietas">
         <p><strong>Nombre:</strong> ${element.nombre}</p>
         <p><strong>Cantidad (Kg):</strong></p>
+
         <input type="number" min="0" class="input_dietas"
                data-id="${element.id_alimento}"
-               id="cantidad-${element.nombre}"
-               placeholder="Cantidad">
+               id="cantidad-${element.id_alimento}"
+               placeholder="Cantidad"
+               disabled>
     </div>
 </div>
+
                 `;
             });
         })
@@ -2537,6 +2536,19 @@ function dietas() {
             });
             alimentos_en_dieta.innerHTML = `<p>Error al cargar los alimentos.</p>`;
         });
+}
+function toggleInput(id) {
+    const input = document.getElementById(`cantidad-${id}`);
+    const boton = event.target;
+
+    if (input.disabled) {
+        input.disabled = false;
+        boton.classList.add("activo");
+    } else {
+        input.disabled = true;
+        input.value = "";
+        boton.classList.remove("activo");
+    }
 }
 
 
@@ -2938,4 +2950,3 @@ function notificaciones_nuevo() {
     revisarNotificaciones();
     setInterval(revisarNotificaciones, 10000);
 }
-

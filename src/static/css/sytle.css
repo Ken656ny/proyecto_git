@@ -2548,6 +2548,34 @@ RESPONSIVE BAR
     }
     
 }
+.alimentos_dietas {
+    position: relative; /* NECESARIO */
+    padding-top: 10px; /* para que el círculo no quede pegado si la imagen llena todo */
+}
+
+.circulo-seleccion {
+    position: absolute;
+    top: 8px;      /* ← esquina del contenedor */
+    left: 8px;     /* ← esquina del contenedor */
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: #d3d3d3;
+    border: 2px solid #999;
+    cursor: pointer;
+    transition: 0.2s ease;
+    z-index: 50;   /* por si la imagen usa z-index */
+}
+
+.circulo-seleccion.activo {
+    background: #28a745;
+    border-color: #1e7e34;
+}
+.input_dietas:disabled {
+    opacity: 0.4;        /* se ve más apagado */
+    background-color: #e0e0e0; /* opcional: color más gris */
+    cursor: not-allowed; /* muestra que no se puede usar */
+}
 
 /* -----------------------------------------------------
    📱 REGISTRO — Ajustes responsive para móviles y tablets
