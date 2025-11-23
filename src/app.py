@@ -798,12 +798,13 @@ def consulta_gen_etapa():
         cur.execute("""
             SELECT 
                 ev.id_etapa, 
-                ev.nombre AS nombre_etapa, 
+                ev.nombre, 
                 ev.peso_min, 
                 ev.peso_max, 
                 ev.duracion_dias,
                 ev.duracion_semanas,
                 ev.descripcion,
+                e.id_elemento,
                 e.nombre as nombre_elemento,
                 rn.porcentaje
             FROM etapa_vida ev
@@ -819,7 +820,7 @@ def consulta_gen_etapa():
       if id_etapa not in etapas:
         etapas[id_etapa] = {
           "id_etapa" : id_etapa,
-          "nombre_etapa" : fila['nombre_etapa'],
+          "nombre" : fila['nombre'],
           "peso_min" : fila['peso_min'],
           "peso_max" : fila['peso_max'],
           "duracion_dias" : fila['duracion_dias'],
@@ -829,6 +830,7 @@ def consulta_gen_etapa():
         }
       if fila['nombre_elemento']:
         etapas[id_etapa]['requerimientos'].append({
+          "id_elemento" : fila['id_elemento'],
           "nombre_elemento" : fila["nombre_elemento"],
           "porcentaje" : fila['porcentaje']
         })
@@ -865,11 +867,13 @@ def consulta_indi_etapa(id):
         cur.execute("""
             SELECT 
                 ev.id_etapa, 
-                ev.nombre AS nombre_etapa, 
+                ev.nombre, 
                 ev.peso_min, 
                 ev.peso_max, 
                 ev.duracion_dias,
                 ev.duracion_semanas,
+                ev.descripcion,
+                e.id_elemento,
                 e.nombre as nombre_elemento,
                 rn.porcentaje
             FROM etapa_vida ev
@@ -887,16 +891,18 @@ def consulta_indi_etapa(id):
       if id_etapa not in etapa:
         etapa[id_etapa] = {
           "id_etapa" : id_etapa,
-          "nombre_etapa" : fila['nombre_etapa'],
+          "nombre_etapa" : fila['nombre'],
           "peso_min" : fila['peso_min'],
           "peso_max" : fila['peso_max'],
           "duracion_dias" : fila['duracion_dias'],
           "duracion_semanas" : fila['duracion_semanas'],
+          "descripcion" : fila['descripcion'],
           "requerimientos" : []
         }
-      
+        
       if fila['nombre_elemento']:
         etapa[id_etapa]['requerimientos'].append({
+          "id_elemento" : fila['id_elemento'],
           "nombre_elemento" : fila["nombre_elemento"],
           "porcentaje" : fila["porcentaje"]
         })
@@ -944,7 +950,7 @@ def registrar_etapa():
   try:
     
     data = request.get_json()
-    nombre_etapa = data['nombre_etapa']
+    nombre_etapa = data['nombre']
     peso_min = data['peso_min']
     peso_max = data['peso_max']
     duracion_dias = data['duracion_dias']
@@ -1007,7 +1013,7 @@ def actualizar_etapa_vida(id):
   """
   try:
     data = request.get_json()
-    nombre_etapa = data['nombre_etapa']
+    nombre_etapa = data['nombre']
     peso_min = data['peso_min']
     peso_max = data['peso_max']
     duracion_dias = data['duracion_dias']
@@ -1311,38 +1317,58 @@ def registrar_alimento():
         nombre = request.form.get("nombre_alimento")
         elementos = request.form.get("elementos")
         imagen_file = request.files.get("imagen")
+
         if not nombre:
             return jsonify({"error": "El nombre del alimento es obligatorio"}), 400
+
         if imagen_file and imagen_file.filename != "":
             filename = secure_filename(imagen_file.filename)
             ruta = os.path.join(app.config["cargar_imagenes"], filename)
             imagen_file.save(ruta)
             imagen_web = f"/static/imagenes_base_de_datos/{filename}"
-
         else:
             imagen_web = None
+
+        id_usuario = 3  # Cambia según tu login real
+
         with config['development'].conn() as conn:
             with conn.cursor() as cur:
-                id_usuario = 3
-                cur.execute(
-                    """
-                    INSERT INTO alimentos (nombre, estado, imagen, id_usuario)
-                    VALUES (%s, %s, %s, %s)
-                    """,
-                    (nombre, "activo", imagen_web, id_usuario)
-                )
-                id_alimento = cur.lastrowid
-                if elementos:
-                    elementos = json.loads(elementos)
-                    for elem in elementos:
-                        cur.execute(
-                            """
-                            INSERT INTO alimento_tiene_elemento (id_alimento, id_elemento, valor)
-                            VALUES (%s, %s, %s)
-                            """,
-                            (id_alimento, elem["id"], elem["valor"])
-                        )
-                conn.commit()
+                try:
+                    # Insertar alimento
+                    cur.execute("""
+                        INSERT INTO alimentos(nombre, estado, imagen, id_usuario)
+                        VALUES (%s, %s, %s, %s)
+                    """, (nombre, "Activo", imagen_web, id_usuario))
+                    
+                    id_alimento = cur.lastrowid
+
+                    # Insertar elementos si existen
+                    if elementos:
+                        elementos = json.loads(elementos)
+                        for elem in elementos:
+                            cur.execute("""
+                                INSERT INTO alimento_tiene_elemento (id_alimento, id_elemento, valor)
+                                VALUES (%s, %s, %s)
+                            """, (id_alimento, elem["id"], elem["valor"]))
+
+                    # Crear notificación para todos los usuarios
+                    cur.execute("SELECT id_usuario FROM usuario")
+                    usuarios = cur.fetchall()
+                    for u in usuarios:
+                        cur.execute("""
+                            INSERT INTO notificaciones (id_usuario_destinatario, id_usuario_origen, titulo, mensaje, tipo)
+                            VALUES (%s, %s, %s, %s, %s)
+                        """, (u['id_usuario'], id_usuario, 'Nuevo alimento creado',
+                              f'Se registró el alimento "{nombre}" con ID {id_alimento}', 'Ingreso'))
+
+                    conn.commit()
+
+                except Exception as db_err:
+                    # Verificar error de clave duplicada
+                    if hasattr(db_err, 'args') and db_err.args[0] == 1062:
+                        return jsonify({"error": f'El nombre "{nombre}" ya está registrado.'}), 400
+                    else:
+                        return jsonify({"error": "Error en el servidor, intente nuevamente."}), 500
 
         return jsonify({
             "mensaje": "Alimento creado correctamente",
@@ -1351,7 +1377,7 @@ def registrar_alimento():
         })
 
     except Exception as e:
-        return jsonify({"error": str(e)}), 500
+        return jsonify({"error": "Error en el servidor, intente nuevamente."}), 500
 
 @app.route("/consulta_indi_alimento_disponible/<nombre>", methods=["GET"])
 def consulta_individual_alimento_disponible(nombre):
@@ -1405,18 +1431,18 @@ def consulta_individual_alimento_disponible(nombre):
 def actualizar_alimento(id_alimento):
     try:
         if request.content_type.startswith("multipart/form-data"):
-            nombre = request.form.get("nombre")
-            estado = request.form.get("estado", "activo")
+            nombre_nuevo = request.form.get("nombre")
+            estado = request.form.get("estado", "Activo")
             elementos = json.loads(request.form.get("elementos", "[]"))
             imagen_file = request.files.get("imagen")
         else:
             data = request.get_json()
-            nombre = data.get("nombre")
-            estado = data.get("estado", "activo")
+            nombre_nuevo = data.get("nombre")
+            estado = data.get("estado", "Activo")
             elementos = data.get("elementos", [])
             imagen_file = None
 
-        if not nombre:
+        if not nombre_nuevo:
             return jsonify({"error": "El nombre del alimento es obligatorio."}), 400
 
         imagen_web = None
@@ -1426,57 +1452,114 @@ def actualizar_alimento(id_alimento):
             imagen_file.save(ruta)
             imagen_web = f"/static/imagenes_base_de_datos/{filename}"
 
-
         with config['development'].conn() as conn:
             with conn.cursor() as cur:
+                # Obtener nombre viejo
+                cur.execute("SELECT nombre FROM alimentos WHERE id_alimento=%s", (id_alimento,))
+                fila = cur.fetchone()
+                if not fila:
+                    return jsonify({"error": "El alimento no existe."}), 404
+                nombre_viejo = fila["nombre"]
 
+                # Verificar si el nombre nuevo ya existe en otro registro
+                cur.execute("SELECT id_alimento FROM alimentos WHERE nombre=%s AND id_alimento!=%s", (nombre_nuevo, id_alimento))
+                if cur.fetchone():
+                    return jsonify({"error": f"El nombre '{nombre_nuevo}' ya está en uso."}), 400
+
+                # Actualizar alimento
                 if imagen_web:
                     cur.execute("""
                         UPDATE alimentos 
-                        SET nombre = %s, estado = %s, imagen = %s 
-                        WHERE id_alimento = %s
-                    """, (nombre, estado, imagen_web, id_alimento))
+                        SET nombre=%s, estado=%s, imagen=%s 
+                        WHERE id_alimento=%s
+                    """, (nombre_nuevo, estado, imagen_web, id_alimento))
                 else:
                     cur.execute("""
                         UPDATE alimentos 
-                        SET nombre = %s, estado = %s
-                        WHERE id_alimento = %s
-                    """, (nombre, estado, id_alimento))
+                        SET nombre=%s, estado=%s
+                        WHERE id_alimento=%s
+                    """, (nombre_nuevo, estado, id_alimento))
 
+                # Actualizar elementos
                 for elem in elementos:
                     cur.execute("""
                         INSERT INTO alimento_tiene_elemento (id_alimento, id_elemento, valor)
                         VALUES (%s, %s, %s)
-                        ON DUPLICATE KEY UPDATE valor = VALUES(valor)
+                        ON DUPLICATE KEY UPDATE valor=VALUES(valor)
                     """, (id_alimento, elem["id_elemento"], elem["valor"]))
+
+                # Crear notificaciones para todos los usuarios
+                cur.execute("SELECT id_usuario FROM usuario")
+                usuarios = cur.fetchall()
+                for u in usuarios:
+                    mensaje = f'El alimento "{nombre_viejo}" fue actualizado y ahora se llama "{nombre_nuevo}".'
+                    cur.execute("""
+                        INSERT INTO notificaciones (id_usuario_destinatario, id_usuario_origen, titulo, mensaje, tipo)
+                        VALUES (%s, %s, %s, %s, %s)
+                    """, (
+                        u['id_usuario'],
+                        3,  # usuario que realizó la acción
+                        "Alimento actualizado",
+                        mensaje,
+                        "Actualización"
+                    ))
 
                 conn.commit()
 
         return jsonify({
             "mensaje": "Alimento actualizado correctamente",
-            "imagen": imagen_web  
+            "imagen": imagen_web
         }), 200
-
-    except IntegrityError as e:
-        if e.args[0] == 1062:
-            return jsonify({"error": f"Ya existe un alimento con el nombre '{nombre}'."}), 400
-        return jsonify({"error": "Error de integridad en la base de datos."}), 400
 
     except Exception as e:
         print("Error en actualización:", e)
-        return jsonify({"error": str(e)}), 500
+        return jsonify({"error": "Ocurrió un error en el servidor. Intente nuevamente."}), 500
+
 
 @app.route("/eliminar_alimento/<int:id>", methods=["DELETE"])
 def eliminar_alimento(id):
-  try:
-      with config['development'].conn() as conn:
-          with conn.cursor() as cur:
-              cur.execute("DELETE FROM alimento_tiene_elemento WHERE id_alimento = %s", (id,))
-              cur.execute("DELETE FROM alimentos WHERE id_alimento = %s", (id,))
-              conn.commit()
-      return jsonify({"mensaje": f"Alimento con id {id} eliminado correctamente"})
-  except Exception as e:
-      return jsonify({"error": str(e)})
+    try:
+        with config['development'].conn() as conn:
+            with conn.cursor() as cur:
+                # Consultar si existe el alimento
+                cur.execute("SELECT nombre FROM alimentos WHERE id_alimento = %s", (id,))
+                alimento = cur.fetchone()
+                if not alimento:
+                    return jsonify({"error": "El alimento no existe."}), 404
+
+                nombre_alimento = alimento['nombre']
+
+                try:
+                    # Intentar eliminar relaciones y alimento
+                    cur.execute("DELETE FROM alimento_tiene_elemento WHERE id_alimento = %s", (id,))
+                    cur.execute("DELETE FROM alimentos WHERE id_alimento = %s", (id,))
+                    
+                    # Crear notificación de eliminación para todos los usuarios
+                    cur.execute("SELECT id_usuario FROM usuario")
+                    usuarios = cur.fetchall()
+                    for u in usuarios:
+                        cur.execute("""
+                            INSERT INTO notificaciones 
+                            (id_usuario_destinatario, id_usuario_origen, titulo, mensaje, tipo)
+                            VALUES (%s, %s, %s, %s, %s)
+                        """, (u['id_usuario'], 3, 'Alimento eliminado',
+                              f'Se eliminó el alimento "{nombre_alimento}"', 'Eliminación'))
+
+                    conn.commit()
+
+                    return jsonify({"mensaje": f"Alimento '{nombre_alimento}' eliminado correctamente"})
+
+                except Exception as fk_err:
+                    # Error de integridad referencial
+                    if hasattr(fk_err, 'args') and fk_err.args[0] == 1451:
+                        return jsonify({
+                            "error": f"No se puede eliminar '{nombre_alimento}' porque está asociado a dietas. Puede desactivarlo en su lugar."
+                        }), 400
+                    else:
+                        return jsonify({"error": "Error en el servidor, intente nuevamente."}), 500
+
+    except Exception as e:
+        return jsonify({"error": "Error en el servidor, intente nuevamente."}), 500
 
 # -----------------------------------
 # DIETAS

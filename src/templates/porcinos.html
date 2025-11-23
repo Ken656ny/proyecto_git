@@ -195,13 +195,13 @@
                     </thead>
                     <tbody class="registros" id="razas">
                         
-                    <tbody class="registros" id="razas">
                         
                     </tbody>
                 </table>
             </div>
         </div>
     </dialog>
+
     <!-- DIALOG DE GESTIONAR ETAPA -->
     <dialog class="dialog__ges__raz" id="dialog__ges__eta">
         <div class="container__btn__close">
@@ -285,6 +285,33 @@
             </div>
         </div>
     </dialog>
+
+
+    <!-- DIALOG BASE EYE -->
+    <dialog id="modal-eye" class="dialog-icon-eye">
+        <div class="container__btn__close">
+            <button type="button" class="btn__close" onclick="document.getElementById('modal-eye').close()">X</button>
+        </div>
+
+        <form class="container__items__dialogs" onsubmit="event.preventDefault();">
+            <div class="title-dialog">
+                <h2 id="modal-eye-title">Información</h2>
+                <hr>
+            </div>
+
+            <!-- AQUÍ IRÁ EL CONTENIDO DINÁMICO -->
+            <div id="eye-content">
+
+            </div>
+
+            <div class="container-button-close">
+                <button type="button" id="button-eye" class="button-guardar" onclick="document.getElementById('modal-eye').close()">
+                    Cerrar
+                </button>
+            </div>
+        </form>
+    </dialog>
+
 
     <script src="/src/static/js/script.js"></script>
     <script>

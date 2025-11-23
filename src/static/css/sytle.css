@@ -367,12 +367,12 @@ BARRA LATERAL
     background-color: var(--color--prede);
     transition: width 0.3s ease, background-color 0.3s ease,left 0.3s ease;
     overflow: hidden;
-    z-index: 3;
+    z-index: 10;
     font-family: var(--fuente--contenido);
 }
 
 .mini-barra-lateral{
-    width: 80px;
+    width: 360px;
 } 
 
 /* -----------------------------------------------------------------nombre de la paginaaa */
@@ -1260,7 +1260,7 @@ th{
     padding: 10px 8px;
 }
 
-.info_raza_etapa > div > input, .info_raza_etapa > div > div > input {
+.info_raza_etapa > div > input, .info_raza_etapa > div > div > input, .info_raza_etapa > div > textarea {
     width: 100%;
 }
 
@@ -1353,7 +1353,7 @@ container-button-dele1{
     position: relative;
 }
 
-.info-porcino > div > div > .vector-edit, .info_raza_etapa > div > div .vector-edit{
+.info-porcino > div > div > .vector-edit, .info_raza_etapa > div > div .vector-edit, .layout_registrar_etapa > div > div .vector-edit{
     position: absolute;
     right: 0;
     bottom: 1px;
@@ -2564,7 +2564,7 @@ RESPONSIVE BAR
     border: 2px solid #999;
     cursor: pointer;
     transition: 0.2s ease;
-    z-index: 50;   /* por si la imagen usa z-index */
+    z-index: 3;   /* por si la imagen usa z-index */
 }
 
 .circulo-seleccion.activo {
