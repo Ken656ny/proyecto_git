@@ -2377,6 +2377,161 @@ async function cargarAutocompletado() {
         console.error("Error cargando autocompletado:", error);
     }
 }
+
+function consulta_individual_alimento_disponible() {
+    const nombre = document.getElementById("id_alimento").value.trim();
+    const alimentos_en_dieta = document.getElementById("alimentos_en_dieta");
+
+    if (!nombre) {
+        Swal.fire({
+            icon: "warning",
+            title: "Campo vacío",
+            text: "Por favor, escribe el nombre del alimento antes de consultar.",
+            confirmButtonColor: "#008cffff"
+        });
+        return;
+    }
+
+    fetch(`${URL_BASE}/consulta_indi_alimento_disponible/${nombre}`)
+        .then(res => {
+            if (!res.ok) throw new Error(`Error HTTP ${res.status}`);
+            return res.json();
+        })
+        .then(data => {
+            alimentos_en_dieta.innerHTML = "";
+
+            if (!data.mensaje) {
+                Swal.fire({
+                    icon: "info",
+                    title: "Alimento no encontrado",
+                    text: `No se encontró el alimento "${nombre}".`,
+                    confirmButtonColor: "#3085d6"
+                });
+                alimentos_en_dieta.innerHTML = `
+                    <p class="sin-alimentos">No se encontró el alimento "${nombre}".</p>
+                `;
+                return;
+            }
+
+            const element = data.mensaje;
+
+            alimentos_en_dieta.innerHTML = `
+                <div class="alimentos_dietas">
+                    <div class="imagen_alimento_dieta">
+                      <img src="${URL_BASE}${element.imagen}" 
+                             onerror="this.onerror=null; this.src='/src/static/iconos/imagen no encontrada.svg'; this.classList.add('sin_imagen_alimento_dieta')" 
+                             alt="no hay imagen">
+                    </div>
+                    <div class="descripcion_dietas">
+                        <p><strong>Nombre:</strong> ${element.nombre}</p>
+                        <p><strong>Cantidad (Kg):</strong></p>
+                        <input type="number" min="0" class="input_dietas" id="cantidad-${element.nombre}" placeholder="Cantidad">
+                    </div>
+                </div>
+            `;
+        })
+        .catch(err => {
+            console.error(err);
+            Swal.fire({
+                icon: "error",
+                title: "Error al consultar el alimento",
+                text: "Ocurrió un problema al realizar la consulta.",
+                confirmButtonColor: "#d33"
+            });
+            alimentos_en_dieta.innerHTML = `<p>Error al consultar el alimento.</p>`;
+        });
+}
+
+function crear_alimento() {
+    document.getElementById("formRegistrar").addEventListener("submit", function (e) {
+        e.preventDefault();
+
+        const numeros = document.querySelectorAll('input[type="number"]');
+        for (let input of numeros) {
+            if (parseFloat(input.value) < 0) {
+                Swal.fire({
+                    title: "Valor inválido",
+                    text: "No se permiten números negativos.",
+                    icon: "warning",
+                    confirmButtonText: "Entendido"
+                });
+                return;
+            }
+        }
+
+        const formData = new FormData();
+        const imagen = document.getElementById("imagen").files[0];
+        if (imagen) {
+            formData.append("imagen", imagen);
+        }
+
+        formData.append("nombre_alimento", document.getElementById("nombre").value);
+
+const elementos = [
+    { id: 1, valor: parseFloat(document.getElementById("proteina_cruda").value) || 0 },
+    { id: 2, valor: parseFloat(document.getElementById("fosforo").value) || 0 },
+    { id: 3, valor: parseFloat(document.getElementById("treonina").value) || 0 },
+    { id: 4, valor: parseFloat(document.getElementById("fibra_cruda").value) || 0 },
+    { id: 5, valor: parseFloat(document.getElementById("sodio").value) || 0 },
+    { id: 6, valor: parseFloat(document.getElementById("metionina").value) || 0 },
+    { id: 7, valor: parseFloat(document.getElementById("materia_seca").value) || 0 },
+    { id: 8, valor: parseFloat(document.getElementById("extracto_etereo").value) || 0 },
+    { id: 9, valor: parseFloat(document.getElementById("arginina").value) || 0 },
+    { id: 10, valor: parseFloat(document.getElementById("metionina_cisteina").value) || 0 },
+    { id: 11, valor: parseFloat(document.getElementById("energia_m").value) || 0 }, // este input sigue siendo "energia_m"
+    { id: 12, valor: parseFloat(document.getElementById("calcio").value) || 0 },
+    { id: 13, valor: parseFloat(document.getElementById("lisina").value) || 0 },
+    { id: 14, valor: parseFloat(document.getElementById("triptofano").value) || 0 }
+];
+
+
+        formData.append("elementos", JSON.stringify(elementos));
+
+        fetch(`${URL_BASE}/registrar_alimento`, {
+            method: "POST",
+            body: formData
+        })
+            .then(async res => {
+                try {
+                    return await res.json();
+                } catch (error) {
+                    throw new Error("El servidor no envió un JSON válido.");
+                }
+            })
+            .then(res => {
+                if (res.mensaje) {
+                    Swal.fire({
+                        title: "Registrado",
+                        text: res.mensaje,
+                        icon: "success",
+                        confirmButtonText: "Aceptar",
+                        allowOutsideClick: false,
+                        allowEscapeKey: false
+                    }).then(result => {
+                        if (result.isConfirmed) {
+                            window.location.href = "alimentos.html";
+                        }
+                    });
+                } else if (res.error) {
+                    Swal.fire("Error", res.error, "error");
+                }
+            })
+            .catch(err => {
+                Swal.fire("Error", err.message, "error");
+            });
+    });
+
+}
+
+function abrirModal(tipo, id) {
+    document.getElementById(`modal-${tipo}-${id}`).showModal();
+}
+function cerrarModal(tipo, id) {
+    document.getElementById(`modal-${tipo}-${id}`).close();
+}
+
+// -------------------------dietas----------------------
+
 function dietas() {
     const alimentos_en_dieta = document.getElementById("alimentos_en_dieta");
 
@@ -2540,159 +2695,6 @@ function toggleInput(id) {
         boton.classList.remove("activo");
     }
 }
-
-
-function consulta_individual_alimento_disponible() {
-    const nombre = document.getElementById("id_alimento").value.trim();
-    const alimentos_en_dieta = document.getElementById("alimentos_en_dieta");
-
-    if (!nombre) {
-        Swal.fire({
-            icon: "warning",
-            title: "Campo vacío",
-            text: "Por favor, escribe el nombre del alimento antes de consultar.",
-            confirmButtonColor: "#008cffff"
-        });
-        return;
-    }
-
-    fetch(`${URL_BASE}/consulta_indi_alimento_disponible/${nombre}`)
-        .then(res => {
-            if (!res.ok) throw new Error(`Error HTTP ${res.status}`);
-            return res.json();
-        })
-        .then(data => {
-            alimentos_en_dieta.innerHTML = "";
-
-            if (!data.mensaje) {
-                Swal.fire({
-                    icon: "info",
-                    title: "Alimento no encontrado",
-                    text: `No se encontró el alimento "${nombre}".`,
-                    confirmButtonColor: "#3085d6"
-                });
-                alimentos_en_dieta.innerHTML = `
-                    <p class="sin-alimentos">No se encontró el alimento "${nombre}".</p>
-                `;
-                return;
-            }
-
-            const element = data.mensaje;
-
-            alimentos_en_dieta.innerHTML = `
-                <div class="alimentos_dietas">
-                    <div class="imagen_alimento_dieta">
-                      <img src="${URL_BASE}${element.imagen}" 
-                             onerror="this.onerror=null; this.src='/src/static/iconos/imagen no encontrada.svg'; this.classList.add('sin_imagen_alimento_dieta')" 
-                             alt="no hay imagen">
-                    </div>
-                    <div class="descripcion_dietas">
-                        <p><strong>Nombre:</strong> ${element.nombre}</p>
-                        <p><strong>Cantidad (Kg):</strong></p>
-                        <input type="number" min="0" class="input_dietas" id="cantidad-${element.nombre}" placeholder="Cantidad">
-                    </div>
-                </div>
-            `;
-        })
-        .catch(err => {
-            console.error(err);
-            Swal.fire({
-                icon: "error",
-                title: "Error al consultar el alimento",
-                text: "Ocurrió un problema al realizar la consulta.",
-                confirmButtonColor: "#d33"
-            });
-            alimentos_en_dieta.innerHTML = `<p>Error al consultar el alimento.</p>`;
-        });
-}
-
-function crear_alimento() {
-    document.getElementById("formRegistrar").addEventListener("submit", function (e) {
-        e.preventDefault();
-
-        const numeros = document.querySelectorAll('input[type="number"]');
-        for (let input of numeros) {
-            if (parseFloat(input.value) < 0) {
-                Swal.fire({
-                    title: "Valor inválido",
-                    text: "No se permiten números negativos.",
-                    icon: "warning",
-                    confirmButtonText: "Entendido"
-                });
-                return;
-            }
-        }
-
-        const formData = new FormData();
-        const imagen = document.getElementById("imagen").files[0];
-        if (imagen) {
-            formData.append("imagen", imagen);
-        }
-
-        formData.append("nombre_alimento", document.getElementById("nombre").value);
-
-const elementos = [
-    { id: 1, valor: parseFloat(document.getElementById("proteina_cruda").value) || 0 },
-    { id: 2, valor: parseFloat(document.getElementById("fosforo").value) || 0 },
-    { id: 3, valor: parseFloat(document.getElementById("treonina").value) || 0 },
-    { id: 4, valor: parseFloat(document.getElementById("fibra_cruda").value) || 0 },
-    { id: 5, valor: parseFloat(document.getElementById("sodio").value) || 0 },
-    { id: 6, valor: parseFloat(document.getElementById("metionina").value) || 0 },
-    { id: 7, valor: parseFloat(document.getElementById("materia_seca").value) || 0 },
-    { id: 8, valor: parseFloat(document.getElementById("extracto_etereo").value) || 0 },
-    { id: 9, valor: parseFloat(document.getElementById("arginina").value) || 0 },
-    { id: 10, valor: parseFloat(document.getElementById("metionina_cisteina").value) || 0 },
-    { id: 11, valor: parseFloat(document.getElementById("energia_m").value) || 0 }, // este input sigue siendo "energia_m"
-    { id: 12, valor: parseFloat(document.getElementById("calcio").value) || 0 },
-    { id: 13, valor: parseFloat(document.getElementById("lisina").value) || 0 },
-    { id: 14, valor: parseFloat(document.getElementById("triptofano").value) || 0 }
-];
-
-
-        formData.append("elementos", JSON.stringify(elementos));
-
-        fetch(`${URL_BASE}/registrar_alimento`, {
-            method: "POST",
-            body: formData
-        })
-            .then(async res => {
-                try {
-                    return await res.json();
-                } catch (error) {
-                    throw new Error("El servidor no envió un JSON válido.");
-                }
-            })
-            .then(res => {
-                if (res.mensaje) {
-                    Swal.fire({
-                        title: "Registrado",
-                        text: res.mensaje,
-                        icon: "success",
-                        confirmButtonText: "Aceptar",
-                        allowOutsideClick: false,
-                        allowEscapeKey: false
-                    }).then(result => {
-                        if (result.isConfirmed) {
-                            window.location.href = "alimentos.html";
-                        }
-                    });
-                } else if (res.error) {
-                    Swal.fire("Error", res.error, "error");
-                }
-            })
-            .catch(err => {
-                Swal.fire("Error", err.message, "error");
-            });
-    });
-
-}
-
-function abrirModal(tipo, id) {
-    document.getElementById(`modal-${tipo}-${id}`).showModal();
-}
-function cerrarModal(tipo, id) {
-    document.getElementById(`modal-${tipo}-${id}`).close();
-}
 function grafica() {
 const ctx = document.getElementById('nutricionCircular').getContext('2d');
 const data = {
@@ -2774,6 +2776,119 @@ function rellenar_etapa_vida_en_dietas() {
     });
 
 }
+
+function consulta_dietas() {
+    const contenido = document.getElementById("contenido"); // tabla o div donde mostrar
+    fetch(`${URL_BASE}/dieta`, { method: "GET" })
+        .then(res => res.json())
+        .then(data => {
+            contenido.innerHTML = "";
+            data.mensaje.forEach(dieta => {
+                contenido.innerHTML += `
+                    <tr class="nuevo1">
+                        <td class="nuevo td__border__l"><img class="svg__alimento" src="/src/static/iconos/ramen 1.svg">
+                        </td>
+                    <td class="nuevo">${dieta.id_dieta}</td>
+                    <td class="nuevo">${dieta.usuario}</td>
+                    <td class="nuevo">${dieta.etapa_vida}</td>
+                    <td class="nuevo">${dieta.fecha_creacion}</td>
+                    <td class="nuevo">${dieta.estado}</td>
+                    <td class="nuevo td__border__r">
+                        <img src="/src/static/iconos/icon eye.svg" 
+                             onclick="abrirModalDieta(${dieta.id_dieta})" 
+                             class="icon-eye">
+                        
+                        <img src="/src/static/iconos/edit icon.svg" 
+                             onclick="abrirModalDieta(${dieta.id_dieta})" 
+                             class="icon-edit">
+                        
+                        <img src="/src/static/iconos/delete icon.svg" 
+                             onclick="abrirModalDieta(${dieta.id_dieta})" 
+                             class="icon-delete">
+                        
+                             
+                             
+                    </td>
+                    </tr>
+
+                `;
+            });
+        })
+        .catch(err => {
+            console.error(err);
+            contenido.innerHTML = `<tr><td colspan="7">Error al cargar las dietas</td></tr>`;
+        });
+}
+
+function guardarDieta() {
+    const id_usuario = 3; // reemplaza con el usuario logueado
+    const id_etapa_vida = document.getElementById("select-etapas").value;
+
+    if (!id_etapa_vida) {
+        Swal.fire("Error", "Debes seleccionar la etapa de vida", "warning");
+        return;
+    }
+
+    const alimentos = [];
+    document.querySelectorAll(".input_dietas").forEach(input => {
+        const cantidad = parseFloat(input.value);
+        if (!isNaN(cantidad) && cantidad > 0) {
+            alimentos.push({
+                id_alimento: parseInt(input.dataset.id),
+                cantidad: cantidad
+            });
+        }
+    });
+
+    if (alimentos.length === 0) {
+        Swal.fire("Error", "Debes ingresar al menos un alimento con cantidad", "warning");
+        return;
+    }
+
+    // Preguntar si quiere agregar descripción
+    Swal.fire({
+        title: '¿Quieres agregar una descripción?',
+        input: 'textarea',
+        inputPlaceholder: 'Escribe la descripción aquí...',
+        showCancelButton: true,
+        confirmButtonText: 'Guardar dieta',
+        cancelButtonText: 'No poner descripción'
+    }).then((result) => {
+        let descripcion = '';
+        if (result.isConfirmed) {
+            descripcion = result.value || '';
+        }
+
+        fetch(`${URL_BASE}/crear_dieta`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                id_usuario,
+                id_etapa_vida,
+                descripcion,
+                alimentos
+            })
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.error) {
+                Swal.fire("Error", data.error, "error");
+            } else {
+                Swal.fire("Éxito", "Dieta creada correctamente", "success");
+                console.log("Mezcla nutricional:", data.mezcla_nutricional);
+                consulta_dietas();
+            }
+        })
+        .catch(err => {
+            console.error(err);
+            Swal.fire("Error", "No se pudo guardar la dieta", "error");
+        });
+    });
+}
+
+// ----------------------------------funciones adicionales
+
+
 function timesleep() {
     let tiempoInactividad;
     let tiempoCierre;

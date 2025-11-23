@@ -1158,7 +1158,6 @@ def ultima_notificacion_usuario(id):
 # SECCION GESTIONAR ALIMENTOS
 # ----------------------------
 
-# RUTA PARA CONSULTAR TODOS LOS ALIMENTOS
 @app.route("/alimentos", methods=["GET"])
 def consulta_alimento():
     """
@@ -1212,8 +1211,6 @@ def consulta_alimento():
     except Exception as e:
         return jsonify({"error": str(e)})
 
-
-# RUTA PARA CONSULTAR UN ALIMENTO POR SU ID
 @app.route("/consulta_indi_alimento/<nombre>", methods=["GET"])
 def consulta_individual_alimento(nombre):
   try:
@@ -1468,6 +1465,7 @@ def actualizar_alimento(id_alimento):
     except Exception as e:
         print("Error en actualización:", e)
         return jsonify({"error": str(e)}), 500
+
 @app.route("/eliminar_alimento/<int:id>", methods=["DELETE"])
 def eliminar_alimento(id):
   try:
@@ -1479,10 +1477,10 @@ def eliminar_alimento(id):
       return jsonify({"mensaje": f"Alimento con id {id} eliminado correctamente"})
   except Exception as e:
       return jsonify({"error": str(e)})
-    
-    
-    
+
+# -----------------------------------
 # DIETAS
+# ----------------------------------
 @app.route("/mezcla_nutricional", methods=["POST"])
 def mezcla_nutricional():
     """
@@ -1521,10 +1519,8 @@ def mezcla_nutricional():
         if total_kg <= 0:
             return jsonify({"error": "El total de kg debe ser mayor que 0"}), 400
 
-        # Lista de nutrientes finales
         nutrientes = ["MS","EM-C","PC","FC","EE","CAL","F.DIS","SOD","ARG","LIS","MET","M+CIS","TREO","TRIP"]
 
-        # Mapear nombres exactos de la BD a los códigos
         nombre_bd_a_clave = {
             "proteina_cruda": "PC",
             "fosforo": "F.DIS",
@@ -1563,17 +1559,14 @@ def mezcla_nutricional():
                         if clave:
                             nutr_alimento[clave] = float(n["valor"])
 
-                    # Sumar ponderadamente según los kg
                     for nutriente in nutrientes:
                         mezcla[nutriente] += nutr_alimento.get(nutriente, 0) * a["kg"]
 
-                    # Guardar porcentaje del alimento
                     porcentajes.append({
                         "id_alimento": a["id_alimento"],
                         "porcentaje": round(a["kg"] * 100 / total_kg, 2)
                     })
 
-        # Dividir entre el total de kg para obtener el promedio ponderado
         for nutriente in mezcla:
             mezcla[nutriente] = round(mezcla[nutriente] / total_kg, 2)
 
@@ -1585,6 +1578,232 @@ def mezcla_nutricional():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
+@app.route("/crear_dieta", methods=["POST"])
+def crear_dieta():
+    try:
+        data = request.get_json()
+        id_usuario = data.get("id_usuario")
+        id_etapa_vida = data.get("id_etapa_vida")
+        descripcion = data.get("descripcion")
+        alimentos = data.get("alimentos", [])  # [{id_alimento, cantidad}]
+
+        if not id_usuario or not id_etapa_vida:
+            return jsonify({"error": "Faltan datos obligatorios"}), 400
+
+        if not alimentos:
+            return jsonify({"error": "No hay alimentos para la dieta"}), 400
+
+        nutrientes = ["MS","EM-C","PC","FC","EE","CAL","F.DIS","SOD","ARG","LIS","MET","M+CIS","TREO","TRIP"]
+        nombre_bd_a_clave = {
+            "proteina_cruda": "PC",
+            "fosforo": "F.DIS",
+            "treonina": "TREO",
+            "fibra_cruda": "FC",
+            "sodio": "SOD",
+            "metionina": "MET",
+            "materia_seca": "MS",
+            "extracto_etereo": "EE",
+            "arginina": "ARG",
+            "metionina_cisteina": "M+CIS",
+            "energia_metabo": "EM-C",
+            "calcio": "CAL",
+            "lisina": "LIS",
+            "triptofano": "TRIP"
+        }
+
+        total_kg = sum(a["cantidad"] for a in alimentos)
+        if total_kg <= 0:
+            return jsonify({"error": "La cantidad total debe ser mayor a 0"}), 400
+
+        mezcla = {nutriente: 0 for nutriente in nutrientes}
+
+        with config['development'].conn() as conn:
+            with conn.cursor() as cur:
+                # calcular mezcla nutricional
+                for a in alimentos:
+                    cur.execute("""
+                        SELECT e.nombre AS nombre_elemento, ate.valor
+                        FROM alimento_tiene_elemento ate
+                        JOIN elementos e ON e.id_elemento = ate.id_elemento
+                        WHERE ate.id_alimento = %s
+                    """, (a["id_alimento"],))
+                    elementos = cur.fetchall()
+
+                    nutr_alimento = {}
+                    for n in elementos:
+                        clave = nombre_bd_a_clave.get(n["nombre_elemento"].lower())
+                        if clave:
+                            nutr_alimento[clave] = float(n["valor"])
+
+                    for nutriente in nutrientes:
+                        mezcla[nutriente] += nutr_alimento.get(nutriente, 0) * a["cantidad"]
+
+                # calcular promedio según total_kg
+                for nutriente in mezcla:
+                    mezcla[nutriente] = round(mezcla[nutriente] / total_kg, 2)
+
+                # insertar dieta con mezcla nutricional
+                cur.execute("""
+                    INSERT INTO dietas (id_usuario, id_etapa_vida, fecha_creacion, descripcion, mezcla_nutricional)
+                    VALUES (%s, %s, CURDATE(), %s, %s)
+                """, (id_usuario, id_etapa_vida, descripcion, json.dumps(mezcla)))
+
+                id_dieta = cur.lastrowid
+
+                # insertar alimentos
+                for item in alimentos:
+                    cur.execute("""
+                        INSERT INTO dieta_tiene_alimentos (id_dieta, id_alimento, cantidad)
+                        VALUES (%s, %s, %s)
+                    """, (id_dieta, item["id_alimento"], item["cantidad"]))
+
+                conn.commit()
+
+        return jsonify({"mensaje": "Dieta creada correctamente", "id_dieta": id_dieta, "mezcla_nutricional": mezcla})
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@app.route("/dieta", methods=["GET"])
+def consultar_dietas():
+    try:
+        with config['development'].conn() as conn:
+            with conn.cursor() as cur:
+                cur.execute("""
+                    SELECT d.id_dieta,
+                          u.nombre AS usuario,
+                          d.id_etapa_vida,
+                          ev.nombre AS etapa_vida,
+                          d.fecha_creacion,
+                          d.estado,
+                          d.descripcion
+                    FROM dietas d
+                    JOIN usuario u ON u.id_usuario = d.id_usuario
+                    JOIN etapa_vida ev ON ev.id_etapa = d.id_etapa_vida
+                """)
+
+                dietas = cur.fetchall()
+
+                resultado = []
+
+                for d in dietas:
+                    cur.execute("""
+                        SELECT a.id_alimento, a.nombre, da.cantidad
+                        FROM dieta_tiene_alimentos da
+                        JOIN alimentos a ON a.id_alimento = da.id_alimento
+                        WHERE da.id_dieta = %s
+                    """, (d["id_dieta"],))
+                    alimentos = cur.fetchall()
+
+                    resultado.append({
+    "id_dieta": d["id_dieta"],
+    "usuario": d["usuario"],        # <-- aquí
+    "id_etapa_vida": d["id_etapa_vida"],
+    "etapa_vida": d["etapa_vida"],
+    "fecha_creacion": str(d["fecha_creacion"]),
+    "estado": d["estado"],
+    "descripcion": d["descripcion"],
+    "alimentos": alimentos
+})
+
+
+        return jsonify({"mensaje": resultado})
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@app.route("/dieta/<int:id_dieta>", methods=["GET"])
+def obtener_dieta(id_dieta):
+    try:
+        with config['development'].conn() as conn:
+            with conn.cursor() as cur:
+
+                # Datos generales de la dieta
+                cur.execute("""
+                    SELECT 
+                        d.id_dieta,
+                        d.id_usuario,
+                        d.fecha_creacion,
+                        d.estado,
+                        d.descripcion,
+                        ev.nombre AS etapa_vida
+                    FROM dietas d
+                    JOIN etapa_vida ev ON d.id_etapa_vida = ev.id_etapa
+                    WHERE d.id_dieta = %s
+                """, (id_dieta,))
+                dieta = cur.fetchone()
+
+                if not dieta:
+                    return jsonify({"mensaje": None})
+
+                # Alimentos asociados
+                cur.execute("""
+                    SELECT 
+                        a.id_alimento,
+                        a.nombre AS alimento,
+                        dta.cantidad,
+                        a.imagen
+                    FROM dieta_tiene_alimentos dta
+                    JOIN alimentos a ON dta.id_alimento = a.id_alimento
+                    WHERE dta.id_dieta = %s
+                """, (id_dieta,))
+
+                alimentos = cur.fetchall()
+
+        dieta["alimentos"] = alimentos
+        return jsonify({"mensaje": dieta})
+
+    except Exception as e:
+        return jsonify({"error": str(e)})
+
+@app.route("/actualizar_dieta/<int:id_dieta>", methods=["PUT"])
+def actualizar_dieta(id_dieta):
+    try:
+        data = request.get_json()
+        id_etapa_vida = data.get("id_etapa_vida")
+        descripcion = data.get("descripcion")
+        alimentos = data.get("alimentos", [])
+
+        with config['development'].conn() as conn:
+            with conn.cursor() as cur:
+
+                # Actualizar datos generales
+                cur.execute("""
+                    UPDATE dietas 
+                    SET id_etapa_vida = %s, descripcion = %s
+                    WHERE id_dieta = %s
+                """, (id_etapa_vida, descripcion, id_dieta))
+
+                # Eliminar alimentos actuales
+                cur.execute("DELETE FROM dieta_tiene_alimentos WHERE id_dieta = %s", (id_dieta,))
+
+                # Insertar nuevos alimentos
+                for item in alimentos:
+                    cur.execute("""
+                        INSERT INTO dieta_tiene_alimentos (id_dieta, id_alimento, cantidad)
+                        VALUES (%s, %s, %s)
+                    """, (id_dieta, item["id_alimento"], item["cantidad"]))
+
+                conn.commit()
+
+        return jsonify({"mensaje": "Dieta actualizada correctamente"})
+
+    except Exception as e:
+        return jsonify({"error": str(e)})
+
+@app.route("/eliminar_dieta/<int:id_dieta>", methods=["DELETE"])
+def eliminar_dieta(id_dieta):
+    try:
+        with config['development'].conn() as conn:
+            with conn.cursor() as cur:
+                cur.execute("DELETE FROM dieta_tiene_alimentos WHERE id_dieta = %s", (id_dieta,))
+                cur.execute("DELETE FROM dietas WHERE id_dieta = %s", (id_dieta,))
+                conn.commit()
+
+        return jsonify({"mensaje": "Dieta eliminada correctamente"})
+
+    except Exception as e:
+        return jsonify({"error": str(e)})
 
 
 if __name__ == '__main__':
