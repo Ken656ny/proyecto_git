@@ -2402,24 +2402,15 @@ function dietas() {
             }
 
             data.mensaje.forEach(element => {
+                console.log(element);
 
-                // MAPA DE NUTRIENTES
-                const mapa = {
-                    Proteina_cruda: element.Proteina_cruda,
-                    Fosforo: element.Fosforo,
-                    Treonina: element.Treonina,
-                    Fibra_cruda: element.Fibra_cruda,
-                    Sodio: element.Sodio,
-                    Metionina: element.Metionina,
-                    Materia_seca: element.Materia_seca,
-                    Extracto_etereo: element.Extracto_etereo,
-                    Arginina: element.Arginina,
-                    Metionina_Cisteina: element.Metionina_Cisteina,
-                    Energia_metabo: element.Energia_metabo,
-                    Calcio: element.Calcio,
-                    Lisina: element.Lisina,
-                    Triptofano: element.Triptofano
-                };
+                // ⭐ MAPA DE NUTRIENTES DESDE element.elementos
+                const mapa = {};
+                if (Array.isArray(element.elementos)) {
+                    element.elementos.forEach(n => {
+                        mapa[n.nombre] = n.valor;
+                    });
+                }
 
                 // MODAL + TARJETA DEL ALIMENTO
                 alimentos_en_dieta.innerHTML += `
@@ -2437,55 +2428,55 @@ function dietas() {
       <input value="${element.nombre}" readonly>
 
       <p>Proteína cruda (%)</p>
-      <input value="${mapa.Proteina_cruda}" readonly>
+      <input value="${mapa.Proteina_cruda ?? ''}" readonly>
 
       <p>Materia seca (%)</p>
-      <input value="${mapa.Materia_seca}" readonly>
+      <input value="${mapa.Materia_seca ?? ''}" readonly>
 
       <p>Energía metabolizable (Kcal/kg)</p>
-      <input value="${mapa.Energia_metabo}" readonly>
+      <input value="${mapa.Energia_metabo ?? ''}" readonly>
     </section>
 
     <!-- Columna 2 -->
     <section class="modal-column">
       <p>Fibra cruda (%)</p>
-      <input value="${mapa.Fibra_cruda}" readonly>
+      <input value="${mapa.Fibra_cruda ?? ''}" readonly>
 
       <p>Extracto etéreo (%)</p>
-      <input value="${mapa.Extracto_etereo}" readonly>
+      <input value="${mapa.Extracto_etereo ?? ''}" readonly>
 
       <p>Calcio (%)</p>
-      <input value="${mapa.Calcio}" readonly>
+      <input value="${mapa.Calcio ?? ''}" readonly>
 
       <p>Fósforo (%)</p>
-      <input value="${mapa.Fosforo}" readonly>
+      <input value="${mapa.Fosforo ?? ''}" readonly>
     </section>
 
     <!-- Columna 3 -->
     <section class="modal-column">
       <p>Sodio (%)</p>
-      <input value="${mapa.Sodio}" readonly>
+      <input value="${mapa.Sodio ?? ''}" readonly>
 
       <p>Arginina (%)</p>
-      <input value="${mapa.Arginina}" readonly>
+      <input value="${mapa.Arginina ?? ''}" readonly>
 
       <p>Lisina (%)</p>
-      <input value="${mapa.Lisina}" readonly>
+      <input value="${mapa.Lisina ?? ''}" readonly>
 
       <p>Treonina (%)</p>
-      <input value="${mapa.Treonina}" readonly>
+      <input value="${mapa.Treonina ?? ''}" readonly>
     </section>
 
     <!-- Columna 4 -->
     <section class="modal-column">
       <p>Metionina (%)</p>
-      <input value="${mapa.Metionina}" readonly>
+      <input value="${mapa.Metionina ?? ''}" readonly>
 
       <p>Metionina + Cisteína (%)</p>
-      <input value="${mapa.Metionina_Cisteina}" readonly>
+      <input value="${mapa.Metionina_Cisteina ?? ''}" readonly>
 
       <p>Triptófano (%)</p>
-      <input value="${mapa.Triptofano}" readonly>
+      <input value="${mapa.Triptofano ?? ''}" readonly>
     </section>
 
   </div>
@@ -2498,7 +2489,6 @@ function dietas() {
 </dialog>
 
 <!-- Tarjeta del alimento -->
-
 <div class="alimentos_dietas">
 
     <!-- CÍRCULO SUPERIOR IZQUIERDO -->
@@ -2522,7 +2512,6 @@ function dietas() {
                disabled>
     </div>
 </div>
-
                 `;
             });
         })
@@ -2537,6 +2526,7 @@ function dietas() {
             alimentos_en_dieta.innerHTML = `<p>Error al cargar los alimentos.</p>`;
         });
 }
+
 function toggleInput(id) {
     const input = document.getElementById(`cantidad-${id}`);
     const boton = event.target;
