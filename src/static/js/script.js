@@ -2629,22 +2629,24 @@ function crear_alimento() {
 
         formData.append("nombre_alimento", document.getElementById("nombre").value);
 
-        const elementos = [
-            { id: 1, valor: parseFloat(document.getElementById("proteina_cruda").value) || 0 },
-            { id: 2, valor: parseFloat(document.getElementById("Treonina").value) || 0 },
-            { id: 3, valor: parseFloat(document.getElementById("fosforo").value) || 0 },
-            { id: 4, valor: parseFloat(document.getElementById("fibra_cruda").value) || 0 },
-            { id: 5, valor: parseFloat(document.getElementById("sodio").value) || 0 },
-            { id: 6, valor: parseFloat(document.getElementById("metionina").value) || 0 },
-            { id: 7, valor: parseFloat(document.getElementById("materia_seca").value) || 0 },
-            { id: 8, valor: parseFloat(document.getElementById("extracto_etereo").value) || 0 },
-            { id: 9, valor: parseFloat(document.getElementById("arginina").value) || 0 },
-            { id: 10, valor: parseFloat(document.getElementById("metionina_cistenina").value) || 0 },
-            { id: 11, valor: parseFloat(document.getElementById("calcio").value) || 0 },
-            { id: 12, valor: parseFloat(document.getElementById("lisina").value) || 0 },
-            { id: 13, valor: parseFloat(document.getElementById("triptofano").value) || 0 },
-            { id: 14, valor: parseFloat(document.getElementById("energia_m").value) || 0 }
-        ];
+const elementos = [
+    { id: 1, valor: parseFloat(document.getElementById("proteina_cruda").value) || 0 },
+    { id: 2, valor: parseFloat(document.getElementById("fosforo").value) || 0 },
+    { id: 3, valor: parseFloat(document.getElementById("treonina").value) || 0 },
+    { id: 4, valor: parseFloat(document.getElementById("fibra_cruda").value) || 0 },
+    { id: 5, valor: parseFloat(document.getElementById("sodio").value) || 0 },
+    { id: 6, valor: parseFloat(document.getElementById("metionina").value) || 0 },
+    { id: 7, valor: parseFloat(document.getElementById("materia_seca").value) || 0 },
+    { id: 8, valor: parseFloat(document.getElementById("extracto_etereo").value) || 0 },
+    { id: 9, valor: parseFloat(document.getElementById("arginina").value) || 0 },
+    { id: 10, valor: parseFloat(document.getElementById("metionina_cisteina").value) || 0 },
+    { id: 11, valor: parseFloat(document.getElementById("energia_m").value) || 0 }, // este input sigue siendo "energia_m"
+    { id: 12, valor: parseFloat(document.getElementById("calcio").value) || 0 },
+    { id: 13, valor: parseFloat(document.getElementById("lisina").value) || 0 },
+    { id: 14, valor: parseFloat(document.getElementById("triptofano").value) || 0 }
+];
+
+
         formData.append("elementos", JSON.stringify(elementos));
 
         fetch(`${URL_BASE}/registrar_alimento`, {
