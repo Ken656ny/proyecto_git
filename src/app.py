@@ -1430,6 +1430,7 @@ def consulta_individual_alimento_disponible(nombre):
 @app.route("/actualizar_alimento/<int:id_alimento>", methods=["PUT", "POST"])
 def actualizar_alimento(id_alimento):
     try:
+        # Detectar si es multipart/form-data o JSON
         if request.content_type.startswith("multipart/form-data"):
             nombre_nuevo = request.form.get("nombre")
             estado = request.form.get("estado", "Activo")
@@ -1445,6 +1446,7 @@ def actualizar_alimento(id_alimento):
         if not nombre_nuevo:
             return jsonify({"error": "El nombre del alimento es obligatorio."}), 400
 
+        # Guardar imagen si se envía
         imagen_web = None
         if imagen_file and imagen_file.filename != "":
             filename = secure_filename(imagen_file.filename)
@@ -1454,15 +1456,17 @@ def actualizar_alimento(id_alimento):
 
         with config['development'].conn() as conn:
             with conn.cursor() as cur:
-                # Obtener nombre viejo
-                cur.execute("SELECT nombre FROM alimentos WHERE id_alimento=%s", (id_alimento,))
+                # Obtener nombre y estado viejo
+                cur.execute("SELECT nombre, estado FROM alimentos WHERE id_alimento=%s", (id_alimento,))
                 fila = cur.fetchone()
                 if not fila:
                     return jsonify({"error": "El alimento no existe."}), 404
                 nombre_viejo = fila["nombre"]
+                estado_viejo = fila["estado"]
 
                 # Verificar si el nombre nuevo ya existe en otro registro
-                cur.execute("SELECT id_alimento FROM alimentos WHERE nombre=%s AND id_alimento!=%s", (nombre_nuevo, id_alimento))
+                cur.execute("SELECT id_alimento FROM alimentos WHERE nombre=%s AND id_alimento!=%s", 
+                            (nombre_nuevo, id_alimento))
                 if cur.fetchone():
                     return jsonify({"error": f"El nombre '{nombre_nuevo}' ya está en uso."}), 400
 
@@ -1488,11 +1492,21 @@ def actualizar_alimento(id_alimento):
                         ON DUPLICATE KEY UPDATE valor=VALUES(valor)
                     """, (id_alimento, elem["id_elemento"], elem["valor"]))
 
+                # Crear mensaje según el cambio
+                if nombre_nuevo != nombre_viejo:
+                    mensaje = f'El alimento "{nombre_viejo}" fue actualizado y ahora se llama "{nombre_nuevo}".'
+                elif estado.lower() != estado_viejo.lower():
+                    if estado.lower() == "inactivo":
+                        mensaje = f'El alimento "{nombre_nuevo}" fue desactivado.'
+                    else:
+                        mensaje = f'El alimento "{nombre_nuevo}" fue activado.'
+                else:
+                    mensaje = f'El alimento "{nombre_nuevo}" fue actualizado correctamente.'
+
                 # Crear notificaciones para todos los usuarios
                 cur.execute("SELECT id_usuario FROM usuario")
                 usuarios = cur.fetchall()
                 for u in usuarios:
-                    mensaje = f'El alimento "{nombre_viejo}" fue actualizado y ahora se llama "{nombre_nuevo}".'
                     cur.execute("""
                         INSERT INTO notificaciones (id_usuario_destinatario, id_usuario_origen, titulo, mensaje, tipo)
                         VALUES (%s, %s, %s, %s, %s)

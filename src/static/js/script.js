@@ -2183,6 +2183,10 @@ function consulta_alimentos() {
     fetch(`${URL_BASE}/alimentos`, { method: "GET" })
         .then(res => res.json())
         .then(data => {
+                    const totalAlimentos = data.mensaje.length;
+                    if(totalAlimentos>3){
+                        alimentos_totales.innerHTML=`Alimentos Totales: ${totalAlimentos}`;
+                    }
             contenido.innerHTML = "";
             data.mensaje.forEach(element => {
                 const mapa = {};
@@ -2192,7 +2196,7 @@ function consulta_alimentos() {
                 contenido.innerHTML += `
             <tr class="nuevo1">
                 <td class="nuevo td__border__l">
-                    <img class="svg__alimento" src="/src/static/iconos/logo alimentospng.png">
+                    <img alt="logo de trigo representando un alimento" class="svg__alimento" src="/src/static/iconos/logo alimentospng.png">
                 </td>
                 <td class="nuevo">${element.id_alimento}</td>
                 <td class="nuevo">${element.nombre}</td>
@@ -2201,20 +2205,20 @@ function consulta_alimentos() {
                 <td class="nuevo">${mapa["Energia_metabo"]}</td>
                 <td class="nuevo">${mapa["Fibra_cruda"]}</td>
                 <td class="nuevo">${element.estado}</td>
-                <td class="nuevo td__border__r">
+                <td style="margin-bottom:2%;" class="nuevo td__border__r">
 
                     <!-- Abrir modal ver -->
-                    <img src="/src/static/iconos/icon eye.svg" 
+                    <img alt="imagen de un ojo para ver" src="/src/static/iconos/icon eye.svg" 
                          onclick="abrirModal('eye', ${element.id_alimento})" 
                          class="icon-eye">
 
                     <!-- Abrir modal editar -->
-                    <img src="/src/static/iconos/edit icon.svg"  
+                    <img alt="imagen de un lapiz para editar" src="/src/static/iconos/edit icon.svg"  
                          onclick="abrirModal('edit', ${element.id_alimento})" 
                          class="icon-edit">
 
                     <!-- Abrir modal eliminar -->
-                    <img src="/src/static/iconos/delete icon.svg" 
+                    <img alt="imagen de una basura para eliminar" src="/src/static/iconos/delete icon.svg" 
                          onclick="abrirModal('dele', ${element.id_alimento})" 
                          class="icon-delete">
 
@@ -2413,6 +2417,7 @@ function consulta_individual_alimento() {
     fetch(`${URL_BASE}/consulta_indi_alimento/${nombre}`)
         .then(res => res.json())
         .then(data => {
+            alimentos_totales.innerHTML="";
             if (!data.mensaje) {
                 Swal.fire({
                     title: "Mensaje",
@@ -2616,8 +2621,8 @@ function consulta_individual_alimento() {
      Es preferible cambiar el estado del alimento a inactivo.</p>
   <span>¿Está seguro que quiere eliminar este registro?</span>
   <div class="container-button-dele1">
-    <button class="button-eliminar" onclick="eliminar_alimento(${element.id_alimento})">Eliminar</button>
-    <button class="button-cerrar" onclick="cerrarModal('dele', ${element.id_alimento})">Cancelar</button>
+    <button class="btn" onclick="eliminar_alimento(${element.id_alimento})">Eliminar</button>
+    <button class="btn" onclick="cerrarModal('dele', ${element.id_alimento})">Cancelar</button>
   </div>
 </dialog>
                 `;
@@ -3174,12 +3179,14 @@ function rellenar_etapa_vida_en_dietas() {
 }
 
 function consulta_dietas() {
-    const contenido = document.getElementById("contenido"); // tabla o div donde mostrar
+    const contenido = document.getElementById("contenido"); 
     fetch(`${URL_BASE}/dieta`, { method: "GET" })
         .then(res => res.json())
         .then(data => {
             contenido.innerHTML = "";
             data.mensaje.forEach(dieta => {
+                const Numero_Dietas =data.mensaje.length;
+                Dietas_totales.innerHTML=`Dietas Totales : ${Numero_Dietas} `;
                 contenido.innerHTML += `
                     <tr class="nuevo1">
                         <td class="nuevo td__border__l"><img class="svg__alimento" src="/src/static/iconos/ramen 1.svg">
@@ -3220,11 +3227,26 @@ function guardarDieta() {
     const id_usuario = 3; // reemplaza con el usuario logueado
     const id_etapa_vida = document.getElementById("select-etapas").value;
 
+    // Función para mostrar errores tipo toast
+    function mostrarError(mensaje) {
+        Swal.fire({
+            toast: true,
+            position: 'top-end',
+            icon: 'warning',
+            title: mensaje,
+            showConfirmButton: false,
+            timer: 2500,
+            timerProgressBar: true
+        });
+    }
+
+    // Validar etapa de vida
     if (!id_etapa_vida) {
-        Swal.fire("Error", "Debes seleccionar la etapa de vida", "warning");
+        mostrarError("Debes seleccionar la etapa de vida");
         return;
     }
 
+    // Recopilar alimentos con cantidad
     const alimentos = [];
     document.querySelectorAll(".input_dietas").forEach(input => {
         const cantidad = parseFloat(input.value);
@@ -3237,24 +3259,23 @@ function guardarDieta() {
     });
 
     if (alimentos.length === 0) {
-        Swal.fire("Error", "Debes ingresar al menos un alimento con cantidad", "warning");
+        mostrarError("Debes ingresar al menos un alimento con cantidad");
         return;
     }
 
-    // Preguntar si quiere agregar descripción
+    // Modal para agregar descripción (solo este es un modal)
     Swal.fire({
         title: '¿Quieres agregar una descripción?',
         input: 'textarea',
         inputPlaceholder: 'Escribe la descripción aquí...',
         showCancelButton: true,
         confirmButtonText: 'Guardar dieta',
-        cancelButtonText: 'No poner descripción'
+        cancelButtonText: 'No poner descripción',
+        backdrop: 'rgba(0,0,0,0.2)' // overlay ligero
     }).then((result) => {
-        let descripcion = '';
-        if (result.isConfirmed) {
-            descripcion = result.value || '';
-        }
+        const descripcion = result.isConfirmed ? (result.value || '') : '';
 
+        // Enviar datos al backend
         fetch(`${URL_BASE}/crear_dieta`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -3268,19 +3289,31 @@ function guardarDieta() {
         .then(res => res.json())
         .then(data => {
             if (data.error) {
-                Swal.fire("Error", data.error, "error");
+                // Toast de error
+                mostrarError(data.error);
             } else {
-                Swal.fire("Éxito", "Dieta creada correctamente", "success");
+                // Toast de éxito
+                Swal.fire({
+                    toast: true,
+                    position: 'top-end',
+                    icon: 'success',
+                    title: 'Dieta creada correctamente',
+                    showConfirmButton: false,
+                    timer: 2500,
+                    timerProgressBar: true
+                });
+
                 console.log("Mezcla nutricional:", data.mezcla_nutricional);
-                consulta_dietas();
+                consulta_dietas(); // actualizar lista de dietas
             }
         })
         .catch(err => {
             console.error(err);
-            Swal.fire("Error", "No se pudo guardar la dieta", "error");
+            mostrarError("No se pudo guardar la dieta");
         });
     });
 }
+
 
 // ----------------------------------funciones adicionales
 
@@ -3415,6 +3448,7 @@ cerdo.addEventListener("click", () => {
 
 function notificaciones_nuevo() {
     const endpoint = `${URL_BASE}/ultima_notificacion/3`;
+    const url_notificaciones = "/src/templates/notificaciones.html"; 
 
     if (Notification.permission !== "granted" && Notification.permission !== "denied") {
         Notification.requestPermission();
@@ -3424,10 +3458,16 @@ function notificaciones_nuevo() {
 
     function mostrarNotificacion(titulo, mensaje, id) {
         if (Notification.permission === "granted") {
-            new Notification(titulo, {
+            const noti = new Notification(titulo, {
                 body: mensaje,
                 icon: "/src/static/iconos/logo_login.png"
             });
+
+            // Evento al hacer click en la notificación
+            noti.onclick = function () {
+                window.open(url_notificaciones, "_blank"); // abre en nueva pestaña
+                noti.close();
+            };
         }
         localStorage.setItem('ultima_notificacion_id', id);
         ultimaId = id;
@@ -3470,4 +3510,3 @@ document.addEventListener("click", (e) => {
     }
 });
 
-document.getElementById("modal-eye").addEventListener("close", resetModalEye);

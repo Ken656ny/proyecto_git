@@ -91,7 +91,7 @@
             </nav>
         </div>
     </section>
-    <section class="section__porcinos section-contenido">
+    <section class="section__porcinos">
         <section class="container__logo__user">
             <div class="container__back__logo">
                 <img src="/src/static/iconos/back icon.svg" alt="icon back" class="icon__back">
@@ -139,9 +139,9 @@
 
         </div>
 
-        <section class="container container__registros">
+        <section class="container__registros">
             <table class="table__registros_dietas">
-                <thead class="tabla-dietas">
+                <thead>
                     <tr>
                         <th></th>
                         <th>ID</th>
@@ -152,16 +152,25 @@
                         <th>Acciones</th>
                     </tr>
                 </thead>
-                <tbody class="registros_dietas" id="contenido">
+                <tbody class="registros" id="contenido">
+                    <tr>
+                        <td>
 
+                        </td>
+                    </tr>
                 </tbody>
             </table>
+                <div class="paginacion_alimentos">
+                <p id="Dietas_totales"></p>
+            </div>
         </section>
     </section>
+
     <script src="/src/static/js/script.js"></script>
     <script>
         consulta_dietas();
         notificaciones_nuevo();
+        timesleep();
     </script>
 </body>
 

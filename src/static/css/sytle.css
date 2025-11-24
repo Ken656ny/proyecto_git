@@ -56,7 +56,6 @@ SECCION DE LOGIN
     background: url("/src/static/iconos/background_login.svg") center / cover no-repeat fixed;
     height: 100vh;
 }
-/*Creo el body2 para poder controlar con un flexbox el conetendor de mi inicio de sesion*/
 .body_overlay{
     background-color: #000000a1;
     display: flex;
@@ -730,7 +729,7 @@ SECCION DE PORCINOS
     display: grid;
     grid-template-columns: repeat(3,1fr);
     grid-template-rows: repeat(2,1fr);
-    gap: 10px; /* espacio entre tarjetas */
+    gap: 10px; 
     padding: 10px;
     overflow-y: auto;
     overflow-x: hidden;
@@ -780,21 +779,20 @@ SECCION DE PORCINOS
 }
 .sin_imagen_alimento_dieta {
     border-radius: 5px;
-    width: 200px;   /* más grande */
+    width: 200px;   
     height: 210px;
     object-fit: contain;
         object-fit: over;
 }
 .imagen_alimento_dieta img,
 .sin_imagen_alimento_dieta {
-    width: 158px;       /* ancho fijo */
-    height: 104px;      /* alto fijo */
+    width: 158px;       
+    height: 104px;      
     border-radius: 5px;
 }
 
 
 
-/* CODIGO DE LA BARRA DE BUSQUEDA */
 
 .container__search__bar{
     border: 1px solid var(--color-bor-contain);
@@ -946,13 +944,13 @@ label.contenedor{
 .requisitos_nutricionales1 h5 label,
 .columnas_nutricionales1 h5 label {
     display: inline-block;
-    width: 20px;     /* Puedes subir o bajar este valor */
+    width: 20px;     
     text-align: left;
 }
 
 
 .columnas_nutricionales p {
-    text-align: left !important; /* Por si algún estilo lo sobreescribe */
+    text-align: left !important; 
 }
 
 .container_requerimientos_etapa{
@@ -2293,16 +2291,7 @@ DIETASSSSSSSS
 }
 
 /* 🔝 Asegura que el SweetAlert esté por encima de todos tus modales */
-.swal2-container {
-  position: fixed !important;
-  z-index: 999999 !important;
-  inset: 0 !important;
-}
 
-.swal2-popup {
-  z-index: 1000000 !important;
-  position: relative !important;
-}
 
 /* 🔝 Elimina prioridad visual de tus contenedores de botones */
 .container-button-dele1 {
@@ -2576,6 +2565,21 @@ RESPONSIVE BAR
     background-color: #e0e0e0; /* opcional: color más gris */
     cursor: not-allowed; /* muestra que no se puede usar */
 }
+.paginacion_alimentos {
+    position: sticky;  /* Mantener visible al hacer scroll */
+    bottom: 0;         /* Pegado al fondo de su contenedor */
+    background-color: #D9D9D9; /* Fondo para que no se vea detrás de filas */
+    padding: 5px;
+    z-index: 10;  
+    color: #2C3D31;
+    font-weight: bold;
+        font-family: var(--fuente--contenido);
+        text-align: left;
+}
+.paginacion_alimentos p {
+    margin-left: 2%;
+}
+
 
 /* -----------------------------------------------------
    📱 REGISTRO — Ajustes responsive para móviles y tablets
@@ -2684,4 +2688,16 @@ RESPONSIVE BAR
     .rancho {
         width: 28vw;
     }
+}
+.swal2-container {
+  position: fixed !important;
+  z-index: 999999 !important;
+  inset: 0 !important;
+
+}
+
+.swal2-popup {
+  z-index: 1000000 !important;
+  position: relative !important;
+  
 }
