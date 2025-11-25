@@ -40,7 +40,7 @@ def generar_token(usuario, es_google=False):
         "correo": usuario["correo"],
         "es_google": es_google,
         "rol": usuario.get("rol", "Aprendiz"),
-        "exp": datetime.now(timezone.utc) + timedelta(minutes=60)
+        "exp": datetime.now(timezone.utc) + timedelta(minutes=120)
     }
     token = jwt.encode(payload, app.secret_key, algorithm="HS256")
     return token

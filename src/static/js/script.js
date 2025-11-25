@@ -1882,7 +1882,7 @@ function esAprendiz() {
 }
 
 // Función específica para aprendices
-function verificarPorcino() {
+function verificarRol() {
     if (esAprendiz()) {
         Swal.fire({
             title: "Acceso No Autorizado",
@@ -1902,9 +1902,9 @@ function verificarPorcino() {
     return true;
 }
 
-// Función para manejar el clic en Porcinos
-function manejarClickPorcino(event) {
-    if (!verificarPorcino()) {
+// Función para manejar las restricciones
+function manejarClickRol(event) {
+    if (!verificarRol()) {
         event.preventDefault(); // Evita la redirección
         event.stopPropagation(); // Evita que otros eventos se ejecuten
         return false;
@@ -1919,5 +1919,4 @@ document.addEventListener('DOMContentLoaded', function() {
     crearDialogRegistrarRaza();
     crearDialogRegistrarEtapa();
     crearDialogActualizarPesoHistorial();
-
 });
