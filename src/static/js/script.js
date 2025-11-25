@@ -3096,28 +3096,69 @@ function toggleInput(id) {
         boton.classList.remove("activo");
     }
 }
-function grafica() {
-const ctx = document.getElementById('nutricionCircular').getContext('2d');
-const data = {
-    labels: ["Cubierto", "Faltante"],
-    datasets: [{
-        label: "Total Nutrientes",
-        data: [3343.02, 156.98],
-        backgroundColor: ["#4caf50", "#f44336"],
-        hoverOffset: 4
-    }]
-};
 
-const config = {
-    type: 'pie', // o 'doughnut' si quieres hueco en el centro
-    data: data,
-    options: {
-        responsive: true
-    }
-};
+let graficoMezcla = null;
 
-new Chart(ctx, config);
+function inicializarGraficoVacio() {
+    const canvas = document.getElementById("graficoMezcla");
+    if (!canvas) return;
+
+    canvas.width = 200;
+    canvas.height = 200;
+    const ctx = canvas.getContext("2d");
+
+    graficoMezcla = new Chart(ctx, {
+        type: 'pie',
+        data: {
+            labels: ['Sin datos'],
+            datasets: [{
+                data: [1],
+                backgroundColor: ['#E0E0E0'] // gris claro
+            }]
+        },
+        options: {
+            responsive: false,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false },
+                tooltip: {
+                    enabled: true,
+                    callbacks: {
+                        label: function(context) {
+                            return context.label;
+                        }
+                    }
+                }
+            }
+        }
+    });
 }
+
+function actualizarGraficoMezcla(mezcla) {
+    if (!graficoMezcla) return;
+
+    const labels = Object.keys(mezcla);
+    const valores = Object.values(mezcla).map(v => Number(v) || 0);
+
+    graficoMezcla.data.labels = labels;
+    graficoMezcla.data.datasets[0].data = valores;
+    graficoMezcla.data.datasets[0].backgroundColor = [
+        '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', 
+        '#9966FF', '#FF9F40', '#C9CBCF', '#8BC34A',
+        '#E91E63', '#03A9F4', '#FFC107', '#9C27B0',
+        '#00BCD4', '#FF5722'
+    ];
+
+    
+    graficoMezcla.options.plugins.tooltip.callbacks.label = function(context) {
+        const label = context.label || "Nutriente";
+        const value = context.parsed || 0;
+        return `${label}: ${value}`;
+    };
+
+    graficoMezcla.update(); 
+}
+
 function rellenar_etapa_vida_en_dietas() {
     fetch(`${URL_BASE}/etapa_vida`)
         .then(res => res.json())

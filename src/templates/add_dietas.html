@@ -164,7 +164,7 @@
 
                 </div>
             </div>
-            <canvas id="nutricionCircular" width="100px" height="100px"></canvas>
+            <canvas id="graficoMezcla" width="50px" height="50px"></canvas>
 
 
             </canvas>
@@ -211,8 +211,8 @@
     <script>
         dietas();
         rellenar_etapa_vida_en_dietas();
-        grafica();
         timesleep();
+        inicializarGraficoVacio();
         const h5Mapping = {
             "MS": "materia_seca_label",
             "EM-C": "energia_metabolizable_label",
@@ -265,6 +265,7 @@
                             }
                         }
                     }
+                                actualizarGraficoMezcla(data.mezcla_nutricional);
                 })
                 .catch(err => console.error(err));
         }
