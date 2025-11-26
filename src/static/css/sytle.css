@@ -49,6 +49,13 @@ body{
     width: 100%;
     margin: 0;
 }
+
+.swal2-popup {
+    font-family: 'Inter' !important; 
+    font-size: 16px; 
+}
+
+
 /* -------------------
 SECCION DE LOGIN
 ------------------- */

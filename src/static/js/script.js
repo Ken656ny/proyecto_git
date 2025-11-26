@@ -1479,64 +1479,64 @@ function ContrasenaRobusta(password) {
 }
 
 async function registro_usuarios(event) {
-  event.preventDefault();
-  try {
-    const nombre = document.getElementById('fname').value;
-    const tipo_identificacion = document.getElementById('tipo_identificacion').value;
-    const numero_identificacion = document.getElementById('n.i').value;
-    const correo = document.getElementById('correo').value;
-    const contraseña = document.getElementById('password').value;
-    const constraseña_confirm = document.getElementById('confirmPassword').value;
-    
-    if (!ContrasenaRobusta(contraseña)) {
-      Swal.fire({
-        title: "Contraseña débil",
-        html: `
-            <div style="text-align: left;">
-                <p>Tu contraseña debe contener:</p>
-                <ul>
-                    <li> Mínimo 8 caracteres</li>
-                    <li> Una letra mayúscula</li>
-                    <li> Una letra minúscula</li>
-                    <li> Un número</li>
-                    <li> Un carácter especial</li>
-                </ul>
-            </div>
-        `,
-        icon: "error",
-        confirmButtonText: "Entendido",
-        confirmButtonColor: "#60836a"
-      });
-      return;
-    }
+    event.preventDefault();
+    try {
+        const nombre = document.getElementById('fname').value;
+        const tipo_identificacion = document.getElementById('tipo_identificacion').value;
+        const numero_identificacion = document.getElementById('n.i').value;
+        const correo = document.getElementById('correo').value;
+        const contraseña = document.getElementById('password').value;
+        const constraseña_confirm = document.getElementById('confirmPassword').value;
+        
+        if (!ContrasenaRobusta(contraseña)) {
+            Swal.fire({
+            title: "Contraseña débil",
+            html: `
+                <div style="text-align: left;">
+                    <p>Tu contraseña debe contener:</p>
+                    <ul>
+                        <li> Mínimo 8 caracteres</li>
+                        <li> Una letra mayúscula</li>
+                        <li> Una letra minúscula</li>
+                        <li> Un número</li>
+                        <li> Un carácter especial</li>
+                    </ul>
+                </div>
+            `,
+            icon: "error",
+            confirmButtonText: "Entendido",
+            confirmButtonColor: "#60836a"
+        });
+        return;
+        }
 
 
     if (constraseña_confirm !== contraseña) {
-      Swal.fire({
-        title: "Mensaje",
-        text: `Las contraseñas no coinciden`,
-        icon: "error",
-        scrollbarPadding: false
-      });
-      return;
+        Swal.fire({
+            title: "Mensaje",
+            text: `Las contraseñas no coinciden`,
+            icon: "error",
+            scrollbarPadding: false
+        });
+        return;
     }
 
 
     const user = {
-      numero_identificacion: numero_identificacion,
-      nombre: nombre,
-      correo: correo,
-      contraseña: contraseña,
-      estado: "Activo",
-      id_tipo_identificacion: tipo_identificacion,
+        numero_identificacion: numero_identificacion,
+        nombre: nombre,
+        correo: correo,
+        contraseña: contraseña,
+        estado: "Activo",
+        id_tipo_identificacion: tipo_identificacion,
     };
 
     const response = await fetch(`${URL_BASE}/users`, {
-      method: 'POST',
-      body: JSON.stringify(user),
-      headers: {
-        "Content-type": "application/json"
-      }
+        method: 'POST',
+        body: JSON.stringify(user),
+        headers: {
+            "Content-type": "application/json"
+        }
     });
 
     const data = await response.json();
@@ -1553,25 +1553,25 @@ async function registro_usuarios(event) {
 }
 
     Swal.fire({
-      title: "Mensaje",
-      text: `Usuario registrado correctamente. Ahora inicia sesión`,
-      icon: "success",
-      timer: 1700,
-      showConfirmButton: false
+        title: "Mensaje",
+        text: `Usuario registrado correctamente. Ahora inicia sesión`,
+        icon: "success",
+        timer: 1700,
+        showConfirmButton: false
     }).then(() => {
-      localStorage.setItem("usuario", JSON.stringify({
-        nombre: nombre,
-        numero_identificacion: numero_identificacion,
-        correo: correo
-      }));
-      location.href = "index.html";
+        localStorage.setItem("token", data.token);
+        localStorage.setItem("usuario", JSON.stringify({
+            nombre: nombre,
+            numero_identificacion: numero_identificacion,
+            correo: correo
+        }));
+        location.href = "index.html";
     });
 
-  } catch (error) {
-    console.error(error);
-  }
+    } catch (error) {
+        console.error(error);
+    }
 }
-
 
 async function login() {
     try {

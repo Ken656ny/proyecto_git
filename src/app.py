@@ -114,28 +114,61 @@ def login():
         
         with config['development'].conn() as conn:
             with conn.cursor() as cur:
-                cur.execute('SELECT id_usuario as numero_identificacion, nombre, correo, contrasena, rol FROM usuario WHERE correo = %s', (correo,))
+                cur.execute('''
+                    SELECT id_usuario, nombre, numero_identificacion, correo, contrasena, rol, 
+                            intentos_fallidos, bloqueado_hasta
+                    FROM usuario WHERE correo = %s
+                ''', (correo,))
                 user = cur.fetchone()
         
-        if user:
-            if check_password_hash(user['contrasena'], contraseña):
-                token = generar_token(user, es_google=False)
-                return jsonify({
-                    'Mensaje': 'Las credenciales son correctas',
-                    'token': token,
-                    'nombre': user['nombre'],
-                    'numero_identificacion': user['numero_identificacion'],
-                    'correo': user['correo'],
-                    'rol': user['rol']
-                }), 200
-            else:
-                return jsonify({'Mensaje': 'Contraseña incorrecta'}), 401
-        else:
+        if not user:
             return jsonify({'Mensaje': 'Usuario no encontrado'}), 404
-        
+
+        if user['bloqueado_hasta'] and datetime.now() < user['bloqueado_hasta']:
+            return jsonify({'Mensaje': 'Usuario bloqueado, intente más tarde'}), 403
+
+        if check_password_hash(user['contrasena'], contraseña):
+            with config['development'].conn() as conn:
+                with conn.cursor() as cur:
+                    cur.execute('''
+                        UPDATE usuario 
+                        SET intentos_fallidos = 0, bloqueado_hasta = NULL 
+                        WHERE id_usuario = %s
+                    ''', (user['id_usuario'],))
+                    conn.commit()
+
+            token = generar_token(user, es_google=False)
+            return jsonify({
+                'Mensaje': 'Las credenciales son correctas',
+                'token': token,
+                'nombre': user['nombre'],
+                'numero_identificacion': user['numero_identificacion'],
+                'correo': user['correo'],
+                'rol': user['rol']
+            }), 200
+        else:
+            intentos = user['intentos_fallidos'] + 1
+            bloqueado_hasta = None
+
+            if intentos >= 5:
+                bloqueado_hasta = datetime.now() + timedelta(minutes=1)
+                intentos = 0  
+
+            with config['development'].conn() as conn:
+                with conn.cursor() as cur:
+                    cur.execute('''
+                        UPDATE usuario 
+                        SET intentos_fallidos = %s, bloqueado_hasta = %s 
+                        WHERE id_usuario = %s
+                    ''', (intentos, bloqueado_hasta, user['id_usuario']))
+                    conn.commit()
+
+            return jsonify({'Mensaje': 'Contraseña incorrecta'}), 401
+
     except Exception as err:
         print(f"Error en login: {err}")
         return jsonify({'Mensaje': 'Error al consultar Usuario'}), 500
+
 
 # RUTA DE REGISTRO CON GOOGLE
 @app.route('/api/auth/google', methods=['POST'])
