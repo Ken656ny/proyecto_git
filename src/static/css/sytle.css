@@ -415,6 +415,13 @@ BARRA LATERAL
     overflow-y: auto;
     overflow-x: hidden;
 }
+.navegacion{
+    overflow: auto;
+
+}
+.navegacion::-webkit-scrollbar{
+    display: none;
+}
 
 .barra-lateral .navegacion ul{
     display: flex;
@@ -2575,11 +2582,30 @@ RESPONSIVE BAR
     font-weight: bold;
         font-family: var(--fuente--contenido);
         text-align: left;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
 }
 .paginacion_alimentos p {
     margin-left: 2%;
 }
 
+.ayuda {
+    position: fixed;
+    bottom: 2px;   /* separación del borde */
+    right: 2px;
+    color: #fff;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: transform 0.5s ease-in;
+}
+.ayuda:hover{
+    transform: scale(1.07);
+}
+.tour-modal-onbackground{
+    background-color: transparent;
+}
 
 /* -----------------------------------------------------
    📱 REGISTRO — Ajustes responsive para móviles y tablets
