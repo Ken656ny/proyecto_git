@@ -233,6 +233,12 @@ async function openModalEye(type, id) {
         await cargarInfoEtapa(id, content);
     }
 
+    if(type === 'tran_peso'){
+        title.textContent = "Información de la Trasacción";
+        content.classList.add("info_raza_etapa");
+        await cargarInfoHistorial(id, content);
+    }
+
     modal.showModal();
 
 }
@@ -480,6 +486,63 @@ async function cargarInfoEtapa(id, container) {
 
     </div>
     
+    `;
+}
+
+async function cargarInfoHistorial(id, container) {
+    const data = await consulta_individual_transaccion(id, false);
+    console.log(data.Historial)
+    
+    const h = data.Historial;
+    //FECHA FORMATEADA DOCUMENTO
+    let fecha_documento = h.fecha_documento
+    let fecha_doc = new Date(fecha_documento)
+    const fecha_formateada_doc = fecha_doc.toISOString().split("T")[0];
+
+
+    //FECHA FORMATEADA PESAJE
+    let fecha_pesaje = h.fecha_pesaje
+    let fecha_pes = new Date(fecha_pesaje)
+    const fecha_formateada_pesaje = fecha_pes.toISOString().split("T")[0];
+
+
+    container.innerHTML = `
+
+    <div class="lay_content_histirial">
+        <div class="container__label__input">
+            <label>ID</label>
+            <input type="text" value="${h.id_documento}" readonly>
+        </div>
+            
+        <div class="container__label__input">
+            <label>Fecha Documento</label>
+            <input type="text" value="${fecha_formateada_doc}" readonly>
+        </div>
+            
+        <div class="container__label__input">
+            <label>Fecha Pesaje</label>
+            <input type="text" value="${fecha_formateada_pesaje}" readonly>
+        </div>
+
+        <div class="container__label__input">
+            <label>ID Porcino</label>
+            <input type="text" value="${h.id_porcino}" readonly>
+        </div>
+        
+        <div class="container__label__input">
+            <label>Peso Registrado (Kg)</label>
+            <input type="text" value="${h.peso_final}" readonly>
+        </div>
+        
+        <div class="container__label__input">
+            <label>Usuario</label>
+            <input type="text" value="${h.nombre}" readonly>
+        </div>
+        
+        <textarea id="textare_eye_historial" readonly>
+            ${h.descripcion}
+        </textarea>
+    </div>
     `;
 }
 
@@ -1228,7 +1291,6 @@ function mostrar_historial(historial){
 
 function crearFilaHistorial(item){
     const uniqueId = item.id_documento;
-    crearDialogEyeHistorial(item,uniqueId)
     return `
         <tr class="registro registro__dia">
             <td class="td__border__l"> ${item.id_documento} </td>
@@ -1236,7 +1298,7 @@ function crearFilaHistorial(item){
             <td> ${item.peso_final} </td>
             <td> ${item.fecha_pesaje} </td>
             <td class="td__border__r">
-                <img src="/src/static/iconos/icon eye.svg" alt="" class="icon-eye" onclick="abrirDialog('dialog-eye-historial-${uniqueId}')">
+                <img src="/src/static/iconos/icon eye.svg" alt="" class="icon-eye" data-id="${uniqueId}" data-type = "tran_peso">
             </td>
         </tr>
     `;
@@ -1368,44 +1430,44 @@ function actualizarPreview(porcino, peso, elementoTexto) {
     `;
 }
 
-function crearDialogEyeHistorial(item, uniqueId){
-    const campos = [
-        {label: 'ID', value: item.id_documento, id: 'id-documento'},
-        {label: 'Fecha Documento', value: item.fecha_documento, id: 'fecha-documento-eye'},
-        {label: 'Fecha Pesaje', value: item.fecha_pesaje, id: 'fecha-pesaje-eye'},
-        {label: 'ID porcino', value: item.id_porcino, id: 'id-porcino-eye'},
-        {label: 'Peso registrado', value: item.peso_final, id: 'peso-registrado-eye'},
-        {label: 'Usuario', value: item.nombre, id: 'nombre-usuario-eye'},
-        {label: 'Descripcion', value: item.descripcion, id: 'descripcion-eye'},
-    ]
+// function crearDialogEyeHistorial(item, uniqueId){
+//     const campos = [
+//         {label: 'ID', value: item.id_documento, id: 'id-documento'},
+//         {label: 'Fecha Documento', value: item.fecha_documento, id: 'fecha-documento-eye'},
+//         {label: 'Fecha Pesaje', value: item.fecha_pesaje, id: 'fecha-pesaje-eye'},
+//         {label: 'ID porcino', value: item.id_porcino, id: 'id-porcino-eye'},
+//         {label: 'Peso registrado', value: item.peso_final, id: 'peso-registrado-eye'},
+//         {label: 'Usuario', value: item.nombre, id: 'nombre-usuario-eye'},
+//         {label: 'Descripcion', value: item.descripcion, id: 'descripcion-eye'},
+//     ]
 
-    const camposHTML = campos.map(campo => {
-        if (campo.label === 'Descripcion'){
-            return `
-            <textarea id="textare_eye_historial" readonly>
-                ${item.descripcion}
-            </textarea>
-            `
-        }else{
-            return `
-            <div class = "container__label__input">
-                <label for="${campo.id}-${uniqueId}">${campo.label}</label>
-                <input type="text" class="campo-info" id="${campo.id}-${uniqueId}" placeholder="${campo.value}" readonly>
-            </div>
-            `
-        }
-    }
-    ).join('');
+//     const camposHTML = campos.map(campo => {
+//         if (campo.label === 'Descripcion'){
+//             return `
+//             <textarea id="textare_eye_historial" readonly>
+//                 ${item.descripcion}
+//             </textarea>
+//             `
+//         }else{
+//             return `
+//             <div class = "container__label__input">
+//                 <label for="${campo.id}-${uniqueId}">${campo.label}</label>
+//                 <input type="text" class="campo-info" id="${campo.id}-${uniqueId}" placeholder="${campo.value}" readonly>
+//             </div>
+//             `
+//         }
+//     }
+//     ).join('');
     
     
-    const HTML = `
-        <div class="lay_content_histirial">
-            ${camposHTML}
-        </div>
-    `
+//     const HTML = `
+//         <div class="lay_content_histirial">
+//             ${camposHTML}
+//         </div>
+//     `
 
-    return crearDialogBaseRaza(`dialog-eye-historial-${uniqueId}`, 'dialog-icon-eye', 'Informacion de la transacción', HTML, 'Cerrar', 'button-cerrar', uniqueId, 'cerrarDialog',`dialog-eye-historial-${uniqueId}`);
-}
+//     return crearDialogBaseRaza(`dialog-eye-historial-${uniqueId}`, 'dialog-icon-eye', 'Informacion de la transacción', HTML, 'Cerrar', 'button-cerrar', uniqueId, 'cerrarDialog',`dialog-eye-historial-${uniqueId}`);
+// }
 
 async function consulta_gen_historial_pesos(){
     try {
@@ -1417,7 +1479,6 @@ async function consulta_gen_historial_pesos(){
                 }
             })
         const response = await promesa.json();
-        
         if (promesa.status == 200){
             mostrar_historial(response)
         } else {
@@ -1429,6 +1490,28 @@ async function consulta_gen_historial_pesos(){
         }
         return response
     } catch (error) {
+        console.error(error)
+    }
+}
+
+async function consulta_individual_transaccion(id, mostrar=false) {
+    try{
+        const promesa = await fetch(`${URL_BASE}/porcino/historial_pesos/transaccion/${id}`);
+        const response = await promesa.json()
+        if (response.Mensaje === `No se econtró la transacción`){
+            cerrarDialog('dialog__his__peso');
+            Swal.fire({
+                title: "Mensaje",
+                text: response.Mensaje,
+                icon: "error"
+            });
+            return null;
+        }
+        if (mostrar){
+            mostrar_historial(response)
+        }
+        return response
+    }catch(error){
         console.error(error)
     }
 }

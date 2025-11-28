@@ -303,7 +303,37 @@ def consulta_general_historial_pesos():
     print(err)
     return jsonify({'Mensaje': 'Error'}), 500
 
-
+@app.route("/porcino/historial_pesos/transaccion/<int:id>", methods = ['GET'])
+def consulta_indi_transaccion(id):
+  """
+  Consultar individualmente la transaccion de pesos
+  ---
+  tags:
+    - Porcinos Historial
+  responses:
+    200:
+      description: Lista de la transaccion de pesos registrada
+  """
+  try:
+    with config['development'].conn() as conn:
+      with conn.cursor() as cur:
+        cur.execute("""
+                    SELECT tp.id_documento,tp.fecha_documento,tp.fecha_pesaje,tp.id_porcino,tp.peso_final,u.nombre,tp.descripcion
+                    FROM transaccion_peso tp
+                    JOIN usuario u
+                    ON tp.id_usuario = u.id_usuario
+                    WHERE tp.id_documento = %s
+                    ORDER BY fecha_documento DESC
+                    """, (id))
+        historial = cur.fetchone()
+        if historial:
+          return jsonify({'Historial': historial, 'Mensaje': 'Transaccion Consultada'})
+        else:
+          return jsonify({'Mensaje': 'No se econtró la transacción'})
+  except Exception as err:
+    print(err)
+    return jsonify({'Mensaje': 'Error'}), 500
+  
 
 
 #Rura para consultar el historial de pesos de un solo porcino
