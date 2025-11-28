@@ -303,6 +303,9 @@ def consulta_general_historial_pesos():
     print(err)
     return jsonify({'Mensaje': 'Error'}), 500
 
+
+
+
 #Rura para consultar el historial de pesos de un solo porcino
 @app.route('/porcino/historial_pesos/<int:id>', methods = ['GET'])
 def consulta_porcino_historial(id):

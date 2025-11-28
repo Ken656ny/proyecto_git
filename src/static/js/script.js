@@ -7,6 +7,32 @@ document.addEventListener('DOMContentLoaded', function() {
     crearDialogActualizarPesoHistorial();
 });
 
+// CACHE UTILIZADO PARA RAZAS Y ETAPAS
+const cache = {};
+
+// FUNCION PARA RETORNAR EL CACHE O GUARDARLO SI NO EXISTE
+async function cargar_cache(key, funcion) {
+    if (!cache[key]){
+        cache[key] = funcion();
+    }
+    return cache[key]
+}
+
+// FUNCION PARA OBTENER LAS RAZAS DESDE EL CACHE
+function consultar_razas_cache() {
+    return cargar_cache("razas", consultar_razas)
+}
+
+// FUNCION PARA OBTENER LAS ETAPAS DESDE EL CACHE
+function consultar_etapas_cache() {
+    return cargar_cache("etapas", consultar_etapas)
+}
+
+function consultar_porcinos_cache() {
+    return cargar_cache("porcinos", consulta_general_porcinos)
+}
+
+
 // REDIRECCION DE FORMA LENTA HACIA LOS HTML
 
 function redirectWithDelay(event, url) {
@@ -130,7 +156,6 @@ async function login() {
     }
 }
 
-
 // Funciones para abrir y cerrar diálogos
 function abrirDialog(dialogId) {
     const dialog = document.getElementById(dialogId);
@@ -146,252 +171,35 @@ function cerrarDialog(dialogId) {
     }
 }
 
-function llenarSelectDesdeLista(lista, selectId, valorSeleccionado, keyId, keyNombre, placeholder = "") {
-    const select = document.getElementById(selectId);
-    if (!select) return;
+function crear_opciones_select(tipo, lista, valor_actual){
+    let id_actual = "";
 
-    select.innerHTML = ""; // limpiar
-
-    // Si hay un placeholder, agregarlo primero
-    if (placeholder && placeholder.trim() !== "") {
-        const option_place = document.createElement("option");
-        option_place.value = "";
-        option_place.textContent = placeholder;
-        option_place.disabled = true;
-        option_place.selected = !valorSeleccionado; // seleccionado si no hay valor
-        select.appendChild(option_place);
+    if (tipo.toLowerCase() === "razas"){
+        const raza = lista.razas.find(r => r.nombre === valor_actual)
+        id_actual = raza ? raza.id_raza : "";
     }
 
-    // Agregar opciones desde la lista
-    lista.forEach(item => {
-        const option = document.createElement("option");
-        option.value = item[keyId];
-        option.textContent = item[keyNombre];
+    if (tipo.toLowerCase() === "etapas"){
+        const etapa = lista.etapas.find(e => e.nombre === valor_actual)
+        id_actual = etapa ? etapa.id_etapa : "";
+    }
 
-        if (item[keyId] == valorSeleccionado || item[keyNombre] == valorSeleccionado) {
-            option.selected = true;
-        }
 
-        select.appendChild(option);
-    });
+    let html = `<option value="${id_actual}" selected>${valor_actual}</option>`
+    if (tipo.toLowerCase() === "razas"){
+        lista.razas.forEach(item => {
+            html += `<option value="${item.id_raza}">${item.nombre}</option>`
+        })
+    }
+    if (tipo.toLowerCase() === "etapas"){
+        lista.etapas.forEach(item => {
+            html += `<option value="${item.id_etapa}">${item.nombre}</option>`
+        })
+    }
+    return html
 }
 
-
-
-// -------------------
-// GESTION DE PORCINOS
-// -------------------
-
-
-// CONSUMO DE DATOS DE LOS PORCINOS REGISTRADOS
-function mostrar_porcinos(porcinos) {
-    const info = porcinos.Porcinos.map(item => crearFilaPorcino(item)).join('');
-    document.getElementById('info_porcinos').innerHTML = info;
-}
-
-function crearFilaPorcino(item) {
-    const uniqueId = item.id_porcino;
-    return `
-        <tr class="registro" porcino-id="${uniqueId}">
-            <td class="td__border__l">
-                <img src="/src/static/iconos/registro pig.svg" alt="" class="svg__pig">
-            </td>
-            <td>${item.id_porcino}</td>
-            <td>${item.sexo}</td>
-            <td>${item.raza}</td>
-            <td>${item.etapa}</td>
-            <td>${item.peso_final} KG</td>
-            <td>${item.estado}</td>
-            <td class="td__border__r">
-                ${crearIconosAcciones(uniqueId)}
-            </td>
-        </tr>`;
-}
-
-function crearIconosAcciones(id) {
-    return `
-        <img src="/src/static/iconos/icono eye.svg" class="icon-eye" data-id="${id}" data-type="porcino">
-        <img src="/src/static/iconos/edit icon.svg" class="icon-edit" data-id="${id}" data-type="porcino">
-        <img src="/src/static/iconos/delete icon.svg" class="icon-delete" data-id="${id}" data-type="porcino">
-    `;
-}
-
-// function crearDialogEye(item, uniqueId) {
-//     let fechaBD = item.fecha_nacimiento
-//     let fecha = new Date(fechaBD)
-//     let fecha_formateada = fecha.toISOString().split("T")[0];
-//     const campos = [
-//         { label: 'ID', value: item.id_porcino, id: 'ID' },
-//         { label: 'Peso inicial', value: `${item.peso_inicial} KG`, id: 'Peso-ini' },
-//         { label: 'Peso final', value: `${item.peso_final} KG`, id: 'Peso-fin' },
-//         { label: 'Fecha de nacimiento', value: fecha_formateada, id: 'Fecha-naci' },
-//         { label: 'Sexo', value: item.sexo, id: 'Sexo' },
-//         { label: 'Raza', value: item.raza, id: 'Raza' },
-//         { label: 'Etapa de vida', value: item.etapa, id: 'Etapa-vida' },
-//         { label: 'Descripción', value: item.descripcion, id: 'Descri' },
-//         { label: 'Estado', value: item.estado, id: 'Estado' }
-//     ];
-
-//     const camposHTML = campos.map(campo => `
-//     <div class = "container__label__input">
-//         <label for="${campo.id}-${uniqueId}">${campo.label}</label>
-//         <input type="text" class="campo-info" id="${campo.id}-${uniqueId}" placeholder="${campo.value}" readonly>
-//     </div>
-//     `).join('');
-
-//     return crearDialogBase(`dialog-eye-${uniqueId}`, 'dialog-icon-eye', 'Informacion del Porcino', camposHTML, 'Cerrar', 'button-cerrar', uniqueId,'prueba');
-// }
-
-// function crearDialogEdit(item, uniqueId){
-//     let fechaBD = item.fecha_nacimiento
-//     let fecha = new Date(fechaBD)
-//     let fecha_formateada = fecha.toISOString().split("T")[0];
-//     const camposEditables = [
-//         { label: 'ID', value: item.id_porcino, editable: false },
-//         { label: 'Peso inicial', value: item.peso_inicial, editable: true },
-//         { label: 'Peso final', value: item.peso_final, editable: false },
-//         { label: 'Fecha de nacimiento', value: fecha_formateada, editable: true },
-//         { label: 'Sexo', value: item.sexo, editable: true },
-//         { label: 'Raza', value: item.raza, editable: true },
-//         { label: 'Etapa de vida', value: item.etapa, editable: true },
-//         { label: 'Descripcion', value: item.descripcion, editable: true },
-//         { label: 'Estado', value: item.estado, editable: true }
-//     ];
-
-//     const camposHTML = camposEditables.map(campo => {
-//         const fieldId = campo.label.replace(/\s+/g, '-') + '-'+ 'actualizar' + '-' + uniqueId;
-//         if (campo.label === 'Raza' || campo.label === 'Etapa de vida') {
-//         return `
-//             <div class="container__label__input">
-//                 <label for="${fieldId}">${campo.label}</label>
-//                 <div class="container-inputs">
-//                     <select id="${fieldId}" ${campo.editable ? '' : 'disabled'}>
-//                         <option value="">Cargando...</option>
-//                     </select>
-//                     ${campo.editable ? crearIconoEdit() : ''}
-//                 </div>
-//             </div>
-//         `;
-//     } else if (campo.label === "Fecha de nacimiento") {
-//         return `
-//             <div class="container__label__input">
-//                 <label for="${fieldId}">${campo.label}</label>
-//                 <div class="container-inputs">
-//                     <input type="date" id="${fieldId}" value="${campo.value}" ${campo.editable ? '' : 'disabled'}>
-//                     ${campo.editable ? crearIconoEdit() : ''}
-//                 </div>
-//             </div>
-//         `;
-//     } else if (campo.label === "Sexo"){
-//         return `
-//             <div class="container__label__input">
-//                 <label for="${fieldId}">${campo.label}</label>
-//                 <div class="container-inputs">
-//                     <select id="${fieldId}" ${campo.editable ? '' : 'disabled'}>
-//                         <option value="${campo.value}">${campo.value}</option>
-//                         <option value="Macho">Macho</option>
-//                         <option value="Hembra">Hembra</option>
-//                     </select>
-//                     ${campo.editable ? crearIconoEdit() : ''}
-//                 </div>
-//             </div>
-//         `;
-//     } else if (campo.label === "Estado"){
-//         return `
-//             <div class="container__label__input">
-//                 <label for="${fieldId}">${campo.label}</label>
-//                 <div class="container-inputs">
-//                     <select id="${fieldId}" ${campo.editable ? '' : 'disabled'}>
-//                         <option value="${campo.value}">${campo.value}</option>
-//                         <option value="Activo">Activo</option>
-//                         <option value="Inactivo">Inactivo</option>
-//                     </select>
-//                     ${campo.editable ? crearIconoEdit() : ''}
-//                 </div>
-//             </div>
-//         `;
-//     }else {
-//         return `
-//             <div class="container__label__input">
-//                 <label for="${fieldId}">${campo.label}</label>
-//                 <div class="container-inputs">
-//                     <input type="text" id="${fieldId}" value="${campo.value}" ${campo.editable ? '' : 'disabled'}>
-//                     ${campo.editable ? crearIconoEdit() : ''}
-//                 </div>
-//             </div>
-//         `;
-//     }
-
-//     }).join('');
-
-//     setTimeout(async () => {
-//         try {
-//             const razas = await consultar_razas();
-//             const etapas = await consultar_etapas();
-            
-//             llenarSelectDesdeLista(razas.razas, `Raza-actualizar-${uniqueId}`,item.raza, "id_raza", "nombre","");
-//             llenarSelectDesdeLista(etapas.etapas, `Etapa-de-vida-actualizar-${uniqueId}`,item.etapa, "id_etapa", "nombre","");
-//         } catch (error) {
-//             console.error("Error cargando los selects:", error)
-//         }
-//     })
-
-//     return crearDialogBase(`dialog-edit-${uniqueId}`, 'dialog-icon-edit', 'Actualizar datos del porcino', camposHTML, 'Guardar', 'button-guardar', uniqueId,'actualizar_porcino','');
-// }
-
-// function crearDialogDeleteConfirm(uniqueId){
-//     const contenido = `
-//         <p>Escriba debajo el ID "${uniqueId}" y presione eliminar si asi lo desea</p>
-//         <input id="input-eliminar-${uniqueId}" class="input__add__por" type="number" oninput="this.value = Math.abs(this.value)" placeholder= "Ingrese el ID">
-//     `;
-//     return crearDialogBase(`dialog-delete-conf-${uniqueId}`, 'dialog-icon-dele', 'Eliminar registro del porcino', contenido, 'Eliminar','button-eliminar', uniqueId,'eliminar_porcino')
-// }
-
-// function crearDialogDelete(item, uniqueId) {
-//     const contenido = `
-//         <p>Eliminar el registro sin saber si el porcino tiene trazabilidad puede que altere el funcionamiento del sistema, es preferible que cambie el estado del porcino a inactivo.</p>
-//         <span>¿Está seguro que quiere eliminar este registro?</span>
-//     `;
-//     return crearDialogBase(`dialog-delete-${uniqueId}`, 'dialog-icon-dele', 'Eliminar registro del porcino', contenido, 'Continuar', 'button-eliminar', uniqueId,'eliminar_porcino');
-// }
-
-
-// function crearDialogBase(id, clase, titulo, contenido, textoBoton, claseBoton, uniqueId, funct, params) {
-//     const dialog = document.createElement("dialog");
-    
-//     dialog.className = clase;
-//     dialog.id = id;
-//     dialog.innerHTML = `
-//         <div class="container__btn__close">
-//             <button type="button" class="btn__close" onclick="cerrarDialog('${id}')">X</button>
-//         </div>
-//         ${clase ? `
-//             <form onsubmit="event.preventDefault(); ${funct}('${uniqueId}')" ${clase.toLowerCase() === 'dialog-icon-dele' ? '' : 'class="container__items__dialogs"' }>
-//                 <div class="title-dialog">
-//                     <h2>${titulo}</h2>
-//                     <hr>
-//                 </div>
-//                 ${clase ? ` 
-//                 <div class="${clase.toLowerCase() === 'dialog-icon-dele' ? 'info-delete' : "info-porcino"}"> ${contenido} </div>
-//                 ` : ""}
-//                 ${textoBoton ? `
-//                 <div class="container-button-${claseBoton.includes('cerrar') ? 'close' : 'guardar'}">
-//                     <button type="${textoBoton.toLowerCase() === 'cerrar' || textoBoton.toLowerCase() === 'continuar' ? 'button' : 'submit'}"
-//                         class="${claseBoton}"
-//                         ${textoBoton.toLowerCase() === 'cerrar' ? `onclick="cerrarDialog('${id}')"` : ""}
-//                         ${textoBoton.toLowerCase() === 'continuar' ? `onclick="abrirDialog('dialog-delete-conf-${uniqueId}')"` : ""}
-//                         >
-//                         ${textoBoton}
-//                     </button>
-//                 </div>` : ""}
-//             </form>
-//         ` : ""}
-//     `;
-//     document.body.appendChild(dialog)
-//     return ''
-// }
-
-
+// MODAL PARA VER LA INFORMACION DE PORCINO, ETAPA, RAZA Y TRANSACCION
 async function openModalEye(type, id) {
     const modal = document.getElementById("modal-eye");
     const content = document.getElementById('eye-content');
@@ -472,9 +280,13 @@ function resetModalEye() {
     }
 }
 
+// FUNCIONES PARA CARGAR LA INFORMACION DEL MODAL EYE
 async function cargarInfoPorcino(id, container) {
     const data = await consulta_individual_porcino(id, false);
     const p = data.Porcinos[0];
+    let fechaBD = p.fecha_nacimiento
+    let fecha = new Date(fechaBD)
+    const fecha_formateada = fecha.toISOString().split("T")[0];
 
     container.innerHTML = `
         <div class="container__label__input">
@@ -494,7 +306,7 @@ async function cargarInfoPorcino(id, container) {
 
         <div class="container__label__input">
             <label>Fecha Nacimiento</label>
-            <input type="text" value="${p.fecha_nacimiento}" disabled>
+            <input type="text" value="${fecha_formateada}" disabled>
         </div>
 
         <div class="container__label__input">
@@ -672,18 +484,432 @@ async function cargarInfoEtapa(id, container) {
 }
 
 
-function crearIconoEdit() {
+// MODALES PARA EDITAR LA INFORMACION DE LOS PORCINOS, ETAPA Y RAZA
+async function openModalEdit(type, id, funct) {
+    const modal = document.getElementById("modal-edit");
+    const content = document.getElementById('edit-content');
+    const title = document.getElementById("modal-edit-title");
+    const form = document.getElementById("form-edit")
+    const button = document.getElementById("button-edit");
+
+    form.onsubmit = function(event) {
+        event.preventDefault();
+        funct(id)
+    }
+
+    // LIMPIAR BOTONES DE STEPS
+    const btnAtras = modal.querySelector('.btn-atras');
+    const btnGuardar = modal.querySelector('.btn-guardar');
+    if (btnAtras) btnAtras.remove();
+    if (btnGuardar) btnGuardar.remove();
+
+    // Limpiar contenido previo
+    content.innerHTML = "";
+    content.className = "";
+
+    if (type === "porcino") {
+        title.textContent = "Actualizar datos del Porcino";
+        content.classList.add("info-porcino");
+        content.style.gridTemplateColumns = "";
+        button.style.display = "inline-block";
+        button.type = "submit";
+        button.textContent = "Guardar";
+        await cargarInfoPorcinoEdit(id, content);
+    }
+    
+    if (type === "raza") {
+        title.textContent = "Actualizar datos de la Raza";
+        content.classList.add("info_raza_etapa");
+        content.style.gridTemplateColumns = "";
+        button.style.display = "inline-block";
+        button.type = "submit";
+        button.textContent = "Guardar";
+        await cargarInfoRazaEdit(id, content);
+    }
+
+    if (type === "etapa") {
+        title.textContent = "Actualizar datos de la Etapa de Vida";
+        content.classList.add("layout_registrar_etapa");
+
+        button.type = "button";
+        button.textContent = "Siguiente";
+
+        await cargarInfoEtapaEdit(id, content);
+
+        activarSteps('modal-edit', '.button-guardar', "edit");
+    }
+
+    modal.showModal();
+}
+
+// FUNCIONES PARA CARGAR LA INFORMACION DEL MODAL EDIT
+async function cargarInfoPorcinoEdit(id, container) {
+    // CONSULTA DEL PORCINO POR SU ID
+    const data = await consulta_individual_porcino(id, false);
+    const p = data.Porcinos[0];
+
+    // FORMATEO DE LA FECHA DE NACIMIENTO
+    let fechaBD = p.fecha_nacimiento
+    let fecha = new Date(fechaBD)
+    const fecha_formateada = fecha.toISOString().split("T")[0];
+
+    // OBTENCION DE LAS RAZAS Y ETAPAS (CACHE)
+    const razas = await consultar_razas_cache()
+    const etapas = await consultar_etapas_cache()
+
+    // CAMBIO DEL CONTENIDO DEL MODAL
+    container.innerHTML = `
+        <div class="container__label__input">
+        <label>ID</label>
+            <div class="container-inputs">
+            <input type="text" value="${p.id_porcino}" disabled>
+            </div>
+        </div>
+
+        <div class="container__label__input">
+            <label>Peso Inicial (Kg)</label>
+            <div class="container-inputs">
+            
+            <input id="peso-ini-actu-${id}" type="text" value="${p.peso_inicial}">
+            ${crearIconoEdit()}
+            </div>
+        </div>
+            
+        <div class="container__label__input">
+            <label>Peso Final (Kg)</label>
+            <div class="container-inputs">
+            <input id="peso-final-actu-${id}" type="text" value="${p.peso_final}" >
+            ${crearIconoEdit()}
+            </div>
+        </div>
+            
+        <div class="container__label__input">
+            <label>Fecha Nacimiento</label>
+            <div class="container-inputs">
+                <input id="fecha-naci-actu-${id}" type="date" value="${fecha_formateada}" >
+                ${crearIconoEdit()}
+            </div>
+        </div>
+
+        <div class="container__label__input">
+            <label>Sexo</label>
+            <div class="container-inputs">
+                <select id="sexo-actu-${id}" >
+                    <option value = "${p.sexo}" selected disabled>${p.sexo}</option>
+                    <option value = "Macho">Macho</option>
+                    <option value = "Hembra">Hembra</option>
+                </select>
+                ${crearIconoEdit()}
+            </div>
+        </div>
+
+        <div class="container__label__input">
+            <label>Raza</label>
+            <div class="container-inputs">
+                <select id="raza-actu-${id}" >
+                    ${crear_opciones_select("razas", razas, p.raza)}
+                </select>
+            ${crearIconoEdit()}
+            </div>
+        </div>
+
+        <div class="container__label__input">
+            <label>Etapa de Vida</label>
+            <div class="container-inputs">
+                <select id="etapa-vida-actua-${id}" >
+                    ${crear_opciones_select("etapas", etapas, p.etapa)}
+                </select>
+            ${crearIconoEdit()}
+            </div>
+        </div>
+
+        <div class="container__label__input">
+            <label>Estado</label>
+            <div class="container-inputs">
+            <select id="estado-actu-${id}" >
+                <option value = "${p.estado}" selected disabled>${p.estado}</option>
+                <option value = "Activo">Activo</option>
+                <option value = "Inactivo">Inactivo</option>
+            </select>
+                ${crearIconoEdit()}
+            </div>
+        </div>
+
+        <div class="container__label__input">
+            <label>Descripcion</label>
+            <div class="container-inputs">
+            <input id="descripcion-actu-${id}" type="text" value="${p.descripcion}">
+            ${crearIconoEdit()}
+            </div>
+        </div>
+    `;
+}
+
+async function cargarInfoRazaEdit(id, container) {
+    const data = await consulta_indi_raza(id, false);
+    const r = data.razas[0];
+
+    container.innerHTML = `
+    <div class="container__label__input">
+        <label>ID</label>
+        <input type="text" value="${r.id_raza}" disbled>
+    </div>
+    
+    <div class="container__label__input">
+        <label>Nombre</label>
+        <input type="text" id="nombre-raza-actualizar-${id}" value="${r.nombre}" >
+    </div>
+    
+    <div class="container__label__input">
+        <label>Descripción</label>
+        <textarea id="descripcion-raza-actualizar-${id}">${r.descripcion}</textarea>
+    </div>
+    `;
+}
+
+async function cargarInfoEtapaEdit(id, container) {
+    const data = await consulta_indi_etapas(id, false);
+    const e = data.etapas[0];
+    const mapaReq = {};
+    
+    e.requerimientos.forEach(req => {
+        mapaReq[req.nombre_elemento.toLowerCase()] = req.porcentaje || 0;
+    });
+    
+    container.innerHTML = `
+    <div id="step1" class="step">
+        <div class="container__label__input">
+        <label>ID Etapa:</label>
+        <input id="" type="text" value="${e.id_etapa}">
+        </div>
+        
+        <div class="container__label__input">
+        <label>Nombre de Etapa</label>
+        <input id="nombre-etapa-actu-${id}" type="text" value="${e.nombre_etapa}" >
+        </div>
+        
+        <div class="container__label__input">
+        <label>Peso Mínimo (Kg)</label>
+        <input id="peso-min-etapa-actu-${id}" type="text" value="${e.peso_min}" >
+        </div>
+        
+        <div class="container__label__input">
+        <label>Peso Máximo (Kg)</label>
+        <input id="peso-max-etapa-actu-${id}" type="text" value="${e.peso_max}" >
+        </div>
+        
+        <div class="container__label__input">
+        <label>Dias de Duración</label>
+        <input id="dias-dura-etapa-actu-${id}" type="text" value="${e.duracion_dias}" >
+        </div>
+        
+        <div class="container__label__input">
+        <label>Semanas de Duración</label>
+        <input id="semanas-dura-etapa-actu-${id}" type="text" value="${e.duracion_semanas}" >
+        </div>
+        
+        <div class="container__label__input">
+        <label>Descripcion (Opcional)</label>
+        <input id="descripcion-etapa-actu-${id}" type="text" value="${e.descripcion}" >
+        </div>
+    </div>
+    
+
+    <div id="step2" class="step">
+
+        <div class="container__label__input">
+            <label>E. Metabolizable (Kcal/Kg)</label>
+            <input id="energia-metabo-actu-${id}" type="text" value="${mapaReq['energia_metabo'] || 0}" >
+        </div>
+        
+        <div class="container__label__input">
+            <label>Proteína Cruda (%)</label>
+            <input id="proteina-cruda-actu-${id}" type="text" value="${mapaReq['proteina_cruda'] || 0 }" >
+        </div>
+
+        <div class="container__label__input">
+            <label>Fibra Cruda (%)</label>
+            <input id="fibra-cruda-actu-${id}" type="text" value="${mapaReq['fibra_cruda'] || 0}" >
+        </div>
+
+        <div class="container__label__input">
+            <label>Extracto Etéreo (%)</label>
+            <input id="extracto-etereo-actu-${id}" type="text" value="${mapaReq['extracto_etereo'] || 0}" >
+        </div>
+
+        <div class="container__label__input">
+            <label>Calcio (%)</label>
+            <input id="calcio-actu-${id}" type="text" value="${mapaReq['calcio'] || 0}" >
+        </div>
+
+        <div class="container__label__input">
+            <label>Fosforo (%)</label>
+            <input id="fosforo-disponible-actu-${id}" type="text" value="${mapaReq['fosforo'] || 0}" >
+        </div>
+
+        <div class="container__label__input">
+            <label>Sodio (%)</label>
+            <input id="sodio-actu-${id}" type="text" value="${mapaReq['sodio'] || 0}" >
+        </div>
+
+        <div class="container__label__input">
+            <label>Arginina (%)</label>
+            <input id="arginina-actu-${id}" type="text" value="${mapaReq['arginina'] || 0}" >
+        </div>
+
+        <div class="container__label__input">
+            <label>Lisina (%)</label>
+            <input id="lisina-actu-${id}" type="text" value="${mapaReq['lisina'] || 0}" >
+        </div>
+
+        <div class="container__label__input">
+            <label>Treonina (%)</label>
+            <input id="treonina-actu-${id}" type="text" value="${mapaReq['treonina'] || 0}" >
+        </div>
+
+        <div class="container__label__input">
+            <label>Metionina</label>
+            <input id="metionina-actu-${id}" type="text" value="${mapaReq['metionina'] || 0}" >
+        </div>
+
+        <div class="container__label__input">
+            <label>Metionina + Cisteína (%)</label>
+            <input id="metionina-cisteina-actu-${id}" type="text" value="${mapaReq['metionina_cisteina'] || 0}" >
+        </div>
+
+        <div class="container__label__input">
+            <label>Triptófano (%)</label>
+            <input id="triptofano-actu-${id}" type="text" value="${mapaReq['triptofano'] || 0}" >
+        </div>
+
+    </div>
+    
+    `;
+}
+
+// MODAL PARA ELIMINAR LA INFORMACION DE LOS PORCINOS, ETAPA Y RAZA
+async function openModalDelete(type, id) {
+    const modal = document.getElementById("modal-delete");
+    const content = document.getElementById('delete-content');
+    const title = document.getElementById("modal-delete-title");
+    const button = document.getElementById("button-delete");
+
+    // Limpiar contenido previo
+    content.innerHTML = "";
+    content.className = "";
+
+    if (type === "porcino") {
+        title.textContent = "Eliminar datos del Porcino";
+        button.dataset.id = id;
+        button.dataset.type = "porcino";
+        await cargarInfoDelete(`el ${type}`,content);
+    }
+    
+    if (type === "raza") {
+        title.textContent = "Eliminar datos de la Raza";
+        button.dataset.id = id;
+        button.dataset.type = "raza";
+        
+        await cargarInfoDelete(`la ${type}`,content);
+    }
+    
+    if (type === "etapa") {
+        title.textContent = "Delete datos de la Etapa de Vida";
+        button.dataset.id = id;
+        button.dataset.type = "etapa";
+        await cargarInfoDelete(`la ${type}`,content);
+    }
+
+    modal.showModal();
+}
+
+// FUNCION PARA CARGAR LA INFOMACION DEL MODAL DELETE
+async function cargarInfoDelete(type,container) {
+    container.innerHTML = `
+        <p>Eliminar el registro sin saber si ${type} tiene trazabilidad puede que altere el funcionamiento del sistema, es preferible que cambie el estado del porcino a inactivo.</p>
+        <span>¿Está seguro que quiere eliminar este registro?</span>
+    `;
+}
+
+// MODAL PARA CONFIRMAR LA ELIMINACION LA INFORMACION DE LOS PORCINOS, ETAPA Y RAZA
+async function openModalDeleteConfirm(type, id, funct) {
+    const modal = document.getElementById("modal-delete-confirm");
+    const content = document.getElementById('delete-content-confirm');
+    const title = document.getElementById("modal-delete-confirm-title");
+    const form = document.getElementById("form-delete-confirm")
+    const button = document.getElementById("button-delete-confirm");
+
+    form.onsubmit = function(event) {
+        event.preventDefault();
+        funct(id)
+    }
+
+    // Limpiar contenido previo
+    content.innerHTML = "";
+
+    if (type === "porcino") {
+        title.textContent = "Eliminar datos del Porcino";
+        await cargarInfoDeleteConfirm(id,content);
+    }
+    
+    if (type === "raza") {
+        title.textContent = "Eliminar datos de la Raza";
+        await cargarInfoDeleteConfirm(id,content);
+    }
+
+    if (type === "etapa") {
+        title.textContent = "Delete datos de la Etapa de Vida";
+        await cargarInfoDeleteConfirm(id, content);
+    }
+
+    modal.showModal();
+}
+
+// FUNCION PARA CARGAR EL MODAL CONFIRMAR ELIMINACION
+async function cargarInfoDeleteConfirm(id,container) {
+    container.innerHTML = `
+        <p>Escriba debajo el ID "${id}" y presione eliminar si asi lo desea</p>
+        <input id="input-eliminar-${id}" class="input__add__por" type="number" oninput="this.value = Math.abs(this.value)" placeholder= "Ingrese el ID">
+    `;
+}
+
+
+// -------------------
+// GESTION DE PORCINOS
+// -------------------
+
+
+// CONSUMO DE DATOS DE LOS PORCINOS REGISTRADOS
+function mostrar_porcinos(porcinos) {
+    const info = porcinos.Porcinos.map(item => crearFilaPorcino(item)).join('');
+    document.getElementById('info_porcinos').innerHTML = info;
+}
+
+function crearFilaPorcino(item) {
+    const uniqueId = item.id_porcino;
     return `
-        <div class="vector-edit">
-            <svg xmlns="http://www.w3.org/2000/svg" width="21" height="16" viewBox="0 0 21 16" fill="none">
-                <g clip-path="url(#clip0_1160_1378)">
-                    <path d="M10.0909 12L11.4091 10.6818L9.68182 8.95455L8.36364 10.2727V10.9091H9.45455V12H10.0909ZM15.0909 3.81818C14.9697 3.69697 14.8447 3.70076 14.7159 3.82955L10.7386 7.80682C10.6098 7.93561 10.6061 8.06061 10.7273 8.18182C10.8485 8.30303 10.9735 8.29924 11.1023 8.17045L15.0795 4.19318C15.2083 4.06439 15.2121 3.93939 15.0909 3.81818ZM16 10.5682V12.7273C16 13.6288 15.6799 14.3996 15.0398 15.0398C14.3996 15.6799 13.6288 16 12.7273 16H3.27273C2.37121 16 1.60038 15.6799 0.960227 15.0398C0.320076 14.3996 0 13.6288 0 12.7273V3.27273C0 2.37121 0.320076 1.60038 0.960227 0.960227C1.60038 0.320076 2.37121 0 3.27273 0H12.7273C13.2045 0 13.6477 0.094697 14.0568 0.284091C14.1705 0.337121 14.2386 0.424242 14.2614 0.545455C14.2841 0.674242 14.25 0.784091 14.1591 0.875L13.6023 1.43182C13.4962 1.53788 13.375 1.56818 13.2386 1.52273C13.0644 1.47727 12.8939 1.45455 12.7273 1.45455H3.27273C2.77273 1.45455 2.3447 1.63258 1.98864 1.98864C1.63258 2.3447 1.45455 2.77273 1.45455 3.27273V12.7273C1.45455 13.2273 1.63258 13.6553 1.98864 14.0114C2.3447 14.3674 2.77273 14.5455 3.27273 14.5455H12.7273C13.2273 14.5455 13.6553 14.3674 14.0114 14.0114C14.3674 13.6553 14.5455 13.2273 14.5455 12.7273V11.2955C14.5455 11.197 14.5795 11.1136 14.6477 11.0455L15.375 10.3182C15.4886 10.2045 15.6212 10.178 15.7727 10.2386C15.9242 10.2992 16 10.4091 16 10.5682ZM14.9091 2.18182L18.1818 5.45455L10.5455 13.0909H7.27273V9.81818L14.9091 2.18182ZM19.9545 3.68182L18.9091 4.72727L15.6364 1.45455L16.6818 0.409091C16.8939 0.19697 17.1515 0.0909091 17.4545 0.0909091C17.7576 0.0909091 18.0152 0.19697 18.2273 0.409091L19.9545 2.13636C20.1667 2.34848 20.2727 2.60606 20.2727 2.90909C20.2727 3.21212 20.1667 3.4697 19.9545 3.68182Z" fill="#8D8D8D"/>
-                </g>
-                <defs>
-                    <clipPath id="clip0_1160_1378"><rect width="20.3636" height="16" fill="white"/></clipPath>
-                </defs>
-            </svg>
-        </div>`;
+        <tr class="registro" porcino-id="${uniqueId}">
+            <td class="td__border__l">
+                <img src="/src/static/iconos/registro pig.svg" alt="" class="svg__pig">
+            </td>
+            <td>${item.id_porcino}</td>
+            <td>${item.sexo}</td>
+            <td>${item.raza}</td>
+            <td>${item.etapa}</td>
+            <td>${item.peso_final} KG</td>
+            <td>${item.estado}</td>
+            <td class="td__border__r">
+                ${crearIconosAcciones(uniqueId)}
+            </td>
+        </tr>`;
+}
+
+function crearIconosAcciones(id) {
+    return `
+        <img src="/src/static/iconos/icono eye.svg" class="icon-eye" data-id="${id}" data-type="porcino">
+        <img src="/src/static/iconos/edit icon.svg" class="icon-edit" data-id="${id}" data-type="porcino">
+        <img src="/src/static/iconos/delete icon.svg" class="icon-delete" data-id="${id}" data-type="porcino">
+    `;
 }
 
 async function consulta_general_porcinos() {
@@ -693,8 +919,8 @@ async function consulta_general_porcinos() {
         if (!response.ok) throw new Error(`Error: ${response.status}`);
         const porcinos = await response.json();
         mostrar_porcinos(porcinos);
-        consultar_razas();
-        consultar_etapas();
+        consultar_razas_cache();
+        consultar_etapas_cache();
         porcino_filtros();
         consulta_gen_historial_pesos();
         return porcinos
@@ -735,7 +961,7 @@ function refrescar_porcinos(id_porcino){
     const row = document.querySelector(`tr[porcino-id = "${id_porcino}"]`)
     if (row){
         row.remove;
-        consulta_general_porcinos();
+        consultar_porcinos_cache();
     }
 }
 
@@ -789,7 +1015,7 @@ function porcino_filtros() {
         input__id.addEventListener('input', () => {
             filter.disabled = parseInt(input__id.value) !== 0;
             if (parseInt(input__id.value) === 0){
-                return consulta_general_porcinos()
+                return consultar_porcinos_cache()
             }
             
         });
@@ -805,8 +1031,8 @@ function porcino_filtros() {
                 crearSelects(filter.value,opciones[filter.value])
             } else{
                 setTimeout(async() => {
-                    const razas = await consultar_razas();
-                    const etapas = await consultar_etapas();
+                    const razas = await consultar_razas_cache();
+                    const etapas = await consultar_etapas_cache();
                     if (filter.value === 'raza'){
                         crearSelects(filter.value,razas.razas)
                     }
@@ -911,14 +1137,14 @@ async function agregar_porcino(){
 
 async function actualizar_porcino(id_porcino) {
     try {
-        const peso_inicial = document.getElementById(`Peso-inicial-actualizar-${id_porcino}`).value;
-        const peso_final = document.getElementById(`Peso-final-actualizar-${id_porcino}`).value;
-        const fecha = document.getElementById(`Fecha-de-nacimiento-actualizar-${id_porcino}`).value;
-        const raza = document.getElementById(`Raza-actualizar-${id_porcino}`).value;
-        const sexo = document.getElementById(`Sexo-actualizar-${id_porcino}`).value;
-        const etapa = document.getElementById(`Etapa-de-vida-actualizar-${id_porcino}`).value;
-        const estado = document.getElementById(`Estado-actualizar-${id_porcino}`).value;
-        const descripcion = document.getElementById(`Descripcion-actualizar-${id_porcino}`).value;
+        const peso_inicial = document.getElementById(`peso-ini-actu-${id_porcino}`).value;
+        const peso_final = document.getElementById(`peso-final-actu-${id_porcino}`).value;
+        const fecha = document.getElementById(`fecha-naci-actu-${id_porcino}`).value;
+        const raza = document.getElementById(`raza-actu-${id_porcino}`).value;
+        const sexo = document.getElementById(`sexo-actu-${id_porcino}`).value;
+        const etapa = document.getElementById(`etapa-vida-actua-${id_porcino}`).value;
+        const estado = document.getElementById(`estado-actu-${id_porcino}`).value;
+        const descripcion = document.getElementById(`descripcion-actu-${id_porcino}`).value;
 
         const porcino = {
             "peso_inicial" : peso_inicial,
@@ -940,7 +1166,7 @@ async function actualizar_porcino(id_porcino) {
             }
         );
         const response = await promesa.json();
-        cerrarDialog(`dialog-edit-${id_porcino}`);
+        cerrarDialog(`modal-edit`);
         if (response.Mensaje === `Informacion del porcino con id ${id_porcino} actualizada`){
             Swal.fire({
                 title: "Mensaje",
@@ -974,8 +1200,8 @@ function eliminar_porcino(id_porcino){
         })
         .then(response => {
             refrescar_porcinos(id_porcino);
-            cerrarDialog(`dialog-delete-conf-${id_porcino}`);
-            cerrarDialog(`dialog-delete-${id_porcino}`);
+            cerrarDialog(`modal-delete-confirm`);
+            cerrarDialog(`modal-delete`);
             Swal.fire({
                 title: "Mensaje",
                 text: `${response.Mensaje}`,
@@ -1018,7 +1244,7 @@ function crearFilaHistorial(item){
 
 async function crearDialogActualizarPesoHistorial(){
     const nm = await conteoNumeroConsecutivo();
-    //const porcinos = await consulta_general_porcinos();
+    const porcinos = await consultar_porcinos_cache();
     const campos = [
         { label: 'Fecha de pesaje', id: 'fecha-pesaje-actu', type: 'date', required: true },
         { label: 'ID porcino', id: 'id-porcino-actu', type: 'select', options: porcinos.Porcinos.map(por => por.id_porcino), required: true, placeholder: "Seleccione el ID del porcino" },
@@ -1349,63 +1575,6 @@ function crearDialogRegistrarRaza(){
     return crearDialogBaseRaza(`dialog-registrar-raza`, 'dialog-icon-eye', 'Registrar Raza', camposHTML, 'Guardar', 'button-guardar', '', 'registrar_raza','');
 }
 
-// function crearDialogEyeRaza(item, uniqueId){
-//     const campos = [
-//         {label: 'ID', value: item.id_raza, id: 'id-raza'},
-//         {label: 'Nombre', value: item.nombre, id: 'nombre-raza'},
-//         {label: 'Descripcion', value: item.descripcion, id: 'descripcion-raza'},
-//     ]
-
-//     const camposHTML = campos.map(campo => `
-//         <div class = "container__label__input">
-//             <label for="${campo.id}-${uniqueId}">${campo.label}</label>
-//             <input type="text" class="campo-info" id="${campo.id}-${uniqueId}" placeholder="${campo.value}" readonly>
-//         </div>
-//         `).join('');
-
-//     return crearDialogBaseRaza(`dialog-eye-raza-${uniqueId}`, 'dialog-icon-eye', 'Informacion de la Raza', camposHTML, 'Cerrar', 'button-cerrar', uniqueId, 'cerrarDialog',`dialog-eye-raza-${uniqueId}`);
-// }
-
-// function crearDialogEditRaza(item, uniqueId){
-//     const camposEditables = [
-//         {label: 'ID', value: item.id_raza, editable: false, id: "id-raza"},
-//         {label: 'Nombre', value: item.nombre, editable: true, id: "nombre-raza"},
-//         {label: 'Descripcion', value: item.descripcion, editable:true, id: "descripcion-raza"},
-//     ]
-
-//     const camposHTML = camposEditables.map(campo => {
-//         const fieldId = campo.id.replace(/\s+/g, '-') + '-' + 'actualizar' + '-' +uniqueId;
-//         return `
-//         <div class = "container__label__input">
-//             <label for="${fieldId}">${campo.label}</label>
-//             <div class="container-inputs">
-//                 <input type="text" id="${fieldId}" value="${campo.value}" ${campo.editable ? '' : 'disabled'}>
-//                 ${campo.editable ? crearIconoEdit() : ''}
-//             </div>
-//         </div>
-//         `;
-//     }).join('');
-
-//     return crearDialogBaseRaza(`dialog-edit-raza-${uniqueId}`, 'dialog-icon-eye', 'Actualizar datos de la Raza', camposHTML, 'Guardar', 'button-guardar', uniqueId, 'actualizar_raza','')
-// }
-
-// function crearDialogDeleteConfirmRaza(uniqueId){
-//     const contenido = `
-//         <p>Escriba debajo el ID "${uniqueId}" y presione eliminar si asi lo desea</p>
-//         <input id="input-eliminar-r-${uniqueId}" class="input__add__por" type="number" oninput="this.value = Math.abs(this.value)" placeholder= "Ingrese el ID">
-//     `;
-//     return crearDialogBaseRaza(`dialog-delete-conf-r-${uniqueId}`, 'dialog-icon-dele', 'Eliminar Raza', contenido, 'Eliminar','button-eliminar', uniqueId,'eliminar_raza')
-// }
-
-// function crearDialogtDeleteRaza(item, uniqueId){
-//     const contenido =  `
-//         <p>Eliminar el registro sin saber si la raza tiene trazabilidad puede que altere el funcionamiento del sistema.</p>
-//         <span>¿Está seguro que quiere eliminar este registro?</span>
-//     `;
-//     return crearDialogBaseRaza(`dialog-delete-raza-${uniqueId}`, 'dialog-icon-dele', 'Eliminar Raza', contenido, 'Continuar', 'button-eliminar', uniqueId, 'eliminar_raza', '')
-// }
-
-
 function crearDialogBaseRaza(id, clase, titulo, contenido, textoBoton, claseBoton, uniqueId, funct, params) {
     // Crear el dialogo
     const dialog = document.createElement("dialog");
@@ -1503,14 +1672,18 @@ async function registrar_raza() {
         })
         const response = await promesa.json()
         if (response.Mensaje == "Raza registrada correctamente"){
-            consultar_razas()
             cerrarDialog('dialog-registrar-raza')
             cerrarDialog('dialog__ges__raz')
             Swal.fire({
             title: "Mensaje",
             text: `${response.Mensaje}`,
-            icon: "success"
-            });
+            icon: "success",
+            confirmButton: "Ok"
+            }).then((result) => {
+                if (result.isConfirmed){
+                    location.reload()
+                }
+            })
         } else{
             Swal.fire({
             title: "Mensaje",
@@ -1543,14 +1716,19 @@ async function actualizar_raza(id) {
         })
         const response = await promesa.json()
         if (response.Mensaje === 'Raza actulizada correctamente'){
-            cerrarDialog(`dialog-edit-raza-${id}`)
+            cerrarDialog(`modal-edit`)
             cerrarDialog('dialog__ges__raz')
-            consultar_razas()
+            
             Swal.fire({
                 title: "Mensaje",
                 text: `${response.Mensaje}`,
                 icon: "success",
-            });
+                confirmButton: "Ok"
+                }).then((result) => {
+                    if (result.isConfirmed){
+                        location.reload()
+                    }
+            })
         } else{
             Swal.fire({
                 title: "Mensaje",
@@ -1566,20 +1744,24 @@ async function actualizar_raza(id) {
 
 async function eliminar_raza(id){
     try {
-        const input = document.getElementById(`input-eliminar-r-${id}`);
-        const value_input = document.getElementById(`input-eliminar-r-${id}`).value;
+        const input = document.getElementById(`input-eliminar-${id}`);
+        const value_input = document.getElementById(`input-eliminar-${id}`).value;
         if (value_input == id){
             const promesa = await fetch(`${URL_BASE}/raza/${id}`, {method : 'DELETE'});
             const response = await promesa.json();
-            consultar_razas()
-            cerrarDialog(`dialog-delete-conf-r-${id}`);
-            cerrarDialog(`dialog-delete-raza-${id}`);
+            cerrarDialog(`modal-delete-confirm`);
+            cerrarDialog(`modal-delete`);
             cerrarDialog(`dialog__ges__raz`);
             Swal.fire({
                 title: "Mensaje",
                 text: `${response.Mensaje}`,
-                icon: "success"
-            });
+                icon: "success",
+                confirmButton: "Ok"
+                }).then((result) => {
+                    if (result.isConfirmed){
+                        location.reload()
+                    }
+            })
         } else{
             input.style.backgroundColor = '#f8a5a5';
             input.classList.add('placerholder_eliminar')
@@ -1713,210 +1895,45 @@ function crearDialogRegistrarEtapa() {
     }, 50);
 }
 
-// function crearDialogEyeEtapa(item, uniqueId){
-//     // ===========================
-//     // 1. Campos del STEP 1
-//     // ===========================
-//     const campos1 = [
-//         {label: "ID etapa", id: `eye-id-etapa-${uniqueId}`, value: item.id_etapa},
-//         {label: "Nombre", id: `eye-nombre-etapa-${uniqueId}`, value: item.nombre},
-//         {label: 'Peso Minimo (Kg)', id: `eye-peso-min-etapa-${uniqueId}`, value: item.peso_min},
-//         {label: 'Peso Maximo (Kg)', id: `eye-peso-max-etapa-${uniqueId}`, value : item.peso_max},
-//         {label: 'Dias de duración', id: `eye-dias-dura-etapa-${uniqueId}`, value: item.duracion_dias},
-//         {label: 'Semana de duración', id: `eye-semanas-dura-etapa-${uniqueId}`, value : item.duracion_semanas},
-//         {label: 'Descripcion (Opcional)', id: `eye-descripcion-etapa-${uniqueId}`, value: item.descripcion},
-//     ];
-
-//     const htmlStep1 = campos1.map(campo => `
-//         <div class = "container__label__input">
-//         <label for="${campo.id}-${uniqueId}">${campo.label}</label>
-//         <input type="text" class="campo-info" id="${campo.id}-${uniqueId}" placeholder="${campo.value}" readonly>
-//         </div>
-//         `).join('');
-
-//     // ===========================
-//     // 2. Campos del STEP 2
-//     // ===========================
-    
-//     const mapaReq = {};
-//     item.requerimientos.forEach(req => {
-//         mapaReq[req.nombre_elemento.toLowerCase()] = req.porcentaje || 0;
-//     });
-
-//     const campos2 = [
-//         { label: "E. Metabolizable (Kcal/Kg)", id: `eye-energia-metabo-${uniqueId}`, valor: mapaReq["energia_metabo"] },
-//         { label: "Proteína Cruda (%)", id: `eye-proteina-cruda-${uniqueId}`, valor: mapaReq["proteina_cruda"] },
-//         { label: "Fibra Cruda (%)", id: `eye-fibra-cruda-${uniqueId}`, valor: mapaReq["fibra_cruda"] },
-//         { label: "Extracto Etéreo (%)", id: `eye-extracto-etereo-${uniqueId}`, valor: mapaReq["extracto_etereo"] },
-//         { label: "Calcio (%)", id: `eye-calcio-${uniqueId}`, valor: mapaReq["calcio"] },
-//         { label: "Fosforo Disponible (%)", id: `eye-fosforo-disponible-${uniqueId}`, valor: mapaReq["fosforo"] },
-//         { label: "Sodio (%)", id: `eye-sodio-${uniqueId}`, valor: mapaReq["sodio"] },
-//         { label: "Arginina (%)", id: `eye-arginina-${uniqueId}`, valor: mapaReq["arginina"] },
-//         { label: "Lisina (%)", id: `eye-lisina-${uniqueId}`, valor: mapaReq["lisina"] },
-//         { label: "Treonina (%)", id: `eye-treonina-${uniqueId}`, valor: mapaReq["treonina"] },
-//         { label: "Metionina (%)", id: `eye-metionina-${uniqueId}`, valor: mapaReq["metionina"] },
-//         { label: "Metionina + Cisteína (%)", id: `eye-metionina-cisteina-${uniqueId}`, valor: mapaReq["metionina_cisteina"] },
-//         { label: "Triptófano (%)", id: `eye-triptofano-${uniqueId}`, valor: mapaReq["triptofano"] },
-//     ];
-
-    
-//     const htmlStep2 = campos2.map(campo => `
-//         <div class="container__label__input">
-//         <label>${campo.label}</label>
-//         <input type="${campo.type || 'text'}" id="${campo.id}" placeholder="${campo.valor || 0}" readonly>
-//         </div>
-//         `).join('');
-
-//     const contenido = `
-//         <div id="step1" class="step">
-//         ${htmlStep1}
-//         </div>
-        
-//         <div id="step2" class="step">
-//         ${htmlStep2}
-//         </div>
-//         `;
-        
-//     crearDialogBaseRaza(`dialog-eye-etapa-${uniqueId}`, 'dialog-icon-eye', 'Informacion de la Etapa de vida', contenido, 'Siguiente', 'button-guardar', uniqueId, 'cerrarDialog',`dialog-eye-etapa-${uniqueId}`)
-    
-//     setTimeout(() => {
-//         activarSteps(`dialog-eye-etapa-${uniqueId}`, ".button-guardar", 'eye');
-//     }, 50);
-// }
-
-
-// function crearDialogEditEtapa(item, uniqueId){
-//     // ===========================
-//     // 1. Campos del STEP 1
-//     // ===========================
-//     const campos1 = [
-//         {label: "ID etapa", id: `edit-id-etapa`, value: item.id_etapa, editable:false},
-//         {label: "Nombre", id: `edit-nombre-etapa`, value: item.nombre, editable: true},
-//         {label: 'Peso Minimo (Kg)', id: `edit-peso-min-etapa`, value: item.peso_min, editable: true },
-//         {label: 'Peso Maximo (Kg)', id: `edit-peso-max-etapa`, value : item.peso_max, editable: true},
-//         {label: 'Dias de duración', id: `edit-dias-dura-etapa`, value: item.duracion_dias, editable: true},
-//         {label: 'Semana de duración', id: `edit-semanas-dura-etapa`, value : item.duracion_semanas, editable: true},
-//         {label: 'Descripcion (Opcional)', id: `edit-descripcion-etapa`, value: item.descripcion, editable: true},
-//     ];
-
-//     const htmlStep1 = campos1.map(campo => {
-//         const fieldId = campo.id.replace(/\s+/g, '-') + '-' + 'actualizar' + '-' +uniqueId;
-//         return `
-//         <div class = "container__label__input">
-//             <label for="${fieldId}">${campo.label}</label>
-//             <div class="container-inputs">
-//                 <input type="text" id="${fieldId}" value="${campo.value}" ${campo.editable ? '' : 'disabled'}>
-//                 ${campo.editable ? crearIconoEdit() : ''}
-//                 </div>
-//                 </div>
-//                 `;
-//             }).join('');
-    
-
-//     // ===========================
-//     // 2. Campos del STEP 2
-//     // ===========================
-    
-//     const mapaReq = {};
-//     item.requerimientos.forEach(req => {
-//         mapaReq[req.nombre_elemento.toLowerCase()] = req.porcentaje || 0;
-//     });
-
-//     const campos2 = [
-//         { label: "E. Metabolizable (Kcal/Kg)", id: `edit-energia-metabo`, valor: mapaReq["energia_metabo"], editable: true },
-//         { label: "Proteína Cruda (%)", id: `edit-proteina-cruda`, valor: mapaReq["proteina_cruda"], editable: true },
-//         { label: "Fibra Cruda (%)", id: `edit-fibra-cruda`, valor: mapaReq["fibra_cruda"], editable: true },
-//         { label: "Extracto Etéreo (%)", id: `edit-extracto-etereo`, valor: mapaReq["extracto_etereo"], editable: true },
-//         { label: "Calcio (%)", id: `edit-calcio`, valor: mapaReq["calcio"], editable: true },
-//         { label: "Fosforo Disponible (%)", id: `edit-fosforo-disponible`, valor: mapaReq["fosforo"], editable: true },
-//         { label: "Sodio (%)", id: `edit-sodio`, valor: mapaReq["sodio"], editable: true },
-//         { label: "Arginina (%)", id: `edit-arginina`, valor: mapaReq["arginina"], editable: true },
-//         { label: "Lisina (%)", id: `edit-lisina`, valor: mapaReq["lisina"], editable: true },
-//         { label: "Treonina (%)", id: `edit-treonina`, valor: mapaReq["treonina"], editable: true },
-//         { label: "Metionina (%)", id: `edit-metionina`, valor: mapaReq["metionina"], editable: true },
-//         { label: "Metionina + Cisteína (%)", id: `edit-metionina-cisteina`, valor: mapaReq["metionina_cisteina"], editable: true },
-//         { label: "Triptófano (%)", id: `edit-triptofano`, valor: mapaReq["triptofano"], editable: true },
-//     ];
-    
-//     const htmlStep2 = campos2.map(campo => {
-//     const fieldId = campo.id.replace(/\s+/g, '-') + '-' + 'actualizar' + '-' +uniqueId;
-//     return `
-//     <div class = "container__label__input">
-//         <label for="${fieldId}">${campo.label}</label>
-//         <div class="container-inputs">
-//             <input type="text" id="${fieldId}" value="${campo.valor || 0}" ${campo.editable ? '' : 'disabled'}>
-//             ${campo.editable ? crearIconoEdit() : ''}
-//             </div>
-//             </div>
-//             `;
-//         }).join('');
-
-//     const contenido = `
-//         <div id="step1" class="step">
-//         ${htmlStep1}
-//         </div>
-        
-//         <div id="step2" class="step">
-//             ${htmlStep2}
-//         </div>
-//         `;
-    
-//     crearDialogBaseRaza(`dialog-edit-etapa-${uniqueId}`, 'dialog-icon-eye', 'Actualizar datos de la Etapa de Vida', contenido, 'Siguiente', 'button-guardar', uniqueId,'actualizar_etapa','')
-//     setTimeout(() => {
-//         activarSteps(`dialog-edit-etapa-${uniqueId}`, ".button-guardar", 'edit');
-//     }, 50);
-// }
-
-// function crearDialogDeleteConfirmEtapa(uniqueId){
-//     const contenido = `
-//         <p>Escriba debajo el ID "${uniqueId}" y presione eliminar si asi lo desea</p>
-//         <input id="input-eliminar-e-${uniqueId}" class="input__add__por" type="number" oninput="this.value = Math.abs(this.value)" placeholder= "Ingrese el ID">
-//     `;
-//     return crearDialogBaseRaza(`dialog-delete-conf-e-${uniqueId}`, 'dialog-icon-dele', 'Eliminar Etapa de Vida', contenido, 'Eliminar','button-eliminar', uniqueId,'eliminar_etapa')
-// }
-
-// function crearDialogDeleteEtapa(item, uniqueId){
-//     const contenido =  `
-//     <p>Eliminar el registro sin saber si la etapa de vida tiene trazabilidad puede que altere el funcionamiento del sistema.</p>
-//     <span>¿Está seguro que quiere eliminar este registro?</span>
-//     `;
-
-//     return crearDialogBaseRaza(`dialog-delete-etapa-${uniqueId}`, 'dialog-icon-dele', 'Eliminar Etapa de Vida', contenido, 'Continuar','button-eliminar', uniqueId,'eliminar_etapa')
-// }
-
 function activarSteps(modalId, botonSelector, funct) {
 
     const modal = document.getElementById(modalId);
     const btn_siguiente = modal.querySelector(botonSelector);
     const grid = modal.querySelector(".layout_registrar_etapa");
-
+    
     const step1 = modal.querySelector("#step1");
     const step2 = modal.querySelector("#step2");
-
+    
     if (!step1 || !step2) return;
-
+    
     grid.style.gridTemplateColumns = "repeat(2,1fr)";
-
+    
     // Estado inicial correcto
     step1.classList.add("active");
     step2.classList.remove("active");
-
+    
+    let btnAtras = modal.querySelector('.btn-atras');
+    let btn_guardar = modal.querySelector('.btn-guardar');
     // Crear botón Atrás
-    const btnAtras = document.createElement("button");
-    btnAtras.textContent = "Atrás";
-    btnAtras.classList = "btn-atras button-eliminar";
-    btnAtras.style.display = "none";
-    btnAtras.type = "button";
+    if (!btnAtras){
+        btnAtras = document.createElement("button");
+        btnAtras.textContent = "Atrás";
+        btnAtras.classList = "btn-atras button-eliminar";
+        btnAtras.style.display = "none";
+        btnAtras.type = "button";
+        btn_siguiente.parentElement.appendChild(btnAtras);
+    }
     
     // crear boton guardar
-    const btn_guardar = document.createElement("button");
-    btn_guardar.textContent = "Guardar"
-    btn_guardar.classList = "button-eliminar";
-    btn_guardar.style.display = "none";
-    btn_guardar.type = "submit"
+    if (!btn_guardar){
+        btn_guardar = document.createElement("button");
+        btn_guardar.textContent = "Guardar"
+        btn_guardar.classList = "btn-guardar button-eliminar";
+        btn_guardar.style.display = "none";
+        btn_guardar.type = "submit"
+        btn_siguiente.parentElement.appendChild(btn_guardar);
+    }
 
-    btn_siguiente.parentElement.appendChild(btnAtras);
-    btn_siguiente.parentElement.appendChild(btn_guardar);
 
     // BOTÓN SIGUIENTE / GUARDAR
     btn_siguiente.addEventListener("click", () => {
@@ -2029,14 +2046,18 @@ async function registrar_etapas(){
         })
         const response = await promesa.json()
         if (response.Mensaje == "Etapa de vida registrada correctamente"){
-            consultar_etapas()
             cerrarDialog('dialog-registrar-etapa');
             cerrarDialog('dialog__ges__eta');
             Swal.fire({
             title: "Mensaje",
             text: `${response.Mensaje}`,
-            icon: "success"
-            });
+            icon: "success",
+            confirmButton: "Ok"
+            }).then((result) => {
+                if (result.isConfirmed){
+                    location.reload()
+                }
+            })
         } else{
             Swal.fire({
             title: "Mensaje",
@@ -2053,26 +2074,26 @@ async function registrar_etapas(){
 async function actualizar_etapa(id) {
     try {
         const etapa = {
-            "nombre" : document.getElementById(`edit-nombre-etapa-actualizar-${id}`).value,
-            "descripcion" : document.getElementById(`edit-descripcion-etapa-actualizar-${id}`).value,
-            "peso_min": document.getElementById(`edit-peso-min-etapa-actualizar-${id}`).value,
-            "peso_max": document.getElementById(`edit-peso-max-etapa-actualizar-${id}`).value,
-            "duracion_dias" : document.getElementById(`edit-dias-dura-etapa-actualizar-${id}`).value,
-            "duracion_semanas" : document.getElementById(`edit-semanas-dura-etapa-actualizar-${id}`).value,
+            "nombre" : document.getElementById(`nombre-etapa-actu-${id}`).value,
+            "descripcion" : document.getElementById(`descripcion-etapa-actu-${id}`).value,
+            "peso_min": document.getElementById(`peso-min-etapa-actu-${id}`).value,
+            "peso_max": document.getElementById(`peso-max-etapa-actu-${id}`).value,
+            "duracion_dias" : document.getElementById(`dias-dura-etapa-actu-${id}`).value,
+            "duracion_semanas" : document.getElementById(`semanas-dura-etapa-actu-${id}`).value,
             "requerimientos" : [
-                { id_elemento: 1, porcentaje: parseFloat(document.getElementById(`edit-proteina-cruda-actualizar-${id}`).value) || 0 },
-                { id_elemento: 2, porcentaje: parseFloat(document.getElementById(`edit-fosforo-disponible-actualizar-${id}`).value) || 0 },
-                { id_elemento: 3, porcentaje: parseFloat(document.getElementById(`edit-treonina-actualizar-${id}`).value) || 0 },
-                { id_elemento: 4, porcentaje: parseFloat(document.getElementById(`edit-fibra-cruda-actualizar-${id}`).value) || 0 },
-                { id_elemento: 5, porcentaje: parseFloat(document.getElementById(`edit-sodio-actualizar-${id}`).value) || 0 },
-                { id_elemento: 6, porcentaje: parseFloat(document.getElementById(`edit-metionina-actualizar-${id}`).value) || 0 },
-                { id_elemento: 8, porcentaje: parseFloat(document.getElementById(`edit-extracto-etereo-actualizar-${id}`).value) || 0 },
-                { id_elemento: 9, porcentaje: parseFloat(document.getElementById(`edit-arginina-actualizar-${id}`).value) || 0 },
-                { id_elemento: 10,porcentaje: parseFloat(document.getElementById(`edit-metionina-cisteina-actualizar-${id}`).value) || 0 },
-                { id_elemento: 11,porcentaje: parseFloat(document.getElementById(`edit-energia-metabo-actualizar-${id}`).value) || 0 },
-                { id_elemento: 12,porcentaje: parseFloat(document.getElementById(`edit-calcio-actualizar-${id}`).value) || 0 },
-                { id_elemento: 13,porcentaje: parseFloat(document.getElementById(`edit-lisina-actualizar-${id}`).value) || 0 },
-                { id_elemento: 14,porcentaje: parseFloat(document.getElementById(`edit-triptofano-actualizar-${id}`).value) || 0 },
+                { id_elemento: 1, porcentaje: parseFloat(document.getElementById(`proteina-cruda-actu-${id}`).value) || 0 },
+                { id_elemento: 2, porcentaje: parseFloat(document.getElementById(`fosforo-disponible-actu-${id}`).value) || 0 },
+                { id_elemento: 3, porcentaje: parseFloat(document.getElementById(`treonina-actu-${id}`).value) || 0 },
+                { id_elemento: 4, porcentaje: parseFloat(document.getElementById(`fibra-cruda-actu-${id}`).value) || 0 },
+                { id_elemento: 5, porcentaje: parseFloat(document.getElementById(`sodio-actu-${id}`).value) || 0 },
+                { id_elemento: 6, porcentaje: parseFloat(document.getElementById(`metionina-actu-${id}`).value) || 0 },
+                { id_elemento: 8, porcentaje: parseFloat(document.getElementById(`extracto-etereo-actu-${id}`).value) || 0 },
+                { id_elemento: 9, porcentaje: parseFloat(document.getElementById(`arginina-actu-${id}`).value) || 0 },
+                { id_elemento: 10,porcentaje: parseFloat(document.getElementById(`metionina-cisteina-actu-${id}`).value) || 0 },
+                { id_elemento: 11,porcentaje: parseFloat(document.getElementById(`energia-metabo-actu-${id}`).value) || 0 },
+                { id_elemento: 12,porcentaje: parseFloat(document.getElementById(`calcio-actu-${id}`).value) || 0 },
+                { id_elemento: 13,porcentaje: parseFloat(document.getElementById(`lisina-actu-${id}`).value) || 0 },
+                { id_elemento: 14,porcentaje: parseFloat(document.getElementById(`triptofano-actu-${id}`).value) || 0 },
             ]
         }
 
@@ -2085,14 +2106,18 @@ async function actualizar_etapa(id) {
         })
         const response = await promesa.json();
         if (response.Mensaje === 'Etapa de vida actulizada correctamente'){
-            cerrarDialog(`dialog-edit-etapa-${id}`)
+            cerrarDialog(`modal-edit`)
             cerrarDialog('dialog__ges__eta')
-            consultar_etapas()
             Swal.fire({
                 title: "Mensaje",
                 text: `${response.Mensaje}`,
                 icon: "success",
-            });
+                confirmButton: "Ok"
+                }).then((result) => {
+                    if (result.isConfirmed){
+                        location.reload()
+                    }
+            })
         } else{
             Swal.fire({
                 title: "Mensaje",
@@ -2109,23 +2134,27 @@ async function actualizar_etapa(id) {
 
 async function eliminar_etapa(id) {
     try {
-        const input = document.getElementById(`input-eliminar-e-${id}`);
-        const value_input = document.getElementById(`input-eliminar-e-${id}`).value;
+        const input = document.getElementById(`input-eliminar-${id}`);
+        const value_input = document.getElementById(`input-eliminar-${id}`).value;
 
         if (value_input == id){
             const promesa = await fetch(`${URL_BASE}/etapa_vida/${id}`, {
                 method: 'DELETE',
             })
             const response = await promesa.json();
-            consultar_etapas()
-            cerrarDialog(`dialog-delete-conf-e-${id}`);
-            cerrarDialog(`dialog-delete-etapa-${id}`);
+            cerrarDialog(`modal-delete-confirm`);
+            cerrarDialog(`modal-delete`);
             cerrarDialog(`dialog__ges__eta`);
             Swal.fire({
                 title: "Mensaje",
                 text: `${response.Mensaje}`,
-                icon: "success"
-            });
+                icon: "success",
+                confirmButton: "Ok"
+                }).then((result) => {
+                    if (result.isConfirmed){
+                        location.reload()
+                    }
+            })
         } else {
             input.style.backgroundColor = '#f8a5a5';
             input.classList.add('placerholder_eliminar')
@@ -3195,18 +3224,49 @@ cerdo.addEventListener("click", () => {
 
 
 document.addEventListener("click", (e) => {
-    const icon = e.target.closest(".icon-eye, .icon-edit, .icon-delete");
+    const icon = e.target.closest(".icon-eye, .icon-edit, .icon-delete, #button-delete");
     if (!icon) return;
-
+    
     const id = icon.dataset.id;
     const type = icon.dataset.type;
+
+    console.log(id)
+    console.log(type)
 
     if (icon.classList.contains("icon-eye")) {
         openModalEye(type, id);
     } else if (icon.classList.contains("icon-edit")) {
-        openModalEdit(type, id);
+        if (type === "raza") {
+            openModalEdit(type, id, actualizar_raza);
+        }
+        else if (type === "etapa") {
+            openModalEdit(type, id, actualizar_etapa);
+        }
+        else if (type === "porcino") {
+            openModalEdit(type, id, actualizar_porcino);
+        }
     } else if (icon.classList.contains("icon-delete")) {
-        openModalDelete(type, id);
+        if (type === "raza") {
+            openModalDelete(type, id);
+        }
+        else if (type === "etapa") {
+            openModalDelete(type, id);
+        }
+        else if (type === "porcino") {
+            openModalDelete(type, id);
+        }
+    }
+
+    if(icon.id === "button-delete"){
+        if (type === 'raza'){
+            openModalDeleteConfirm(type,id, eliminar_raza)
+        }
+        else if (type === 'etapa'){
+            openModalDeleteConfirm(type,id, eliminar_etapa)
+        }
+        else if (type === 'porcino'){
+            openModalDeleteConfirm(type,id, eliminar_porcino)
+        }
     }
 });
 
