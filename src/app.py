@@ -157,7 +157,9 @@ def consulta_general_porcinos():
           cur.execute("""SELECT id_porcino,peso_inicial,peso_final,fecha_nacimiento,sexo,r.nombre as raza,e.nombre as etapa,estado,p.descripcion
               FROM porcinos p 
               JOIN raza r ON p.id_raza = r.id_raza 
-              JOIN etapa_vida e ON p.id_etapa = e.id_etapa""")
+              JOIN etapa_vida e ON p.id_etapa = e.id_etapa
+              ORDER BY id_porcino ASC
+              """)
           informacion = cur.fetchall()
     
     return jsonify({'Porcinos' : informacion, "Mensaje":'Lista de porcinos'})

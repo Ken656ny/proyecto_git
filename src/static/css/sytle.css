@@ -38,6 +38,7 @@
     --color-black: #000;
 }
 
+
 *{
     margin: 0;
     padding: 0;
@@ -805,7 +806,7 @@ SECCION DE PORCINOS
     height: 60px;
     margin: auto;
     padding: 0 2rem;
-    gap: 4rem;
+    gap: 2rem;
     font-family: var(--fuente--contenido);
 }
 
@@ -977,6 +978,7 @@ SECCION DE PORCINOS
     border-radius: 20px;
     transition: background-color 0.5s ease-in-out;
     cursor: pointer;
+    padding: 0 0.5em;
 }
 .btn1{
     background-color: var(--color--btn--sin--hover);
@@ -1006,6 +1008,11 @@ SECCION DE PORCINOS
 
 #btn_consultar{
     order: 4;
+}
+
+#btn_consultar_todo{
+    order: 5;
+    font-size: 12px;
 }
 /* CODIGO DE LA SECCION DEL BOTON DE AGREGAR */
 
@@ -1080,14 +1087,7 @@ thead{
 }
 
 .table__registros{
-    width: 1150px ;
-    margin: auto;
-    border-collapse: collapse;
-    font-family: var(--fuente--contenido);
-    color: var(--color-letra-predeter);
-}
-.table__registros_dietas{
-    width: 1150px ;
+    width: 1150px;
     margin: auto;
     border-collapse: collapse;
     font-family: var(--fuente--contenido);
@@ -1099,6 +1099,37 @@ thead{
     background-color: var(--color-bg-registros);
     text-align: center;
     border: 5px solid var(--color--fondos);
+}
+
+.registros tr > td > button{
+    width: 44px;
+    height: 43px;
+    border-radius: 11px;
+    border: 0;
+}
+
+
+#paginacion_porcino{
+    width: 100%;
+    padding: 1rem 2rem;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+}
+
+#paginacion_porcino > .container_btn_paginacion{
+    display: flex;
+    flex-direction: row;
+    gap: 1em;
+    align-items: center;
+}
+
+#paginacion_porcino > span, #paginacion_porcino > container > span {
+    font-family: var(--fuente--contenido);
+    font-size: 14px;
+    font-weight: bold;
+    color: var(--color-letra-predeter);
 }
 
 

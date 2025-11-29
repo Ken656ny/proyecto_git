@@ -490,9 +490,7 @@ async function cargarInfoEtapa(id, container) {
 }
 
 async function cargarInfoHistorial(id, container) {
-    const data = await consulta_individual_transaccion(id, false);
-    console.log(data.Historial)
-    
+    const data = await consulta_individual_transaccion(id, false);    
     const h = data.Historial;
     //FECHA FORMATEADA DOCUMENTO
     let fecha_documento = h.fecha_documento
@@ -634,15 +632,15 @@ async function cargarInfoPorcinoEdit(id, container) {
             <div class="container-inputs">
             
             <input id="peso-ini-actu-${id}" type="text" value="${p.peso_inicial}">
-            ${crearIconoEdit()}
+            
             </div>
         </div>
             
         <div class="container__label__input">
             <label>Peso Final (Kg)</label>
             <div class="container-inputs">
-            <input id="peso-final-actu-${id}" type="text" value="${p.peso_final}" >
-            ${crearIconoEdit()}
+            <input id="peso-final-actu-${id}" type="text" value="${p.peso_final}">
+            
             </div>
         </div>
             
@@ -650,7 +648,7 @@ async function cargarInfoPorcinoEdit(id, container) {
             <label>Fecha Nacimiento</label>
             <div class="container-inputs">
                 <input id="fecha-naci-actu-${id}" type="date" value="${fecha_formateada}" >
-                ${crearIconoEdit()}
+                
             </div>
         </div>
 
@@ -662,7 +660,7 @@ async function cargarInfoPorcinoEdit(id, container) {
                     <option value = "Macho">Macho</option>
                     <option value = "Hembra">Hembra</option>
                 </select>
-                ${crearIconoEdit()}
+                
             </div>
         </div>
 
@@ -672,7 +670,7 @@ async function cargarInfoPorcinoEdit(id, container) {
                 <select id="raza-actu-${id}" >
                     ${crear_opciones_select("razas", razas, p.raza)}
                 </select>
-            ${crearIconoEdit()}
+            
             </div>
         </div>
 
@@ -682,7 +680,7 @@ async function cargarInfoPorcinoEdit(id, container) {
                 <select id="etapa-vida-actua-${id}" >
                     ${crear_opciones_select("etapas", etapas, p.etapa)}
                 </select>
-            ${crearIconoEdit()}
+            
             </div>
         </div>
 
@@ -694,7 +692,7 @@ async function cargarInfoPorcinoEdit(id, container) {
                 <option value = "Activo">Activo</option>
                 <option value = "Inactivo">Inactivo</option>
             </select>
-                ${crearIconoEdit()}
+                
             </div>
         </div>
 
@@ -702,7 +700,6 @@ async function cargarInfoPorcinoEdit(id, container) {
             <label>Descripcion</label>
             <div class="container-inputs">
             <input id="descripcion-actu-${id}" type="text" value="${p.descripcion}">
-            ${crearIconoEdit()}
             </div>
         </div>
     `;
@@ -943,37 +940,6 @@ async function cargarInfoDeleteConfirm(id,container) {
 
 
 // CONSUMO DE DATOS DE LOS PORCINOS REGISTRADOS
-function mostrar_porcinos(porcinos) {
-    const info = porcinos.Porcinos.map(item => crearFilaPorcino(item)).join('');
-    document.getElementById('info_porcinos').innerHTML = info;
-}
-
-function crearFilaPorcino(item) {
-    const uniqueId = item.id_porcino;
-    return `
-        <tr class="registro" porcino-id="${uniqueId}">
-            <td class="td__border__l">
-                <img src="/src/static/iconos/registro pig.svg" alt="" class="svg__pig">
-            </td>
-            <td>${item.id_porcino}</td>
-            <td>${item.sexo}</td>
-            <td>${item.raza}</td>
-            <td>${item.etapa}</td>
-            <td>${item.peso_final} KG</td>
-            <td>${item.estado}</td>
-            <td class="td__border__r">
-                ${crearIconosAcciones(uniqueId)}
-            </td>
-        </tr>`;
-}
-
-function crearIconosAcciones(id) {
-    return `
-        <img src="/src/static/iconos/icono eye.svg" class="icon-eye" data-id="${id}" data-type="porcino">
-        <img src="/src/static/iconos/edit icon.svg" class="icon-edit" data-id="${id}" data-type="porcino">
-        <img src="/src/static/iconos/delete icon.svg" class="icon-delete" data-id="${id}" data-type="porcino">
-    `;
-}
 
 async function consulta_general_porcinos() {
     try 
@@ -981,7 +947,7 @@ async function consulta_general_porcinos() {
         const response = await fetch(`${URL_BASE}/porcino`);
         if (!response.ok) throw new Error(`Error: ${response.status}`);
         const porcinos = await response.json();
-        mostrar_porcinos(porcinos);
+        paginacion_porcinos(porcinos);
         consultar_razas_cache();
         consultar_etapas_cache();
         porcino_filtros();
@@ -990,6 +956,80 @@ async function consulta_general_porcinos() {
     } catch (error) {
         console.error('Error:', error);
     }
+}
+
+function paginacion_porcinos(porcinos){
+    const registros_por_pagina = 3;
+    let pagina_actual = 1;
+    const total_paginas = Math.ceil(porcinos.Porcinos.length / registros_por_pagina);
+    console.log(total_paginas)
+
+    // OBTENER LOS REGISTROS DE UNA PAGINA  
+    function obtener_pagina(pagina){
+        const registro_inicial = (pagina - 1) * registros_por_pagina;
+        const registro_final = registro_inicial + registros_por_pagina;
+        return porcinos.Porcinos.slice(registro_inicial,registro_final)
+    }
+
+    function mostrar_porcinos() {
+        const info = obtener_pagina(pagina_actual).map(item => crearFilaPorcino(item)).join('');
+        document.getElementById('info_porcinos').innerHTML = info;
+    }
+
+    function crearFilaPorcino(item) {
+        const uniqueId = item.id_porcino;
+        return `
+            <tr class="registro" porcino-id="${uniqueId}">
+                <td class="td__border__l">
+                    <img src="/src/static/iconos/registro pig.svg" alt="" class="svg__pig">
+                </td>
+                <td>${item.id_porcino}</td>
+                <td>${item.sexo}</td>
+                <td>${item.raza}</td>
+                <td>${item.etapa}</td>
+                <td>${item.peso_final} KG</td>
+                <td>${item.estado}</td>
+                <td class="td__border__r">
+                    ${crearIconosAcciones(uniqueId)}
+                </td>
+            </tr>`;
+    }
+
+    function crearIconosAcciones(id) {
+        return `
+            <button class="icon-eye" data-id="${id}" data-type="porcino"><img src="/src/static/iconos/icono eye.svg" alt="ver informacion"></button>
+            <button class="icon-edit" data-id="${id}" data-type="porcino"><img src="/src/static/iconos/edit icon.svg" alt="editar informacion"></button>
+            <button class="icon-delete" data-id="${id}" data-type="porcino"><img src="/src/static/iconos/delete icon.svg" alt="eliminar informacion"></button>
+        `;
+    }
+
+    function render_paginacion(){
+        const cont = document.getElementById('paginacion_porcino');
+        cont.innerHTML = `
+
+        <span>Porcinos Totales: ${porcinos.Porcinos.length}</span>
+
+        <container class="container_btn_paginacion">
+        <iconify-icon icon="bxs:left-arrow" width="24" height="24"  style="color: #2C3D31" ${pagina_actual === 1 ? "disabled" : ""} data-page="${pagina_actual - 1}"></iconify-icon>
+        <span>Pagina ${pagina_actual} de ${total_paginas}</span>
+        <iconify-icon icon="bxs:right-arrow" width="24" height="24"  style="color: #2C3D31" ${pagina_actual === total_paginas ? "disabled" : ""} data-page="${pagina_actual + 1}"></iconify-icon>
+        </container>
+        `
+    }
+
+    document.getElementById("paginacion_porcino").addEventListener("click", (e) => {
+        if (e.target.dataset.page){
+            const nueva_pagina = Number(e.target.dataset.page)
+            if (nueva_pagina >= 1 && nueva_pagina <= total_paginas){
+                pagina_actual = nueva_pagina;
+                mostrar_porcinos()
+                render_paginacion()
+            }
+        }
+    })
+
+    mostrar_porcinos()
+    render_paginacion()
 }
 
 async function consulta_individual_porcino(id, mostrar = false) {
@@ -1009,7 +1049,7 @@ async function consulta_individual_porcino(id, mostrar = false) {
         }
 
         if (mostrar) {
-        mostrar_porcinos(response);
+        paginacion_porcinos(response);
         }
 
         return response;
@@ -1044,7 +1084,7 @@ function crearSelects(filtro,opciones){
     }else{
         let select = document.createElement('select')
         select.id = "filter__options__2"
-        select.className = "input_id"
+        select.classList.add("input_id", "rm_filter")
         select.setAttribute('required', true)
         let value_pred = document.createElement('option');
         value_pred.text = "Seleccione..."
@@ -1133,7 +1173,7 @@ async function consulta_filtros() {
             )
             const response = await promesa.json()
             if (Object.keys(response).length != 1){
-                mostrar_porcinos(response)
+                paginacion_porcinos(response)
             } else{
                 Swal.fire({
                 title: "Mensaje",
@@ -1265,11 +1305,20 @@ function eliminar_porcino(id_porcino){
             refrescar_porcinos(id_porcino);
             cerrarDialog(`modal-delete-confirm`);
             cerrarDialog(`modal-delete`);
-            Swal.fire({
-                title: "Mensaje",
-                text: `${response.Mensaje}`,
-                icon: "success"
-            });
+            if (response.Mensaje ===  `Error al eliminar el porcino con id ${id_porcino}`){
+                Swal.fire({
+                    title: "Mensaje",
+                    text: `El Porcino con id ${id_porcino} esta asociado a una trasacción de peso, No se puede eliminar, Cambie el estado a "Inactivo"`,
+                    icon: "error"
+                });
+            } else{
+                Swal.fire({
+                    title: "Mensaje",
+                    text: `${response.Mensaje}`,
+                    icon: "success"
+                });
+
+            }
         })
         .catch(error => console.error('Error', error));
     } else {
@@ -1298,7 +1347,7 @@ function crearFilaHistorial(item){
             <td> ${item.peso_final} </td>
             <td> ${item.fecha_pesaje} </td>
             <td class="td__border__r">
-                <img src="/src/static/iconos/icon eye.svg" alt="" class="icon-eye" data-id="${uniqueId}" data-type = "tran_peso">
+                <button class="icon-eye" data-id="${uniqueId}" data-type="tran_peso"><img src="/src/static/iconos/icono eye.svg" alt="ver informacion"></button>
             </td>
         </tr>
     `;
@@ -1429,45 +1478,6 @@ function actualizarPreview(porcino, peso, elementoTexto) {
         después de su último pesaje registrado por el usuario ${usuario}, presenta un peso de ${peso || "XX"} Kg.
     `;
 }
-
-// function crearDialogEyeHistorial(item, uniqueId){
-//     const campos = [
-//         {label: 'ID', value: item.id_documento, id: 'id-documento'},
-//         {label: 'Fecha Documento', value: item.fecha_documento, id: 'fecha-documento-eye'},
-//         {label: 'Fecha Pesaje', value: item.fecha_pesaje, id: 'fecha-pesaje-eye'},
-//         {label: 'ID porcino', value: item.id_porcino, id: 'id-porcino-eye'},
-//         {label: 'Peso registrado', value: item.peso_final, id: 'peso-registrado-eye'},
-//         {label: 'Usuario', value: item.nombre, id: 'nombre-usuario-eye'},
-//         {label: 'Descripcion', value: item.descripcion, id: 'descripcion-eye'},
-//     ]
-
-//     const camposHTML = campos.map(campo => {
-//         if (campo.label === 'Descripcion'){
-//             return `
-//             <textarea id="textare_eye_historial" readonly>
-//                 ${item.descripcion}
-//             </textarea>
-//             `
-//         }else{
-//             return `
-//             <div class = "container__label__input">
-//                 <label for="${campo.id}-${uniqueId}">${campo.label}</label>
-//                 <input type="text" class="campo-info" id="${campo.id}-${uniqueId}" placeholder="${campo.value}" readonly>
-//             </div>
-//             `
-//         }
-//     }
-//     ).join('');
-    
-    
-//     const HTML = `
-//         <div class="lay_content_histirial">
-//             ${camposHTML}
-//         </div>
-//     `
-
-//     return crearDialogBaseRaza(`dialog-eye-historial-${uniqueId}`, 'dialog-icon-eye', 'Informacion de la transacción', HTML, 'Cerrar', 'button-cerrar', uniqueId, 'cerrarDialog',`dialog-eye-historial-${uniqueId}`);
-// }
 
 async function consulta_gen_historial_pesos(){
     try {
@@ -1637,9 +1647,9 @@ function crearFilaRaza(item){
 
 function crearIconosAccionesRaza(id) {
     return `
-        <img src="/src/static/iconos/icono eye.svg" class="icon-eye" data-id="${id}" data-type="raza">
-        <img src="/src/static/iconos/edit icon.svg" class="icon-edit" data-id="${id}" data-type="raza">
-        <img src="/src/static/iconos/delete icon.svg" class="icon-delete" data-id="${id}" data-type="raza">
+        <button class="icon-eye" data-id="${id}" data-type="raza"><img src="/src/static/iconos/icono eye.svg" alt="ver informacion"></button>
+        <button class="icon-edit" data-id="${id}" data-type="raza" ><img src="/src/static/iconos/edit icon.svg" alt="editar informacion"></button>
+        <button class="icon-delete" data-id="${id}" data-type="raza" ><img src="/src/static/iconos/delete icon.svg" alt="eliminar informacion"></button>
     `;
 }
 
@@ -1888,9 +1898,9 @@ function crearFilaEtapa(item){
 
 function crearIconosAccionesEtapa(id){
     return `
-        <img src="/src/static/iconos/icono eye.svg" class="icon-eye" data-id="${id}" data-type="etapa">
-        <img src="/src/static/iconos/edit icon.svg" class="icon-edit" data-id="${id}" data-type="etapa">
-        <img src="/src/static/iconos/delete icon.svg" class="icon-delete" data-id="${id}" data-type="etapa">
+        <button class="icon-eye" data-id="${id}" data-type="etapa"><img src="/src/static/iconos/icono eye.svg" alt="ver informacion"></button>
+        <button class="icon-edit" data-id="${id}" data-type="etapa" ><img src="/src/static/iconos/edit icon.svg" alt="editar informacion"></button>
+        <button class="icon-delete" data-id="${id}" data-type="etapa" ><img src="/src/static/iconos/delete icon.svg" alt="eliminar informacion"></button>
     `
 }
 
@@ -3313,9 +3323,6 @@ document.addEventListener("click", (e) => {
     const id = icon.dataset.id;
     const type = icon.dataset.type;
 
-    console.log(id)
-    console.log(type)
-
     if (icon.classList.contains("icon-eye")) {
         openModalEye(type, id);
     } else if (icon.classList.contains("icon-edit")) {
@@ -3354,3 +3361,17 @@ document.addEventListener("click", (e) => {
 });
 
 document.getElementById("modal-eye").addEventListener("close", resetModalEye);
+
+document.getElementById('btn_consultar_todo').addEventListener('click', () =>{
+    const input_id = document.getElementById('input_id');
+    input_id.readOnly = false
+    input_id.disabled = false
+    const filter_2 = document.getElementById("filter__options__2");
+    if (filter_2){
+        filter_2.style.display = "none";
+    }
+    document.querySelectorAll(".rm_filter").forEach(select => {
+        select.selectedIndex = 0;
+    })
+    consulta_general_porcinos()
+})

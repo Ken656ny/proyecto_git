@@ -9,6 +9,8 @@
     <link rel="stylesheet" href="/src/static/css/sytle.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11.17.2/dist/sweetalert2.min.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://code.iconify.design/iconify-icon/3.0.0/iconify-icon.min.js"></script>
+
     <title>Edupork</title>
 </head>
 <body class="body__porcinos">
@@ -107,7 +109,7 @@
             <input type = "number" class = "input__id" id="input_id" placeholder = "Ingrese el ID del porcino" min="0" oninput = "this.value = Math.abs(this.value)">
             <div class="container__filtro">
                 <img src="/src/static/iconos/icon filter.svg" alt="" id="svg__filter">
-                <select name="filter" id="filter_porcino" class="filter" >
+                <select name="filter" id="filter_porcino" class="filter rm_filter" >
                     <option value="" disabled selected >Filtrar por...</option>
                     <option value="sexo">Sexo</option>
                     <option value="raza">Raza</option>
@@ -118,6 +120,7 @@
             </div>
 
             <button type="submit" class="btn" id="btn_consultar">Consultar</button>
+            <button type="button" id="btn_consultar_todo" class="btn">Consultar Todo</button>
         </form>
         
         <div class="container__btn__options">
@@ -157,8 +160,11 @@
                 
                 </tbody>
             </table>
+            <div id="paginacion_porcino">
+            </div>
         </section>
     </section>
+    
     <!-- DIALOGS -->
     <!-- DIALOG DE GESTIONAR RAZA -->
     <dialog class="dialog__ges__raz" id="dialog__ges__raz">
@@ -171,6 +177,7 @@
                 <hr>
             </div>
             <form class="container__search__bar bar--gestion" onsubmit="event.preventDefault(); consulta_indi_raza(mostrar = true)">
+                <span class="iconify" data-icon="mdi:home" style="font-size: 24px;"></span>
                 <div class="conta__lupa__inp">
                     <img src="/src/static/iconos/icon lupa.svg" alt="lupa">
                     <input type = "number" class = "input__id" id="input_id_raza" placeholder = "Ingrese el ID de la raza" min="0" oninput = "this.value = Math.abs(this.value)" required>
