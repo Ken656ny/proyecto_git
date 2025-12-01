@@ -100,30 +100,28 @@
         </section>
 
           <header class="content_reportes_pesos">
-         <h2 class="title_reportes_pesos">Generar informes de los pesos mas altos y mas bajos</h2>
+         <h2 class="title_reportes_pesos">Generar informes de alimentos más y menos utilizados</h2>
         </header>
             <section class="container container__reportes_pesos">
         <!-- Ícono documento -->
         <img src="/src/static/iconos/Vector (6).svg" alt="icono informe" class="icon__informe">
 
 
-
-    <!-- Tipo de informe -->
-    <div class="dropdown filtro-informe">
-        <input type="text" class="input__id" id="input_tipo_informe" placeholder="Escoja el tipo de informe..." readonly>
-        <div class="dropdown__content">
-            <a href="#">Alimentos</a>
-            <a href="#">Pesos</a>
-        </div>
+<!-- Buscador por ID -->
+    <div class="dropdown filtro-fecha">
+        <input type="text" class="input__id" id="input_rango_fecha" placeholder="ID de alimento">
+        <div class="dropdown__content"></div>
     </div>
 
     <!-- Filtro con icono -->
     <div class="dropdown filtro-peso">
         <img src="/src/static/iconos/icon filter.svg" alt="icon filtro" class="icon__filtro_dropdown">
-        <input type="text" class="input__id" id="input_filtro_peso" placeholder="Peso más bajo..." readonly>
+        <input type="text" class="input__id" id="input_filtro_peso" placeholder="Alimentos" readonly>
         <div class="dropdown__content">
-            <a href="#">Menor consumido</a>
-            <a href="#">Mayor consumido</a>
+            <a onclick="cargarReporteAlimentos('mayor')">Mayor consumido</a>
+<a onclick="cargarReporteAlimentos('menor')">Menor consumido</a>
+<a onclick="cargarReporteAlimentos('todos')">Todos</a>
+
         </div>
     </div>
 
@@ -138,32 +136,35 @@
             <a href="#">Último año</a>
         </div>
     </div>
-
+<img src="/src/static/iconos/file_export_outline_icon_139603.svg" 
+     alt="icono export" 
+     class="icon__export" 
+     onclick="exportarReporteAlimentos()">
 
     </section>
 
-<!-- TABLA -->
-<section class="container__Reportes_peso_">
-    <table class="table__peso">
-        <thead>
-            <tr>
-                <th></th>
-                <th>ID alimento</th>
-                <th> Mayor consumido se usó en</th>
-                <th>Menor consumido se usó</th>
-                <th>Promedio de cantidad usada (KG)</th>
-            </tr>
-        </thead>
-        <tbody class="registros" id="contenido"></tbody>
-    </table>
+<!-- TABLA --><section class="container__Reportes_alimento_">
+
+    <div class="contenido__tabla">   <!-- AGREGADO -->
+        <table class="table__alimento">
+            <thead id="cabecera-alimentos">
+                <tr> 
+                    <th></th>
+                    <th>ID alimento</th>
+                    <th>Mayor consumido se usó en</th>
+                    <th>Menor consumido se usó</th>
+                    <th>Promedio de cantidad usada (KG)</th>
+                     <th></th>
+                </tr>
+            </thead>
+
+            <tbody class="registros" id="contenido"></tbody>
+        </table>
+    </div> <!-- FIN DEL DIV AGREGADO -->
+
 </section>
 
-<!-- BOTÓN IMPRIMIR (solo texto) -->
-<div class="imprimir">
-  <p class="texto-imprimir">
-    Presione para
-    <button type="button" class="imprimir-link" onclick="window.print()">Imprimir</button>
-  </p>
+
 </div>
 
     <script src="/src/static/js/script.js"></script>

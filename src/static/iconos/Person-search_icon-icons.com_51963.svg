@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Generator: Adobe Illustrator 17.0.0, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg version="1.1" id="Layer_1" xmlns:sketch="http://www.bohemiancoding.com/sketch/ns"
+	 xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="59px" height="64px"
+	 viewBox="0 0 59 64" enable-background="new 0 0 59 64" xml:space="preserve">
+<title>Person-search</title>
+<desc>Created with Sketch.</desc>
+<g id="Page-1" sketch:type="MSPage">
+	<g id="Person-search" transform="translate(2.000000, 1.000000)" sketch:type="MSLayerGroup">
+		<path id="Shape" sketch:type="MSShapeGroup" fill="none" stroke="#58595B" stroke-width="2" d="M31.612,33.911
+			c0-1.018,0.406-1.637,0.728-1.813c4.635-2.538,6.169-10.794,6.467-10.794c1.56,0,3.11-3.631,3.11-6.221
+			c0-2.043-1.077-2.229-2.175-2.872c0.002-0.095,0.007-0.193,0.007-0.285C39.749,5.194,34.269,0,27.508,0
+			S14.939,5.385,14.939,12.117c0,0.092,0.005,0.19,0.007,0.285c-1.099,0.643-1.862,0.953-1.862,2.996
+			c0,2.591,1.237,6.244,2.797,6.244c0.3,0,2.292,7.982,6.724,10.647c0.292,0.176,0.731,0.651,0.731,1.496
+			c0,2.169-2.996,4.097-5.48,5.334c-3.037,1.513-17.89,1.813-17.89,15.88h35.061"/>
+		<path id="Shape_1_" sketch:type="MSShapeGroup" fill="none" stroke="#58595B" stroke-width="2" d="M51,55h4.049
+			c0-7.232-3.733-10.729-7.874-12.676"/>
+		<path fill="none" stroke="#58595B" stroke-width="2" d="M54.674,58.708l-9.135-9.134c0.975-1.642,1.543-3.552,1.543-5.598
+			c0-6.083-4.95-11.016-11.057-11.016s-11.057,4.933-11.057,11.016c0,6.083,4.95,11.015,11.057,11.015
+			c2.441,0,4.689-0.796,6.518-2.131l8.99,8.989c0.372,0.372,1.377-0.03,2.244-0.896C54.644,60.085,55.046,59.08,54.674,58.708z"/>
+	</g>
+</g>
+</svg>

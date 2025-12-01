@@ -2798,17 +2798,12 @@ tabla y contenedor
 
 /* Fila del cuerpo (toda la barra del cerdo) */
 .table__peso tbody tr {
-  background-color: #bfbfbf;
+  background-color: #AFAEAE;
   border-radius: 20px;
   overflow: hidden;
 }
 
-/* Celdas internas (sin fondo para que no rompan el borde redondeado) */
-.table__peso tbody tr td {
-  background-color: transparent;
-  padding: 14px 25px;
-  border: none;
-}
+
 
 /* Bordes redondeados aplicados a las esquinas de las filas */
 .table__peso tbody tr td:first-child {
@@ -2852,8 +2847,345 @@ tabla y contenedor
 .table__peso tbody tr:hover {
   background-color: #a9a9a9;
   transition: background-color 0.3s ease;
-}
+}/* CONTENEDOR */
+/* ===============================
+   CONTENEDOR (mismo estilo pesos)
+   =============================== */
 .container__gestionar_usuario_ {
+ background-color: var(--color--fondos);
+    width: 95%;
+    max-width: 1200px;
+    height: 400px; /* Altura fija */
+    margin: 40px auto 0 auto;
+    border: 1px solid var(--color-bor-contain);
+    border-radius: 30px;
+    overflow-y: auto; /* Aparece barra solo cuando hay más de 4 */
+    overflow-x: hidden;
+    padding: 10px 0;
+    box-sizing: border-box;
+}
+
+/* Scroll igual al de pesos */
+.container__gestionar_usuario_::-webkit-scrollbar {
+    width: 10px;
+}
+.container__gestionar_usuario_::-webkit-scrollbar-thumb {
+    background: #a0a0a0;
+    border-radius: 5px;
+}
+.container__gestionar_usuario_::-webkit-scrollbar-thumb:hover {
+    background: #7a7a7a;
+}
+
+/* ===============================
+   TABLA estilo “barra”
+   =============================== */
+.table__gestionar_usuario {
+    width: 95%;
+    margin: auto;
+    border-collapse: separate;
+    border-spacing: 0 12px;  /* separa filas igual que pesos */
+    font-family: var(--fuente--contenido);
+    text-align: center;
+    
+}
+
+/* Encabezado */
+.table__gestionar_usuario thead tr {
+    background-color: #d9d9d9;
+    font-size: 18px;
+    font-weight: bold;
+    border-radius: 12px;
+}
+.table__gestionar_usuario thead th {
+    padding: 14px;
+}
+
+/* Filas estilo barra */
+.table__gestionar_usuario tbody tr {
+    background-color: #BFBFBF;
+    border-radius: 16px;
+}
+
+/* Bordes redondeados */
+.table__gestionar_usuario tbody tr td:first-child {
+    border-top-left-radius: 20px;
+    border-bottom-left-radius: 20px;
+}
+.table__gestionar_usuario tbody tr td:last-child {
+    border-top-right-radius: 20px;
+    border-bottom-right-radius: 20px;
+}
+
+/* Celdas */
+.table__gestionar_usuario tbody td {
+    padding: 20px 18px;
+    font-size: 17px;
+    font-weight: 700;
+}
+
+/* ===============================
+   IMAGEN DEL USUARIO (más grande)
+   =============================== */
+.img-usuario {
+    width: 40px;
+    height: auto;
+}
+.td-img-usuario {
+    width: 110px;
+    text-align: center;
+}
+
+/* ===============================
+   ICONOS DE ACCIONES (más grandes)
+   =============================== */
+.accion-grande {
+    width: 40px;
+    cursor: pointer;
+    margin: 0 6px;
+    transition: transform .2s ease-in-out;
+}
+.accion-grande:hover {
+    transform: scale(1.18);
+}
+
+/* ===============================
+   SWITCH ESTILO MODERNO
+   =============================== */
+.switch {
+    appearance: none;
+    width: 48px;
+    height: 24px;
+    background: #ccc;
+    border-radius: 20px;
+    position: relative;
+    cursor: pointer;
+}
+.switch:checked {
+    background: #5b6e53;
+}
+.switch::before {
+    content: "";
+    width: 22px;
+    height: 22px;
+    background: white;
+    border-radius: 50%;
+    position: absolute;
+    top: 1px;
+    left: 1px;
+    transition: .2s;
+}
+.switch:checked::before {
+    left: 25px;
+}
+
+/* Alineación de acciones */
+.acciones-usuarios {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+
+
+
+
+/* ================================
+   ESTILO PARA LA TABLA DE PESOS
+   ================================ */
+
+/* Aumentar alto de las filas */
+.table__peso tbody tr {
+    height: 70px; /* antes estaba ~40px */
+    font-size: 18px;
+    
+}
+/* SEPARAR LA TABLA DE LOS FILTROS */yy
+
+/* HACER LA TABLA MÁS ESPACIADA */
+.table__peso {
+    border-spacing: 0 15px; /* separa las filas entre sí */
+    width: 95%;
+}
+
+
+/* TODO EL TEXTO DE LA TABLA EN NEGRITA */
+.table__peso tbody td {
+    font-weight: 750 !important; 
+}
+.container__Reportes_peso_ {
+    margin-bottom: 60px !important;  /* espacio exclusivo para el botón */
+}
+
+/* Aumentar tamaño de texto */
+.table__peso td, 
+.table__peso th {
+    padding: 20px 25px;
+}
+
+/* Aumentar el icono del cerdito */
+.table__peso img {
+    width: 80px !important;  /* antes 25px */
+    height: auto;
+}
+
+/* Ajustar columna izquierda */
+.table__peso td:first-child {
+    width: 70px;
+    text-align: center;
+}
+
+/* Responsive mejorado */
+@media (max-width: 768px) {
+    .table__peso td, 
+    .table__peso th {
+        font-size: 16px;
+        padding: 12px;
+    }
+
+    .table__peso img {
+        width: 35px !important;
+    }
+
+    .table__peso tbody tr {
+        height: 55px;
+    }
+}
+.imprimir {
+    width: 100%;
+    text-align: center;
+    margin-top: 330px;     /* separación hacia arriba */
+    margin-bottom: 40px;  /* espacio inferior bonito */
+}
+
+.texto-imprimir {
+    font-size: 18px;
+    font-weight: 550;
+}
+
+.imprimir-link {
+    font-size: 18px;
+    font-weight: bold;
+    border: none;
+    background: none;
+    cursor: pointer;
+    text-decoration: underline;
+    color: #000DFF;   /* ← evita el azul */
+}
+/* ESPACIO EXTRA BAJO LA TABLA PARA QUE NO CHOQUE CON EL BOTÓN */
+.container__Reportes_peso_ {
+    margin-bottom: 1900px !important; /* antes 60, ahora MUCHO más */
+}
+/* =======================================
+    ESTILOS EXCLUSIVOS PARA EL PDF
+   ======================================= */
+@media print {
+
+    /* Oculta todo lo demás */
+    body * {
+        visibility: hidden;
+    }
+
+    /* Mostrar SOLO el área del reporte */
+    .reporte-imprimir, 
+    .reporte-imprimir * {
+        visibility: visible;
+    }
+
+    .reporte-imprimir {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        padding: 30px;
+    }
+
+    /* Título */
+    .titulo-reporte {
+        text-align: center;
+        font-size: 28px;
+        font-weight: 800;
+        margin-bottom: 30px;
+    }
+
+    /* Cada bloque de porcino */
+    .bloque-porcino {
+        border: 2px solid #000;
+        padding: 20px;
+        margin-bottom: 25px;
+        border-radius: 15px;
+        font-size: 18px;
+    }
+
+    /* Icono */
+    .bloque-porcino img {
+        width: 90px;
+        float: right;
+        margin-top: -10px;
+    }
+
+    .categoria {
+        font-weight: bold;
+        color: #000;
+        margin-top: 10px;
+    }
+
+    /* Ocultar botón de imprimir */
+    .imprimir {
+        display: none !important;
+    }
+}
+.imprimir-link {
+   pointer-events: none;
+}
+.imprimir-link {
+    position: relative;
+    z-index: 9999;
+    cursor: pointer !important;
+    pointer-events: auto !important;
+}
+/* 🔒 Oculta el reporte completamente en pantalla */
+#reportePDF {
+    display: none;
+}
+/* SIEMPRE OCULTO EN PANTALLA */
+#reportePDF {
+    display: none !important;
+}
+
+/* SOLO MOSTRAR AL IMPRIMIR */
+@media print {
+
+    /* OCULTAR TODO */
+    body * {
+        visibility: hidden !important;
+    }
+
+    /* MOSTRAR SOLO EL REPORTE */
+    #reportePDF, #reportePDF * {
+        visibility: visible !important;
+        display: block !important;
+    }
+
+    /* UBICAR EL REPORTE EN LA HOJA */
+    #reportePDF {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        padding: 20px;
+        background: white;
+    }
+}
+
+
+
+  /* Alimentos*/
+
+  
+
+
+.container__Reportes_alimento_ {
     background-color: var(--color--fondos);
     width: 90%;
     max-width: 1200px;
@@ -2866,10 +3198,357 @@ tabla y contenedor
     padding: 10px 0;
     box-sizing: border-box;
 }
-.table__gestionar_usuario {
-  width: 100%;
-  border-collapse: collapse;
-  border-radius: 20px;
-  overflow-y: auto;
-  overflow-x: hidden;
+
+
+/* Estilo bonito para la barra de desplazamiento */
+.container__Reportes_alimento_::-webkit-scrollbar {
+    width: 10px;
+}
+
+.container__Reportes_alimento_::-webkit-scrollbar-thumb {
+    background: #a0a0a0;
+    border-radius: 5px;
+}
+
+.container__Reportes_alimento_::-webkit-scrollbar-thumb:hover {
+    background: #7a7a7a;
+}
+
+
+
+.container__Reportes_alimento_::-webkit-scrollbar {
+    display: none;
+}
+
+.container__Reportes_alimento_ {
+    margin-bottom: 60px !important;  /* espacio exclusivo para el botón */
+}
+
+/* ================================
+      TABLA ALIMENTOS — ESTILO BARRA
+   ================================ */
+/* ================================
+      TABLA ALIMENTOS — IGUAL A PESOS
+   ================================ */
+
+.table__alimento {
+    width: 95%;
+    margin: auto;
+    border-collapse: separate;
+    border-spacing: 0 15px; /* separación entre filas */
+    text-align: center;
+    font-family: var(--fuente--contenido);
+}
+
+/* Encabezado */
+.table__alimento thead tr {
+    background-color: #d9d9d9;
+    font-size: 18px;
+    font-weight: bold;
+    height: 70px;
+}
+.table__alimento th {
+    padding: 1px 40px;
+}
+
+/* Filas estilo barra */
+.table__alimento tbody tr {
+    background-color: #AFAEAE;
+    height: 70px;   /* MISMO ALTO QUE PESOS */
+    border-radius: 20px;
+}
+
+/* Bordes redondos */
+.table__alimento tbody tr td:first-child {
+    border-top-left-radius: 20px;
+    border-bottom-left-radius: 20px;
+}
+.table__alimento tbody tr td:last-child {
+    border-top-right-radius: 20px;
+    border-bottom-right-radius: 20px;
+}
+
+
+/* Celdas */
+.table__alimento td {
+    padding: 20px 25px;
+    font-size: 17px;
+    font-weight: 750;  /* IGUAL PESOS */
+    vertical-align: middle;
+    white-space: normal;
+    word-wrap: break-word;
+}
+
+/* Imagen alimento (misma lógica que cerdito en PESO) */
+.table__alimento img {
+    width: 80px !important;
+    height: auto;
+}
+
+/* Columna imagen */
+.table__alimento td:nth-child(1),
+.table__alimento th:nth-child(1) {
+    width: 70px;
+}
+
+/* Hover */
+.table__alimento tbody tr:hover {
+    background-color: #9f9f9f;
+    transition: .25s ease-in-out;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .table__alimento td, 
+    .table__alimento th {
+        font-size: 16px;
+        padding: 12px;
+    }
+    .table__alimento img {
+        width: 40px !important;
+    }
+    .table__alimento tbody tr {
+        height: 55px;
+    }
+}
+.table__alimento td {
+    white-space: normal !important;
+    word-break: break-word;
+    text-align: center;
+    padding: 10px;
+}
+.icon__export {
+    width: 40px;      /* Auméntalo aquí (30px, 40px, 50px...) */
+    height: auto;
+    cursor: pointer;  /* Mano al pasar */
+    margin-left: 15px;
+    transition: transform 0.2s ease;
+}
+
+.icon__export:hover {
+    transform: scale(1.1);  /* animación suave */
+}
+
+/* -------------------------
+   Fondo oscuro del modal
+------------------------- */
+.modal-usuario {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.45);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 2000;
+}
+
+.oculto {
+    display: none !important;
+}
+.table__alimento img.icon-th {
+    width: 50px !important;   /* o el tamaño que quieras */
+    height: auto;
+     margin-left: -60px; 
+}
+
+/* -------------------------
+   Caja del modal
+------------------------- */
+.modal-contenido-usuario {
+    width: 750px;
+    background: #E8EDEB;
+    padding: 25px;
+    border-radius: 18px;
+    border: 1px solid rgba(0,0,0,0.2);
+}
+
+/* Header */
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+/* ✔ Título ajustado a tu diseño */
+.modal-header h2 {
+    font-size: 40px;                       /* Como en la captura */
+    font-weight: 700;
+    color: #486A50;                         /* Mantengo tu color */
+    font-family: "Times New Roman", serif;   /* Fuente correcta */
+    text-align: center;
+    width: 100%;
+}
+
+/* Botón cerrar */
+.btn-cerrar {
+    background: none;
+    border: none;
+    font-size: 25px;
+    cursor: pointer;
+    color: #333;
+}
+
+/* -------------------------
+        Body Modal
+------------------------- */
+.modal-body {
+    margin-top: 20px;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 18px;
+}
+
+.grupo-input label {
+    font-weight: 600;
+    font-size: 14px;
+    color: #486A50;
+}
+
+/* ✔ Inputs EXACTOS según lo que pediste */
+.grupo-input input,
+.grupo-input select,
+.grupo-input textarea {
+    background-color: #ECE6F0;
+    width: 100%;
+    height: 40px;
+    font-weight: 500;
+    border: 1px solid #737171;
+    border-radius: 18px;
+    outline: none;
+    padding: 10px 8px;
+    font-size: 15px;
+    color: #333;
+    box-sizing: border-box;
+}
+.btn-consultar {
+    background-color: #4F7D69;
+    color: white;
+    padding: 10px 18px;
+    border-radius: 18px;
+    border: 1px solid #3d6d59;
+    font-weight: 500;
+    font-size: 14px;
+    cursor: pointer;
+    margin-left: 10px;
+    transition: 0.2s;
+}
+
+.btn-consultar:hover {
+    background-color: #3d6d59;
+    border-color: #2f5345;
+}
+.btn-group {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.btn-refresh {
+    width: 40px;
+    height: 40px;
+    padding: 8px;
+    background-color: #ece6f0;
+    border: 1px solid #737171;
+    border-radius: 18px;
+    cursor: pointer;
+    transition: 0.2s ease-in-out;
+}
+
+.btn-refresh:hover {
+    transform: scale(1.05);
+}
+
+/* -------------------------
+   Switch estilo EduPork
+------------------------- */
+.switch {
+    position: relative;
+    display: inline-block;
+    width: 42px;
+    height: 22px;
+}
+
+.switch input {
+    display: none;
+}
+
+.slider {
+    position: absolute;
+    cursor: pointer;
+    background-color: #ccc;
+    border-radius: 34px;
+    top: 0; left: 0;
+    right: 0; bottom: 0;
+    transition: .4s;
+}
+
+.slider:before {
+    content: "";
+    height: 16px;
+    width: 16px;
+    left: 3px;
+    bottom: 3px;
+    position: absolute;
+    background-color: white;
+    border-radius: 50%;
+    transition: .3s;
+}
+
+input:checked + .slider {
+    background-color: #54A66A;
+}
+
+input:checked + .slider:before {
+    transform: translateX(19px);
+}
+
+/* -------------------------
+         Footer
+------------------------- */
+.modal-footer {
+    text-align: center;
+    margin-top: 25px;
+}
+
+.btn-guardar {
+    background: #4F7D69;
+    padding: 10px 25px;
+    border-radius: 10px;
+    border: none;
+    color: white;
+    cursor: pointer;
+    font-size: 15px;
+    transition: 0.2s;
+}
+
+.btn-guardar:hover {
+    background: #3d6d59;
+}
+
+.texto-eliminar {
+    margin-top: 20px;
+    font-size: 18px;
+    text-align: center;
+    color: #444;
+}
+
+.btn-cancelar, .btn-eliminar {
+    padding: 10px 22px;
+    border-radius: 10px;
+    border: none;
+    cursor: pointer;
+    margin: 8px;
+    font-size: 15px;
+}
+
+.btn-cancelar {
+    background: #C3CBC7;
+}
+
+.btn-eliminar {
+    background: #D9534F;
+    color: white;
 }

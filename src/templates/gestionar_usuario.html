@@ -98,65 +98,125 @@
                 <button type="button" class="btn__perfil">David</button>
             </div>
         </section>
+<header class="content_reportes_pesos">
+    <h2 class="title_reportes_pesos">Gestionar usuario</h2>
+</header>
 
-          <header class="content_reportes_pesos">
-         <h2 class="title_reportes_pesos">Gestionar usuario</h2>
-        </header>
-            <section class="container container__reportes_pesos">
-        <!-- Ícono documento -->
-        <img src="/src/static/iconos/lupa icon.svg" alt="icono informe" class="icon__informe">
+<section class="container container__reportes_pesos">
 
+    <!-- Ícono documento -->
+    <img src="/src/static/iconos/lupa icon.svg" alt="icono informe" class="icon__informe">
 
-
-    <!-- Tipo de informe -->
-    <div class="dropdown filtro-informe">
-        <input type="text" class="input__id" id="input_tipo_informe" placeholder="Escoja el tipo de informe..." readonly>
-        <div class="dropdown__content">
-            <a href="#">Alimentos</a>
-            <a href="#">Pesos</a>
-        </div>
+    <!-- Buscador por ID -->
+    <div class="dropdown filtro-fecha">
+        <input type="text" class="input__id" id="input_rango_fecha" placeholder="Id de usuario">
+        <div class="dropdown__content"></div>
     </div>
 
-<div class="dropdown filtro-peso">
-    <img src="/src/static/iconos/icon filter.svg" alt="icon filtro" class="icon__filtro_dropdown">
-    <input type="text" class="input__id" id="input_filtro_peso" placeholder="usuario" readonly>
-    <div class="dropdown__content">
-        <a href="#" onclick="('alto')">usuario</a>
-      
+    <!-- Botón consultar -->
+    <button class="btn-consultar" onclick="consultarUsuarios()">Consultar</button>
+    
+    <!-- BOTÓN PARA MOSTRAR TODOS -->
+    <img src="/src/static/iconos/ri_filter-2-fill.svg" class="btn-refresh" onclick="cargarUsuarios()">
+
+</section>
+
+<section class="container__gestionar_usuario_">
+    <table class="table__gestionar_usuario">
+       <thead>
+            <tr>
+                <th></th>
+                <th>ID</th>
+                <th>Nombre</th>
+                <th>Correo</th>
+                <th>Estado</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+
+        <tbody id="contenido_USUARIO"></tbody>
+    </table>
+</section>
+<script>
+function abrirDialogEditUsuario(item){
+    console.log("Si entra al click!", item);
+}
+</script>
+
+<!-- =========================================================
+     🟩 MODAL EDITAR USUARIO – ESTILO EDU-PORK (como tu ejemplo)
+   ========================================================= -->
+<div id="modalEditarUsuario" class="modal-usuario oculto">
+    <div class="modal-contenido-usuario">
+
+        <div class="modal-header">
+            <h2>Editar información del usuario</h2>
+            <button class="btn-cerrar" onclick="cerrarModalEditar()">×</button>
+        </div>
+
+        <div class="modal-body">
+
+            <div class="grupo-input">
+                <label>ID</label>
+                <input id="edit_id" type="text" disabled>
+            </div>
+
+            <div class="grupo-input">
+                <label>Nombre</label>
+                <input id="edit_nombre" type="text">
+            </div>
+
+            <div class="grupo-input">
+                <label>Correo</label>
+                <input id="edit_correo" type="text">
+            </div>
+
+            <div class="grupo-input">
+                <label>Estado</label>
+                <label class="switch">
+                    <input id="edit_estado" type="checkbox">
+                    <span class="slider"></span>
+                </label>
+            </div>
+
+            <div class="grupo-input">
+                <label>Tipo</label>
+                <input id="edit_tipo" type="text" disabled>
+            </div>
+
+        </div>
+
+        <div class="modal-footer">
+            <button class="btn-guardar" onclick="guardarEdicionUsuario()">Guardar</button>
+        </div>
+
     </div>
 </div>
 
-    <div class="dropdown filtro-fecha">
-        <input type="text" class="input__id" id="input_rango_fecha" placeholder="Escoja el rango de fecha..." readonly>
-        <div class="dropdown__content">
-            <a href="#">Última semana</a>
-            <a href="#">Últimos 15 días</a>
-            <a href="#">Último mes</a>
-            <a href="#">Últimos 6 meses</a>
-            <a href="#">Último año</a>
+<!-- =========================================================
+     🟥 MODAL ELIMINAR USUARIO – CONFIRMACIÓN
+   ========================================================= -->
+<div id="modalEliminarUsuario" class="modal-usuario oculto">
+    <div class="modal-contenido-usuario">
+
+        <div class="modal-header">
+            <h2>Eliminar usuario</h2>
+            <button class="btn-cerrar" onclick="cerrarModalEliminar()">×</button>
         </div>
+
+        <p class="texto-eliminar">¿Seguro que deseas eliminar este usuario?</p>
+
+        <div class="modal-footer">
+            <button class="btn-cancelar" onclick="cerrarModalEliminar()">Cancelar</button>
+            <button class="btn-eliminar" onclick="confirmarEliminarUsuario()">Eliminar</button>
+        </div>
+
     </div>
-
-
-    </section><section class="container__gestionar_usuario_">
-  <table class="table__gestionar_usuario">
-    <thead>
-      <tr>
-       
-        <th>ID</th>
-        <th>Nombre</th>
-        <th>Correo</th>
-        <th>Estado</th>
-         <th>Acciones</th>
-      </tr>
-    </thead>
-    <tbody id="contenido_USUARIO"></tbody>
-  </table>
-</section>
+</div>
 
 
 
-
+</html>
 
     <script src="/src/static/js/script.js"></script>
    

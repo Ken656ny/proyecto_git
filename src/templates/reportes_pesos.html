@@ -108,63 +108,82 @@
 
 
 
-    <!-- Tipo de informe -->
     <div class="dropdown filtro-informe">
-        <input type="text" class="input__id" id="input_tipo_informe" placeholder="Escoja el tipo de informe..." readonly>
-        <div class="dropdown__content">
-            <a href="#">Alimentos</a>
-            <a href="#">Pesos</a>
-        </div>
-    </div>
+    <input type="text" class="input__id" id="input_tipo_informe" placeholder="Etapa de vida" readonly>
+    <div class="dropdown__content">
+<a href="#" onclick="seleccionarEtapa(1, 'Pre-inicial')">Pre-inicial</a>
+<a href="#" onclick="seleccionarEtapa(2, 'Inicial')">Inicial</a>
+<a href="#" onclick="seleccionarEtapa(3, 'Crecimiento')">Crecimiento</a>
+<a href="#" onclick="seleccionarEtapa(4, 'Desarrollo')">Desarrollo</a>
+<a href="#" onclick="seleccionarEtapa(5, 'Engorde')">Engorde</a>
+<a href="#" onclick="seleccionarEtapa(6, 'Finalizador')">Finalizador</a>
 
+    </div>
+</div>
 <div class="dropdown filtro-peso">
     <img src="/src/static/iconos/icon filter.svg" alt="icon filtro" class="icon__filtro_dropdown">
-    <input type="text" class="input__id" id="input_filtro_peso" placeholder="Peso más bajo..." readonly>
+    <input type="text" class="input__id" id="input_filtro_peso" placeholder="Pesos" readonly>
     <div class="dropdown__content">
-        <a href="#" onclick="consulta_reportes_peso('alto')">Peso más alto</a>
-        <a href="#" onclick="consulta_reportes_peso('bajo')">Peso más bajo</a>
+   <a href="#" onclick="seleccionarTipoPeso('todos', 'Todos')">Todos</a>
+<a href="#" onclick="seleccionarTipoPeso('alto', 'Peso más alto')">Peso más alto</a>
+<a href="#" onclick="seleccionarTipoPeso('bajo', 'Peso más bajo')">Peso más bajo</a>
+
     </div>
 </div>
 
-    <div class="dropdown filtro-fecha">
-        <input type="text" class="input__id" id="input_rango_fecha" placeholder="Escoja el rango de fecha..." readonly>
-        <div class="dropdown__content">
-            <a href="#">Última semana</a>
-            <a href="#">Últimos 15 días</a>
-            <a href="#">Último mes</a>
-            <a href="#">Últimos 6 meses</a>
-            <a href="#">Último año</a>
-        </div>
+
+   <div class="dropdown filtro-fecha">
+    <input type="text" class="input__id" id="input_rango_fecha" placeholder="Escoja el rango de fecha..." readonly>
+    
+    <div class="dropdown__content">
+        <!-- FECHA REAL -->
+        <label>Desde:</label>
+        <input type="date" id="fecha_desde" class="input__date">
+
+        <label>Hasta:</label>
+        <input type="date" id="fecha_hasta" class="input__date">
+
+        <hr>
     </div>
+</div>
 
 
     </section>
     <section class="container__Reportes_peso_">
-    <table class="table__peso">
-        <thead>
+    <table class="table__peso" id="tabla_pesos">
+    <thead>
         <tr>
-            <th></th> <!-- columna vacía para el ícono -->
-            <th>ID Porcino</th>
-            <th>Peso Final (KG)</th>
-            <th>Raza</th>
+            <th></th>
+            <th>ID del porcino</th>
+            <th>Rango de peso (KG)</th>
+            <th>Peso Actual (KG)</th>
         </tr>
-        </thead>
-        <tbody id="contenido"></tbody>
-    </table>
-    </section>
+    </thead>
 
+    <tbody id="tbody_pesos">
+    </tbody>
+</table>
 
-<!-- BOTÓN IMPRIMIR (solo texto) -->
+    </section><!-- BOTÓN IMPRIMIR (solo texto) -->
 <div class="imprimir">
   <p class="texto-imprimir">
     Presione para
-    <button type="button" class="imprimir-link" onclick="window.print()">Imprimir</button>
+  <button type="button" class="imprimir-link" onclick="prepararImpresion()">Imprimir</button>
+
+
   </p>
 </div>
 
+<div class="reporte-imprimir" id="reportePDF" style="display:none;">
+    <h1 class="titulo-reporte">Reporte de Pesos – Porcinos</h1>
+    <div id="contenidoReporte"></div>
+</div>
+    
 
 
-    <script src="/src/static/js/script.js"></script>
+
+
+      <script src="/src/static/js/script.js "></script>
    
 </body>
 </html>

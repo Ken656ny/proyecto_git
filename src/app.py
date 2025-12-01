@@ -17,6 +17,15 @@ from flasgger import Swagger
 # BASE DE DATOS, DENTRO DE ESA CLASE HAY UN CLASSMETHOD QUE RETORNA LA CONEXION CON LA BASE DE DATOS
 from config import config
 
+from datetime import datetime
+from io import BytesIO
+
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer
+from reportlab.lib.pagesizes import letter
+from reportlab.lib.styles import getSampleStyleSheet
+from reportlab.lib.units import inch
+from reportlab.lib import colors
+
 
 app = Flask(__name__)
 app.secret_key = 'secretkey'
@@ -842,7 +851,7 @@ def registrar_alimento():
       with config['development'].conn() as conn:
           with conn.cursor() as cur:
               
-              id_usuario = 1022357255
+              id_usuario = 2
 
               cur.execute(
                   "INSERT INTO alimentos (nombre, estado, descripcion, id_usuario) VALUES (%s, %s, %s, %s)",
@@ -863,102 +872,370 @@ def registrar_alimento():
       return jsonify({"mensaje": "Alimento creado correctamente", "id_alimento": id_alimento})
   except Exception as e:
       return jsonify({"error": str(e)}), 500
-
-
-# RUTA PARA ELIMINAR UN ALIMENTO POR SU ID
+# -------------------------------
+# RUTA PARA ELIMINAR UN ALIMENTO
+# -------------------------------
 @app.route("/eliminar_alimento/<int:id>", methods=["DELETE"])
 def eliminar_alimento(id):
-  """
-  Consultar de Alimentos
-  ---
-  tags:
-    - Gestion de Alimentos
-  responses:
-    200:
-      description: Lista de alimentos
-  """
-  try:
-      with config['development'].conn() as conn:
-          with conn.cursor() as cur:
-              cur.execute("DELETE FROM alimento_tiene_elemento WHERE id_alimento = %s", (id,))
-              cur.execute("DELETE FROM alimentos WHERE id_alimento = %s", (id,))
-              conn.commit()
-      return jsonify({"mensaje": f"Alimento con id {id} eliminado correctamente"})
-  except Exception as e:
-      return jsonify({"error": str(e)})
+    """
+    Consultar de Alimentos
+    ---
+    tags:
+      - Gestion de Alimentos
+    responses:
+      200:
+        description: Lista de alimentos
+    """
+    try:
+        with config['development'].conn() as conn:
+            with conn.cursor() as cur:
+                cur.execute("DELETE FROM alimento_tiene_elemento WHERE id_alimento = %s", (id,))
+                cur.execute("DELETE FROM alimentos WHERE id_alimento = %s", (id,))
+                conn.commit()
 
-    
-# ----------------------------
-# MOSTRAR LA PÁGINA DE REPORTES
-# ----------------------------
-@app.route('/reportes')
-def reportes():
-    return render_template('reportes_pesos.html')
-# ----------------------------
-# API: OBTENER PESOS ALTOS Y BAJOS
-# ----------------------------
+        return jsonify({"mensaje": f"Alimento con id {id} eliminado correctamente"})
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+# ----------------------------------------------------
+# API: REPORTES DE PESOS POR ETAPA + FILTRO (alto/bajo/todos)
+# ----------------------------------------------------
 @app.route('/reportes/pesos', methods=['GET'])
 def reportes_pesos():
-    try:
-        tipo = request.args.get('tipo')  # "alto" o "bajo"
-        print("Tipo recibido:", tipo)
 
+    etapa = request.args.get("etapa")   # id de etapa (1,2,3...)
+    tipo = request.args.get("tipo")     # alto / bajo / todos
+
+    if not etapa or not tipo:
+        return jsonify({"error": "Faltan parámetros"}), 400
+
+    try:
+        # Consulta base (sin filtro de alto/bajo todavía)
         sql = """
             SELECT 
                 p.id_porcino,
-                p.peso_inicial,
                 p.peso_final,
-                p.fecha_nacimiento,
-                p.sexo,
                 r.nombre AS raza,
-                e.nombre AS etapa,
-                p.descripcion
+                ev.nombre AS etapa,
+                ev.peso_min,
+                ev.peso_max
             FROM porcinos p
             JOIN raza r ON p.id_raza = r.id_raza
-            JOIN etapa_vida e ON p.id_etapa = e.id_etapa
+            JOIN etapa_vida ev ON p.id_etapa = ev.id_etapa
             WHERE p.estado = 'Activo'
+              AND p.id_etapa = %s
         """
 
-        # 🧩 Filtro según peso final
-        if tipo == "alto":
-            sql += " AND p.peso_final > 50 ORDER BY p.peso_final DESC"
-        elif tipo == "bajo":
-            sql += " AND p.peso_final < 49 ORDER BY p.peso_final ASC"
+        # ------------------------
+        # LÓGICA CORRECTA PARA FILTROS
+        # ------------------------
+
+        # PESO BAJO:
+        # todo lo que esté por debajo del mínimo o dentro del rango (peso_final <= peso_max)
+        if tipo == "bajo":
+            sql += " AND p.peso_final <= ev.peso_max"
+
+        # PESO ALTO:
+        # solo los que superan el rango de la etapa (peso_final > peso_max)
+        elif tipo == "alto":
+            sql += " AND p.peso_final > ev.peso_max"
+
+        # TODOS: no se agrega nada
+        elif tipo == "todos":
+            pass
+
         else:
-            sql += " ORDER BY p.id_porcino ASC"
+            return jsonify({"error": "Tipo inválido"}), 400
+
+        # Ordenar para que se vea bonito
+        sql += " ORDER BY p.peso_final ASC"
+
+        # Ejecutar consulta
+        with config['development'].conn() as conn:
+            with conn.cursor(pymysql.cursors.DictCursor) as cur:
+                cur.execute(sql, (etapa,))
+                data = cur.fetchall()
+
+        return jsonify(data)
+
+    except Exception as e:
+        print("❌ Error en /reportes/pesos:", e)
+        return jsonify({"error": "Error interno"}), 500
+
+
+
+
+
+
+
+
+
+# ----------------------------------------------------
+# API: LISTAR USUARIOS (interno / externo / todos)
+# ----------------------------------------------------
+@app.route('/usuarios', methods=['GET'])
+def listar_usuarios():
+
+    tipo = request.args.get("tipo")  # interno / externo / todos
+
+    if not tipo:
+        return jsonify({"error": "Falta parámetro tipo"}), 400
+
+    try:
+        sql_interno = """
+            SELECT 
+                id_usuario AS id,
+                nombre,
+                correo,
+                estado,
+                rol,
+                'Interno' AS tipo
+            FROM usuario
+        """
+
+        sql_externo = """
+            SELECT 
+                id_usuario_externo AS id,
+                nombre,
+                correo,
+                'Activo' AS estado,
+                rol,
+                'Google' AS tipo
+            FROM usuario_externo
+        """
+
+        result = []
 
         with config['development'].conn() as conn:
             with conn.cursor(pymysql.cursors.DictCursor) as cur:
-                cur.execute(sql)
-                data = cur.fetchall()
 
-        print(f"✅ {len(data)} registros devueltos para tipo: {tipo}")
-        return jsonify(data)
+                # ---- interno ----
+                if tipo in ["interno", "todos"]:
+                    cur.execute(sql_interno)
+                    result += cur.fetchall()
 
-    except Exception as err:
-        print("❌ Error en reportes_pesos:", err)
-        return jsonify({"Mensaje": "Error generando reporte"})
+                # ---- externo ----
+                if tipo in ["externo", "todos"]:
+                    cur.execute(sql_externo)
+                    result += cur.fetchall()
 
+        return jsonify(result)
 
-
-
-def get_db_connection():
-    return DevelopmentConfig.conn()
-
-@app.route('/gestionar_usuarios', methods=['GET'])
-def obtener_usuarios():
-    try:
-        conn = get_db_connection()
-        cursor = conn.cursor()
-        cursor.execute("SELECT id_usuario, nombre, correo, estado FROM usuario")
-        usuarios = cursor.fetchall()
-        conn.close()
-        return jsonify(usuarios)
     except Exception as e:
-        print("❌ Error en /gestionar_usuarios:", e)
-        return jsonify({'error': str(e)}), 500
+        print("❌ Error en /usuarios:", e)
+        return jsonify({"error": "Error interno"}), 500
 
 
-if __name__ == '__main__':
+
+
+
+
+
+
+
+# ----------------------------------------------------
+# API: EDITAR USUARIO (interno o externo)
+# ----------------------------------------------------
+@app.route("/usuarios", methods=["PUT"])
+def editar_usuario():
+
+    data = request.json
+    if not data or "id" not in data or "tipo" not in data:
+        return jsonify({"error": "Datos incompletos"}), 400
+
+    try:
+        with config['development'].conn() as conn:
+            with conn.cursor() as cur:
+
+                if data["tipo"] == "Interno":
+                    sql = """
+                        UPDATE usuario
+                        SET nombre=%s, correo=%s, estado=%s
+                        WHERE id_usuario=%s
+                    """
+                    cur.execute(sql, (
+                        data["nombre"],
+                        data["correo"],
+                        data["estado"],
+                        data["id"]
+                    ))
+
+                elif data["tipo"] == "Google":
+                    sql = """
+                        UPDATE usuario_externo
+                        SET nombre=%s, correo=%s, rol=%s
+                        WHERE id_usuario_externo=%s
+                    """
+                    cur.execute(sql, (
+                        data["nombre"],
+                        data["correo"],
+                        data["rol"],
+                        data["id"]
+                    ))
+                else:
+                    return jsonify({"error": "Tipo inválido"}), 400
+
+                conn.commit()
+
+        return jsonify({"message": "Usuario actualizado correctamente"})
+
+    except Exception as e:
+        print("❌ Error:", e)
+        return jsonify({"error": "Error interno"}), 500
+
+
+
+# ----------------------------------------------------
+# API: ELIMINAR USUARIO
+# ----------------------------------------------------
+@app.route("/usuarios", methods=["DELETE"])
+def eliminar_usuario():
+
+    id = request.args.get("id")
+    tipo = request.args.get("tipo")
+
+    if not id or not tipo:
+        return jsonify({"error": "Faltan parámetros"}), 400
+
+    try:
+        with config['development'].conn() as conn:
+            with conn.cursor() as cur:
+
+                if tipo == "Interno":
+                    cur.execute("DELETE FROM usuario WHERE id_usuario=%s", (id,))
+                elif tipo == "Google":
+                    cur.execute("DELETE FROM usuario_externo WHERE id_usuario_externo=%s", (id,))
+                else:
+                    return jsonify({"error": "Tipo inválido"}), 400
+
+                conn.commit()
+
+        return jsonify({"message": "Usuario eliminado correctamente"})
+
+    except Exception as e:
+        print("❌ Error:", e)
+        return jsonify({"error": "Error interno"}), 500
+
+
+
+@app.route('/reportes/alimentos', methods=['GET'])
+def reportes_alimentos():
+    try:
+        # Obtener todas las dietas activas
+        sql_dietas = """
+            SELECT id_dieta 
+            FROM dietas 
+            WHERE estado = 'Activo'
+        """
+
+        # Obtener los alimentos con cantidades
+        sql_alimentos = """
+            SELECT 
+                a.id_alimento,
+                a.nombre AS alimento,
+                d.id_dieta,
+                d.descripcion AS dieta,
+                dta.cantidad
+            FROM alimentos a
+            LEFT JOIN dieta_tiene_alimentos dta ON a.id_alimento = dta.id_alimento
+            LEFT JOIN dietas d ON dta.id_dieta = d.id_dieta
+            WHERE a.estado = 'Activo'
+            ORDER BY a.id_alimento
+        """
+
+        with config['development'].conn() as conn:
+            with conn.cursor(pymysql.cursors.DictCursor) as cur:
+                
+                # Cargar dietas activas
+                cur.execute(sql_dietas)
+                dietas_activas = [row["id_dieta"] for row in cur.fetchall()]
+                total_dietas = len(dietas_activas)
+
+                # Cargar datos alimentos-dietas
+                cur.execute(sql_alimentos)
+                filas = cur.fetchall()
+
+        # Agrupar por alimento
+        agrupado = {}
+
+        for r in filas:
+            id_al = r["id_alimento"]
+
+            if id_al not in agrupado:
+                agrupado[id_al] = {
+                    "id_alimento": id_al,
+                    "nombre": r["alimento"],
+                    "cantidades": []
+                }
+
+            if r["cantidad"] is not None:
+                agrupado[id_al]["cantidades"].append({
+                    "dieta": r["dieta"],
+                    "cantidad": r["cantidad"]
+                })
+
+        resultado = []
+
+        for id_al, info in agrupado.items():
+            lista = info["cantidades"]
+
+            if not lista:  
+                # No se usó en ninguna dieta
+                resultado.append({
+                    "id_alimento": id_al,
+                    "nombre": info["nombre"],
+                    "mayor": {
+                        "cantidad": 0,
+                        "dietas": [],
+                        "totalUsadas": 0
+                    },
+                    "menor": {
+                        "cantidad": 0,
+                        "dietas": [],
+                        "totalUsadas": 0
+                    },
+                    "promedio": 0,
+                    "totalDietas": total_dietas
+                })
+                continue
+
+            # Agrupar cantidades por valor para no repetir
+            cantidades_dict = {}
+            for x in lista:
+                cantidades_dict.setdefault(x["cantidad"], []).append(x["dieta"])
+
+            cantidades_ordenadas = sorted(cantidades_dict.items(), key=lambda x: x[0])
+
+            menor_cant, dietas_menor = cantidades_ordenadas[0]
+            mayor_cant, dietas_mayor = cantidades_ordenadas[-1]
+
+            total_usadas = len(set(x["dieta"] for x in lista))  # dietas únicas
+
+            promedio = sum(x["cantidad"] for x in lista) / len(lista)
+
+            resultado.append({
+                "id_alimento": id_al,
+                "nombre": info["nombre"],
+                "mayor": {
+                    "cantidad": mayor_cant,
+                    "dietas": dietas_mayor,
+                    "totalUsadas": total_usadas
+                },
+                "menor": {
+                    "cantidad": menor_cant,
+                    "dietas": dietas_menor,
+                    "totalUsadas": total_usadas
+                },
+                "promedio": round(promedio, 2),
+                "totalDietas": total_dietas
+            })
+
+        return jsonify(resultado)
+
+    except Exception as e:
+        print("❌ Error en /reportes/alimentos:", e)
+        return jsonify({"error": "Error interno del servidor"}), 500
+      
+      
+if __name__ == "__main__":
     app.run(debug=True)
-

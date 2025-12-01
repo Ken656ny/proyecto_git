@@ -1093,93 +1093,468 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     });
   }
-});
-// ===============================
-// CONSULTA DE REPORTES DE PESO
-// ===============================
-async function consulta_reportes_peso(tipo) {
+})
+// ======================================
+// VARIABLES GLOBALES
+// ======================================
+let etapaSeleccionada = null;
+let tipoPesoSeleccionado = null;
+
+// Seleccionar etapa
+function seleccionarEtapa(id, nombre) {
+    etapaSeleccionada = id;
+    document.getElementById("input_tipo_informe").value = nombre;
+}
+
+// Seleccionar tipo de peso
+function seleccionarTipoPeso(tipo, nombre) {
+    tipoPesoSeleccionado = tipo;
+    document.getElementById("input_filtro_peso").value = nombre;
+    consulta_reportes_peso(); // cargar automáticamente
+}
+
+// ======================================
+// CONSULTA AL BACKEND (CORREGIDO)
+// ======================================
+async function consulta_reportes_peso() {
+
+    if (!etapaSeleccionada) {
+        Swal.fire("Selecciona una etapa de vida");
+        return;
+    }
+    if (!tipoPesoSeleccionado) {
+        Swal.fire("Selecciona tipo de peso (alto/bajo/todos)");
+        return;
+    }
+
+    // 🔥🔥🔥 CORREGIDO → Ahora apunta al puerto correcto (5000)
+    const url = `http://127.0.0.1:5000/reportes/pesos?etapa=${etapaSeleccionada}&tipo=${tipoPesoSeleccionado}`;
+
+    console.log("🔵 Enviando petición a:", url);
+
     try {
-        const response = await fetch(`http://127.0.0.1:5000/reportes/pesos?tipo=${tipo}`);
-        const data = await response.json();
-        console.log("Datos recibidos:", data);
+        const response = await fetch(url);
 
-        const tbody = document.getElementById("contenido");
-        tbody.innerHTML = "";
-
-        if (!Array.isArray(data) || data.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="3">No hay datos disponibles</td></tr>`;
-            return;
+        if (!response.ok) {
+            throw new Error("Error al consultar datos");
         }
 
-        data.forEach(item => {
-            const id = item.id_porcino ?? '';
-            const peso = item.peso_final ?? '';
-            const raza = item.raza ?? '';
+        const data = await response.json();
+        console.log("🟢 RESPUESTA BACK:", data);
 
-            tbody.innerHTML += `
-                <tr class="fila__porcino">
-                    <td class="celda__icono">
-                         <img src="/src/static/iconos/pin icon.svg" class="icono__porcino" alt="porcino">
-                    </td>
-                    <td>${id}</td>
-                    <td>${peso} KG</td>
-                    <td>${raza}</td>
-                </tr>
-            `;
-        });
+        mostrarTabla(data);
 
     } catch (error) {
-        console.error("Error consultando reportes:", error);
+        console.error("❌ Error:", error);
+        Swal.fire("Error en la comunicación con el servidor");
     }
 }
 
+// ======================================
+// RENDERIZAR TABLA CORRECTAMENTE
+// ======================================
+function mostrarTabla(datos) {
 
-// ===============================
-// CONSULTA DE USUARIOS
-// ===============================
-document.addEventListener("DOMContentLoaded", async () => {
-    const contenedor = document.getElementById("contenido_u");
+    const tbody = document.getElementById("tbody_pesos"); 
+    tbody.innerHTML = "";
 
-    try {
-        const response = await fetch("http://127.0.0.1:5000/gestionar_usuarios");
-        if (!response.ok) throw new Error("Error al obtener usuarios");
-
-        const usuarios = await response.json();
-        contenedor.innerHTML = "";
-
-        usuarios.forEach((u) => {
-            const fila = document.createElement("tr");
-
-         
-            const tdAcciones = `
-                <td>
-                    <img src="/static/iconos/edit_icon.svg" class="icono_accion" title="Editar" width="20">
-                    <img src="/static/iconos/delete_icon.svg" class="icono_accion" title="Eliminar" width="20">
-                    <img src="/static/iconos/eye_icon.svg" class="icono_accion" title="Ver" width="20">
-                </td>
-            `;
-
-         
-            const iconoEstado = u.estado === "Activo"
-                ? "/static/iconos/activo.svg"
-                : "/static/iconos/inactivo.svg";
-
-            const tdEstado = `<td><img src="${iconoEstado}" class="estado_icono" alt="${u.estado}" width="20"></td>`;
-
-           
-            fila.innerHTML = `
-                <td>${u.id_usuario}</td>
-                <td>${u.nombre}</td>
-                <td>${u.correo}</td>
-                ${tdEstado}
-                ${tdAcciones}
-            `;
-
-            contenedor.appendChild(fila);
-        });
-
-    } catch (err) {
-        console.error("❌ Error al cargar usuarios:", err);
-        alert("No se pudieron cargar los usuarios");
+    if (!Array.isArray(datos) || datos.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="4">No hay datos disponibles</td></tr>`;
+        return;
     }
+
+    datos.forEach(item => {
+
+        tbody.innerHTML += `
+            <tr>
+                <td><img src="/src/static/iconos/pig_icon.svg" width="25"></td>
+                <td>${item.id_porcino}</td>
+                <td>${item.peso_min} - ${item.peso_max} KG</td>
+                <td>${item.peso_final} KG</td>
+            </tr>
+        `;
+    });
+}
+
+  function prepararImpresion() {
+    // 1. Mostrar la sección que se va a imprimir
+    const reporte = document.getElementById("reportePDF");
+    reporte.style.display = "block";
+
+    // 2. Obtener el contenido dinámico (si tu tabla ya existe en el DOM)
+    const tabla = document.getElementById("tablaReportes"); // ⚠️ Asegúrate que este ID exista
+    const destino = document.getElementById("contenidoReporte");
+
+    if (tabla && destino) {
+        destino.innerHTML = tabla.outerHTML;
+    }
+
+    // 3. Dar un pequeño delay para que el navegador cargue el contenido
+    setTimeout(() => {
+        window.print();
+    }, 200);
+}
+
+
+function prepararImpresion() {
+    const tabla = document.querySelector("#tabla_pesos tbody");
+
+    if (!tabla) {
+        alert("No se encontró la tabla de reportes.");
+        return;
+    }
+
+    const filas = tabla.querySelectorAll("tr");
+    const destino = document.getElementById("contenidoReporte");
+
+    destino.innerHTML = "";
+
+    // =============================
+    // ENCABEZADO HORIZONTAL BONITO
+    // =============================
+    destino.innerHTML += `
+        <div style="
+            display: grid;
+            grid-template-columns: 120px 200px 220px 200px;
+            align-items: center;
+            font-size: 20px;
+            font-weight: 900;
+            border-bottom: 3px solid black;
+            padding: 12px 0;
+            margin-bottom: 18px;
+            text-align: left;
+            gap: 15px;
+        ">
+            <div style="text-align:center;">🐖</div>
+            <div>ID del porcino</div>
+            <div>Rango de peso (KG)</div>
+            <div>Peso actual (KG)</div>
+        </div>
+    `;
+
+    // =============================
+    // CADA PORCINO EN FILA HORIZONTAL
+    // =============================
+    filas.forEach(fila => {
+        const celdas = fila.querySelectorAll("td");
+
+        const id = celdas[1].innerText;
+        const rango = celdas[2].innerText;
+        const actual = celdas[3].innerText;
+
+        destino.innerHTML += `
+            <div style="
+                display: grid;
+                grid-template-columns: 120px 200px 220px 200px;
+                align-items: center;
+                font-size: 18px;
+                padding: 12px 0;
+                border-bottom: 1px solid #dcdcdc;
+                gap: 15px;
+                text-align: left;
+            ">
+                <div style="text-align:center;">
+                    <img src="/src/static/iconos/cerdo.png" width="50">
+                </div>
+
+                <div>${id}</div>
+                <div>${rango}</div>
+                <div>${actual}</div>
+            </div>
+        `;
+    });
+
+    const imprimirSeccion = document.getElementById("reportePDF");
+    imprimirSeccion.style.display = "block";
+
+    // Generar PDF
+    setTimeout(() => {
+        window.print();
+        imprimirSeccion.style.display = "none";
+    }, 200);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// =====================================================
+//   CARGAR USUARIOS AL INICIAR
+// =====================================================
+document.addEventListener("DOMContentLoaded", cargarUsuarios);
+
+function cargarUsuarios() {
+    fetch("http://localhost:5000/usuarios?tipo=todos")
+        .then(res => res.json())
+        .then(lista => {
+            const tbody = document.getElementById("contenido_USUARIO");
+            tbody.innerHTML = "";
+
+            lista.forEach(u => {
+                tbody.innerHTML += `
+                    <tr>
+
+                        <!-- FOTO -->
+                        <td class="td-img-usuario">
+                            <img src="/src/static/iconos/icon user.svg" class="img-usuario">
+                        </td>
+
+                        <td>${u.id}</td>
+                        <td>${u.nombre}</td>
+                        <td>${u.correo}</td>
+
+                        <!-- ESTADO -->
+                        <td style="font-weight:600;">${u.estado}</td>
+
+                        <!-- ACCIONES -->
+                        <td class="td__border__r">
+
+                            <!-- EDITAR -->
+                            <img src="/src/static/iconos/edit icon.svg" 
+                                 class="accion-grande"
+                                 onclick='abrirModalEditar("${u.id}", "${u.nombre}", "${u.correo}", "${u.estado}", "${u.tipo}")'>
+
+                            <!-- ELIMINAR -->
+                            <img src="/src/static/iconos/delete icon.svg" 
+                                 class="accion-grande"
+                                 onclick='abrirModalEliminar("${u.id}", "${u.tipo}")'>
+                        </td>
+
+                    </tr>
+                `;
+            });
+        });
+}
+
+
+
+// =====================================================
+//   VARIABLES GLOBALES
+// =====================================================
+let usuarioAEliminar = { id: null, tipo: null };
+
+
+
+// =====================================================
+//   ABRIR MODAL EDITAR
+// =====================================================
+function abrirModalEditar(id, nombre, correo, estado, tipo) {
+
+    document.getElementById("edit_id").value = id;
+    document.getElementById("edit_nombre").value = nombre;
+    document.getElementById("edit_correo").value = correo;
+    document.getElementById("edit_tipo").value = tipo;
+
+    document.getElementById("edit_estado").checked = (estado === "Activo");
+
+    document.getElementById("modalEditarUsuario").classList.remove("oculto");
+}
+
+
+
+// =====================================================
+//   CERRAR MODAL EDITAR
+// =====================================================
+function cerrarModalEditar() {
+    document.getElementById("modalEditarUsuario").classList.add("oculto");
+}
+
+
+
+// =====================================================
+//   GUARDAR CAMBIOS (PUT)
+// =====================================================
+function guardarEdicionUsuario() {
+
+    const datos = {
+        id: document.getElementById("edit_id").value,
+        nombre: document.getElementById("edit_nombre").value,
+        correo: document.getElementById("edit_correo").value,
+        estado: document.getElementById("edit_estado").checked ? "Activo" : "Inactivo",
+        tipo: document.getElementById("edit_tipo").value
+    };
+
+    fetch("http://localhost:5000/usuarios", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(datos)
+    })
+    .then(res => res.json())
+    .then(resp => {
+        cerrarModalEditar();
+        cargarUsuarios();
+    });
+}
+
+
+
+// =====================================================
+//   ABRIR MODAL ELIMINAR
+// =====================================================
+function abrirModalEliminar(id, tipo) {
+
+    usuarioAEliminar.id = id;
+    usuarioAEliminar.tipo = tipo;
+
+    document.getElementById("modalEliminarUsuario").classList.remove("oculto");
+}
+
+
+
+// =====================================================
+//   CERRAR MODAL ELIMINAR
+// =====================================================
+function cerrarModalEliminar() {
+    document.getElementById("modalEliminarUsuario").classList.add("oculto");
+}
+
+
+
+// =====================================================
+//   CONFIRMAR ELIMINACIÓN (DELETE)
+// =====================================================
+function confirmarEliminarUsuario() {
+
+    fetch(`http://localhost:5000/usuarios?id=${usuarioAEliminar.id}&tipo=${usuarioAEliminar.tipo}`, {
+        method: "DELETE"
+    })
+    .then(res => res.json())
+    .then(resp => {
+        cerrarModalEliminar();
+        cargarUsuarios();
+    });
+}
+document.addEventListener("DOMContentLoaded", function () {
+    cargarReporteAlimentos("todos");
+});function cargarReporteAlimentos(filtro = "todos") {
+
+    fetch(`http://localhost:5000/reportes/alimentos?filtro=${filtro}`)
+        .then(response => response.json())
+        .then(lista => {
+
+            if (!Array.isArray(lista)) {
+                console.error("El backend no devolvió una lista:", lista);
+                return;
+            }
+
+            const tbody = document.getElementById("contenido");
+            if (!tbody) {
+                console.error("No existe el elemento contenido");
+                return;
+            }
+
+            tbody.innerHTML = "";
+
+            lista.forEach(dato => {
+
+                // Construir texto automático
+                const mayorTexto = `${dato.mayor.totalUsadas} de ${dato.totalDietas} dietas elaboradas`;
+                const menorTexto = `${dato.menor.totalUsadas} de ${dato.totalDietas} dietas elaboradas`;
+
+                tbody.innerHTML += `
+                    <tr>
+                        <td class="col-img">
+                            <img src="/src/static/iconos/icon wheat (1).svg" class="icon-alimento">
+                        </td>
+                        <td>${dato.id_alimento}</td>
+                        <td>${mayorTexto}</td>
+                        <td>${menorTexto}</td>
+                        <td>${dato.promedio} KG</td>
+                        <td class="col-img">    <img src="/src/static/iconos/stadic.svg" class="icon-alimento icon-th">
+                        </td>
+                    </tr>
+                `;
+            });
+        })
+        .catch(err => console.log("Error: ", err));
+}
+
+
+
+
+
+
+
+
+let alimentosData = [];  // Aquí se guardan los datos que devuelve consulta_alimentos()
+
+// Llamamos tu función original
+async function consulta_alimentos() {
+    const response = await fetch("/backend/alimentos");  // tu ruta real
+    const data = await response.json();
+
+    alimentosData = data; // Guardamos para poder filtrar sin volver a cargar
+
+    renderTabla(alimentosData, "Todos"); // Carga inicial
+}
+
+
+// ⭐ cuando seleccionas un filtro, cambia la tabla INMEDIATO
+document.querySelectorAll(".filtro-peso .dropdown__content a").forEach(opcion => {
+    opcion.addEventListener("click", function() {
+
+        let filtro = this.textContent.trim(); 
+        document.getElementById("input_filtro_peso").value = filtro;
+
+        // Renderizamos automáticamente según la opción seleccionada
+        renderTabla(alimentosData, filtro);
+    });
 });
+
+
+// ⭐ función que construye las columnas dinámicas
+function renderTabla(alimentos, filtro) {
+
+    let cabecera = `
+        <tr>
+            <th></th>
+            <th>ID alimento</th>
+    `;
+
+    if (filtro === "Mayor consumido" || filtro === "Todos") {
+        cabecera += `<th>Mayor consumido se usó en</th>`;
+    }
+
+    if (filtro === "Menor consumido" || filtro === "Todos") {
+        cabecera += `<th>Menor consumido se usó en</th>`;
+    }
+
+    cabecera += `
+            <th>Promedio de cantidad usada (KG)</th>
+        </tr>
+    `;
+
+    document.getElementById("cabecera-alimentos").innerHTML = cabecera;
+
+    // FILAS
+    let contenido = "";
+
+    alimentos.forEach(a => {
+        contenido += `
+        <tr>
+            <td><img src="/src/static/iconos/icon wheate.svg"></td>
+            <td>${a.id_alimento}</td>
+        `;
+
+        if (filtro === "Mayor consumido" || filtro === "Todos") {
+            contenido += `<td>${a.mayor_consumido} de ${a.total_dietas} dietas</td>`;
+        }
+
+        if (filtro === "Menor consumido" || filtro === "Todos") {
+            contenido += `<td>${a.menor_consumido} de ${a.total_dietas} dietas</td>`;
+        }
+
+        contenido += `<td>${a.promedio_kg} KG</td></tr>`;
+    });
+
+    document.getElementById("contenido").innerHTML = contenido;
+}
