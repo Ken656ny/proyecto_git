@@ -1010,7 +1010,10 @@ SECCION DE PORCINOS
     order: 4;
 }
 
-#btn_consultar_todo{
+#btn_consultar_todo,
+#btn_consultar_todo_raza,
+#btn_consultar_todo_etapa,
+#btn_consultar_todo_historial{
     order: 5;
     font-size: 12px;
 }
@@ -1109,7 +1112,10 @@ thead{
 }
 
 
-#paginacion_porcino{
+#paginacion_porcino,
+#paginacion_raza,
+#paginacion_etapa,
+#paginacion_historial{
     width: 100%;
     padding: 1rem 2rem;
     display: flex;
@@ -1118,20 +1124,29 @@ thead{
     align-items: center;
 }
 
-#paginacion_porcino > .container_btn_paginacion{
+#paginacion_porcino > .container_btn_paginacion,
+#paginacion_raza > .container_btn_paginacion,
+#paginacion_etapa > .container_btn_paginacion,
+#paginacion_historial > .container_btn_paginacion{
     display: flex;
     flex-direction: row;
     gap: 1em;
     align-items: center;
 }
 
-#paginacion_porcino > span, #paginacion_porcino > container > span {
+#paginacion_porcino > span, #paginacion_porcino > container > span,
+#paginacion_raza > span, #paginacion_raza > container > span,
+#paginacion_etapa > span, #paginacion_etapa > container > span,
+#paginacion_historial > span, #paginacion_historial > container > span{
     font-family: var(--fuente--contenido);
     font-size: 14px;
     font-weight: bold;
     color: var(--color-letra-predeter);
 }
 
+iconify-icon{
+    cursor: pointer;
+}
 
 .svg__pig{
     position: relative;
@@ -1428,6 +1443,7 @@ hr{
 }
 
 .btn--guardar{
+    font-size: smaller;
     grid-column: 2/4;
     margin: auto;
 }
@@ -1506,7 +1522,7 @@ hr{
 
 .container__registros__dia{
     width: 735px;
-    height: 200px;
+    height: 230px;
     place-self: center;
 }
 

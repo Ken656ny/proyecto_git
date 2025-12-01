@@ -184,7 +184,6 @@ function crear_opciones_select(tipo, lista, valor_actual){
         id_actual = etapa ? etapa.id_etapa : "";
     }
 
-
     let html = `<option value="${id_actual}" selected>${valor_actual}</option>`
     if (tipo.toLowerCase() === "razas"){
         lista.razas.forEach(item => {
@@ -959,10 +958,14 @@ async function consulta_general_porcinos() {
 }
 
 function paginacion_porcinos(porcinos){
+    
     const registros_por_pagina = 3;
     let pagina_actual = 1;
     const total_paginas = Math.ceil(porcinos.Porcinos.length / registros_por_pagina);
-    console.log(total_paginas)
+
+    // LIMPIAR LISTENERS ANTERIORES
+    const contenedor = document.getElementById("paginacion_porcino");
+    contenedor.replaceWith(contenedor.cloneNode(true));
 
     // OBTENER LOS REGISTROS DE UNA PAGINA  
     function obtener_pagina(pagina){
@@ -1018,15 +1021,14 @@ function paginacion_porcinos(porcinos){
     }
 
     document.getElementById("paginacion_porcino").addEventListener("click", (e) => {
-        if (e.target.dataset.page){
-            const nueva_pagina = Number(e.target.dataset.page)
-            if (nueva_pagina >= 1 && nueva_pagina <= total_paginas){
-                pagina_actual = nueva_pagina;
-                mostrar_porcinos()
-                render_paginacion()
-            }
+        if (!e.target.dataset.page) return;
+        const nueva = Number(e.target.dataset.page);
+        if (nueva >= 1 && nueva <= total_paginas){
+            pagina_actual = nueva;
+            mostrar_porcinos();
+            render_paginacion();
         }
-    })
+    });
 
     mostrar_porcinos()
     render_paginacion()
@@ -1153,8 +1155,9 @@ function porcino_filtros() {
 async function consulta_filtros() {
     try {
         const filtro = document.getElementById('filter_porcino');
-        if (filtro.disabled === true){
+        if (filtro.disabled == true){
             const input_id = document.getElementById('input_id').value;
+            console.log(input_id)
             return consulta_individual_porcino(input_id, true)
         } else{
             const valor = document.getElementById('filter__options__2').value;
@@ -1333,24 +1336,66 @@ function eliminar_porcino(id_porcino){
 // HISTORIAL DE PESOS
 // -------------------
 
-function mostrar_historial(historial){
-    const info = historial.Historial.map(item => crearFilaHistorial(item)).join('');
-    document.getElementById('historial_pesos').innerHTML = info;
-}
 
-function crearFilaHistorial(item){
-    const uniqueId = item.id_documento;
-    return `
-        <tr class="registro registro__dia">
-            <td class="td__border__l"> ${item.id_documento} </td>
-            <td> ${item.id_porcino} </td>
-            <td> ${item.peso_final} </td>
-            <td> ${item.fecha_pesaje} </td>
-            <td class="td__border__r">
-                <button class="icon-eye" data-id="${uniqueId}" data-type="tran_peso"><img src="/src/static/iconos/icono eye.svg" alt="ver informacion"></button>
-            </td>
-        </tr>
-    `;
+function paginacion_historial(historial){
+    const registros_por_pagina = 2;
+    let pagina_actual = 1;
+    const total_paginas = Math.ceil(historial.Historial.length / registros_por_pagina);
+
+    const contenedor = document.getElementById('paginacion_historial');
+    contenedor.replaceWith(contenedor.cloneNode(true));
+
+    function obtener_pagina(pagina){
+        const registro_inicial = (pagina-1) * registros_por_pagina;
+        const registro_final = registro_inicial + registros_por_pagina;
+        return historial.Historial.slice(registro_inicial,registro_final);
+    }
+
+    function mostrar_historial(){
+        const info = obtener_pagina(pagina_actual).map(item => crearFilaHistorial(item)).join('');
+        document.getElementById('historial_pesos').innerHTML = info;
+    }
+    
+    function crearFilaHistorial(item){
+        const uniqueId = item.id_documento;
+        return `
+            <tr class="registro registro__dia">
+                <td class="td__border__l"> ${item.id_documento} </td>
+                <td> ${item.id_porcino} </td>
+                <td> ${item.peso_final} </td>
+                <td> ${item.fecha_pesaje} </td>
+                <td class="td__border__r">
+                    <button class="icon-eye" data-id="${uniqueId}" data-type="tran_peso"><img src="/src/static/iconos/icono eye.svg" alt="ver informacion"></button>
+                </td>
+            </tr>
+        `;
+    }
+
+    function render_paginacion(){
+        const cont = document.getElementById('paginacion_historial');
+        cont.innerHTML = `
+            <span>Transacciones Totales: ${historial.Historial.length}</span>
+
+            <container class="container_btn_paginacion">
+            <iconify-icon icon="bxs:left-arrow" width="24" height="24"  style="color: #2C3D31" ${pagina_actual === 1 ? "disabled" : ""} data-page="${pagina_actual - 1}"></iconify-icon>
+            <span>Pagina ${pagina_actual} de ${total_paginas}</span>
+            <iconify-icon icon="bxs:right-arrow" width="24" height="24"  style="color: #2C3D31" ${pagina_actual === total_paginas ? "disabled" : ""} data-page="${pagina_actual + 1}"></iconify-icon>
+            </container>
+        
+        `
+    }
+
+    document.getElementById("paginacion_historial").addEventListener('click', (e) => {
+        if (!e.target.dataset.page) return; 
+        const nueva_pagina = Number(e.target.dataset.page)
+        if (nueva_pagina >= 1 && nueva_pagina <= total_paginas){
+            pagina_actual = nueva_pagina;
+            mostrar_historial()
+            render_paginacion()
+        }
+    })
+    mostrar_historial()
+    render_paginacion()
 }
 
 async function crearDialogActualizarPesoHistorial(){
@@ -1490,7 +1535,7 @@ async function consulta_gen_historial_pesos(){
             })
         const response = await promesa.json();
         if (promesa.status == 200){
-            mostrar_historial(response)
+            paginacion_historial(response)
         } else {
             Swal.fire({
             title: "Mensaje",
@@ -1518,7 +1563,7 @@ async function consulta_individual_transaccion(id, mostrar=false) {
             return null;
         }
         if (mostrar){
-            mostrar_historial(response)
+            paginacion_historial(response)
         }
         return response
     }catch(error){
@@ -1526,10 +1571,10 @@ async function consulta_individual_transaccion(id, mostrar=false) {
     }
 }
 
-async function consulta_porcino_historial(mostrar = false){
+async function consulta_porcino_historial(id_porcino,mostrar = false){
     try{
         const id = document.getElementById('input_id_hp').value;
-        const promesa = await fetch(`${URL_BASE}/porcino/historial_pesos/${id}`);
+        const promesa = await fetch(`${URL_BASE}/porcino/historial_pesos/${id || id_porcino}`);
         const response = await promesa.json()
         console.log(response)
         if (response.Mensaje === `No hay historial de pesos para el porcino con ID ${id}`){
@@ -1542,7 +1587,7 @@ async function consulta_porcino_historial(mostrar = false){
             return null;
         }
         if (mostrar){
-            mostrar_historial(response)
+            paginacion_historial(response)
         }
         return response
     }catch(error){
@@ -1624,33 +1669,83 @@ async function actualizar_peso_historial() {
 // GESTION DE DE RAZAS
 // -------------------
 
-// seccion para mostrar la informacion en el front-end
-function mostrar_raza(razas){
-    const contenedor = document.getElementById('razas')
-    if(!contenedor) return;
-    contenedor.innerHTML = razas.razas.map(item => crearFilaRaza(item)).join('');;
-}
+function paginacion_raza(razas){
+    const registros_por_pagina = 2;
+    let pagina_actual = 1;
+    const total_paginas = Math.ceil(razas.razas.length / registros_por_pagina);
 
-function crearFilaRaza(item){
-    const uniqueId = item.id_raza;
-    return `
-    <tr class="registro registro__dia">
-        <td class="td__border__l">${item.id_raza}</td>
-        <td>${item.nombre}</td>
-        <td>${item.descripcion}</td>
-        <td class="td__border__r">
-            ${crearIconosAccionesRaza(uniqueId)}
-        </td>
-    </tr>
-    `
-}
+    const contenedor = document.getElementById('paginacion_raza');
 
-function crearIconosAccionesRaza(id) {
-    return `
-        <button class="icon-eye" data-id="${id}" data-type="raza"><img src="/src/static/iconos/icono eye.svg" alt="ver informacion"></button>
-        <button class="icon-edit" data-id="${id}" data-type="raza" ><img src="/src/static/iconos/edit icon.svg" alt="editar informacion"></button>
-        <button class="icon-delete" data-id="${id}" data-type="raza" ><img src="/src/static/iconos/delete icon.svg" alt="eliminar informacion"></button>
-    `;
+    // Si no existe el contenedor, no ejecutar la paginación
+    if (!contenedor) {
+        console.warn("paginacion_raza: No existe el contenedor #paginacion_raza en este HTML.");
+        return;
+    }
+    
+    // LIMPIAR LISTENERS ANTERIORES
+    contenedor.replaceWith(contenedor.cloneNode(true));
+
+    function obtener_pagina(pagina){
+        const registro_inicial = (pagina - 1) * registros_por_pagina;
+        const registro_final = registro_inicial + registros_por_pagina;
+        return razas.razas.slice(registro_inicial,registro_final)
+    }
+
+    // seccion para mostrar la informacion en el front-end
+    function mostrar_raza(){
+        const contenedor = document.getElementById('razas')
+        if(!contenedor) return;
+        contenedor.innerHTML = obtener_pagina(pagina_actual).map(item => crearFilaRaza(item)).join('');;
+    }
+
+    function crearFilaRaza(item){
+        const uniqueId = item.id_raza;
+        return `
+        <tr class="registro registro__dia">
+            <td class="td__border__l">${item.id_raza}</td>
+            <td>${item.nombre}</td>
+            <td>${item.descripcion}</td>
+            <td class="td__border__r">
+                ${crearIconosAccionesRaza(uniqueId)}
+            </td>
+        </tr>
+        `
+    }
+
+    function crearIconosAccionesRaza(id) {
+        return `
+            <button class="icon-eye" data-id="${id}" data-type="raza"><img src="/src/static/iconos/icono eye.svg" alt="ver informacion"></button>
+            <button class="icon-edit" data-id="${id}" data-type="raza" ><img src="/src/static/iconos/edit icon.svg" alt="editar informacion"></button>
+            <button class="icon-delete" data-id="${id}" data-type="raza" ><img src="/src/static/iconos/delete icon.svg" alt="eliminar informacion"></button>
+        `;
+    }
+
+    function render_paginacion(){
+        const cont = document.getElementById('paginacion_raza');
+        cont.innerHTML = `
+            <span>Razas Totales: ${razas.razas.length}</span>
+
+            <container class="container_btn_paginacion">
+            <iconify-icon icon="bxs:left-arrow" width="24" height="24"  style="color: #2C3D31" ${pagina_actual === 1 ? "disabled" : ""} data-page="${pagina_actual - 1}"></iconify-icon>
+            <span>Pagina ${pagina_actual} de ${total_paginas}</span>
+            <iconify-icon icon="bxs:right-arrow" width="24" height="24"  style="color: #2C3D31" ${pagina_actual === total_paginas ? "disabled" : ""} data-page="${pagina_actual + 1}"></iconify-icon>
+            </container>
+        
+        `
+    }
+
+    document.getElementById("paginacion_raza").addEventListener("click", (e) => {
+        if (!e.target.dataset.page) return;
+        const nueva_pagina = Number(e.target.dataset.page)
+        if (nueva_pagina >= 1 && nueva_pagina <= total_paginas){
+            pagina_actual = nueva_pagina;
+            mostrar_raza()
+            render_paginacion()
+        }
+    })
+
+    mostrar_raza()
+    render_paginacion()
 }
 
 function crearDialogRegistrarRaza(){
@@ -1710,13 +1805,12 @@ function crearDialogBaseRaza(id, clase, titulo, contenido, textoBoton, claseBoto
     return ''
 }
 
-
-async function consultar_razas() {
+async function consultar_razas(){
     try {
         const promesa = await fetch(`${URL_BASE}/raza`, {method: 'GET'});
         if (!promesa.ok) throw new Error(`Error: ${promesa.status}`);
         const response = await promesa.json();
-        mostrar_raza(response)
+        paginacion_raza(response)
         return response
     } catch (error) {
         console.error(error)
@@ -1738,8 +1832,9 @@ async function consulta_indi_raza(id_raza, mostrar = false){
             return null;
         }
         if (mostrar){
-            mostrar_raza(response)
+            paginacion_raza(response)
         }
+        console.log(response)
         return response
     } catch (error) {
         console.error(error)
@@ -1874,35 +1969,85 @@ async function eliminar_raza(id){
 // GESTION DE ETAPAS
 // -------------------
 
-function mostrar_etapas(etapas){
-    const contenedor = document.getElementById('etapas_vida') 
-    if (!contenedor) return;
-    contenedor.innerHTML = etapas.etapas.map(item => crearFilaEtapa(item)).join('');
+function paginacion_etapa(etapas){
+    const registros_por_pagina = 2;
+    let pagina_actual = 1;
+    const total_paginas = Math.ceil(etapas.etapas.length / registros_por_pagina);
+
+    const contenedor = document.getElementById('paginacion_etapa');
+    if (!contenedor){
+        console.warn("paginacion_etapa: No existe el contenedor #paginacion_etapa en esta pagina");
+        return;
+    }
+    contenedor.replaceWith(contenedor.cloneNode(true));
+
+    function obtener_pagina(pagina){
+        const registro_inicial = (pagina - 1) * registros_por_pagina;
+        const registro_final = registro_inicial + registros_por_pagina;
+        return etapas.etapas.slice(registro_inicial,registro_final);
+    }
+
+    function mostrar_etapas(){
+        const contenedor = document.getElementById('etapas_vida') 
+        if (!contenedor) return;
+        contenedor.innerHTML = obtener_pagina(pagina_actual).map(item => crearFilaEtapa(item)).join('');
+    }
+
+    function crearFilaEtapa(item){
+        const uniqueId = item.id_etapa;
+        return `
+            <tr class="registro registro__dia">
+                <td class="td__border__l">${item.id_etapa}</td>
+                <td>${item.nombre}</td>
+                <td>${item.peso_min}</td>
+                <td>${item.peso_max}</td>
+
+                <td class="td__border__r">
+                    ${crearIconosAccionesEtapa(uniqueId)}
+                </td>
+            </tr>
+        `
+    }
+
+    function crearIconosAccionesEtapa(id){
+        return `
+            <button class="icon-eye" data-id="${id}" data-type="etapa"><img src="/src/static/iconos/icono eye.svg" alt="ver informacion"></button>
+            <button class="icon-edit" data-id="${id}" data-type="etapa" ><img src="/src/static/iconos/edit icon.svg" alt="editar informacion"></button>
+            <button class="icon-delete" data-id="${id}" data-type="etapa" ><img src="/src/static/iconos/delete icon.svg" alt="eliminar informacion"></button>
+        `
+    }
+
+    function render_paginacion(){
+        const cont = document.getElementById('paginacion_etapa');
+        cont.innerHTML = `
+            <span>Razas Totales: ${etapas.etapas.length}</span>
+
+            <container class="container_btn_paginacion">
+            <iconify-icon icon="bxs:left-arrow" width="24" height="24"  style="color: #2C3D31" ${pagina_actual === 1 ? "disabled" : ""} data-page="${pagina_actual - 1}"></iconify-icon>
+            <span>Pagina ${pagina_actual} de ${total_paginas}</span>
+            <iconify-icon icon="bxs:right-arrow" width="24" height="24"  style="color: #2C3D31" ${pagina_actual === total_paginas ? "disabled" : ""} data-page="${pagina_actual + 1}"></iconify-icon>
+            </container>
+        
+        `
+    }
+
+    document.getElementById("paginacion_etapa").addEventListener("click", (e) => {
+        if (!e.target.dataset.page) return;
+        const nueva_pagina = Number(e.target.dataset.page)
+        if (nueva_pagina >= 1 && nueva_pagina <= total_paginas){
+            pagina_actual = nueva_pagina;
+            mostrar_etapas()
+            render_paginacion()
+            
+        }
+    })
+
+    mostrar_etapas()
+    render_paginacion()
 }
 
-function crearFilaEtapa(item){
-    const uniqueId = item.id_etapa;
-    return `
-        <tr class="registro registro__dia">
-            <td class="td__border__l">${item.id_etapa}</td>
-            <td>${item.nombre}</td>
-            <td>${item.peso_min}</td>
-            <td>${item.peso_max}</td>
 
-            <td class="td__border__r">
-                ${crearIconosAccionesEtapa(uniqueId)}
-            </td>
-        </tr>
-    `
-}
 
-function crearIconosAccionesEtapa(id){
-    return `
-        <button class="icon-eye" data-id="${id}" data-type="etapa"><img src="/src/static/iconos/icono eye.svg" alt="ver informacion"></button>
-        <button class="icon-edit" data-id="${id}" data-type="etapa" ><img src="/src/static/iconos/edit icon.svg" alt="editar informacion"></button>
-        <button class="icon-delete" data-id="${id}" data-type="etapa" ><img src="/src/static/iconos/delete icon.svg" alt="eliminar informacion"></button>
-    `
-}
 
 function crearDialogRegistrarEtapa() {
     // ===========================
@@ -2073,7 +2218,7 @@ async function consultar_etapas() {
     try{
         const promesa = await fetch(`${URL_BASE}/etapa_vida`, {method: 'GET'});
         const response = await promesa.json();
-        mostrar_etapas(response)
+        paginacion_etapa(response)
         return response
     } catch(error){
         console.error(error)
@@ -2095,7 +2240,7 @@ async function consulta_indi_etapas(id_etapa, mostrar = false){
             return null;
         }
         if (mostrar) {
-            mostrar_etapas(response)
+            paginacion_etapa(response)
         }
         return response
     } catch (error) {
@@ -3366,6 +3511,7 @@ document.getElementById('btn_consultar_todo').addEventListener('click', () =>{
     const input_id = document.getElementById('input_id');
     input_id.readOnly = false
     input_id.disabled = false
+    input_id.value = "Ingrese el ID del porcino"
     const filter_2 = document.getElementById("filter__options__2");
     if (filter_2){
         filter_2.style.display = "none";
@@ -3373,5 +3519,30 @@ document.getElementById('btn_consultar_todo').addEventListener('click', () =>{
     document.querySelectorAll(".rm_filter").forEach(select => {
         select.selectedIndex = 0;
     })
+
     consulta_general_porcinos()
+})
+
+document.getElementById('btn_consultar_todo_raza').addEventListener('click', () => {
+    const input_id_raza = document.getElementById('input_id_raza');
+    if (input_id_raza){
+        input_id_raza.value = "Ingrese el ID de la raza";
+    }
+    consultar_razas()
+})
+
+document.getElementById('btn_consultar_todo_etapa').addEventListener('click', () => {
+    const input_id_etapa = document.getElementById('input_id_etapa');
+    if (input_id_etapa){
+        input_id_etapa.value = "Ingrese el ID de la etapa";
+    }
+    consultar_etapas()
+})
+
+document.getElementById('btn_consultar_todo_historial').addEventListener('click', () =>{
+    const input_id_historial = document.getElementById('input_id_hp');
+    if (input_id_historial){
+        input_id_historial.value = "Ingrese el ID del porcino"
+    }
+    consulta_gen_historial_pesos()
 })

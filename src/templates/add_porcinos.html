@@ -169,9 +169,9 @@
                 const razas = await consultar_razas();
                 const etapas = await consultar_etapas();
                 
-                llenarSelectDesdeLista(razas.razas, "raza_add", "", "id_raza", "nombre","Seleccione una raza");
-                llenarSelectDesdeLista(etapas.etapas, "etapa_add", "", "id_etapa", "nombre", "Seleccione una etapa");
-
+                razaSelect.innerHTML = crear_opciones_select("razas", razas, "Seleccione una raza...")
+                etapaSelect.innerHTML = crear_opciones_select("etapas", etapas, "Seleccione una etapa...")
+                
             } catch (error) {
                 console.error("Error cargando las listas:", error);
                 Swal.fire({

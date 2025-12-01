@@ -96,7 +96,7 @@
             </div>
             <div class="container__user__btn">
                 <img src="/src/static/iconos/icon user.svg" alt="" class="svg__user">
-                <button type="button" class="btn__perfil">Cristhian</button>
+                <button type="button" class="btn__perfil">Juan Tovar</button>
             </div>
         </section>
         <header class= "container container__title">
@@ -176,14 +176,14 @@
                 <h2>Gestionar Raza</h2>
                 <hr>
             </div>
-            <form class="container__search__bar bar--gestion" onsubmit="event.preventDefault(); consulta_indi_raza(mostrar = true)">
-                <span class="iconify" data-icon="mdi:home" style="font-size: 24px;"></span>
+            <form class="container__search__bar bar--gestion" onsubmit="event.preventDefault(); consulta_indi_raza('',mostrar = true)">
                 <div class="conta__lupa__inp">
                     <img src="/src/static/iconos/icon lupa.svg" alt="lupa">
                     <input type = "number" class = "input__id" id="input_id_raza" placeholder = "Ingrese el ID de la raza" min="0" oninput = "this.value = Math.abs(this.value)" required>
                 </div>
                 <div>
                     <button type="submit" class="btn">Consultar</button>
+                    <button type="button" class="btn" id="btn_consultar_todo_raza">Consultar Todo</button>
                 </div>
             </form>
             <div class="container__btn__agregar">
@@ -205,6 +205,9 @@
                         
                     </tbody>
                 </table>
+                <div class="" id="paginacion_raza">
+
+                </div>
             </div>
         </div>
     </dialog>
@@ -219,13 +222,14 @@
                 <h2>Gestionar Etapas</h2>
                 <hr>
             </div>
-            <form class="container__search__bar bar--gestion" onsubmit="event.preventDefault(); consulta_indi_etapas(mostrar = true)">
+            <form class="container__search__bar bar--gestion" onsubmit="event.preventDefault(); consulta_indi_etapas('',mostrar = true)">
                 <div class="conta__lupa__inp">
                     <img src="/src/static/iconos/icon lupa.svg" alt="">
                     <input type = "number" class = "input__id" id="input_id_etapa" placeholder = "Ingrese el ID de la etapa" min="0" oninput = "this.value = Math.abs(this.value)" required>
                 </div>
                 <div>
                     <button type="submit" class="btn">Consultar</button>
+                    <button type="button" class="btn" id="btn_consultar_todo_etapa">Consultar Todo</button>
                 </div>
             </form>
             <div class="container__btn__agregar">
@@ -247,6 +251,7 @@
                         
                     </tbody>
                 </table>
+                <div class="" id="paginacion_etapa"></div>
             </div>
         </div>
     </dialog>
@@ -261,13 +266,14 @@
                 <h2>Historial de pesos</h2>
                 <hr>
             </div>
-            <form class="container__search__bar bar--gestion" onsubmit="event.preventDefault(); consulta_porcino_historial(mostrar = true)">
+            <form class="container__search__bar bar--gestion" onsubmit="event.preventDefault(); consulta_porcino_historial('',mostrar = true)">
                 <div class="conta__lupa__inp">
                     <img src="/src/static/iconos/icon lupa.svg" alt="">
                     <input type = "number" class = "input__id" id="input_id_hp" placeholder = "Ingrese el ID del porcino" min="0" oninput = "this.value = Math.abs(this.value)" required>
                 </div>
                 <div>
                     <button type="submit" class="btn">Consultar</button>
+                    <button type="button" class="btn" id="btn_consultar_todo_historial">Consultar Todo</button>
                 </div>
             </form>
             <div class="container__btn__agregar">
@@ -289,6 +295,7 @@
                         
                     </tbody>
                 </table>
+                <div class="" id="paginacion_historial"></div>
             </div>
         </div>
     </dialog>
