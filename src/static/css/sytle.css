@@ -52,7 +52,6 @@ body{
 
 .swal2-popup {
     font-family: 'Inter' !important; 
-    font-size: 16px; 
 }
 
 
@@ -168,6 +167,11 @@ SECCION DE LOGIN
 
 .parrafo_r{
     margin: auto;
+    color: white;
+}
+
+.parrafo_2{
+    margin: -15px auto;
     color: white;
 }
 

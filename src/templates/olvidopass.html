@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/src/static/css/sytle.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="/src/static/js/script.js"></script>
+    <title>Edupork</title>
+</head>
+<body class="body__registro">
+    <section>
+        <a href="/src/templates/index.html"><img class="back1" src="/src/static/iconos/back icon.svg" alt="regresar"></a>
+        <img class="nubes" src="/src/static/iconos/NubeOne.svg" alt="nubes">
+        <img class="nubes2" src="/src/static/iconos/NubeTwo.svg" alt="nubes2">
+        <img class="rancho" src="/src/static/iconos/Rancho.svg" alt="rancho">
+    </section>
+    <div class="container-form">
+        <form class="form__registro">
+            <fieldset>
+                <legend><h1>¿OLVIDASTE TU CONTRASEÑA?</h1></legend>
+            </fieldset>
+            <div class="form-input">
+                    <input class='input_register'type="email" id="correo" placeholder="Digite su correo electrónico" required>
+            </div>
+            <button type="button" onclick="olvidoPassword()" class="btn btn__registro">Envia enlace</button>
+        </form>
+    </div>
+    <section>
+        <img class="logoedupork" src="/src/static/iconos/Logo.svg" alt="logoedupork">
+        <img class="pasto" src="/src/static/iconos/Pasto.svg" alt="pasto">
+        <img class="porcino" src="/src/static/iconos/Porcino.svg" alt="porcino">
+    </section>
+</body>
+</html>

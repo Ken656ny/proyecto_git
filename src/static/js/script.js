@@ -1640,6 +1640,85 @@ async function login() {
     }
 }
 
+async function olvidoPassword() {
+    const correo = document.getElementById('correo').value;
+
+    if (!correo) {
+        Swal.fire({
+            title: "Error",
+            text: "Por favor ingresa tu correo",
+            icon: "warning"
+        });
+        return;
+    }
+
+    try {
+        const response = await fetch(`${URL_BASE}/olvido-password`, {
+            method: 'POST',
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ correo })
+        });
+
+        const data = await response.json();
+
+        Swal.fire({
+            title: response.ok ? "Éxito" : "Error",
+            text: data.Mensaje || "Hubo un problema",
+            icon: response.ok ? "success" : "error"
+        });
+    } catch (error) {
+        Swal.fire({
+            title: "Error",
+            text: "No se pudo conectar con el servidor",
+            icon: "error"
+        });
+        console.error("Error en forgotPassword:", error);
+    }
+}
+
+    async function recuperarPassword() {
+        const token = new URLSearchParams(window.location.search).get('token');
+        const nueva_contrasena = document.getElementById('nueva_contrasena').value;
+
+        if (!ContrasenaRobusta(nueva_contrasena)) {
+            Swal.fire({
+            title: "Contraseña débil",
+            html: `
+                <div style="text-align: left;">
+                    <p>Tu contraseña debe contener:</p>
+                    <ul>
+                        <li> Mínimo 8 caracteres</li>
+                        <li> Una letra mayúscula</li>
+                        <li> Una letra minúscula</li>
+                        <li> Un número</li>
+                        <li> Un carácter especial</li>
+                    </ul>
+                </div>
+            `,
+            icon: "error",
+            confirmButtonText: "Entendido",
+            confirmButtonColor: "#60836a"
+        });
+        return;
+        }
+
+        const response = await fetch(`${URL_BASE}/recuperar-password`, {
+            method: 'POST',
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ token, nueva_contrasena })
+        });
+
+        const data = await response.json();
+
+        Swal.fire({
+            title: response.ok ? "Éxito" : "Error",
+            text: data.Mensaje,
+            icon: response.ok ? "success" : "error"
+        }).then(() => {
+            if (response.ok) location.href = 'index.html';
+        });
+    }
+
 // FUNCIONAMIENTO DE LA API DE GOOGLE
 function handleCredentialResponse(response) {
     const idToken = response.credential;
@@ -1744,7 +1823,6 @@ async function cargarDatosPerfil() {
         if (datos.es_google) {
             document.getElementById('identificacionLinea').style.display = 'none';
         } else {
-            
             document.getElementById('identificacionUsuario').textContent = datos.numero_identificacion;
         }
 

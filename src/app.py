@@ -12,6 +12,7 @@ from flasgger import Swagger
 from config import config
 from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime ,date
+import secrets
 
 #LIBRERIAS PARA LA FUNCIONALIDAD DE AUTENTICACION DE GOOGLE
 from google.oauth2 import id_token
@@ -20,11 +21,22 @@ from google.auth.transport import requests as google_requests
 import jwt
 from datetime import datetime, timedelta, timezone
 from functools import wraps
+from flask_mail import Mail, Message
+
 
 app = Flask(__name__)
 app.secret_key = 'secretkey'
 CORS(app)
 Swagger(app)
+app.config['MAIL_SERVER'] = 'smtp.gmail.com'
+app.config['MAIL_PORT'] = 587
+app.config['MAIL_USE_TLS'] = True
+app.config['MAIL_USERNAME'] = 'eduporkcontact@gmail.com'   
+app.config['MAIL_PASSWORD'] = 'wddg sbke jvfh lqui'     
+app.config['MAIL_DEFAULT_SENDER'] = ('Edupork', 'eduporkcontact@gmail.com')
+
+mail = Mail(app)
+
 
 # RUTA PRINCIPAL PARA VISUALIZAR SI EL SERVIDOR ESTA CORRIENDO CON NORMALIDAD
 
@@ -34,8 +46,10 @@ def ruta_principal():
 
 #GENARADOR DE TOKEN
 def generar_token(usuario, es_google=False):
+    convertidor_ni = int(usuario["numero_identificacion"])
+
     payload = {
-        "id_usuario": usuario["numero_identificacion"],
+        "id_usuario": convertidor_ni,
         "nombre": usuario["nombre"],
         "correo": usuario["correo"],
         "es_google": es_google,
@@ -116,13 +130,16 @@ def login():
             with conn.cursor() as cur:
                 cur.execute('''
                     SELECT id_usuario, nombre, numero_identificacion, correo, contrasena, rol, 
-                            intentos_fallidos, bloqueado_hasta
+                            intentos_fallidos, bloqueado_hasta, estado
                     FROM usuario WHERE correo = %s
                 ''', (correo,))
                 user = cur.fetchone()
         
         if not user:
             return jsonify({'Mensaje': 'Usuario no encontrado'}), 404
+
+        if user['estado'] == 'Inactivo':
+            return jsonify({'Mensaje': 'Usuario inactivo, contacte al administrador'}), 403
 
         if user['bloqueado_hasta'] and datetime.now() < user['bloqueado_hasta']:
             return jsonify({'Mensaje': 'Usuario bloqueado, intente más tarde'}), 403
@@ -150,8 +167,8 @@ def login():
             intentos = user['intentos_fallidos'] + 1
             bloqueado_hasta = None
 
-            if intentos >= 5:
-                bloqueado_hasta = datetime.now() + timedelta(minutes=1)
+            if intentos >= 3:
+                bloqueado_hasta = datetime.now() + timedelta(minutes=15)
                 intentos = 0  
 
             with config['development'].conn() as conn:
@@ -168,6 +185,76 @@ def login():
     except Exception as err:
         print(f"Error en login: {err}")
         return jsonify({'Mensaje': 'Error al consultar Usuario'}), 500
+
+@app.route('/olvido-password', methods=['POST'])
+def olvido_password():
+    data = request.get_json()
+    correo = data.get('correo')
+
+    with config['development'].conn() as conn:
+        with conn.cursor() as cur:
+            cur.execute("SELECT id_usuario FROM usuario WHERE correo = %s", (correo,))
+            user = cur.fetchone()
+
+    if not user:
+        return jsonify({'Mensaje': 'Correo no registrado'}), 404
+
+    token = secrets.token_urlsafe(32)
+    expiracion = datetime.now() + timedelta(minutes=15)
+
+    with config['development'].conn() as conn:
+        with conn.cursor() as cur:
+            cur.execute("""
+                UPDATE usuario 
+                SET reset_token = %s, reset_token_expira = %s 
+                WHERE id_usuario = %s
+            """, (token, expiracion, user['id_usuario']))
+            conn.commit()
+
+    enlace = f"http://127.0.0.1:5502/src/templates/recuperarpass.html?token={token}"
+
+    msg = Message("Recuperación de contraseña - Edupork", recipients=[correo])
+    msg.body = f"""
+    Hola,
+    Has solicitado recuperar tu contraseña en Edupork.
+    Haz clic en el siguiente enlace para restablecerla (válido por 15 minutos):
+
+    {enlace}
+
+    Si no solicitaste este cambio, ignora este correo.
+    """
+    mail.send(msg)
+
+    return jsonify({'Mensaje': 'Se envió un enlace de recuperación al correo'}), 200
+
+@app.route('/recuperar-password', methods=['POST'])
+def recuperar_password():
+    data = request.get_json()
+    token = data.get('token')
+    nueva_contrasena = data.get('nueva_contrasena')
+
+    with config['development'].conn() as conn:
+        with conn.cursor() as cur:
+            cur.execute("""
+                SELECT id_usuario, reset_token_expira 
+                FROM usuario WHERE reset_token = %s
+            """, (token,))
+            user = cur.fetchone()
+
+    if not user or datetime.now() > user['reset_token_expira']:
+        return jsonify({'Mensaje': 'Token inválido o expirado'}), 400
+
+    hash_pass = generate_password_hash(nueva_contrasena)
+    with config['development'].conn() as conn:
+        with conn.cursor() as cur:
+            cur.execute("""
+                UPDATE usuario 
+                SET contrasena = %s, reset_token = NULL, reset_token_expira = NULL
+                WHERE id_usuario = %s
+            """, (hash_pass, user['id_usuario']))
+            conn.commit()
+
+    return jsonify({'Mensaje': 'Contraseña actualizada correctamente'}), 200
 
 
 # RUTA DE REGISTRO CON GOOGLE
@@ -317,7 +404,6 @@ def perfil():
         
         datos_usuario_db = None
         numero_identificacion = None 
-
         with config['development'].conn() as conn:
             with conn.cursor() as cur:
                 
@@ -325,7 +411,7 @@ def perfil():
                     cur.execute("""
                         SELECT nombre, correo, rol, numero_identificacion 
                         FROM usuario 
-                        WHERE id_usuario = %s
+                        WHERE numero_identificacion = %s
                     """, (user_id,))
                     datos_usuario_db = cur.fetchone()
                     
