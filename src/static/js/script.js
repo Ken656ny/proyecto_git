@@ -1078,6 +1078,12 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 
+
+
+  // =====================================================
+//  boton de generar informe 
+// =====================================================
+
   // Acción del botón Generar
   const btnGenerar = document.querySelector('.btn__generar__reportes');
   if (btnGenerar) {
@@ -1094,6 +1100,10 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 })
+
+// =====================================================
+//  AREA REPORTES_PESO
+// =====================================================
 // ======================================
 // VARIABLES GLOBALES
 // ======================================
@@ -1288,7 +1298,7 @@ function prepararImpresion() {
 
 
 // =====================================================
-//   CARGAR USUARIOS AL INICIAR
+//  area gestionar usuario 
 // =====================================================
 document.addEventListener("DOMContentLoaded", cargarUsuarios);
 
@@ -1433,6 +1443,11 @@ function confirmarEliminarUsuario() {
         cargarUsuarios();
     });
 }
+
+
+// =====================================================
+//  area de filtrar reportes_ alimentos
+// =====================================================
 document.addEventListener("DOMContentLoaded", function () {
     cargarReporteAlimentos("todos");
 });function cargarReporteAlimentos(filtro = "todos") {

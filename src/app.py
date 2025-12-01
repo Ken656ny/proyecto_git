@@ -897,8 +897,13 @@ def eliminar_alimento(id):
 
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+      
+      
+      
+      
+      
 # ----------------------------------------------------
-# API: REPORTES DE PESOS POR ETAPA + FILTRO (alto/bajo/todos)
+# AREA DE REPORTE_PORCINOS
 # ----------------------------------------------------
 @app.route('/reportes/pesos', methods=['GET'])
 def reportes_pesos():
@@ -971,7 +976,7 @@ def reportes_pesos():
 
 
 # ----------------------------------------------------
-# API: LISTAR USUARIOS (interno / externo / todos)
+# AREA GESTIONAR USUARIO
 # ----------------------------------------------------
 @app.route('/usuarios', methods=['GET'])
 def listar_usuarios():
@@ -1117,6 +1122,11 @@ def eliminar_usuario():
         return jsonify({"error": "Error interno"}), 500
 
 
+
+
+
+
+#AREA DE REPORTES_ALIMENTOS
 
 @app.route('/reportes/alimentos', methods=['GET'])
 def reportes_alimentos():
