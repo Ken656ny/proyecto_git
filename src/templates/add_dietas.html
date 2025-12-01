@@ -12,7 +12,7 @@
     <link rel="stylesheet" href="/src/static/css/sytle.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11.17.2/dist/sweetalert2.min.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/driver.js@0.9.8/dist/driver.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/driver.js@0.9.8/dist/driver.min.css">
 
     <!-- Driver.js JS -->
     <script src="https://cdn.jsdelivr.net/npm/driver.js@0.9.8/dist/driver.min.js"></script>
@@ -171,7 +171,6 @@
             <canvas id="graficoMezcla" width="50px" height="50px"></canvas>
 
 
-            </canvas>
         </section>
 
 
@@ -207,9 +206,16 @@
 
     </section>
     <div onclick="iniciarTourAgregarDietas()" class="ayuda">
-        <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24"><g fill="none"><path d="m12.593 23.258l-.011.002l-.071.035l-.02.004l-.014-.004l-.071-.035q-.016-.005-.024.005l-.004.01l-.017.428l.005.02l.01.013l.104.074l.015.004l.012-.004l.104-.074l.012-.016l.004-.017l-.017-.427q-.004-.016-.017-.018m.265-.113l-.013.002l-.185.093l-.01.01l-.003.011l.018.43l.005.012l.008.007l.201.093q.019.005.029-.008l.004-.014l-.034-.614q-.005-.018-.02-.022m-.715.002a.02.02 0 0 0-.027.006l-.006.014l-.034.614q.001.018.017.024l.015-.002l.201-.093l.01-.008l.004-.011l.017-.43l-.003-.012l-.01-.01z"/><path fill="#fff" d="M12 2c5.523 0 10 4.477 10 10s-4.477 10-10 10S2 17.523 2 12S6.477 2 12 2m0 14a1 1 0 1 0 0 2a1 1 0 0 0 0-2m0-9.5a3.625 3.625 0 0 0-3.625 3.625a1 1 0 1 0 2 0a1.625 1.625 0 1 1 2.23 1.51c-.676.27-1.605.962-1.605 2.115V14a1 1 0 1 0 2 0c0-.244.05-.366.261-.47l.087-.04A3.626 3.626 0 0 0 12 6.5"/></g></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24">
+            <g fill="none">
+                <path
+                    d="m12.593 23.258l-.011.002l-.071.035l-.02.004l-.014-.004l-.071-.035q-.016-.005-.024.005l-.004.01l-.017.428l.005.02l.01.013l.104.074l.015.004l.012-.004l.104-.074l.012-.016l.004-.017l-.017-.427q-.004-.016-.017-.018m.265-.113l-.013.002l-.185.093l-.01.01l-.003.011l.018.43l.005.012l.008.007l.201.093q.019.005.029-.008l.004-.014l-.034-.614q-.005-.018-.02-.022m-.715.002a.02.02 0 0 0-.027.006l-.006.014l-.034.614q.001.018.017.024l.015-.002l.201-.093l.01-.008l.004-.011l.017-.43l-.003-.012l-.01-.01z" />
+                <path fill="#fff"
+                    d="M12 2c5.523 0 10 4.477 10 10s-4.477 10-10 10S2 17.523 2 12S6.477 2 12 2m0 14a1 1 0 1 0 0 2a1 1 0 0 0 0-2m0-9.5a3.625 3.625 0 0 0-3.625 3.625a1 1 0 1 0 2 0a1.625 1.625 0 1 1 2.23 1.51c-.676.27-1.605.962-1.605 2.115V14a1 1 0 1 0 2 0c0-.244.05-.366.261-.47l.087-.04A3.626 3.626 0 0 0 12 6.5" />
+            </g>
+        </svg>
     </div>
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
     <script src="/src/static/js/script.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -218,7 +224,6 @@
         dietas();
         rellenar_etapa_vida_en_dietas();
         timesleep();
-        inicializarGraficoVacio();
         const h5Mapping = {
             "MS": "materia_seca_label",
             "EM-C": "energia_metabolizable_label",
@@ -271,7 +276,7 @@
                             }
                         }
                     }
-                                actualizarGraficoMezcla(data.mezcla_nutricional);
+                    actualizarGraficoMezcla(data.mezcla_nutricional);
                 })
                 .catch(err => console.error(err));
         }
@@ -283,6 +288,90 @@
             }
         });
 
+
+        let graficoMezcla = null;
+
+        function inicializarGraficoVacio() {
+            const canvas = document.getElementById("graficoMezcla");
+            if (!canvas) return;
+
+            canvas.width = 200;
+            canvas.height = 200;
+            const ctx = canvas.getContext("2d");
+
+            graficoMezcla = new Chart(ctx, {
+                type: 'pie',
+                data: {
+                    labels: ['Sin datos'],
+                    datasets: [{
+                        data: [1],
+                        backgroundColor: ['#E0E0E0'] // gris claro
+                    }]
+                },
+                options: {
+                    responsive: false,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            enabled: true,
+                            callbacks: {
+                                label: function (context) {
+                                    return context.label;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function actualizarGraficoMezcla(mezcla) {
+            if (!graficoMezcla) return;
+
+            const nutrientesFijos = Object.keys(mezcla); // dinámico, siempre 14
+
+            // Valores originales
+            const valoresOriginales = nutrientesFijos.map(n => Number(mezcla[n]) || 0);
+
+            // Escala mínima para que todo se vea
+            const VALOR_MINIMO = 1;
+            const valoresTransformados = valoresOriginales.map(v => Math.log10(v > 0 ? v : VALOR_MINIMO));
+
+            // Escala de verdes fija para 14 nutrientes
+            const escalaVerdes = [
+                "#004d00", "#006600", "#008000", "#009900",
+                "#00b300", "#00cc00", "#00e600", "#00ff00",
+                "#19ff19", "#33ff33", "#4dff4d", "#66ff66",
+                "#99ff99", "#ccffcc"
+            ];
+
+            graficoMezcla.data.labels = nutrientesFijos;
+            graficoMezcla.data.datasets[0].data = valoresTransformados;
+            graficoMezcla.data.datasets[0].backgroundColor = escalaVerdes.slice(0, nutrientesFijos.length);
+
+            // Tooltip limpio
+            graficoMezcla.options.plugins.tooltip.callbacks.label = function (context) {
+                const label = context.label;
+                const valorReal = valoresOriginales[context.dataIndex];
+                return `${label}: ${valorReal}`;
+            };
+
+            // Resaltar al pasar el mouse
+            graficoMezcla.options.interaction = {
+                mode: "nearest",
+                intersect: true
+            };
+
+            // Sin leyenda
+            graficoMezcla.options.plugins.legend = {
+                display: false
+            };
+
+            graficoMezcla.update();
+        }
+
+        inicializarGraficoVacio();
     </script>
 </body>
 

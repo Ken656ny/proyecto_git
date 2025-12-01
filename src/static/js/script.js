@@ -2178,25 +2178,67 @@ async function consultar_notificaciones() {
 // -------------------
 
 
+
+let currentPage = 1;       // página actual
+const itemsPerPage = 3;   // cantidad de alimentos por página
+let alimentosData = [];    // aquí guardaremos los datos de fetch
+
+const contenido = document.getElementById("contenido");
+const alimentos_totales = document.getElementById("alimentos_totales");
+const pageInfo = document.getElementById("pageInfo");
+const prevPage = document.getElementById("prevPage");
+const nextPage = document.getElementById("nextPage");
+
 function consulta_alimentos() {
-    const contenido = document.getElementById("contenido");
     fetch(`${URL_BASE}/alimentos`, { method: "GET" })
         .then(res => res.json())
         .then(data => {
-                    const totalAlimentos = data.mensaje.length;
-                    if(totalAlimentos>3){
-                        alimentos_totales.innerHTML=`Alimentos Totales: ${totalAlimentos}`;
-                    }
-            contenido.innerHTML = "";
-            data.mensaje.forEach(element => {
-                const mapa = {};
-                element.elementos.forEach(e => {
-                    mapa[e.nombre] = e.valor;
-                });
-                contenido.innerHTML += `
-            <tr id="alimento_tour" class="nuevo1">
+            alimentosData = data.mensaje; // guardamos todos los alimentos
+            mostrarPagina(currentPage);
+        });
+}
+
+function mostrarPagina(page) {
+    const totalAlimentos = alimentosData.length;
+    const totalPages = Math.ceil(totalAlimentos / itemsPerPage);
+
+    // Mostrar información de totales
+    alimentos_totales.innerText = `Alimentos Totales: ${totalAlimentos}`;
+    pageInfo.innerText = `Página ${page} de ${totalPages}`;
+
+    // **Ocultar paginación si no es necesaria**
+    const pagContainer = document.getElementById("paginacion_alimentos");
+    if (totalAlimentos <= itemsPerPage) {
+        pagContainer.style.display = "none";
+    } else {
+        pagContainer.style.display = "flex"; // o "block" según tu diseño
+    }
+
+    // Calcular rango
+    const start = (page - 1) * itemsPerPage;
+    const end = start + itemsPerPage;
+    const alimentosPagina = alimentosData.slice(start, end);
+
+    contenido.innerHTML = "";
+
+    if (alimentosPagina.length === 0) {
+        contenido.innerHTML = `
+            <tr class="sin-alimentos">
+                <td colspan="9"><p>No hay Alimentos Disponibles</p></td>
+            </tr>`;
+        return;
+    }
+
+    alimentosPagina.forEach(element => {
+        const mapa = {};
+        element.elementos.forEach(e => {
+            mapa[e.nombre] = e.valor;
+        });
+
+        contenido.innerHTML += `
+            <tr class="nuevo1">
                 <td class="nuevo td__border__l">
-                    <img alt="logo de trigo representando un alimento" class="svg__alimento" src="/src/static/iconos/logo alimentospng.png">
+                    <img alt="logo de trigo" class="svg__alimento" src="/src/static/iconos/logo alimentospng.png">
                 </td>
                 <td class="nuevo">${element.id_alimento}</td>
                 <td class="nuevo">${element.nombre}</td>
@@ -2205,28 +2247,13 @@ function consulta_alimentos() {
                 <td class="nuevo">${mapa["Energia_metabo"]}</td>
                 <td class="nuevo">${mapa["Fibra_cruda"]}</td>
                 <td class="nuevo">${element.estado}</td>
-                <td id="acciones" style="margin-bottom:2%;" class="nuevo td__border__r">
-
-                    <!-- Abrir modal ver -->
-                    <img alt="imagen de un ojo para ver" src="/src/static/iconos/icon eye.svg" 
-                         onclick="abrirModal('eye', ${element.id_alimento})" 
-                         class="icon-eye">
-
-                    <!-- Abrir modal editar -->
-                    <img alt="imagen de un lapiz para editar" src="/src/static/iconos/edit icon.svg"  
-                         onclick="abrirModal('edit', ${element.id_alimento})" 
-                         class="icon-edit">
-
-                    <!-- Abrir modal eliminar -->
-                    <img alt="imagen de una basura para eliminar" src="/src/static/iconos/delete icon.svg" 
-                         onclick="abrirModal('dele', ${element.id_alimento})" 
-                         class="icon-delete">
-
+                <td style="margin-bottom:2%;" class="nuevo td__border__r">
+                    <img alt="ver" src="/src/static/iconos/icon eye.svg" onclick="abrirModal('eye', ${element.id_alimento})" class="icon-eye">
+                    <img alt="editar" src="/src/static/iconos/edit icon.svg" onclick="abrirModal('edit', ${element.id_alimento})" class="icon-edit">
+                    <img alt="eliminar" src="/src/static/iconos/delete icon.svg" onclick="abrirModal('dele', ${element.id_alimento})" class="icon-delete">
                 </td>
             </tr>
-
-            <!-- Modal ver -->
-<dialog class="dialog-icon-eye modal-info" id="modal-eye-${element.id_alimento}">
+             <dialog class="dialog-icon-eye modal-info" id="modal-eye-${element.id_alimento}">
   <div class="title-dialog">
     <h2>Información del Alimento</h2>
     <hr>
@@ -2395,15 +2422,43 @@ function consulta_alimentos() {
     <button class="btn" onclick="cerrarModal('dele', ${element.id_alimento})">Cancelar</button>
   </div>
 </dialog>
-            `
-            });
-        })
+        `;
+    });
+
+    // Desactivar botones según página
+    prevPage.disabled = page <= 1;
+    nextPage.disabled = page >= totalPages;
 }
+
+
+// Eventos de botones
+prevPage.addEventListener('click', () => {
+    if (currentPage > 1) {
+        currentPage--;
+        mostrarPagina(currentPage);
+    }
+});
+
+nextPage.addEventListener('click', () => {
+    const totalPages = Math.ceil(alimentosData.length / itemsPerPage);
+    if (currentPage < totalPages) {
+        currentPage++;
+        mostrarPagina(currentPage);
+    }
+});
+
+
 
 function consulta_individual_alimento() {
     const nombre = document.getElementById("id_alimento").value;
     const contenido = document.getElementById("contenido");
+    const pagContainer = document.getElementById("paginacion_alimentos"); // contenedor de paginación
+    const pageInfo = document.getElementById("pageInfo"); // info de página
     contenido.innerHTML = "";
+
+    // Ocultar paginación y página cuando es búsqueda individual
+    pagContainer.style.display = "none";
+    pageInfo.innerText = "";
 
     if (nombre === "") {
         Swal.fire({
@@ -2412,12 +2467,13 @@ function consulta_individual_alimento() {
             icon: "warning",
             confirmButtonText: "OK"
         });
-        return consulta_alimentos();
+        return consulta_alimentos(); // aquí volverá la paginación
     }
+
     fetch(`${URL_BASE}/consulta_indi_alimento/${nombre}`)
         .then(res => res.json())
         .then(data => {
-            alimentos_totales.innerHTML="";
+            alimentos_totales.innerHTML = "";
             if (!data.mensaje) {
                 Swal.fire({
                     title: "Mensaje",
@@ -2426,10 +2482,10 @@ function consulta_individual_alimento() {
                     confirmButtonText: "OK"
                 }).then((result) => {
                     if (result.isConfirmed) {
-                        consulta_alimentos();
+                        consulta_alimentos(); // aquí volverá la paginación
                     }
                 });
-                return consulta_alimentos();
+                return;
             }
 
             let alimentos = Array.isArray(data.mensaje) ? data.mensaje : [data.mensaje];
@@ -2441,7 +2497,7 @@ function consulta_individual_alimento() {
                 });
 
                 contenido.innerHTML += `
-                    <tr id="alimento_tour" class="nuevo1">
+                    <tr class="nuevo1">
                         <td class="nuevo td__border__l"><img class="svg__alimento" src="/src/static/iconos/logo alimentospng.png"></td>
                         <td class="nuevo">${element.id_alimento}</td>
                         <td class="nuevo">${element.nombre}</td>
@@ -2450,16 +2506,13 @@ function consulta_individual_alimento() {
                         <td class="nuevo">${mapa["Energia_metabo"] || ''}</td>
                         <td class="nuevo">${mapa["Fibra_cruda"] || ''}</td>
                         <td class="nuevo">${element.estado}</td>
-                        <td id="acciones" class="nuevo td__border__r">
+                        <td class="nuevo td__border__r">
                             <img src="/src/static/iconos/icon eye.svg" onclick="abrirModal('eye', ${element.id_alimento})" class="icon-eye">
-                            <img src="/src/static/iconos/edit icon.svg" onclick="abrirModal('edit', ${element.id_alimento})" 
-                         class="icon-edit" class="icon-edit">
+                            <img src="/src/static/iconos/edit icon.svg" onclick="abrirModal('edit', ${element.id_alimento})" class="icon-edit">
                             <img src="/src/static/iconos/delete icon.svg" onclick="abrirModal('dele', ${element.id_alimento})" class="icon-delete">
                         </td>
                     </tr>
-
-                    <!-- Modal ver -->
-                   <dialog class="dialog-icon-eye modal-info" id="modal-eye-${element.id_alimento}">
+                     <dialog class="dialog-icon-eye modal-info" id="modal-eye-${element.id_alimento}">
   <div class="title-dialog">
     <h2>Información del Alimento</h2>
     <hr>
@@ -2640,7 +2693,6 @@ function consulta_individual_alimento() {
                     consulta_individual_alimento()
                 }
             });
-            return;
         });
 }
 
@@ -2933,6 +2985,7 @@ function cerrarModal(tipo, id) {
     document.getElementById(`modal-${tipo}-${id}`).close();
 }
 
+
 // -------------------------dietas----------------------
 
 function dietas() {
@@ -3097,87 +3150,6 @@ function toggleInput(id) {
     }
 }
 
-let graficoMezcla = null;
-
-function inicializarGraficoVacio() {
-    const canvas = document.getElementById("graficoMezcla");
-    if (!canvas) return;
-
-    canvas.width = 200;
-    canvas.height = 200;
-    const ctx = canvas.getContext("2d");
-
-    graficoMezcla = new Chart(ctx, {
-        type: 'pie',
-        data: {
-            labels: ['Sin datos'],
-            datasets: [{
-                data: [1],
-                backgroundColor: ['#E0E0E0'] // gris claro
-            }]
-        },
-        options: {
-            responsive: false,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: { display: false },
-                tooltip: {
-                    enabled: true,
-                    callbacks: {
-                        label: function(context) {
-                            return context.label;
-                        }
-                    }
-                }
-            }
-        }
-    });
-}
-
-function actualizarGraficoMezcla(mezcla) {
-    if (!graficoMezcla) return;
-
-    const nutrientesFijos = Object.keys(mezcla); // dinámico, siempre 14
-
-    // Valores originales
-    const valoresOriginales = nutrientesFijos.map(n => Number(mezcla[n]) || 0);
-
-    // Escala mínima para que todo se vea
-    const VALOR_MINIMO = 1;
-    const valoresTransformados = valoresOriginales.map(v => Math.log10(v > 0 ? v : VALOR_MINIMO));
-
-    // Escala de verdes fija para 14 nutrientes
-    const escalaVerdes = [
-        "#004d00", "#006600", "#008000", "#009900",
-        "#00b300", "#00cc00", "#00e600", "#00ff00",
-        "#19ff19", "#33ff33", "#4dff4d", "#66ff66",
-        "#99ff99", "#ccffcc"
-    ];
-
-    graficoMezcla.data.labels = nutrientesFijos;
-    graficoMezcla.data.datasets[0].data = valoresTransformados;
-    graficoMezcla.data.datasets[0].backgroundColor = escalaVerdes.slice(0, nutrientesFijos.length);
-
-    // Tooltip limpio
-    graficoMezcla.options.plugins.tooltip.callbacks.label = function(context) {
-        const label = context.label;
-        const valorReal = valoresOriginales[context.dataIndex];
-        return `${label}: ${valorReal}`;
-    };
-
-    // Resaltar al pasar el mouse
-    graficoMezcla.options.interaction = {
-        mode: "nearest",
-        intersect: true
-    };
-
-    // Sin leyenda
-    graficoMezcla.options.plugins.legend = {
-        display: false
-    };
-
-    graficoMezcla.update();
-}
 
 function rellenar_etapa_vida_en_dietas() {
     fetch(`${URL_BASE}/etapa_vida`)
@@ -3472,7 +3444,6 @@ function iniciarTourAlimentos() {
 
     driver.start();
 }
-
 function iniciarTourHome() {
     const driver = new Driver({
         showProgress: true,   // muestra la barra de progreso
@@ -3737,6 +3708,84 @@ function iniciarTourAgregarDietas() {
 
     driver.start();
 }
+function iniciarComandosDeVoz() {
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    const recognition = new SpeechRecognition();
+
+    recognition.lang = "es-ES";
+    recognition.continuous = true;
+    recognition.interimResults = false;
+
+    // Sinónimos de acciones
+    const crearWords = ["crear", "agregar", "añadir", "registrar", "nuevo", "añade", "agrega"];
+    const verWords = ["ver", "consultar", "mostrar", "abrir", "listar", "enseñar", "consulten"];
+
+    function contieneCualquiera(texto, palabras) {
+        return palabras.some(p => texto.includes(p));
+    }
+
+    recognition.onresult = (event) => {
+        const transcript = event.results[event.results.length - 1][0].transcript.toLowerCase();
+        console.log("Escuchado:", transcript);
+
+        // --- Crear Dieta ---
+        if (contieneCualquiera(transcript, crearWords) && transcript.includes("dieta")) {
+            window.location.href = "/src/templates/add_dietas.html";
+        }
+
+        // --- Ver Alimentos ---
+        if (contieneCualquiera(transcript, verWords) && transcript.includes("alimentos")) {
+            window.location.href = "/src/templates/alimentos.html";
+        }
+
+        // --- Crear Alimento ---
+        if (contieneCualquiera(transcript, crearWords) && transcript.includes("alimentos")) {
+            window.location.href = "/src/templates/add_alimento.html";
+        }
+
+        // --- Ver Porcinos ---
+        if (contieneCualquiera(transcript, verWords) && transcript.includes("porcinos")) {
+            window.location.href = "/src/templates/porcinos.html";
+        }
+
+        // --- Crear Porcino ---
+        if (contieneCualquiera(transcript, crearWords) && transcript.includes("porcinos")) {
+            window.location.href = "/src/templates/add_porcinos.html";
+        }
+
+        // --- Ver Dietas ---
+        if (contieneCualquiera(transcript, verWords) && transcript.includes("dietas")) {
+            window.location.href = "/src/templates/gestionar_dietas.html";
+        }
+
+        // --- Ver Notificaciones ---
+        if (contieneCualquiera(transcript, verWords) && transcript.includes("notificaciones")) {
+            window.location.href = "/src/templates/notificaciones.html";
+        }
+
+        // --- Cerrar sesión ---
+        if (transcript.includes("cerrar sesión") || transcript.includes("cerrar sesion")) {
+            alert("Sesión cerrada");
+        }
+
+        // --- Ir al inicio ---
+        if (transcript.includes("inicio") || transcript.includes("home")) {
+            window.location.href = "/index.html";
+        }
+    };
+
+    recognition.onstart = () => {
+        console.log("🎤 Sistema listo para escuchar comandos...");
+    };
+
+    recognition.onerror = (event) => {
+        console.error("Error en voz:", event.error);
+    };
+
+    recognition.start();
+}
+
+
 
 
 
@@ -3888,9 +3937,8 @@ function notificaciones_nuevo() {
                 icon: "/src/static/iconos/logo_login.png"
             });
 
-            // Evento al hacer click en la notificación
             noti.onclick = function () {
-                window.open(url_notificaciones, "_blank"); // abre en nueva pestaña
+                window.open(url_notificaciones, "_blank"); 
                 noti.close();
             };
         }

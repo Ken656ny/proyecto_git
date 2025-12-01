@@ -516,3 +516,77 @@ function consulta_individual_alimento() {
             });
         });
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// ----------------------------- comandoz de voz
+function iniciarComandosDeVoz() {
+    // Crear reconocimiento de voz
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    const recognition = new SpeechRecognition();
+
+    recognition.lang = "es-ES";
+    recognition.continuous = true;
+    recognition.interimResults = false;
+
+    // Cuando escucha y obtiene un resultado
+    recognition.onresult = (event) => {
+        const transcript = event.results[event.results.length - 1][0].transcript.toLowerCase();
+        console.log("Escuchado:", transcript);
+
+        // ---- ACCIONES SEGÚN PALABRAS CLAVE ----
+        
+        if (transcript.includes("crear dieta")) {
+            console.log("Acción: ir a crear dieta");
+            window.location.href = "/src/templates/add_dietas.html";
+        }
+
+if (transcript.includes("ver") && transcript.includes("alimentos")) {
+    window.location.href = "/src/templates/alimentos.html";
+}
+
+
+        if (transcript.includes("cerrar sesión") || transcript.includes("cerrar sesion")) {
+            console.log("Acción: cerrar sesión");
+            // Aquí puedes poner tu logout real
+            alert("Sesión cerrada");
+        }
+
+        if (transcript.includes("inicio") || transcript.includes("home")) {
+            console.log("Acción: ir al inicio");
+            window.location.href = "/index.html";
+        }
+
+    };
+
+    // Inicia la escucha
+    recognition.onstart = () => {
+        console.log("🎤 Esperando comandos de voz...");
+    };
+
+    recognition.onerror = (event) => {
+        console.error("Error en voz:", event.error);
+    };
+
+    recognition.start();
+}

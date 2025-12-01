@@ -1544,11 +1544,9 @@ def eliminar_alimento(id):
                 nombre_alimento = alimento['nombre']
 
                 try:
-                    # Intentar eliminar relaciones y alimento
                     cur.execute("DELETE FROM alimento_tiene_elemento WHERE id_alimento = %s", (id,))
                     cur.execute("DELETE FROM alimentos WHERE id_alimento = %s", (id,))
                     
-                    # Crear notificación de eliminación para todos los usuarios
                     cur.execute("SELECT id_usuario FROM usuario")
                     usuarios = cur.fetchall()
                     for u in usuarios:
@@ -1766,24 +1764,26 @@ def consultar_dietas():
     try:
         with config['development'].conn() as conn:
             with conn.cursor() as cur:
+                # Obtener todas las dietas incluyendo la mezcla nutricional
                 cur.execute("""
                     SELECT d.id_dieta,
-                          u.nombre AS usuario,
-                          d.id_etapa_vida,
-                          ev.nombre AS etapa_vida,
-                          d.fecha_creacion,
-                          d.estado,
-                          d.descripcion
+                           u.nombre AS usuario,
+                           d.id_etapa_vida,
+                           ev.nombre AS etapa_vida,
+                           d.fecha_creacion,
+                           d.estado,
+                           d.descripcion,
+                           d.mezcla_nutricional
                     FROM dietas d
                     JOIN usuario u ON u.id_usuario = d.id_usuario
                     JOIN etapa_vida ev ON ev.id_etapa = d.id_etapa_vida
                 """)
-
                 dietas = cur.fetchall()
 
                 resultado = []
 
                 for d in dietas:
+                    # Obtener los alimentos de la dieta
                     cur.execute("""
                         SELECT a.id_alimento, a.nombre, da.cantidad
                         FROM dieta_tiene_alimentos da
@@ -1792,17 +1792,40 @@ def consultar_dietas():
                     """, (d["id_dieta"],))
                     alimentos = cur.fetchall()
 
-                    resultado.append({
-    "id_dieta": d["id_dieta"],
-    "usuario": d["usuario"],        # <-- aquí
-    "id_etapa_vida": d["id_etapa_vida"],
-    "etapa_vida": d["etapa_vida"],
-    "fecha_creacion": str(d["fecha_creacion"]),
-    "estado": d["estado"],
-    "descripcion": d["descripcion"],
-    "alimentos": alimentos
-})
+                    # Calcular el total de kg de la dieta
+                    total_kg = sum(a["cantidad"] for a in alimentos) if alimentos else 0
 
+                    # Agregar el porcentaje de cada alimento
+                    alimentos_con_porcentaje = []
+                    for a in alimentos:
+                        porcentaje = round(a["cantidad"] * 100 / total_kg, 2) if total_kg > 0 else 0
+                        alimentos_con_porcentaje.append({
+                            "id_alimento": a["id_alimento"],
+                            "nombre": a["nombre"],
+                            "cantidad": a["cantidad"],
+                            "porcentaje": porcentaje
+                        })
+
+                    # Mezcla nutricional (convertir string JSON a dict si es necesario)
+                    mezcla_nutricional = {}
+                    if d.get("mezcla_nutricional"):
+                        try:
+                            import json
+                            mezcla_nutricional = json.loads(d["mezcla_nutricional"])
+                        except:
+                            mezcla_nutricional = d["mezcla_nutricional"]  # si ya viene como dict
+
+                    resultado.append({
+                        "id_dieta": d["id_dieta"],
+                        "usuario": d["usuario"],
+                        "id_etapa_vida": d["id_etapa_vida"],
+                        "etapa_vida": d["etapa_vida"],
+                        "fecha_creacion": str(d["fecha_creacion"]),
+                        "estado": d["estado"],
+                        "descripcion": d["descripcion"],
+                        "alimentos": alimentos_con_porcentaje,
+                        "mezcla_nutricional": mezcla_nutricional
+                    })
 
         return jsonify({"mensaje": resultado})
 

@@ -2577,7 +2577,7 @@ RESPONSIVE BAR
     bottom: 0;         /* Pegado al fondo de su contenedor */
     background-color: #D9D9D9; /* Fondo para que no se vea detrás de filas */
     padding: 5px;
-    z-index: 10;  
+    z-index: 0;  
     color: #2C3D31;
     font-weight: bold;
         font-family: var(--fuente--contenido);
@@ -2593,8 +2593,17 @@ RESPONSIVE BAR
 
 .ayuda {
     position: fixed;
-    bottom: 2px;   /* separación del borde */
+    bottom: 1px;   /* separación del borde */
     right: 2px;
+    color: #fff;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: transform 0.5s ease-in;
+}
+.voz {
+    position: fixed;
+    bottom: 50px;   /* separación del borde */
+    right: 4px;
     color: #fff;
     border-radius: 10px;
     cursor: pointer;
