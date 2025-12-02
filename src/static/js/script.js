@@ -3255,6 +3255,68 @@ function consulta_dietas() {
             contenido.innerHTML = `<tr><td colspan="7">Error al cargar las dietas</td></tr>`;
         });
 }
+function consulta_individual_dieta() {
+    const contenido = document.getElementById("contenido");
+    const Dietas_totales = document.getElementById("Dietas_totales");
+    const id = document.getElementById("input_id").value.trim();
+
+    // Validación 1: campo vacío
+    if (id === "") {
+        Swal.fire("Error", "Por favor ingrese un ID de dieta.", "warning");
+        return;
+    }
+
+    fetch(`${URL_BASE}/dieta/${id}`, { method: "GET" })
+        .then(res => res.json())
+        .then(data => {
+
+            // Validación 2: dieta no encontrada
+            if (!data.mensaje) {
+                Swal.fire("No encontrado", "No existe una dieta con ese ID.", "error");
+                // NO modificar tabla
+                return;
+            }
+
+            // Si existe → render normal
+            const dieta = data.mensaje;
+
+            contenido.innerHTML = `
+                <tr class="nuevo1">
+                    <td class="nuevo td__border__l">
+                        <img class="svg__alimento" src="/src/static/iconos/ramen 1.svg">
+                    </td>
+
+                    <td class="nuevo">${dieta.id_dieta}</td>
+                    <td class="nuevo">${dieta.id_usuario}</td>
+                    <td class="nuevo">${dieta.etapa_vida}</td>
+                    <td class="nuevo">${dieta.fecha_creacion}</td>
+                    <td class="nuevo">${dieta.estado}</td>
+
+                    <td class="nuevo td__border__r">
+                        <img src="/src/static/iconos/icon eye.svg" 
+                             onclick="abrirModalDieta(${dieta.id_dieta})" 
+                             class="icon-eye">
+
+                        <img src="/src/static/iconos/edit icon.svg" 
+                             onclick="abrirModalDieta(${dieta.id_dieta})" 
+                             class="icon-edit">
+
+                        <img src="/src/static/iconos/delete icon.svg" 
+                             onclick="abrirModalDieta(${dieta.id_dieta})" 
+                             class="icon-delete">
+                    </td>
+                </tr>
+            `;
+
+            Dietas_totales.innerHTML = "";
+        })
+        .catch(err => {
+            console.error(err);
+            // Validación 3: fallo de servidor
+            Swal.fire("Error", "Hubo un problema al consultar la dieta.", "error");
+            // NO modificar tabla
+        });
+}
 
 function guardarDieta() {
     const id_usuario = 3; // reemplaza con el usuario logueado
