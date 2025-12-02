@@ -38,6 +38,7 @@
     --color-black: #000;
 }
 
+
 *{
     margin: 0;
     padding: 0;
@@ -360,7 +361,7 @@ BARRA LATERAL
     position: fixed;
     display: flex;
     flex-direction: column;
-    width: 80px;
+    width: 360px;
     height: 100vh;
     padding: 2rem 1rem;
     background-color: var(--color--prede);
@@ -371,7 +372,7 @@ BARRA LATERAL
 }
 
 .mini-barra-lateral{
-    width: 360px;
+    width: 80px;
 } 
 
 /* -----------------------------------------------------------------nombre de la paginaaa */
@@ -810,7 +811,7 @@ SECCION DE PORCINOS
     height: 60px;
     margin: auto;
     padding: 0 2rem;
-    gap: 4rem;
+    gap: 2rem;
     font-family: var(--fuente--contenido);
 }
 
@@ -1034,6 +1035,7 @@ label.contenedor{
     border-radius: 20px;
     transition: background-color 0.5s ease-in-out;
     cursor: pointer;
+    padding: 0 0.5em;
 }
 .btn1{
     background-color: var(--color--btn--sin--hover);
@@ -1063,6 +1065,14 @@ label.contenedor{
 
 #btn_consultar{
     order: 4;
+}
+
+#btn_consultar_todo,
+#btn_consultar_todo_raza,
+#btn_consultar_todo_etapa,
+#btn_consultar_todo_historial{
+    order: 5;
+    font-size: 12px;
 }
 /* CODIGO DE LA SECCION DEL BOTON DE AGREGAR */
 
@@ -1137,14 +1147,7 @@ thead{
 }
 
 .table__registros{
-    width: 1150px ;
-    margin: auto;
-    border-collapse: collapse;
-    font-family: var(--fuente--contenido);
-    color: var(--color-letra-predeter);
-}
-.table__registros_dietas{
-    width: 1150px ;
+    width: 1150px;
     margin: auto;
     border-collapse: collapse;
     font-family: var(--fuente--contenido);
@@ -1158,6 +1161,49 @@ thead{
     border: 5px solid var(--color--fondos);
 }
 
+.registros tr > td > button{
+    width: 44px;
+    height: 43px;
+    border-radius: 11px;
+    border: 0;
+}
+
+
+#paginacion_porcino,
+#paginacion_raza,
+#paginacion_etapa,
+#paginacion_historial{
+    width: 100%;
+    padding: 1rem 2rem;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+}
+
+#paginacion_porcino > .container_btn_paginacion,
+#paginacion_raza > .container_btn_paginacion,
+#paginacion_etapa > .container_btn_paginacion,
+#paginacion_historial > .container_btn_paginacion{
+    display: flex;
+    flex-direction: row;
+    gap: 1em;
+    align-items: center;
+}
+
+#paginacion_porcino > span, #paginacion_porcino > container > span,
+#paginacion_raza > span, #paginacion_raza > container > span,
+#paginacion_etapa > span, #paginacion_etapa > container > span,
+#paginacion_historial > span, #paginacion_historial > container > span{
+    font-family: var(--fuente--contenido);
+    font-size: 14px;
+    font-weight: bold;
+    color: var(--color-letra-predeter);
+}
+
+iconify-icon{
+    cursor: pointer;
+}
 
 .svg__pig{
     position: relative;
@@ -1399,6 +1445,16 @@ hr{
 }
 
 
+.ayuda {
+    position: fixed;
+    bottom: 1px;   
+    right: 2px;
+    color: #fff;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: transform 0.5s ease-in;
+}
+
 /* REGISTRAR PORCINOS */
 
 .section__add__por{
@@ -1454,6 +1510,7 @@ hr{
 }
 
 .btn--guardar{
+    font-size: smaller;
     grid-column: 2/4;
     margin: auto;
 }
@@ -1532,7 +1589,7 @@ hr{
 
 .container__registros__dia{
     width: 735px;
-    height: 200px;
+    height: 230px;
     place-self: center;
 }
 
@@ -2576,11 +2633,13 @@ RESPONSIVE BAR
     position: sticky;  /* Mantener visible al hacer scroll */
     bottom: 0;         /* Pegado al fondo de su contenedor */
     background-color: #D9D9D9; /* Fondo para que no se vea detrás de filas */
-    padding: 5px;
+    padding: 0.5rem 2rem;
     z-index: 0;  
     color: #2C3D31;
-    font-weight: bold;
         font-family: var(--fuente--contenido);
+    font-size: 14px;
+    font-weight: bold;
+    color: var(--color-letra-predeter);
         text-align: left;
     display: flex;
     flex-direction: row;
