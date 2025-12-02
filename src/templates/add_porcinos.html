@@ -118,7 +118,7 @@
 
             <div class="container__label__input">
                 <label for="peso_final"> Peso final (KG)</label>
-                <input class="input__add__por" type="number" name="peso_final" id="peso_final" min="1" oninput = "this.value = Math.abs(this.value)" placeholder="Ingrese el peso final" required>
+                <input class="input__add__por" type="number" name="peso_final" id="peso_final" min="1" oninput = "this.value = Math.abs(this.value)" placeholder="Ingrese el peso final" disabled>
             </div>
 
             <div class="container__label__input">
@@ -144,9 +144,7 @@
 
             <div class="container__label__input">
                 <label for="etapa_add"> Etapa de vida </label>
-                <select name="" id="etapa_add" class="input__add__por" required>
-                    
-                </select>
+                <input name="" id="etapa_add" class="input__add__por" placeholder="Campo automatico" disabled>
             </div>
             <div class="container__label__input">
                 <label for="descripcion"> Descripción (Opcional)</label>
@@ -161,16 +159,10 @@
         document.addEventListener("DOMContentLoaded", async () => {
             try {
                 const razaSelect = document.getElementById("raza_add");
-                const etapaSelect = document.getElementById("etapa_add");
-
                 razaSelect.innerHTML = '<option value="">Cargando razas...</option>';
-                etapaSelect.innerHTML = '<option value="">Cargando etapas...</option>';
-
-                const razas = await consultar_razas();
-                const etapas = await consultar_etapas();
-                
+                const razas = await consultar_razas_cache();
                 razaSelect.innerHTML = crear_opciones_select("razas", razas, "Seleccione una raza...")
-                etapaSelect.innerHTML = crear_opciones_select("etapas", etapas, "Seleccione una etapa...")
+                
                 
             } catch (error) {
                 console.error("Error cargando las listas:", error);
@@ -181,6 +173,52 @@
                 });
             }
         });
+
+        let debounceTimer;
+
+        document.getElementById('peso_inicial').addEventListener('input', async () => {
+
+            clearTimeout(debounceTimer);
+
+            debounceTimer = setTimeout(async () => {
+
+                const etapas = await consultar_etapas_cache();
+                const input_peso_inicial = document.getElementById('peso_inicial');
+                const input_peso_final = document.getElementById('peso_final');
+                const input_etapa = document.getElementById('etapa_add');
+
+                const peso = Number(input_peso_inicial.value);
+                input_peso_final.value = peso;
+
+                let etapaEncontrada = null;
+
+                for (const etapa of etapas.etapas) {
+                    const min = Number(etapa.peso_min);
+                    const max = Number(etapa.peso_max);
+
+                    if (peso >= min && peso < max) {
+                        etapaEncontrada = etapa;
+                        console.log(etapaEncontrada)
+                        break;
+                    }
+                }
+
+                if (etapaEncontrada) {
+                    input_etapa.dataset.id = etapaEncontrada.id_etapa;
+                    input_etapa.value = etapaEncontrada.nombre;
+                } else {
+                    if (peso > 0 && peso < 4) {
+                        Swal.fire({
+                            title: "Mensaje",
+                            text: `No hay Etapa de vida asociada al Peso ingresado ${peso} Kg`,
+                            icon: "error"
+                        });
+                    }
+                }
+            }, 1000); 
+        });
+
+
 </script>
 
 </body>

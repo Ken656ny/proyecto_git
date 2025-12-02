@@ -545,6 +545,20 @@ async function cargarInfoHistorial(id, container) {
 
 
 // MODALES PARA EDITAR LA INFORMACION DE LOS PORCINOS, ETAPA Y RAZA
+function crearIconoEdit() {
+    return `
+        <div class="vector-edit">
+            <svg xmlns="http://www.w3.org/2000/svg" width="21" height="16" viewBox="0 0 21 16" fill="none">
+                <g clip-path="url(#clip0_1160_1378)">
+                    <path d="M10.0909 12L11.4091 10.6818L9.68182 8.95455L8.36364 10.2727V10.9091H9.45455V12H10.0909ZM15.0909 3.81818C14.9697 3.69697 14.8447 3.70076 14.7159 3.82955L10.7386 7.80682C10.6098 7.93561 10.6061 8.06061 10.7273 8.18182C10.8485 8.30303 10.9735 8.29924 11.1023 8.17045L15.0795 4.19318C15.2083 4.06439 15.2121 3.93939 15.0909 3.81818ZM16 10.5682V12.7273C16 13.6288 15.6799 14.3996 15.0398 15.0398C14.3996 15.6799 13.6288 16 12.7273 16H3.27273C2.37121 16 1.60038 15.6799 0.960227 15.0398C0.320076 14.3996 0 13.6288 0 12.7273V3.27273C0 2.37121 0.320076 1.60038 0.960227 0.960227C1.60038 0.320076 2.37121 0 3.27273 0H12.7273C13.2045 0 13.6477 0.094697 14.0568 0.284091C14.1705 0.337121 14.2386 0.424242 14.2614 0.545455C14.2841 0.674242 14.25 0.784091 14.1591 0.875L13.6023 1.43182C13.4962 1.53788 13.375 1.56818 13.2386 1.52273C13.0644 1.47727 12.8939 1.45455 12.7273 1.45455H3.27273C2.77273 1.45455 2.3447 1.63258 1.98864 1.98864C1.63258 2.3447 1.45455 2.77273 1.45455 3.27273V12.7273C1.45455 13.2273 1.63258 13.6553 1.98864 14.0114C2.3447 14.3674 2.77273 14.5455 3.27273 14.5455H12.7273C13.2273 14.5455 13.6553 14.3674 14.0114 14.0114C14.3674 13.6553 14.5455 13.2273 14.5455 12.7273V11.2955C14.5455 11.197 14.5795 11.1136 14.6477 11.0455L15.375 10.3182C15.4886 10.2045 15.6212 10.178 15.7727 10.2386C15.9242 10.2992 16 10.4091 16 10.5682ZM14.9091 2.18182L18.1818 5.45455L10.5455 13.0909H7.27273V9.81818L14.9091 2.18182ZM19.9545 3.68182L18.9091 4.72727L15.6364 1.45455L16.6818 0.409091C16.8939 0.19697 17.1515 0.0909091 17.4545 0.0909091C17.7576 0.0909091 18.0152 0.19697 18.2273 0.409091L19.9545 2.13636C20.1667 2.34848 20.2727 2.60606 20.2727 2.90909C20.2727 3.21212 20.1667 3.4697 19.9545 3.68182Z" fill="#8D8D8D"/>
+                </g>
+                <defs>
+                    <clipPath id="clip0_1160_1378"><rect width="20.3636" height="16" fill="white"/></clipPath>
+                </defs>
+            </svg>
+        </div>`;
+}
+
 async function openModalEdit(type, id, funct) {
     const modal = document.getElementById("modal-edit");
     const content = document.getElementById('edit-content');
@@ -622,7 +636,7 @@ async function cargarInfoPorcinoEdit(id, container) {
         <div class="container__label__input">
         <label>ID</label>
             <div class="container-inputs">
-            <input type="text" value="${p.id_porcino}" readonly>
+            <input type="text" value="${p.id_porcino}" disabled>
             </div>
         </div>
 
@@ -631,7 +645,7 @@ async function cargarInfoPorcinoEdit(id, container) {
             <div class="container-inputs">
             
             <input id="peso-ini-actu-${id}" type="text" value="${p.peso_inicial}">
-            
+            ${crearIconoEdit()}
             </div>
         </div>
             
@@ -639,14 +653,13 @@ async function cargarInfoPorcinoEdit(id, container) {
             <label>Peso Final (Kg)</label>
             <div class="container-inputs">
             <input id="peso-final-actu-${id}" type="text" value="${p.peso_final}" disabled>
-            
             </div>
         </div>
             
         <div class="container__label__input">
             <label>Fecha Nacimiento</label>
             <div class="container-inputs">
-                <input id="fecha-naci-actu-${id}" type="date" value="${fecha_formateada}" >
+                <input id="fecha-naci-actu-${id}" type="date" value="${fecha_formateada}" disabled>
                 
             </div>
         </div>
@@ -659,7 +672,7 @@ async function cargarInfoPorcinoEdit(id, container) {
                     <option value = "Macho">Macho</option>
                     <option value = "Hembra">Hembra</option>
                 </select>
-                
+                ${crearIconoEdit()}
             </div>
         </div>
 
@@ -669,14 +682,14 @@ async function cargarInfoPorcinoEdit(id, container) {
                 <select id="raza-actu-${id}" >
                     ${crear_opciones_select("razas", razas, p.raza)}
                 </select>
-            
+            ${crearIconoEdit()}
             </div>
         </div>
 
         <div class="container__label__input">
             <label>Etapa de Vida</label>
             <div class="container-inputs">
-                <select id="etapa-vida-actua-${id}" >
+                <select id="etapa-vida-actua-${id}" disabled>
                     ${crear_opciones_select("etapas", etapas, p.etapa)}
                 </select>
             
@@ -686,12 +699,12 @@ async function cargarInfoPorcinoEdit(id, container) {
         <div class="container__label__input">
             <label>Estado</label>
             <div class="container-inputs">
-            <select id="estado-actu-${id}" >
-                <option value = "${p.estado}" selected disabled>${p.estado}</option>
-                <option value = "Activo">Activo</option>
-                <option value = "Inactivo">Inactivo</option>
-            </select>
-                
+                <select id="estado-actu-${id}" >
+                    <option value = "${p.estado}" selected disabled>${p.estado}</option>
+                    <option value = "Activo">Activo</option>
+                    <option value = "Inactivo">Inactivo</option>
+                </select>
+                ${crearIconoEdit()}
             </div>
         </div>
 
@@ -699,6 +712,7 @@ async function cargarInfoPorcinoEdit(id, container) {
             <label>Descripcion</label>
             <div class="container-inputs">
             <input id="descripcion-actu-${id}" type="text" value="${p.descripcion}">
+            ${crearIconoEdit()}
             </div>
         </div>
     `;
@@ -744,7 +758,7 @@ async function cargarInfoEtapaEdit(id, container) {
         
         <div class="container__label__input">
         <label>Nombre de Etapa</label>
-        <input id="nombre-etapa-actu-${id}" type="text" value="${e.nombre_etapa}" >
+        <input id="nombre-etapa-actu-${id}" type="text" value="${e.nombre}" >
         </div>
         
         <div class="container__label__input">
@@ -1198,7 +1212,7 @@ async function agregar_porcino(){
         const fecha = document.getElementById('fecha').value;
         const raza = document.getElementById('raza_add').value;
         const sexo = document.getElementById('sexo').value;
-        const etapa = document.getElementById('etapa_add').value;
+        const etapa = document.getElementById('etapa_add').dataset.id;
         const descripcion = document.getElementById('descripcion').value;
 
         const porcino = {
