@@ -1030,17 +1030,6 @@ def listar_usuarios():
         print("❌ Error en /usuarios:", e)
         return jsonify({"error": "Error interno"}), 500
 
-
-
-
-
-
-
-
-
-# ----------------------------------------------------
-# API: EDITAR USUARIO (interno o externo)
-# ----------------------------------------------------
 @app.route("/usuarios", methods=["PUT"])
 def editar_usuario():
 
@@ -1052,31 +1041,24 @@ def editar_usuario():
         with config['development'].conn() as conn:
             with conn.cursor() as cur:
 
+                # Usuario interno → solo cambia ESTADO
                 if data["tipo"] == "Interno":
                     sql = """
                         UPDATE usuario
-                        SET nombre=%s, correo=%s, estado=%s
+                        SET estado=%s
                         WHERE id_usuario=%s
                     """
-                    cur.execute(sql, (
-                        data["nombre"],
-                        data["correo"],
-                        data["estado"],
-                        data["id"]
-                    ))
+                    cur.execute(sql, (data["estado"], data["id"]))
 
+                # Usuario Google → solo cambia ROL
                 elif data["tipo"] == "Google":
                     sql = """
                         UPDATE usuario_externo
-                        SET nombre=%s, correo=%s, rol=%s
+                        SET rol=%s
                         WHERE id_usuario_externo=%s
                     """
-                    cur.execute(sql, (
-                        data["nombre"],
-                        data["correo"],
-                        data["rol"],
-                        data["id"]
-                    ))
+                    cur.execute(sql, (data["rol"], data["id"]))
+
                 else:
                     return jsonify({"error": "Tipo inválido"}), 400
 
@@ -1088,8 +1070,48 @@ def editar_usuario():
         print("❌ Error:", e)
         return jsonify({"error": "Error interno"}), 500
 
+  
+# ----------------------------------------------------
+# API: BUSCAR USUARIO POR ID
+# ----------------------------------------------------
+@app.route('/usuarios/buscar', methods=['GET'])
+def buscar_usuario():
+    id_usuario = request.args.get("id")
 
+    if not id_usuario:
+        return jsonify({"error": "Falta el ID"}), 400
 
+    try:
+        with config['development'].conn() as conn:
+            with conn.cursor(pymysql.cursors.DictCursor) as cur:
+
+                # Buscar interno
+                cur.execute("""
+                    SELECT id_usuario AS id, nombre, correo, estado, rol, 'Interno' AS tipo
+                    FROM usuario
+                    WHERE id_usuario = %s
+                """, (id_usuario,))
+                interno = cur.fetchone()
+
+                if interno:
+                    return jsonify(interno)
+
+                # Buscar externo
+                cur.execute("""
+                    SELECT id_usuario_externo AS id, nombre, correo, 'Activo' AS estado, rol, 'Google' AS tipo
+                    FROM usuario_externo
+                    WHERE id_usuario_externo = %s
+                """, (id_usuario,))
+                externo = cur.fetchone()
+
+                if externo:
+                    return jsonify(externo)
+
+                return jsonify({"error": "Usuario no encontrado"}), 404
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+  
 # ----------------------------------------------------
 # API: ELIMINAR USUARIO
 # ----------------------------------------------------
@@ -1245,7 +1267,27 @@ def reportes_alimentos():
     except Exception as e:
         print("❌ Error en /reportes/alimentos:", e)
         return jsonify({"error": "Error interno del servidor"}), 500
-      
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
       
 if __name__ == "__main__":
     app.run(debug=True)

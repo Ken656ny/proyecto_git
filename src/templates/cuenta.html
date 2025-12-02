@@ -65,9 +65,9 @@
                         </a>
                     </li>
                     <li>
-                        <a href="#">
-                            <img src="../static/iconos/icon page.svg" alt="" class="icons-bar">
-                            <span>Informes</span>
+                        <a href="/src/templates/alimentos.html" onclick="redirectWithDelay(event, 'reportes.html')">
+                            <img src="../static/iconos/icon page.svg" title="alimentos" width="20px" alt="" class="icons-bar">
+                            <span>Alimentos</span>
                         </a>
                     </li>
                     <li>
@@ -114,25 +114,37 @@
             <span class="fecha">4 / 06 / 25</span>
         </div>
 
-        <div class="card_body">
-            <div class="perfil_foto">
-              <img src="/src/static/iconos/Vector (5).svg" class="img_perfil" width="160" height="160" alt="Foto de perfil">
+       <div class="card_body">
+    <div class="perfil_foto">
+        <img src="/static/iconos/Vector (5).svg" class="img_perfil" width="160" height="160" alt="Foto de perfil">
+        <span class="editar" id="btnEditar">Editar</span>
+    </div>
 
-                <span class="editar">Editar</span>
-            </div>
-            <div class="perfil_info">
-                <p><strong>Nombre:</strong> pico</p>
-                <p><strong>Correo:</strong> juantovar@gmail.com</p>
-                <p><strong>Contraseña:</strong> 12345678</p>
-                <p><strong>Nº identificación:</strong> 2928724</p>
-            </div>
-        </div>
+    <div class="perfil_info">
 
-        <div class="card_footer">
-            <button class="btn_guardar">Guardar</button>
-        </div>
+        <!-- Nombre -->
+        <p class="campo_texto"><strong>Nombre:</strong> {{ usuario['nombre'] }}</p>
+        <input class="campo_input" type="text" id="inputNombre" value="{{ usuario['nombre'] }}" style="display:none;">
+
+        <!-- Correo -->
+        <p class="campo_texto"><strong>Correo:</strong> {{ usuario['correo'] }}</p>
+        <input class="campo_input" type="email" id="inputCorreo" value="{{ usuario['correo'] }}" style="display:none;">
+
+        <!-- Contraseña -->
+        <p class="campo_texto"><strong>Contraseña:</strong> ********</p>
+        <input class="campo_input" type="password" id="inputContrasena" style="display:none;">
+
+        <!-- Identificación -->
+        <p class="campo_texto"><strong>Nº identificación:</strong> {{ usuario['identificacion'] }}</p>
+        <input class="campo_input" type="text" id="inputIdentificacion" value="{{ usuario['identificacion'] }}" style="display:none;">
+
     </div>
 </div>
+
+<div class="card_footer">
+    <button class="btn_guardar" id="btnGuardar" style="display:none;">Guardar cambios</button>
+</div>
+
 
 
 <!-- al final de tu HTML -->

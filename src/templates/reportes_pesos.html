@@ -62,10 +62,10 @@
                             <span>Dietas</span>
                         </a>
                     </li>
-                    <li>
-                        <a href="#">
-                            <img src="../static/iconos/icon page.svg" alt="" class="icons-bar">
-                            <span>Informes</span>
+                   <li>
+                        <a href="/src/templates/alimentos.html" onclick="redirectWithDelay(event, 'reportes.html')">
+                            <img src="../static/iconos/icon page.svg" title="alimentos" width="20px" alt="" class="icons-bar">
+                            <span>Alimentos</span>
                         </a>
                     </li>
                     <li>
@@ -83,7 +83,7 @@
                 </ul>
             </nav>
         </div>
-    </section>
+    
     <section class="section__porcinos" >
 
         <section class="container__logo__user">
@@ -143,10 +143,13 @@
         <label>Hasta:</label>
         <input type="date" id="fecha_hasta" class="input__date">
 
-        <hr>
+    
     </div>
 </div>
-
+<img src="/src/static/iconos/exportar_pdf.svg" 
+     alt="icono export" 
+     class="icon__export" 
+     onclick="exportarReporteAlimentos()">
 
     </section>
     <section class="container__Reportes_peso_">
@@ -164,25 +167,7 @@
     </tbody>
 </table>
 
-    </section><!-- BOTÓN IMPRIMIR (solo texto) -->
-<div class="imprimir">
-  <p class="texto-imprimir">
-    Presione para
-  <button type="button" class="imprimir-link" onclick="prepararImpresion()">Imprimir</button>
-
-
-  </p>
-</div>
-
-<div class="reporte-imprimir" id="reportePDF" style="display:none;">
-    <h1 class="titulo-reporte">Reporte de Pesos – Porcinos</h1>
-    <div id="contenidoReporte"></div>
-</div>
-    
-
-
-
-
+    </section>
       <script src="/src/static/js/script.js "></script>
    
 </body>

@@ -2627,6 +2627,19 @@ reportes
 
 
 
+.title_gestionar_usuario {
+    font-size: 50px;
+    color: var(--color--letra);
+    background: #D9D9D9;
+    padding: 5px 0;
+    text-align: center;
+    font-weight: bold;
+    border: 1px solid #808080;
+    min-width: 750px;
+    margin: auto; 
+    margin-bottom: 20px;
+    border-radius: 14px;
+}
 
 /* -------------------
 reportes pesos
@@ -2634,7 +2647,7 @@ reportes pesos
 
 .content_reportes_pesos {
     position: relative;
-    top:-10px; /* Sube título y menú juntos */
+    top:20px; /* Sube título y menú juntos */
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -2644,15 +2657,14 @@ reportes pesos
     font-size: 40px;
     color: var(--color--letra);
     background: #D9D9D9;
-    padding: 5px 20px 20px 20px;
-    border-radius: 18px;
+    padding: 15px 15px 15px 15px;
     text-align: center;
     font-weight: bold;
-    border: 2px solid #808080;
-    min-width: 580px;
-    max-width: 3000px;
-    margin: 40px auto 0 auto; 
+    border: 1px solid #808080;
+    min-width: 750px;
+    margin: auto; 
     margin-bottom: 20px;
+    border-radius: 14px;
 }
 
 .container__reportes_pesos {
@@ -2660,15 +2672,15 @@ reportes pesos
     border-radius: 14px;
     display: flex;
     align-items: center;
-    width: 1100px;
+    width: 1050px;
     height: 60px;
    margin: 40px auto 0 auto;
     padding-left: 3em;
     gap: 7em;
     font-family: var(--fuente--contenido);
     background: #ddd;
-    padding: 10px;
-    border-radius: 8px;
+    padding: 12px;
+    border-radius: 15px;
     gap: 15px; /* espacio normal entre los de la izquierda */
 }
 
@@ -2718,33 +2730,29 @@ tabla y contenedor
     background-color: var(--color--fondos);
     width: 90%;
     max-width: 1200px;
-    height: 400px; /* Altura fija */
+    height: 380px; /* Altura fija */
     margin: 40px auto 0 auto;
     border: 1px solid var(--color-bor-contain);
     border-radius: 30px;
-    overflow-y: auto; /* Aparece barra solo cuando hay más de 4 */
     overflow-x: hidden;
     padding: 10px 0;
     box-sizing: border-box;
 }
 
 
-/* 🔹 Tabla con scroll si crece mucho */
-.table__peso {
-  width: 100%;
-  border-collapse: collapse;
-  border-radius: 20px;
-  overflow-y: auto;
-  overflow-x: hidden;
+
+/* Título del encabezado de PORCINO (más grueso) */
+.table__peso thead th {
+    font-weight: 800 !important;   /* Puedes usar 700, 800 o 900 */
+    font-size: 17px;               /* Opcional, por si lo quieres más grande */
 }
 
-/* 🔹 Filas */
 .table__peso tbody tr td {
-  background-color: transparent;
-  padding: 16px 20px;
   border: none;
-  font-size: 16px;
+  font-size: 15px;
+  padding: 12px 20px; 
 }
+
 
 
 /* Estilo bonito para la barra de desplazamiento */
@@ -2767,40 +2775,74 @@ tabla y contenedor
     display: none;
 }
 
-.table__peso {
-    width: 1150px ;
-    margin: auto;
-    border-collapse: collapse;
-    font-family: var(--fuente--contenido);
-    color: var(--color-letra-predeter);
-}
+
 /* Imprimir — texto solo, sin imagen */
 /* 🔹 Botón de imprimir con espacio separado */
 
 .table__peso {
-  width: 90%;
+  width: 1150px;
   margin: auto;
   border-collapse: separate; /* permite separación entre filas */
-  border-spacing: 0 6px; /* separación vertical entre filas */
+  border-spacing: 0 12px; /* separación vertical entre filas */
   font-family: var(--fuente--contenido, Inter, sans-serif);
   color: var(--color-letra-predeter, #333);
   text-align: center;
   table-layout: fixed;
+  height: 10px;
 }
 
-/* Encabezado */
-.table__peso thead tr {
-  background-color: #d9d9d9;
-  font-weight: bold;
-  font-size: 18px;
-  border-radius: 15px;
+
+/* TODO EL TEXTO DE LA TABLA EN NEGRITA */
+.table__peso tbody td {
+    font-weight: 500 !important; 
 }
+.container__Reportes_peso_ {
+    margin-bottom: 60px !important;  /* espacio exclusivo para el botón */
+}
+
+/* Aumentar tamaño de texto */
+.table__peso td, 
+.table__peso th {
+    padding: 20px 25px;
+}
+
+/* Aumentar el icono del cerdito */
+.table__peso img {
+    width: 80px !important;  /* antes 25px */
+    height: auto;
+}
+
+/* Ajustar columna izquierda */
+.table__peso td:first-child {
+    width: 70px;
+    text-align: center;
+}
+
+/* Responsive mejorado */
+@media (max-width: 768px) {
+    .table__peso td, 
+    .table__peso th {
+        font-size: 16px;
+        padding: 12px;
+    }
+
+    .table__peso img {
+        width: 35px !important;
+    }
+
+    .table__peso tbody tr {
+        height: 550px;
+    }
+}
+
 
 /* Fila del cuerpo (toda la barra del cerdo) */
 .table__peso tbody tr {
   background-color: #AFAEAE;
-  border-radius: 20px;
+  border-radius: 4px;
   overflow: hidden;
+  margin-bottom: 120px; 
+  
 }
 
 
@@ -2816,21 +2858,11 @@ tabla y contenedor
   border-bottom-right-radius: 20px;
 }
 
-/* Ícono del cerdo */
-.table__peso tbody td:first-child img {
-  vertical-align: middle;
-  margin-right: 15px;
-}
 
-/* Ajuste de anchos */
-.table__peso th:nth-child(1),
-.table__peso td:nth-child(1) {
-  width: 10%;
-}
 
 .table__peso th:nth-child(2),
 .table__peso td:nth-child(2) {
-  width: 25%;
+  width: 22%;
 }
 
 .table__peso th:nth-child(3),
@@ -2846,24 +2878,42 @@ tabla y contenedor
 /* (Opcional) efecto al pasar el mouse */
 .table__peso tbody tr:hover {
   background-color: #a9a9a9;
-  transition: background-color 0.3s ease;
-}/* CONTENEDOR */
+  transition: background-color 0.2s ease;
+}
+
+/* CONTENEDOR */
+
+
+
+
+
+
 /* ===============================
    CONTENEDOR (mismo estilo pesos)
    =============================== */
 .container__gestionar_usuario_ {
- background-color: var(--color--fondos);
+    background-color: var(--color--fondos);
     width: 95%;
     max-width: 1200px;
-    height: 400px; /* Altura fija */
+    height: 380px;
     margin: 40px auto 0 auto;
     border: 1px solid var(--color-bor-contain);
     border-radius: 30px;
-    overflow-y: auto; /* Aparece barra solo cuando hay más de 4 */
+
+    overflow-y: auto;          /* Se puede bajar */
     overflow-x: hidden;
+
+    scrollbar-width: none;     /* Oculta en Firefox */
+    -ms-overflow-style: none;  /* Oculta en IE/Edge */
+
     padding: 10px 0;
     box-sizing: border-box;
 }
+
+.container__gestionar_usuario_::-webkit-scrollbar {
+    display: none;              /* Oculta en Chrome */
+}
+
 
 /* Scroll igual al de pesos */
 .container__gestionar_usuario_::-webkit-scrollbar {
@@ -2893,10 +2943,14 @@ tabla y contenedor
 /* Encabezado */
 .table__gestionar_usuario thead tr {
     background-color: #d9d9d9;
-    font-size: 18px;
-    font-weight: bold;
+    font-size: 17px;
+    font-weight: 1000px;
     border-radius: 12px;
+    
+    font-family: var(--fuente--contenido, Inter, sans-serif) !important;
+    color: var(--color-letra-predeter, #333);
 }
+
 .table__gestionar_usuario thead th {
     padding: 14px;
 }
@@ -2921,7 +2975,7 @@ tabla y contenedor
 .table__gestionar_usuario tbody td {
     padding: 20px 18px;
     font-size: 17px;
-    font-weight: 700;
+    font-weight: 400;
 }
 
 /* ===============================
@@ -2989,197 +3043,6 @@ tabla y contenedor
 
 
 
-
-/* ================================
-   ESTILO PARA LA TABLA DE PESOS
-   ================================ */
-
-/* Aumentar alto de las filas */
-.table__peso tbody tr {
-    height: 70px; /* antes estaba ~40px */
-    font-size: 18px;
-    
-}
-/* SEPARAR LA TABLA DE LOS FILTROS */yy
-
-/* HACER LA TABLA MÁS ESPACIADA */
-.table__peso {
-    border-spacing: 0 15px; /* separa las filas entre sí */
-    width: 95%;
-}
-
-
-/* TODO EL TEXTO DE LA TABLA EN NEGRITA */
-.table__peso tbody td {
-    font-weight: 750 !important; 
-}
-.container__Reportes_peso_ {
-    margin-bottom: 60px !important;  /* espacio exclusivo para el botón */
-}
-
-/* Aumentar tamaño de texto */
-.table__peso td, 
-.table__peso th {
-    padding: 20px 25px;
-}
-
-/* Aumentar el icono del cerdito */
-.table__peso img {
-    width: 80px !important;  /* antes 25px */
-    height: auto;
-}
-
-/* Ajustar columna izquierda */
-.table__peso td:first-child {
-    width: 70px;
-    text-align: center;
-}
-
-/* Responsive mejorado */
-@media (max-width: 768px) {
-    .table__peso td, 
-    .table__peso th {
-        font-size: 16px;
-        padding: 12px;
-    }
-
-    .table__peso img {
-        width: 35px !important;
-    }
-
-    .table__peso tbody tr {
-        height: 55px;
-    }
-}
-.imprimir {
-    width: 100%;
-    text-align: center;
-    margin-top: 330px;     /* separación hacia arriba */
-    margin-bottom: 40px;  /* espacio inferior bonito */
-}
-
-.texto-imprimir {
-    font-size: 18px;
-    font-weight: 550;
-}
-
-.imprimir-link {
-    font-size: 18px;
-    font-weight: bold;
-    border: none;
-    background: none;
-    cursor: pointer;
-    text-decoration: underline;
-    color: #000DFF;   /* ← evita el azul */
-}
-/* ESPACIO EXTRA BAJO LA TABLA PARA QUE NO CHOQUE CON EL BOTÓN */
-.container__Reportes_peso_ {
-    margin-bottom: 1900px !important; /* antes 60, ahora MUCHO más */
-}
-/* =======================================
-    ESTILOS EXCLUSIVOS PARA EL PDF
-   ======================================= */
-@media print {
-
-    /* Oculta todo lo demás */
-    body * {
-        visibility: hidden;
-    }
-
-    /* Mostrar SOLO el área del reporte */
-    .reporte-imprimir, 
-    .reporte-imprimir * {
-        visibility: visible;
-    }
-
-    .reporte-imprimir {
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        padding: 30px;
-    }
-
-    /* Título */
-    .titulo-reporte {
-        text-align: center;
-        font-size: 28px;
-        font-weight: 800;
-        margin-bottom: 30px;
-    }
-
-    /* Cada bloque de porcino */
-    .bloque-porcino {
-        border: 2px solid #000;
-        padding: 20px;
-        margin-bottom: 25px;
-        border-radius: 15px;
-        font-size: 18px;
-    }
-
-    /* Icono */
-    .bloque-porcino img {
-        width: 90px;
-        float: right;
-        margin-top: -10px;
-    }
-
-    .categoria {
-        font-weight: bold;
-        color: #000;
-        margin-top: 10px;
-    }
-
-    /* Ocultar botón de imprimir */
-    .imprimir {
-        display: none !important;
-    }
-}
-.imprimir-link {
-   pointer-events: none;
-}
-.imprimir-link {
-    position: relative;
-    z-index: 9999;
-    cursor: pointer !important;
-    pointer-events: auto !important;
-}
-/* 🔒 Oculta el reporte completamente en pantalla */
-#reportePDF {
-    display: none;
-}
-/* SIEMPRE OCULTO EN PANTALLA */
-#reportePDF {
-    display: none !important;
-}
-
-/* SOLO MOSTRAR AL IMPRIMIR */
-@media print {
-
-    /* OCULTAR TODO */
-    body * {
-        visibility: hidden !important;
-    }
-
-    /* MOSTRAR SOLO EL REPORTE */
-    #reportePDF, #reportePDF * {
-        visibility: visible !important;
-        display: block !important;
-    }
-
-    /* UBICAR EL REPORTE EN LA HOJA */
-    #reportePDF {
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        padding: 20px;
-        background: white;
-    }
-}
-
-
-
   /* Alimentos*/
 
   
@@ -3189,7 +3052,7 @@ tabla y contenedor
     background-color: var(--color--fondos);
     width: 90%;
     max-width: 1200px;
-    height: 400px; /* Altura fija */
+    height: 380px; /* Altura fija */
     margin: 40px auto 0 auto;
     border: 1px solid var(--color-bor-contain);
     border-radius: 30px;
@@ -3206,7 +3069,7 @@ tabla y contenedor
 }
 
 .container__Reportes_alimento_::-webkit-scrollbar-thumb {
-    background: #a0a0a0;
+    background: #872f2f;
     border-radius: 5px;
 }
 
@@ -3232,29 +3095,44 @@ tabla y contenedor
    ================================ */
 
 .table__alimento {
-    width: 95%;
+    width: 1150px;
+    height: 320px;
     margin: auto;
+    border-radius: 40px;
     border-collapse: separate;
     border-spacing: 0 15px; /* separación entre filas */
     text-align: center;
-    font-family: var(--fuente--contenido);
+    font-family: var(--fuente--contenido, Inter, sans-serif);
+    overflow-y: scroll;
+
+
+
+  font-family: var(--fuente--contenido, Inter, sans-serif);
+  color: var(--color-letra-predeter, #333);
+
+}
+
+.table__alimento thead tr,
+.table__alimento thead th {
+    font-weight: 800 !important; /* texto normal como pesos */
 }
 
 /* Encabezado */
 .table__alimento thead tr {
     background-color: #d9d9d9;
-    font-size: 18px;
-    font-weight: bold;
-    height: 70px;
+    font-size: 17px;
+    height: 50px;
+    
 }
 .table__alimento th {
-    padding: 1px 40px;
+    padding: 1px 30px;
+    
 }
 
 /* Filas estilo barra */
 .table__alimento tbody tr {
     background-color: #AFAEAE;
-    height: 70px;   /* MISMO ALTO QUE PESOS */
+    height: 40px;   /* MISMO ALTO QUE PESOS */
     border-radius: 20px;
 }
 
@@ -3267,28 +3145,30 @@ tabla y contenedor
     border-top-right-radius: 20px;
     border-bottom-right-radius: 20px;
 }
-
-
-/* Celdas */
-.table__alimento td {
-    padding: 20px 25px;
-    font-size: 17px;
-    font-weight: 750;  /* IGUAL PESOS */
-    vertical-align: middle;
-    white-space: normal;
-    word-wrap: break-word;
+/* TODO EL TEXTO DE LA TABLA EN NEGRITA */
+.table__alimento tbody td {
+    font-weight: 500 !important; 
 }
+
+.table__alimento td {
+    white-space: normal !important;
+    word-break: break-word;
+    text-align: center;
+    padding: 10px;
+    font-family: var(--fuente--contenido, Inter, sans-serif) !important;
+}
+
 
 /* Imagen alimento (misma lógica que cerdito en PESO) */
 .table__alimento img {
-    width: 80px !important;
+    width: 60px !important;
     height: auto;
 }
 
 /* Columna imagen */
 .table__alimento td:nth-child(1),
 .table__alimento th:nth-child(1) {
-    width: 70px;
+    width: 87px;
 }
 
 /* Hover */
@@ -3305,7 +3185,7 @@ tabla y contenedor
         padding: 12px;
     }
     .table__alimento img {
-        width: 40px !important;
+        width: 30px !important;
     }
     .table__alimento tbody tr {
         height: 55px;
@@ -3316,7 +3196,9 @@ tabla y contenedor
     word-break: break-word;
     text-align: center;
     padding: 10px;
+    font-family: var(--fuente--contenido, Inter, sans-serif) !important;
 }
+
 .icon__export {
     width: 40px;      /* Auméntalo aquí (30px, 40px, 50px...) */
     height: auto;
@@ -3328,10 +3210,11 @@ tabla y contenedor
 .icon__export:hover {
     transform: scale(1.1);  /* animación suave */
 }
+/* ============================================
+   MODAL GENERAL – Estilo igual al de tus usuarios
+   ============================================ */
 
-/* -------------------------
-   Fondo oscuro del modal
-------------------------- */
+/* Fondo oscuro */
 .modal-usuario {
     position: fixed;
     top: 0;
@@ -3343,71 +3226,80 @@ tabla y contenedor
     justify-content: center;
     align-items: center;
     z-index: 2000;
+    padding: 20px;
 }
 
 .oculto {
     display: none !important;
 }
-.table__alimento img.icon-th {
-    width: 50px !important;   /* o el tamaño que quieras */
-    height: auto;
-     margin-left: -60px; 
-}
 
-/* -------------------------
-   Caja del modal
-------------------------- */
+/* Caja del modal */
 .modal-contenido-usuario {
     width: 750px;
+    max-width: 95%;
     background: #E8EDEB;
-    padding: 25px;
+    padding: 25px 30px;
     border-radius: 18px;
-    border: 1px solid rgba(0,0,0,0.2);
+    border: 1px solid rgba(0,0,0,0.25);
+    box-shadow: 0px 4px 25px rgba(0,0,0,0.35);
+    font-family: "Times New Roman", serif;
+    animation: aparecer .25s ease-out;
 }
 
-/* Header */
+@keyframes aparecer {
+    from { transform: scale(0.85); opacity: 0; }
+    to   { transform: scale(1); opacity: 1; }
+}
+
+/* ------------------------------------
+   Header – Título y botón cerrar
+------------------------------------ */
 .modal-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    margin-bottom: 15px;
 }
 
-/* ✔ Título ajustado a tu diseño */
 .modal-header h2 {
-    font-size: 40px;                       /* Como en la captura */
+    font-size: 40px;
     font-weight: 700;
-    color: #486A50;                         /* Mantengo tu color */
-    font-family: "Times New Roman", serif;   /* Fuente correcta */
+    color: #486A50;
     text-align: center;
     width: 100%;
+    font-family: "Times New Roman", serif;
 }
 
-/* Botón cerrar */
 .btn-cerrar {
     background: none;
     border: none;
-    font-size: 25px;
+    font-size: 28px;
     cursor: pointer;
-    color: #333;
+    color: #444;
+    transition: 0.2s;
 }
 
-/* -------------------------
-        Body Modal
-------------------------- */
+.btn-cerrar:hover {
+    color: #000;
+}
+
+/* ------------------------------------
+   Body – Grid de inputs
+------------------------------------ */
 .modal-body {
-    margin-top: 20px;
+    margin-top: 10px;
     display: grid;
     grid-template-columns: repeat(2, 1fr);
-    gap: 18px;
+    gap: 22px;
 }
 
 .grupo-input label {
     font-weight: 600;
-    font-size: 14px;
+    font-size: 16px;
     color: #486A50;
+    margin-bottom: 5px;
 }
 
-/* ✔ Inputs EXACTOS según lo que pediste */
 .grupo-input input,
 .grupo-input select,
 .grupo-input textarea {
@@ -3418,96 +3310,57 @@ tabla y contenedor
     border: 1px solid #737171;
     border-radius: 18px;
     outline: none;
-    padding: 10px 8px;
+    padding: 10px 12px;
     font-size: 15px;
     color: #333;
     box-sizing: border-box;
-}
-.btn-consultar {
-    background-color: #4F7D69;
-    color: white;
-    padding: 10px 18px;
-    border-radius: 18px;
-    border: 1px solid #3d6d59;
-    font-weight: 500;
-    font-size: 14px;
-    cursor: pointer;
-    margin-left: 10px;
-    transition: 0.2s;
+    font-family: "Times New Roman", serif;
 }
 
-.btn-consultar:hover {
-    background-color: #3d6d59;
-    border-color: #2f5345;
-}
-.btn-group {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-
-.btn-refresh {
-    width: 40px;
-    height: 40px;
-    padding: 8px;
-    background-color: #ece6f0;
-    border: 1px solid #737171;
-    border-radius: 18px;
-    cursor: pointer;
-    transition: 0.2s ease-in-out;
-}
-
-.btn-refresh:hover {
-    transform: scale(1.05);
-}
-
-/* -------------------------
-   Switch estilo EduPork
-------------------------- */
+/* ------------------------------------
+   Switch ON/OFF
+------------------------------------ */
 .switch {
     position: relative;
     display: inline-block;
-    width: 42px;
+    width: 45px;
     height: 22px;
 }
 
-.switch input {
-    display: none;
-}
+.switch input { display: none; }
 
 .slider {
     position: absolute;
+    inset: 0;
+    background: #ccc;
+    border-radius: 30px;
     cursor: pointer;
-    background-color: #ccc;
-    border-radius: 34px;
-    top: 0; left: 0;
-    right: 0; bottom: 0;
-    transition: .4s;
+    transition: 0.3s;
 }
 
 .slider:before {
     content: "";
-    height: 16px;
-    width: 16px;
-    left: 3px;
-    bottom: 3px;
+    width: 18px;
+    height: 18px;
+    background: white;
     position: absolute;
-    background-color: white;
+    top: 2px;
+    left: 3px;
     border-radius: 50%;
-    transition: .3s;
+    transition: 0.3s;
 }
 
 input:checked + .slider {
-    background-color: #54A66A;
+    background: #4F7D69;
 }
 
 input:checked + .slider:before {
-    transform: translateX(19px);
+    transform: translateX(22px);
 }
 
-/* -------------------------
-         Footer
-------------------------- */
+/* ------------------------------------
+   Footer – Botones
+------------------------------------ */
 .modal-footer {
     text-align: center;
     margin-top: 25px;
@@ -3520,7 +3373,7 @@ input:checked + .slider:before {
     border: none;
     color: white;
     cursor: pointer;
-    font-size: 15px;
+    font-size: 17px;
     transition: 0.2s;
 }
 
@@ -3528,20 +3381,25 @@ input:checked + .slider:before {
     background: #3d6d59;
 }
 
+/* ------------------------------------
+   Botones para eliminar
+------------------------------------ */
 .texto-eliminar {
     margin-top: 20px;
-    font-size: 18px;
+    font-size: 20px;
     text-align: center;
-    color: #444;
+    color: #333;
 }
 
-.btn-cancelar, .btn-eliminar {
+.btn-cancelar,
+.btn-eliminar {
     padding: 10px 22px;
     border-radius: 10px;
     border: none;
     cursor: pointer;
     margin: 8px;
-    font-size: 15px;
+    font-size: 17px;
+    font-family: "Times New Roman", serif;
 }
 
 .btn-cancelar {
@@ -3551,4 +3409,18 @@ input:checked + .slider:before {
 .btn-eliminar {
     background: #D9534F;
     color: white;
+}
+
+.btn-eliminar:hover {
+    background: #B73F3B;
+}
+#edit_estado_label {
+    width: 100%;
+    padding: 10px 15px;
+    border-radius: 20px;
+    border: 2px solid #60836a;
+    background: #e7e2ee;
+    font-size: 1rem;
+    font-family: "Times New Roman";
+    outline: none;
 }

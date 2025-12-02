@@ -1123,9 +1123,6 @@ function seleccionarTipoPeso(tipo, nombre) {
     consulta_reportes_peso(); // cargar automáticamente
 }
 
-// ======================================
-// CONSULTA AL BACKEND (CORREGIDO)
-// ======================================
 async function consulta_reportes_peso() {
 
     if (!etapaSeleccionada) {
@@ -1137,8 +1134,7 @@ async function consulta_reportes_peso() {
         return;
     }
 
-    // 🔥🔥🔥 CORREGIDO → Ahora apunta al puerto correcto (5000)
-    const url = `http://127.0.0.1:5000/reportes/pesos?etapa=${etapaSeleccionada}&tipo=${tipoPesoSeleccionado}`;
+    const url = `${URL_BASE}/reportes/pesos?etapa=${etapaSeleccionada}&tipo=${tipoPesoSeleccionado}`;
 
     console.log("🔵 Enviando petición a:", url);
 
@@ -1159,6 +1155,7 @@ async function consulta_reportes_peso() {
         Swal.fire("Error en la comunicación con el servidor");
     }
 }
+
 
 // ======================================
 // RENDERIZAR TABLA CORRECTAMENTE
@@ -1181,6 +1178,7 @@ function mostrarTabla(datos) {
                 <td>${item.id_porcino}</td>
                 <td>${item.peso_min} - ${item.peso_max} KG</td>
                 <td>${item.peso_final} KG</td>
+                
             </tr>
         `;
     });
@@ -1228,9 +1226,9 @@ function prepararImpresion() {
             grid-template-columns: 120px 200px 220px 200px;
             align-items: center;
             font-size: 20px;
-            font-weight: 900;
+            font-weight: 90;
             border-bottom: 3px solid black;
-            padding: 12px 0;
+            padding: 15px 0;
             margin-bottom: 18px;
             text-align: left;
             gap: 15px;
@@ -1277,11 +1275,7 @@ function prepararImpresion() {
     const imprimirSeccion = document.getElementById("reportePDF");
     imprimirSeccion.style.display = "block";
 
-    // Generar PDF
-    setTimeout(() => {
-        window.print();
-        imprimirSeccion.style.display = "none";
-    }, 200);
+    
 }
 
 
@@ -1303,42 +1297,29 @@ function prepararImpresion() {
 document.addEventListener("DOMContentLoaded", cargarUsuarios);
 
 function cargarUsuarios() {
-    fetch("http://localhost:5000/usuarios?tipo=todos")
+    fetch(`${URL_BASE}/usuarios?tipo=todos`)
         .then(res => res.json())
         .then(lista => {
             const tbody = document.getElementById("contenido_USUARIO");
             tbody.innerHTML = "";
-
             lista.forEach(u => {
                 tbody.innerHTML += `
                     <tr>
-
-                        <!-- FOTO -->
                         <td class="td-img-usuario">
                             <img src="/src/static/iconos/icon user.svg" class="img-usuario">
                         </td>
-
                         <td>${u.id}</td>
                         <td>${u.nombre}</td>
                         <td>${u.correo}</td>
-
-                        <!-- ESTADO -->
                         <td style="font-weight:600;">${u.estado}</td>
-
-                        <!-- ACCIONES -->
                         <td class="td__border__r">
-
-                            <!-- EDITAR -->
                             <img src="/src/static/iconos/edit icon.svg" 
                                  class="accion-grande"
                                  onclick='abrirModalEditar("${u.id}", "${u.nombre}", "${u.correo}", "${u.estado}", "${u.tipo}")'>
-
-                            <!-- ELIMINAR -->
                             <img src="/src/static/iconos/delete icon.svg" 
                                  class="accion-grande"
                                  onclick='abrirModalEliminar("${u.id}", "${u.tipo}")'>
                         </td>
-
                     </tr>
                 `;
             });
@@ -1350,24 +1331,19 @@ function cargarUsuarios() {
 // =====================================================
 //   VARIABLES GLOBALES
 // =====================================================
-let usuarioAEliminar = { id: null, tipo: null };
-
-
-
-// =====================================================
-//   ABRIR MODAL EDITAR
-// =====================================================
-function abrirModalEditar(id, nombre, correo, estado, tipo) {
+function abrirModalEditar(id, nombre, correo, estado, rol) {
 
     document.getElementById("edit_id").value = id;
     document.getElementById("edit_nombre").value = nombre;
     document.getElementById("edit_correo").value = correo;
-    document.getElementById("edit_tipo").value = tipo;
 
     document.getElementById("edit_estado").checked = (estado === "Activo");
 
+    document.getElementById("edit_tipo").value = rol; // ✔ ahora sí refleja Admin / Usuario
+
     document.getElementById("modalEditarUsuario").classList.remove("oculto");
 }
+
 
 
 
@@ -1377,23 +1353,15 @@ function abrirModalEditar(id, nombre, correo, estado, tipo) {
 function cerrarModalEditar() {
     document.getElementById("modalEditarUsuario").classList.add("oculto");
 }
-
-
-
-// =====================================================
-//   GUARDAR CAMBIOS (PUT)
-// =====================================================
 function guardarEdicionUsuario() {
 
     const datos = {
         id: document.getElementById("edit_id").value,
-        nombre: document.getElementById("edit_nombre").value,
-        correo: document.getElementById("edit_correo").value,
         estado: document.getElementById("edit_estado").checked ? "Activo" : "Inactivo",
-        tipo: document.getElementById("edit_tipo").value
+        tipo: document.getElementById("edit_tipo").value   // Admin o Usuario
     };
 
-    fetch("http://localhost:5000/usuarios", {
+    fetch(`${URL_BASE}/usuarios`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(datos)
@@ -1406,18 +1374,38 @@ function guardarEdicionUsuario() {
 }
 
 
+function guardarEdicionUsuario() {
 
-// =====================================================
-//   ABRIR MODAL ELIMINAR
-// =====================================================
+    const datos = {
+        id: document.getElementById("edit_id").value,
+        tipo: document.getElementById("edit_tipo_original").value, // Interno / Google
+        estado: document.getElementById("edit_estado").checked ? "Activo" : "Inactivo",
+        rol: document.getElementById("edit_tipo").value
+    };
+
+    fetch(`${URL_BASE}/usuarios`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(datos)
+    })
+    .then(res => res.json())
+    .then(resp => {
+        cerrarModalEditar();
+        cargarUsuarios();
+    });
+}
+
+let usuarioAEliminar = { id: null, tipo: null };
+let idUsuarioAEliminar = null;
+
 function abrirModalEliminar(id, tipo) {
-
     usuarioAEliminar.id = id;
     usuarioAEliminar.tipo = tipo;
 
+    console.log("🟥 Eliminando:", usuarioAEliminar);
+
     document.getElementById("modalEliminarUsuario").classList.remove("oculto");
 }
-
 
 
 // =====================================================
@@ -1429,19 +1417,111 @@ function cerrarModalEliminar() {
 
 
 
-// =====================================================
-//   CONFIRMAR ELIMINACIÓN (DELETE)
-// =====================================================
 function confirmarEliminarUsuario() {
 
-    fetch(`http://localhost:5000/usuarios?id=${usuarioAEliminar.id}&tipo=${usuarioAEliminar.tipo}`, {
+    fetch(`${URL_BASE}/usuarios?id=${usuarioAEliminar.id}&tipo=${usuarioAEliminar.tipo}`, {
         method: "DELETE"
     })
-    .then(res => res.json())
+    .then(response => {
+
+        // VALIDAMOS SI HAY ERROR 500 (FOREIGN KEY)
+        if (response.status === 500) {
+            cerrarModalEliminar();            // cerramos el modal de confirmación
+            mostrarModalNoSePuedeEliminar();  // mostramos el modal informativo
+            return;
+        }
+
+        return response.json();
+    })
     .then(resp => {
-        cerrarModalEliminar();
-        cargarUsuarios();
+        if (resp) {
+            cerrarModalEliminar();
+            cargarUsuarios();
+        }
+    })
+    .catch(error => {
+        console.error("❌ Error eliminando usuario:", error);
     });
+}
+
+function mostrarModalNoSePuedeEliminar() {
+    document.getElementById("modalNoSePuedeEliminar").classList.remove("oculto");
+}
+
+function cerrarModalNoSePuedeEliminar() {
+    document.getElementById("modalNoSePuedeEliminar").classList.add("oculto");
+}
+
+function eliminarUsuario(id, tipo) {
+
+    fetch(`http://localhost:5000/usuarios?id=${id}&tipo=${tipo}`, {
+        method: "DELETE",
+    })
+    .then(response => {
+        if (!response.ok) {
+
+            // Si MySQL bloquea por llave foránea → error 500
+            if (response.status === 500) {
+                mostrarModalNoEliminar();  
+                return;
+            }
+
+            throw new Error("Error desconocido");
+        }
+
+        return response.json();
+    })
+    .then(data => {
+        if (data) {
+            cargarUsuarios("todos");
+        }
+    })
+    .catch(err => {
+        console.error("Error eliminando usuario:", err);
+    });
+}
+function consultarUsuarios() {
+    const id = document.getElementById("input_rango_fecha").value.trim();
+
+    // Si input está vacío → cargar todos
+    if (id === "") {
+        cargarUsuarios();
+        return;
+    }
+
+    fetch(`http://localhost:5000/usuarios/buscar?id=${id}`)
+        .then(res => res.json())
+        .then(u => {
+            if (u.error) {
+                alert("No existe un usuario con ese ID");
+                return;
+            }
+
+            const tbody = document.getElementById("contenido_USUARIO");
+            tbody.innerHTML = `
+                <tr>
+                    <td class="td-img-usuario">
+                        <img src="/src/static/iconos/icon user.svg" class="img-usuario">
+                    </td>
+                    <td>${u.id}</td>
+                    <td>${u.nombre}</td>
+                    <td>${u.correo}</td>
+                    <td style="font-weight:600;">${u.estado}</td>
+                    <td class="td__border__r">
+
+                        <img src="/src/static/iconos/edit icon.svg"
+                             class="accion-grande"
+                             onclick='abrirModalEditar("${u.id}", "${u.nombre}", "${u.correo}", "${u.estado}", "${u.tipo}")'>
+
+                        <img src="/src/static/iconos/delete icon.svg"
+                             class="accion-grande"
+                             onclick='abrirModalEliminar("${u.id}", "${u.tipo}")'>
+
+                    </td>
+                </tr>
+            `;
+        })
+        .catch(e => console.error("Error en consulta:", e));
 }
 
 
@@ -1449,10 +1529,14 @@ function confirmarEliminarUsuario() {
 //  area de filtrar reportes_ alimentos
 // =====================================================
 document.addEventListener("DOMContentLoaded", function () {
-    cargarReporteAlimentos("todos");
-});function cargarReporteAlimentos(filtro = "todos") {
+    if (document.getElementById("contenido")) {
+        cargarReporteAlimentos("todos");
+    }
+});
 
-    fetch(`http://localhost:5000/reportes/alimentos?filtro=${filtro}`)
+function cargarReporteAlimentos(filtro = "todos") {
+
+    fetch(`${URL_BASE}/reportes/alimentos?filtro=${filtro}`)
         .then(response => response.json())
         .then(lista => {
 
@@ -1471,29 +1555,24 @@ document.addEventListener("DOMContentLoaded", function () {
 
             lista.forEach(dato => {
 
-                // Construir texto automático
                 const mayorTexto = `${dato.mayor.totalUsadas} de ${dato.totalDietas} dietas elaboradas`;
                 const menorTexto = `${dato.menor.totalUsadas} de ${dato.totalDietas} dietas elaboradas`;
 
                 tbody.innerHTML += `
                     <tr>
-                        <td class="col-img">
-                            <img src="/src/static/iconos/icon wheat (1).svg" class="icon-alimento">
-                        </td>
+                        <td class="col-img"><img src="/src/static/iconos/icon wheat (1).svg" class="icon-alimento"></td>
                         <td>${dato.id_alimento}</td>
                         <td>${mayorTexto}</td>
                         <td>${menorTexto}</td>
                         <td>${dato.promedio} KG</td>
-                        <td class="col-img">    <img src="/src/static/iconos/stadic.svg" class="icon-alimento icon-th">
-                        </td>
+                        <td class="col-img"><img src="/src/static/iconos/stadic.svg" class="icon-alimento icon-th"></td>
                     </tr>
                 `;
             });
         })
         .catch(err => console.log("Error: ", err));
 }
-
-
+X
 
 
 
@@ -1573,3 +1652,23 @@ function renderTabla(alimentos, filtro) {
 
     document.getElementById("contenido").innerHTML = contenido;
 }
+function mostrarModalNoEliminar() {
+    document.getElementById("modalNoEliminar").style.display = "flex";
+}
+
+document.getElementById("cerrarModalNoEliminar").addEventListener("click", () => {
+    document.getElementById("modalNoEliminar").style.display = "none";
+});
+
+
+
+
+
+
+
+
+
+
+
+
+
