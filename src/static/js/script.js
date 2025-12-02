@@ -1544,7 +1544,7 @@ async function registro_usuarios(event) {
             title: "Verificación de correo",
             input: "text",
             inputLabel: "Ingresa el código que recibiste en tu correo",
-            inputPlaceholder: "Ej: 776645",
+            inputPlaceholder: "Ej: 776545",
             confirmButtonText: "Validar",
             showCancelButton: true
         });
