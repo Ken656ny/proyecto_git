@@ -1487,91 +1487,126 @@ async function registro_usuarios(event) {
         const correo = document.getElementById('correo').value;
         const contraseña = document.getElementById('password').value;
         const constraseña_confirm = document.getElementById('confirmPassword').value;
-        
+
         if (!ContrasenaRobusta(contraseña)) {
             Swal.fire({
-            title: "Contraseña débil",
-            html: `
-                <div style="text-align: left;">
-                    <p>Tu contraseña debe contener:</p>
-                    <ul>
-                        <li> Mínimo 8 caracteres</li>
-                        <li> Una letra mayúscula</li>
-                        <li> Una letra minúscula</li>
-                        <li> Un número</li>
-                        <li> Un carácter especial</li>
-                    </ul>
-                </div>
-            `,
-            icon: "error",
-            confirmButtonText: "Entendido",
-            confirmButtonColor: "#60836a"
-        });
-        return;
+                title: "Contraseña débil",
+                html: `
+                    <div style="text-align: left;">
+                        <p>Tu contraseña debe contener:</p>
+                        <ul>
+                            <li> Mínimo 8 caracteres</li>
+                            <li> Una letra mayúscula</li>
+                            <li> Una letra minúscula</li>
+                            <li> Un número</li>
+                            <li> Un carácter especial</li>
+                        </ul>
+                    </div>
+                `,
+                icon: "error",
+                confirmButtonText: "Entendido",
+                confirmButtonColor: "#60836a"
+            });
+            return;
         }
 
+        if (constraseña_confirm !== contraseña) {
+            Swal.fire({
+                title: "Mensaje",
+                text: `Las contraseñas no coinciden`,
+                icon: "error",
+                scrollbarPadding: false
+            });
+            return;
+        }
 
-    if (constraseña_confirm !== contraseña) {
+        const user = {
+            numero_identificacion,
+            nombre,
+            correo,
+            contraseña,
+            estado: "Activo",
+            id_tipo_identificacion: tipo_identificacion,
+        };
+
+        const resCodigo = await fetch(`${URL_BASE}/enviar_codigo`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ email: correo })
+        });
+
+        if (!resCodigo.ok) {
+            Swal.fire("Error", "No se pudo enviar el código de verificación", "error");
+            return;
+        }
+
+        const { value: codigoIngresado } = await Swal.fire({
+            title: "Verificación de correo",
+            input: "text",
+            inputLabel: "Ingresa el código que recibiste en tu correo",
+            inputPlaceholder: "Ej: 776645",
+            confirmButtonText: "Validar",
+            showCancelButton: true
+        });
+
+        if (!codigoIngresado) {
+            Swal.fire("Error", "Debes ingresar el código", "error");
+            return;
+        }
+
+        const resValidar = await fetch(`${URL_BASE}/validar_codigo`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ email: correo, codigo: codigoIngresado })
+        });
+
+        const dataValidar = await resValidar.json();
+
+        if (!resValidar.ok) {
+            Swal.fire("Error", dataValidar.error || "Código incorrecto", "error");
+            return;
+        }
+
+        const response = await fetch(`${URL_BASE}/users`, {
+            method: 'POST',
+            body: JSON.stringify(user),
+            headers: { "Content-type": "application/json" }
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+            Swal.fire({
+                title: "Mensaje",
+                text: data.Mensaje || "Ocurrió un error al registrar el usuario",
+                icon: "error",
+                confirmButtonColor: "#60836a"
+            });
+            return;
+        }
+
         Swal.fire({
             title: "Mensaje",
-            text: `Las contraseñas no coinciden`,
-            icon: "error",
-            scrollbarPadding: false
+            text: `Usuario registrado correctamente. Ahora inicia sesión`,
+            icon: "success",
+            timer: 1700,
+            showConfirmButton: false
+        }).then(() => {
+            localStorage.setItem("token", data.token);
+            localStorage.setItem("usuario", JSON.stringify({
+                nombre,
+                numero_identificacion,
+                correo
+            }));
+            location.href = "index.html";
         });
-        return;
-    }
-
-
-    const user = {
-        numero_identificacion: numero_identificacion,
-        nombre: nombre,
-        correo: correo,
-        contraseña: contraseña,
-        estado: "Activo",
-        id_tipo_identificacion: tipo_identificacion,
-    };
-
-    const response = await fetch(`${URL_BASE}/users`, {
-        method: 'POST',
-        body: JSON.stringify(user),
-        headers: {
-            "Content-type": "application/json"
-        }
-    });
-
-    const data = await response.json();
-
-    if (!response.ok) {
-
-    Swal.fire({
-    title: "Mensaje",
-        text: data.Mensaje || "Ocurrió un error al registrar el usuario",
-        icon: "error",
-        confirmButtonColor: "#60836a"
-    });
-    eturn;
-}
-
-    Swal.fire({
-        title: "Mensaje",
-        text: `Usuario registrado correctamente. Ahora inicia sesión`,
-        icon: "success",
-        timer: 1700,
-        showConfirmButton: false
-    }).then(() => {
-        localStorage.setItem("token", data.token);
-        localStorage.setItem("usuario", JSON.stringify({
-            nombre: nombre,
-            numero_identificacion: numero_identificacion,
-            correo: correo
-        }));
-        location.href = "index.html";
-    });
 
     } catch (error) {
         console.error(error);
+        Swal.fire("Error", "Hubo un problema en el registro", "error");
     }
 }
+
 
 async function login() {
     try {

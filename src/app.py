@@ -22,7 +22,7 @@ import jwt
 from datetime import datetime, timedelta, timezone
 from functools import wraps
 from flask_mail import Mail, Message
-
+import random, time
 
 app = Flask(__name__)
 app.secret_key = 'secretkey'
@@ -391,6 +391,52 @@ def registro_usuarios():
   except Exception as err:
     print(f"Error en registro_usuarios: {err}")
     return jsonify({'Mensaje': 'Error, el usuario no pudo ser registrado'}), 500
+
+codigos_verificacion = {}
+
+@app.route('/enviar_codigo', methods=['POST'])
+def enviar_codigo():
+    data = request.json
+    email = data.get("email")
+    if not email:
+        return jsonify({"error": "Falta el correo"}), 400
+
+    codigo = random.randint(100000, 999999)
+    codigos_verificacion[email] = {
+        "codigo": codigo,
+        "expira": time.time() + 300  
+    }
+
+    msg = Message("Código de verificación", recipients=[email])
+    msg.html = f"""
+        <h3>Verificación de correo</h3>
+        <p>Tu código es: <b>{codigo}</b></p>
+        <p>Este código expira en 5 minutos.</p>
+    """
+    mail.send(msg)
+
+    return jsonify({"mensaje": "Código enviado al correo"}), 200
+
+@app.route('/validar_codigo', methods=['POST'])
+def validar_codigo():
+    data = request.json
+    email = data.get("email")
+    codigo_usuario = data.get("codigo")
+
+    if not email or not codigo_usuario:
+        return jsonify({"error": "Datos incompletos"}), 400
+
+    registro = codigos_verificacion.get(email)
+    if not registro:
+        return jsonify({"error": "No hay código para este correo"}), 400
+
+    if time.time() > registro["expira"]:
+        return jsonify({"error": "Código expirado"}), 400
+
+    if str(registro["codigo"]) == str(codigo_usuario):
+        return jsonify({"mensaje": "Correo validado correctamente"}), 200
+
+    return jsonify({"error": "Código incorrecto"}), 400
 
 
 #RUTA DE PERFIL
