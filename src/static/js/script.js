@@ -2777,7 +2777,7 @@ function consulta_individual_alimento() {
             icon: "warning",
             confirmButtonText: "OK"
         });
-        return consulta_alimentos(); // aquí volverá la paginación
+        return ver_alimentos(); // aquí volverá la paginación
     }
 
     fetch(`${URL_BASE}/consulta_indi_alimento/${nombre}`)
@@ -2792,7 +2792,7 @@ function consulta_individual_alimento() {
                     confirmButtonText: "OK"
                 }).then((result) => {
                     if (result.isConfirmed) {
-                        consulta_alimentos(); // aquí volverá la paginación
+                        ver_alimentos(); // aquí volverá la paginación
                     }
                 });
                 return;
@@ -3054,7 +3054,7 @@ async function guardarCambios(id_alimento) {
                 icon: "success",
                 title: "Actualizado correctamente",
                 text: "El alimento se actualizó exitosamente."
-            }).then(() => consulta_alimentos());
+            }).then(() => ver_alimentos());
         } else {
             cerrarModal("edit", id_alimento);
             Swal.fire({
@@ -3090,7 +3090,7 @@ async function eliminar_alimento(id) {
                     confirmButtonColor: "#3085d6",
                     background: "#fff",
                     heightAuto: false
-                }).then(() => consulta_alimentos());
+                }).then(() => ver_alimentos());
             }, 200);
         } else {
             Swal.fire({
@@ -3462,6 +3462,24 @@ function toggleInput(id) {
     }
 }
 
+function verAlimentosSeleccionados() {
+    const checkbox = document.getElementById("check1");
+    const contenedor = document.getElementById("alimentos_en_dieta");
+    const mostrarSeleccionados = checkbox.checked;
+
+    const tarjetas = contenedor.querySelectorAll(".alimentos_dietas");
+    tarjetas.forEach(tarjeta => {
+        const circulo = tarjeta.querySelector(".circulo-seleccion");
+
+        if (mostrarSeleccionados) {
+            // Mostrar solo si el usuario activó el círculo
+            tarjeta.style.display = circulo.classList.contains("activo") ? "flex" : "none";
+        } else {
+            // Mostrar todas las tarjetas
+            tarjeta.style.display = "flex";
+        }
+    });
+}
 
 function rellenar_etapa_vida_en_dietas() {
     fetch(`${URL_BASE}/etapa_vida`)
@@ -3563,23 +3581,41 @@ function mostrarPagina(page) {
 
     contenido.innerHTML = "";
 
-    dietasPagina.forEach(dieta => {
-        contenido.innerHTML += `
-            <tr class="nuevo1">
-                <td class="nuevo td__border__l"><img class="svg__alimento" src="/src/static/iconos/ramen 1.svg"></td>
-                <td class="nuevo">${dieta.id_dieta}</td>
-                <td class="nuevo">${dieta.usuario}</td>
-                <td class="nuevo">${dieta.etapa_vida}</td>
-                <td class="nuevo">${dieta.fecha_creacion}</td>
-                <td class="nuevo">${dieta.estado}</td>
-                <td class="nuevo td__border__r">
-                    <img src="/src/static/iconos/icon eye.svg" onclick="abrirModalDieta(${dieta.id_dieta})" class="icon-eye">
-                    <img src="/src/static/iconos/edit icon.svg" onclick="abrirModalDieta(${dieta.id_dieta})" class="icon-edit">
-                    <img src="/src/static/iconos/delete icon.svg" onclick="abrirModalDieta(${dieta.id_dieta})" class="icon-delete">
-                </td>
-            </tr>
-        `;
-    });
+ dietasPagina.forEach(dieta => {
+    contenido.innerHTML += `
+        <tr class="nuevo1">
+            <td class="nuevo td__border__l"><img class="svg__alimento" src="/src/static/iconos/ramen 1.svg"></td>
+            <td class="nuevo">${dieta.id_dieta}</td>
+            <td class="nuevo">${dieta.usuario}</td>
+            <td class="nuevo">${dieta.etapa_vida}</td>
+            <td class="nuevo">${dieta.fecha_creacion}</td>
+            <td class="nuevo">${dieta.estado}</td>
+            <td class="nuevo td__border__r">
+                <img src="/src/static/iconos/icon eye.svg" onclick="abrirModalDieta(${dieta.id_dieta})" class="icon-eye">
+                <img src="/src/static/iconos/edit icon.svg" onclick="abrirModalDieta(${dieta.id_dieta})" class="icon-edit">
+
+                <!-- AQUI LLAMAS AL MODAL -->
+                <img src="/src/static/iconos/delete icon.svg" onclick="abrirModalEliminarDieta(${dieta.id_dieta})" class="icon-delete">
+            </td>
+        </tr>
+
+        <!-- MODAL ELIMINAR -->
+        <dialog class="dialog-icon-dele" id="modal-dele-dieta-${dieta.id_dieta}">
+            <div class="title-dialog">
+                <h2>Eliminar dieta</h2>
+            </div>
+            <hr>
+            <p>Si elimina esta dieta, también se eliminarán sus alimentos asociados.</p>
+            <span>¿Está seguro que quiere eliminar esta dieta?</span>
+
+            <div class="container-button-dele1">
+                <button class="btn" onclick="eliminarDieta(${dieta.id_dieta})">Eliminar</button>
+                <button class="btn" onclick="cerrarModalDieta(${dieta.id_dieta})">Cancelar</button>
+            </div>
+        </dialog>
+    `;
+});
+
 
     // Actualizar contador
     Dietas_totales.innerHTML = `Dietas Totales: ${dietasData.length}`;
@@ -3751,7 +3787,6 @@ function guardarDieta() {
                 });
 
                 console.log("Mezcla nutricional:", data.mezcla_nutricional);
-                consulta_dietas(); // actualizar lista de dietas
             }
         })
         .catch(err => {
@@ -3760,6 +3795,55 @@ function guardarDieta() {
         });
     });
 }
+
+function eliminarDieta(id_dieta) {
+            fetch(`${URL_BASE}/eliminar_dieta/${id_dieta}`, {
+                method: "DELETE"
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.mensaje) {
+
+                    // Éxito
+                    Swal.fire({
+                        icon: "success",
+                        title: "Dieta eliminada correctamente",
+                        confirmButtonText: "Aceptar"
+                    });
+                    ver_dietas()
+                } else {
+                    // Error controlado del backend
+                    Swal.fire({
+                        icon: "error",
+                        title: "Error al eliminar",
+                        text: data.error || "No se pudo eliminar la dieta.",
+                    });
+                }
+            })
+            .catch(err => {
+                // Error de conexión
+                Swal.fire({
+                    icon: "error",
+                    title: "Error de conexión",
+                    text: "No se pudo comunicar con el servidor."
+                });
+                console.error("Error en la petición:", err);
+            });
+        
+    
+}
+
+
+function abrirModalEliminarDieta(id) {
+    const modal = document.getElementById(`modal-dele-dieta-${id}`);
+    if (modal) modal.showModal();
+}
+function cerrarModalDieta(id) {
+    const modal = document.getElementById(`modal-dele-dieta-${id}`);
+    if (modal) modal.close();
+}
+
+
 
 
 // ----------------------------------funciones adicionales

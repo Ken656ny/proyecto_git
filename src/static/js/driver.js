@@ -177,7 +177,7 @@ function iniciarTourAlimentos() {
                 position: 'bottom'
             }
         },
-        {   
+        {
             element: '#consultar_todo',
             popover: {
                 title: 'Consultar todo',
@@ -271,7 +271,7 @@ function iniciarTourHome() {
                 position: 'bottom'
             }
         },
-        {   
+        {
 
             element: '#consultar_todo',
             popover: {
@@ -280,7 +280,7 @@ function iniciarTourHome() {
                 position: 'top'
             }
         },
-                {
+        {
 
             element: '#head_alimento',
             popover: {
@@ -289,7 +289,7 @@ function iniciarTourHome() {
                 position: 'top'
             }
         },
-                {
+        {
             element: '#alimento_tour',
             popover: {
                 title: 'Alimento_tour',
@@ -297,7 +297,7 @@ function iniciarTourHome() {
                 position: 'top'
             }
         },
-                {
+        {
             element: '#acciones',
             popover: {
                 title: 'acciones',
@@ -305,7 +305,7 @@ function iniciarTourHome() {
                 position: 'top'
             }
         },
-                {
+        {
             element: '.icon-eye',
             popover: {
                 title: 'visualizar',
@@ -313,7 +313,7 @@ function iniciarTourHome() {
                 position: 'left'
             }
         },
-                {
+        {
             element: '.icon-edit',
             popover: {
                 title: 'editar',
@@ -321,7 +321,7 @@ function iniciarTourHome() {
                 position: 'left'
             }
         },
-                {
+        {
             element: '.icon-delete',
             popover: {
                 title: 'eliminar',
@@ -501,3 +501,157 @@ function iniciarTourAgregarDietas() {
 
     driver.start();
 }
+function iniciarTourGestionarDietas() {
+
+    // 1. Lista de elementos requeridos (estáticos)
+    const requiredElements = [
+        '.container__title',
+        '.container__search__bar_alimentos',
+        '.input__id',
+        '#btn_consultar_todo_historial',
+        '#enviar_consulta',
+        '.container__btn__agregar',
+        '.nuevo1',
+        '#paginacion_Dietas',
+    ];
+
+    // 2. Validar que existan los elementos base
+    for (let sel of requiredElements) {
+        if (!document.querySelector(sel)) {
+            Swal.fire({
+                icon: "warning",
+                title: "No se puede iniciar la ayuda",
+                text: `No se encontró el elemento: ${sel}`,
+            });
+            return;
+        }
+    }
+
+    // 3. Esperar hasta que la tabla tenga filas dinámicas
+    const esperarFilas = setInterval(() => {
+        const filas = document.querySelectorAll(".table__registros .nuevo1");
+
+        if (filas.length > 0) {
+            clearInterval(esperarFilas);
+
+            setTimeout(() => {
+                const driver = new Driver({
+                    showProgress: true,
+                    allowClose: false,
+                    overlayOpacity: 0.4
+                });
+
+                window.tourGestionarDietas = driver;
+
+                driver.defineSteps([
+
+                    {
+                        element: '.container__title',
+                        popover: {
+                            title: 'Gestionar Dietas',
+                            description: 'Aquí puedes consultar, gestionar y administrar todas las dietas del sistema.',
+                            position: 'bottom'
+                        }
+                    },
+
+                    {
+                        element: '.container__search__bar_alimentos',
+                        popover: {
+                            title: 'Buscar Dietas',
+                            description: 'Busca dietas por ID o consulta el historial completo.',
+                            position: 'bottom'
+                        }
+                    },
+
+                    {
+                        element: '.input__id',
+                        popover: {
+                            title: 'Buscar por ID',
+                            description: 'Escribe el ID específico de la dieta.',
+                            position: 'bottom'
+                        }
+                    },
+
+                    {
+                        element: '#btn_consultar_todo_historial',
+                        popover: {
+                            title: 'Consultar Todo',
+                            description: 'Muestra todas las dietas registradas.',
+                            position: 'bottom'
+                        }
+                    },
+
+                    {
+                        element: '#enviar_consulta',
+                        popover: {
+                            title: 'Consulta Individual',
+                            description: 'Consulta la dieta según el ID ingresado.',
+                            position: 'left'
+                        }
+                    },
+
+                    {
+                        element: '.container__btn__agregar',
+                        popover: {
+                            title: 'Agregar Nueva Dieta',
+                            description: 'Crea una nueva dieta desde cero.',
+                            position: 'left'
+                        }
+                    },
+
+                    {
+                        element: '.table__registros',
+                        popover: {
+                            title: 'Tabla de Dietas',
+                            description: 'Aquí ves la lista de dietas con sus detalles.',
+                            position: 'top'
+                        }
+                    },
+                    {
+                        element: '.nuevo1',
+                        popover: {
+                            title: 'Dietas',
+                            description: 'Datos necearios de la dieta ',
+                            position: 'top'
+                        }
+                    },
+
+                    // 🔥 NUEVO: Acciones dentro de cada fila dinámica
+                    {
+                        element: '.icon-eye',
+                        popover: {
+                            title: 'Ver Dieta',
+                            description: 'Haz clic aquí para ver los detalles completos.',
+                            position: 'left'
+                        }
+                    },
+
+                    {
+                        element: '.icon-edit',
+                        popover: {
+                            title: 'Editar Dieta',
+                            description: 'Modifica la información de una dieta.',
+                            position: 'left'
+                        }
+                    },
+
+                    {
+                        element: '.icon-delete',
+                        popover: {
+                            title: 'Eliminar Dieta',
+                            description: 'Elimina una dieta de manera permanente.',
+                            position: 'left'
+                        }
+                    },
+                ]);
+
+                driver.start();
+
+            }, 300);
+
+        }
+    }, 100); // revisa cada 100ms si ya cargaron las filas
+}
+
+
+
