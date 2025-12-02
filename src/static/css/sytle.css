@@ -1388,6 +1388,16 @@ hr{
 }
 
 
+.ayuda {
+    position: fixed;
+    bottom: 1px;   
+    right: 2px;
+    color: #fff;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: transform 0.5s ease-in;
+}
+
 /* REGISTRAR PORCINOS */
 
 .section__add__por{
