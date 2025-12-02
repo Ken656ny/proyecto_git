@@ -6,6 +6,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <link
         href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap"
         rel="stylesheet">
@@ -47,7 +49,7 @@
                         </a>
                     </li>
                     <li>
-                        <a href="/src/templates/porcinos.html" onclick="redirectWithDelay(event, 'porcinos.html')">
+                        <a href="/src/templates/porcinos.html" onclick="manejarClickRol(event)">
                             <img src="../static/iconos/icon pig.svg" width="20px" alt="" class="icons-bar">
                             <span>Porcinos</span>
                         </a>
@@ -73,7 +75,7 @@
                     <li>
                         <a href="/src/templates/perfil.html" onclick="redirectWithDelay(event, 'perfil.html')">
                             <img src="../static/iconos/icon user.svg" width="20px" alt="" class="icons-bar">
-                            <span>Usuario</span>
+                            <span>Perfil</span>
                         </a>
                     </li>
                     <li>
@@ -98,48 +100,50 @@
             </div>
             <div class="container__user__btn">
                 <img src="/src/static/iconos/icon user.svg" alt="" class="svg__user">
-                <button type="button" class="btn__perfil">Juan Tovar</button>
+                <button type="button" class="btn__perfil" id="btnPerfil">
+                    <span id="nombreUsuarioTexto"></span>
+                    <i class="fa fa-caret-down"></i>
+                </button>
+                <div class="usuario-menu" id="usuarioMenu">
+                    <a href="perfil.html">Mi perfil</a>
+                    <a href="#" id="cerrarSesionBtn">Cerrar sesión</a>
+                </div>
             </div>
         </section>
 
-   
-<!-- CONTENIDO CONFIGURACIÓN -->
-<div class="content_configuracion">
-  <h2 class="title_configuracion">Configuración</h2>
+        <div class="content_configuracion">
 
-  <div class="menu_configuracion">
+            <h1 class="title_configuracion">Configuración</h1>
 
-    <button class="menu-item_configuracion" onclick="location.href='cuenta.html'">
-      <img src="/src/static/iconos/cuenta.svg" alt="Cuenta" class="icono_configuracion">
-      Cuenta
-    </button>
+            <div class="menu_configuracion">
+                <div class="menu-item_configuracion" onclick="abrirPanel('cuenta')">
+                    <img src="/src/static/iconos/cuenta.svg" alt="Cuenta" class="icono_configuracion"> Cuenta
+                </div>
+                <div class="menu-item_configuracion" onclick="abrirPanel('ajustar')">
+                    <img src="/src/static/iconos/ajustes.svg" alt="Ajustar" class="icono_configuracion"> Ajustar campos
+                </div>
+                <div class="menu-item_configuracion" onclick="abrirPanel('notificaciones')">
+                    <img src="/src/static/iconos/notificacions.svg" alt="Notificaciones" class="icono_configuracion">
+                    Notificaciones
+                </div>
+                <div class="menu-item_configuracion" onclick="abrirPanel('ayuda')">
+                    <img src="/src/static/iconos/signo_interrogacion.svg" alt="Ayuda" class="icono_configuracion"> Ayuda
+                </div>
+                <div class="menu-item_configuracion" onclick="abrirPanel('terminos')">
+                    <img src="/src/static/iconos/incono_exclamacion.svg" alt="Términos" class="icono_configuracion"> Términos y
+                    condiciones
+                </div>
+                <div class="menu-item_configuracion" onclick="abrirPanel('cambiar')">
+                    <img src="/src/static/iconos/incono_cambiar.svg" alt="Cambiar cuenta" class="icono_configuracion"> Cambiar
+                    cuenta
+                </div>
+                <div class="menu-item_configuracion" data-bs-toggle="modal" data-bs-target="#modalCerrarSesion">
+                    <img src="/src/static/iconos/incono_salida.svg" alt="Cerrar sesión" class="icono_configuracion"> Cerrar sesión
+                </div>
 
-    <button class="menu-item_configuracion" onclick="location.href='centro_de_ayuda.html'">
-      <img src="/src/static/iconos/signo_interrogacion.svg" alt="Ayuda" class="icono_configuracion">
-      Ayuda
-    </button>
-
-    <button class="menu-item_configuracion" onclick="location.href='terminos_y_condiciones.html'">
-      <img src="/src/static/iconos/incono_exclamacion.svg" alt="Términos" class="icono_configuracion">
-      Términos y condiciones
-    </button>
-
-    <button class="menu-item_configuracion" onclick="location.href='gestionar_usuario.html'">
-      <img src="/src/static/iconos/ee.svg" alt="Usuario" class="icono_configuracion">
-      Usuario
-    </button>
-
-    <button class="menu-item_configuracion" data-bs-toggle="modal" data-bs-target="#modalCerrarSesion">
-      <img src="/src/static/iconos/incono_salida.svg" alt="Cerrar sesión" class="icono_configuracion">
-      Cerrar sesión
-    </button>
-
-  </div>
-</div>
-
-
-  <!-- SCRIPTS -->
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-  <script src="/src/static/js/script.js "></script>
+                <!-- al final de tu HTML -->
+                <script src="/src/static/js/script.js"></script>
+            </div>
+        </div>
 </body>
 </html>

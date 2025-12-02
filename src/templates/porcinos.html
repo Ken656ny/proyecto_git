@@ -7,6 +7,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/src/static/css/sytle.css">
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11.17.2/dist/sweetalert2.min.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <title>Edupork</title>
@@ -45,7 +46,7 @@
                         </a>
                     </li>
                     <li>
-                        <a href="/src/templates/porcinos.html" onclick="redirectWithDelay(event, 'porcinos.html')">
+                        <a href="/src/templates/porcinos.html" onclick="manejarClickRol(event)">
                             <img src="../static/iconos/icon pig.svg" width="20px" alt="" class="icons-bar">
                             <span>Porcinos</span>
                         </a>
@@ -71,7 +72,7 @@
                     <li>
                         <a href="/src/templates/perfil.html" onclick="redirectWithDelay(event, 'perfil.html')">
                             <img src="../static/iconos/icon user.svg" width="20px" alt="" class="icons-bar">
-                            <span>Usuario</span>
+                            <span>Perfil</span>
                         </a>
                     </li>
                     <li>
@@ -94,33 +95,38 @@
             </div>
             <div class="container__user__btn">
                 <img src="/src/static/iconos/icon user.svg" alt="" class="svg__user">
-                <button type="button" class="btn__perfil">Juan Tovar</button>
+                <button type="button" class="btn__perfil" id="btnPerfil">
+                    <span id="nombreUsuarioTexto"></span>
+                    <i class="fa fa-caret-down"></i>
+                </button>
+                <div class="usuario-menu" id="usuarioMenu">
+                    <a href="perfil.html">Mi perfil</a>
+                    <a href="#" id="cerrarSesionBtn">Cerrar sesión</a>
+                </div>
             </div>
         </section>
-
         <header class= "container container__title">
             <h1>Gestionar Porcinos</h1>
         </header>
 
-        <section class="container container__search__bar">
+        <form class="container container__search__bar" id="container__search__bar" onsubmit="event.preventDefault(); consulta_filtros()">
 
             <img src="/src/static/iconos/icon lupa.svg" alt="">
             <input type = "number" class = "input__id" id="input_id" placeholder = "Ingrese el ID del porcino" min="0" oninput = "this.value = Math.abs(this.value)">
             <div class="container__filtro">
                 <img src="/src/static/iconos/icon filter.svg" alt="" id="svg__filter">
-                <select name="" id="" class="filter">
+                <select name="filter" id="filter_porcino" class="filter" >
                     <option value="" disabled selected >Filtrar por...</option>
-                    <option value="">Sexo</option>
-                    <option value="">Raza</option>
-                    <option value="">Etapa de vida</option>
-                    <option value="">Peso final</option>
-                    <option value="">Estado</option>
-                    <option value="">Consultar todo</option>
+                    <option value="sexo">Sexo</option>
+                    <option value="raza">Raza</option>
+                    <option value="etapa">Etapa de vida</option>
+                    <option value="peso_final">Peso final</option>
+                    <option value="estado">Estado</option>
                 </select>
             </div>
 
-            <button type="button" class="btn" onclick="consulta_individual_porcino()">Consultar</button>
-        </section>
+            <button type="submit" class="btn" id="btn_consultar">Consultar</button>
+        </form>
         
         <div class="container__btn__options">
             <div class="container__btn__agregar">
@@ -129,15 +135,15 @@
             </div>
             <div class="container__btn__agregar">
                 <img src="/src/static/iconos/icon gestion.svg" alt="" class="svg__btn svg--gesti" width="35px">
-                <button type="button" class="btn btn--options" id="abrir__digraz" onclick="dialog_ges_raz()">Gestionar Raza</button>
+                <button type="button" class="btn btn--options" id="abrir__digraz" onclick="abrirDialog('dialog__ges__raz')">Gestionar Raza</button>
             </div>
             <div class="container__btn__agregar">
                 <img src="/src/static/iconos/icon gestion.svg" alt="" class="svg__btn svg--gesti" width="35px">
-                <button type="button" class="btn btn--options" id="abrir__digeta" onclick="dialog__ges__eta()">Gestionar Etapa</button>
+                <button type="button" class="btn btn--options" id="abrir__digeta" onclick="abrirDialog('dialog__ges__eta')">Gestionar Etapa</button>
             </div>
             <div class="container__btn__agregar">
                 <img src="/src/static/iconos/icon actua.svg" alt="" class="svg__btn svg--actua" width="25px">
-                <button type="button" class="btn btn--options--actua">Historial Peso</button>
+                <button type="button" class="btn btn--options--actua" onclick="abrirDialog('dialog__his__peso')">Historial Peso</button>
             </div>
         </div>
 
@@ -166,7 +172,7 @@
     <!-- DIALOG DE GESTIONAR RAZA -->
     <dialog class="dialog__ges__raz" id="dialog__ges__raz">
         <div class="container__btn__close">
-            <button type="button" id="cerrar__digraz" class="btn__close btn__close__cruds">X</button>
+            <button type="button" id="cerrar__digraz" class="btn__close btn__close__cruds" onclick="cerrarDialog('dialog__ges__raz')">X</button>
         </div>
         <div class="container__items__dialogs">
             <div class="title-dialog">
@@ -176,7 +182,7 @@
             <div class="container__search__bar bar--gestion">
                 <div class="conta__lupa__inp">
                     <img src="/src/static/iconos/icon lupa.svg" alt="">
-                    <input type = "number" class = "input__id" id="input_id" placeholder = "Ingrese el ID de la raza" min="0" oninput = "this.value = Math.abs(this.value)">
+                    <input type = "number" class = "input__id" id="input_id_raza" placeholder = "Ingrese el ID de la raza" min="0" oninput = "this.value = Math.abs(this.value)">
                 </div>
                 <div>
                     <button type="button" class="btn">Consultar</button>
@@ -203,9 +209,10 @@
             </div>
         </div>
     </dialog>
+    <!-- DIALOG DE GESTIONAR ETAPA -->
     <dialog class="dialog__ges__raz" id="dialog__ges__eta">
         <div class="container__btn__close">
-            <button type="button" id="cerrar__digeta" class="btn__close btn__close__cruds">X</button>
+            <button type="button" id="cerrar__digeta" class="btn__close btn__close__cruds" onclick="cerrarDialog('dialog__ges__eta')">X</button>
         </div>
         <div class="container__items__dialogs">
             <div class="title-dialog">
@@ -215,7 +222,7 @@
             <div class="container__search__bar bar--gestion">
                 <div class="conta__lupa__inp">
                     <img src="/src/static/iconos/icon lupa.svg" alt="">
-                    <input type = "number" class = "input__id" id="input_id" placeholder = "Ingrese el ID de la etapa" min="0" oninput = "this.value = Math.abs(this.value)">
+                    <input type = "number" class = "input__id" id="input_id_raza" placeholder = "Ingrese el ID de la etapa" min="0" oninput = "this.value = Math.abs(this.value)">
                 </div>
                 <div>
                     <button type="button" class="btn">Consultar</button>
@@ -243,15 +250,51 @@
         </div>
     </dialog>
 
-
-    <!-- DIALOG DE GESTIONAR ETAPA -->
-
+    <!-- DIALOG Historial de pesos -->
+    <dialog class="dialog__ges__raz" id="dialog__his__peso">
+        <div class="container__btn__close">
+            <button type="button" id="cerrar__digeta" class="btn__close btn__close__cruds" onclick="cerrarDialog('dialog__his__peso')">X</button>
+        </div>
+        <div class="container__items__dialogs">
+            <div class="title-dialog">
+                <h2>Historial de pesos</h2>
+                <hr>
+            </div>
+            <div class="container__search__bar bar--gestion">
+                <div class="conta__lupa__inp">
+                    <img src="/src/static/iconos/icon lupa.svg" alt="">
+                    <input type = "number" class = "input__id" id="input_id_hp" placeholder = "Ingrese el ID del porcino" min="0" oninput = "this.value = Math.abs(this.value)">
+                </div>
+                <div>
+                    <button type="button" class="btn">Consultar</button>
+                </div>
+            </div>
+            <div class="container__btn__agregar">
+                <img src="/src/static/iconos/icon actua.svg" alt="" class="svg__add">
+                <button type="button" class="btn btn--agregar" onclick="abrirDialog('dialog-actualizar-peso')">Actualizar peso</button>
+            </div>
+            <div class="container container__registros container__registros__dia">
+                <table class="table__registros table__regis__dia">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>porcino</th>
+                            <th>Peso registrado</th>
+                            <th>Fecha de pesado</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody class="registros" id="historial_pesos">
+                        
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </dialog>
 
     <script src="/src/static/js/script.js"></script>
     <script>
         consulta_general_porcinos();
-        consultar_razas();
-        consultar_etapas();
     </script>
 </body>
 </html>

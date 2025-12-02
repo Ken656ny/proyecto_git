@@ -1,4 +1,3 @@
-/* general (barra de navegacion) */
 :root{
     /* fondo de contenidos */
     --color--fondos:#D9D9D9;
@@ -50,6 +49,11 @@ body{
     width: 100%;
     margin: 0;
 }
+
+.swal2-popup {
+    font-family: 'Inter' !important; 
+}
+
 
 /* -------------------
 SECCION DE LOGIN
@@ -111,17 +115,16 @@ SECCION DE LOGIN
 .InicioGoogle{
     display: flex;
     gap: 5px;
-    background-color: white;
+    background-color: transparent;
     border-radius: 30px;
     width:280px;
     height:52px;
     justify-content: center;
     align-items: center;
-    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
-    border: 1px solid var(--color-bor-contain);
     margin-top: 20px;
     margin-bottom: 20px;
 }
+
 .link{
     text-decoration: none;
     color: grey;
@@ -153,9 +156,20 @@ SECCION DE LOGIN
 .Registrarse{
     text-align: center;
     text-decoration: none;
-    color: white;
+    color: #eaeaea; 
     font-weight: bold;
 }
+
+.Registrarse:hover {
+    color: #0056b3;       
+    transform: translateY(-2px);
+}
+
+.parrafo_r{
+    margin: 25px auto;
+    color: white;
+}
+
 .logBot{
     position: fixed;
     bottom: 0;
@@ -180,10 +194,9 @@ SECCION REGISTROS
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 100vh;
+    min-height: 100vh;
     background-color: hsl(183, 100%, 93%);
-    color: white;
-    overflow: hidden;
+    color: white;;
     font-family: var(--fuente--contenido);
 }
 
@@ -193,14 +206,13 @@ SECCION REGISTROS
     padding: 0px 10px 25px 10px;
     border-radius: 35px;
     width: 566px;
-    overflow: hidden;
     box-shadow: 0 0 25px rgba(80, 129, 84, 0.7);
 }
 
 .form__registro{
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 9px;
 }
 
 .label__registro {
@@ -209,7 +221,7 @@ SECCION REGISTROS
 }
 
 .form-input {
-    margin: 0px 10px 3px;
+    margin: 0px 10px 5px;
     padding: 0 70px;
 }
 
@@ -217,8 +229,8 @@ input, select, textarea {
     color: #434242;
     background-color: #f1f1f1;
     width: 100%;
-    border: none;
     border-radius: 20px;
+    border: 1px solid var(--color-bor-contain);
     padding: 9px;
     transition: all 0.3s ease;
     font-family: var(--fuente--contenido);
@@ -230,9 +242,9 @@ input:focus, select:focus {
 }
 
 legend {
-    padding: 0px 8px;
+    padding: 28px 8px;
     text-align: center;
-    font-size: 0.9em;
+    font-size: 0.5em;
 }
 
 fieldset {
@@ -242,31 +254,12 @@ fieldset {
     border-bottom: none;
     width: 70%;
     display: block;
-    margin: 1px auto;
-    padding: 10px;
-}
-
-.button-r {
-    width: 50%;
-    margin: 15px auto;
-    padding: 13px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    border: none;
-    border-radius: 20px;
-    background-color: white;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
+    margin: 2px auto -10px;
     font-family: var(--fuente--contenido);
 }
 
 .btn__registro{
-    margin: auto;
-}
-
-.button-r:hover {
-    background-color: #f0f0f0;
+    margin: 9px auto 0px;
 }
 
 img {
@@ -274,32 +267,6 @@ img {
     height: auto;
 }
 
-.icon-google {
-    position: sticky;
-    width: 1.6vw;
-    height: auto;
-    top: 100vh;
-    bottom: 50vh;
-}
-
-/* ALERTAS */
-.alerta {
-    padding: 3px;
-    color: red;
-    display: none;
-    margin: 8px;
-}
-
-.success {
-    color: rgb(108, 232, 108);
-    margin: 10px;
-}
-
-#mensaje {
-    font-size: 0.8em;
-    text-align: center;
-    padding: 5px;
-}
 
 /* FONDO DE LA PÁGINA */
 .logoedupork {
@@ -326,7 +293,14 @@ img {
     right: 0%;
     bottom: 0vh;
     z-index: -1;
-    overflow: hidden;
+
+}
+
+.back1 {
+    position: absolute;
+    width: 3vw;
+    right: 96%;
+    bottom: 89vh;
 }
 
 .nubes {
@@ -530,14 +504,15 @@ SECCION DE NOTIFICACIONES
 .section__noti{
     display: grid;
     grid-template-rows: 85px 75px auto;
-    gap: 15px;
+    gap: 15px; 
+    overflow: hidden;
 }
 
 .container__noti{
     background-color: var(--color--fondos);
     width: 985px;
     height: 425px;
-    margin: auto;
+    margin: 70px auto;
     border: 1px solid var(--color-bor-contain);
     border-radius: 40px;
     display: grid;
@@ -596,6 +571,8 @@ SECCION DE PORCINOS
     background-repeat: no-repeat;
     background-position: bottom;
     background-size: 100%;
+    background-attachment: fixed;
+    min-height: 100vh;
 }
 
 .section__porcinos{
@@ -654,6 +631,30 @@ SECCION DE PORCINOS
     border: none;
 }
 
+.usuario-menu {
+    display: none;
+    position: absolute;
+    right: 0;
+    background-color: var(--color--letra);
+    font-family: var(--fuente--contenido);
+    min-width: 150px;
+    box-shadow: 0px 8px 16px rgba(0,0,0,0.2);
+    border-radius: 6px;
+    z-index: 100;
+}
+
+.usuario-menu a {
+    display: block;
+    padding: 10px;
+    color: var(--color-white);
+    text-decoration: none;
+}
+
+.usuario-menu a:hover {
+    background: var(--color--btn--hover);
+}
+
+
 /* CODIGO DE LA SECCION DEL TITULO */
 
 .container__title{
@@ -679,9 +680,15 @@ SECCION DE PORCINOS
     width: 1100px;
     height: 60px;
     margin: auto;
-    padding-left: 3em;
-    gap: 7em;
+    padding: 0 2rem;
+    gap: 4rem;
     font-family: var(--fuente--contenido);
+}
+
+#filter__options__2{
+    width: 150px;
+    border-radius: 10px;
+    order: 3;
 }
 
 .input__id{
@@ -692,11 +699,13 @@ SECCION DE PORCINOS
     border-radius: 26px;
     font-family: inherit;
     outline: none;
+    order: 1;
 }
 
 .container__filtro{
     position: relative;
     display: flex;
+    order: 2;
 }
 
 #svg__filter{
@@ -730,11 +739,15 @@ SECCION DE PORCINOS
     cursor: pointer;
 }
 
+
 .btn:hover{
     background-color: var(--color--btn--hover);
     border: 1px solid var(--color-bor-btn-hover);
 }
 
+#btn_consultar{
+    order: 4;
+}
 /* CODIGO DE LA SECCION DEL BOTON DE AGREGAR */
 
 .container__btn__options{
@@ -906,6 +919,7 @@ th{
 .info-delete{
     display: flex;
     flex-direction: column;
+    align-items: center;
     grid-column-start: 1;
     grid-column-end: 4;
 }
@@ -937,7 +951,7 @@ th{
 /* CONTAINER DEL BOTTON CERRAR */
 
 .container-button-close, .container-button-guardar, .container-button-dele{
-    margin-top: 2.5em;
+    margin-top: 1em;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -977,6 +991,7 @@ hr{
 /* DIALOG ICON DELETE */
 
 .dialog-icon-dele{
+    
     width: 529px;
     height: 397px;
     padding: 0 15px;
@@ -989,7 +1004,7 @@ hr{
     font-size: 20px;
 }
 
-    .dialog-icon-dele hr{
+.dialog-icon-dele hr{
     width: 450px;
     margin-bottom: 50px;
 }
@@ -1025,24 +1040,33 @@ hr{
 .container__label__input{
     display: flex;
     flex-direction: column;
-    line-height: 3;
+    line-height: 2;
 }
 
 .container__label__input > label{
     font-weight: bolder;
     color: #2C3D31;
+    font-family: var(--fuente--contenido);
 }
 
 .container__label__input > textarea{
     width: 224px;
     height: 40px;
     resize: none;
-
 }
 
 .input__add__por{
     width: 224px;
     border: 1px solid var(--color-bor-contain);
+}
+
+.placerholder_eliminar{
+    border : 1px solid #f15b5bff;
+}
+
+.placerholder_eliminar::placeholder{
+    color: #f31818;
+    font-weight: bold;
 }
 
 .btn--guardar{
@@ -1066,6 +1090,7 @@ hr{
     justify-content: center;
     gap: 15px;
     height: 0;
+    padding: 0;
 }
 
 .container__btn__close{
@@ -1135,6 +1160,66 @@ hr{
     width: 700px;
 
 }
+
+/* LAYOUT CONTENIDO DE LOS FORMULARIOS DENTRO DE LOS DIALOGS */
+
+.layout_form_dialog{
+    display: flex;
+    flex-direction: column;
+    padding: 0 2em;
+    gap: 1.2em;
+}
+
+
+/* hISTORIAL DE PESOS */
+
+.layout_actualizar_peso{
+    display: flex;
+    flex-direction: row;
+    gap: 1.4em;
+    padding: 2em;
+    border-radius: 20px;
+    border: 1px solid var(--color-bor-contain);
+}
+
+.lay_actu_s1{
+    width: 50%;
+    display: flex;
+    flex-direction: column;
+    gap: 1em;
+}
+
+.span__actu_peso{
+    font-family: var(--fuente--contenido);
+    color: var(--color-bor-btn);
+    font-weight: bold;
+}
+
+.container__label__input__actupeso{
+    display: grid;
+    grid-template-columns: 40% 60%;
+}
+
+.lay_actu_s2{
+    width: 50%;
+    display: grid;
+    grid-template-rows: auto auto 1fr;
+    gap: 0.5em;
+}
+
+#span_fecha{
+    place-self: end;
+}
+
+.container__preview{
+    background-color: #f1f1f1;
+    border-radius: 20px;
+    border: 1px solid var(--color-bor-contain);
+    padding: 1em;
+    font-family: var(--fuente--contenido);
+}
+
+
 
 /* -------------------
 SECCION DE configuracion
@@ -1739,8 +1824,221 @@ RESPONSIVE BAR
         width: 100%;
     }
 
-    .barra-lateral .navegacion ul{
-        gap: 1rem;
+
+}
+
+
+
+/* -----------------------------------------------------
+📱 LOGIN — Ajustes responsive para móviles y tablets
+-------------------------------------------------------- */
+
+/* 📱 Teléfonos pequeños (hasta 480px) */
+@media (max-width: 480px) {
+
+    .container__form__login {
+        width: 90%;
+        height: auto;
+        padding: 25px 10px;
+        margin: 20px auto;
+        border-radius: 20px;
+    }
+
+    .perfil {
+        width: 80px;
+        height: 80px;
+    }
+
+    .icon {
+        width: 75px;
+    }
+
+    .entrada {
+        width: 90%;
+        height: 40px;
+        font-size: 0.9rem;
+    }
+
+    .InicioGoogle {
+        width: 85%;
+        height: 45px;
+        font-size: 0.9rem;
+    }
+
+    .LogoEdupork {
+        position: relative;
+        width: 70%;
+        height: auto;
+    }
+
+    .body_login {
+        background-size: cover;
+        background-attachment: scroll; /* Evita bugs de fondo fijo en móviles */
+    }
+
+    .label_input, .Registrarse {
+        font-size: 0.9rem;
+        text-align: center;
+    }
+}
+
+/* 📱 Tablets (481px a 768px) */
+@media (min-width: 481px) and (max-width: 768px) {
+    .container__form__login {
+        width: 75%;
+        height: auto;
+        padding: 30px;
+        gap: 15px;
+    }
+
+    .entrada {
+        width: 85%;
+        height: 42px;
+    }
+
+    .InicioGoogle {
+        width: 80%;
+    }
+
+    .perfil {
+        width: 90px;
+        height: 90px;
+    }
+
+    .LogoEdupork {
+        width: 60%;
+        height: auto;
+    }
+}
+
+/* 💻 Laptops pequeñas (769px a 1024px) */
+@media (min-width: 769px) and (max-width: 1024px) {
+    .container__form__login {
+        width: 550px;
+        height: auto;
+        padding: 40px;
+    }
+
+    .entrada {
+        width: 90%;
+    }
+
+    .InicioGoogle {
+        width: 300px;
+    }
+
+    .LogoEdupork {
+        width: 250px;
+    }
+    
+}
+
+/* -----------------------------------------------------
+   📱 REGISTRO — Ajustes responsive para móviles y tablets
+-------------------------------------------------------- */
+
+/* 📱 Teléfonos pequeños (hasta 480px) */
+@media (max-width: 480px) {
+
+    .body__registro {
+        height: auto;
+        flex-direction: column;
+        padding: 20px 0;
+    }
+
+    .container-form {
+        width: 90%;
+        padding: 20px;
+        border-radius: 20px;
+        box-shadow: none;
+    }
+
+    .form__registro {
+        gap: 10px;
+    }
+
+    .label__registro {
+        font-size: 14px;
+        text-align: left;
+    }
+
+    input, select, textarea {
+        width: 100%;
+        font-size: 0.9rem;
+        padding: 8px;
+    }
+
+    fieldset {
+        width: 90%;
+    }
+
+    .button-r {
+        width: 80%;
+        padding: 10px;
+        font-size: 0.9rem;
+    }
+
+    /* Imágenes decorativas */
+    .logoedupork,
+    .rancho,
+    .pasto,
+    .nubes,
+    .nubes2,
+    .porcino {
+        display: none; /* Se ocultan para priorizar el formulario */
+    }
+}
+
+/* 📱 Tablets (481px a 768px) */
+@media (min-width: 481px) and (max-width: 768px) {
+
+    .container-form {
+        width: 80%;
+        padding: 25px;
+        border-radius: 25px;
+    }
+
+    fieldset {
+        width: 80%;
+    }
+
+    .button-r {
+        width: 60%;
+    }
+
+    .logoedupork,
+    .nubes,
+    .nubes2,
+    .porcino {
+        width: 25vw;
+    }
+
+    .rancho {
+        width: 35vw;
+    }
+}
+
+/* 💻 Laptops pequeñas (769px a 1024px) */
+@media (min-width: 769px) and (max-width: 1024px) {
+    .container-form {
+        width: 60%;
+        padding: 30px;
+    }
+
+    .form__registro {
+        gap: 12px;
+    }
+
+    .button-r {
+        width: 50%;
+    }
+
+    .logoedupork {
+        width: 18vw;
+    }
+
+    .rancho {
+        width: 28vw;
     }
 }
 

@@ -1,4 +1,3 @@
-<!-- Aqui inicio la página html-->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -7,40 +6,54 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet">
     <title>Edupork</title>
-    <script src="/src/static/js/script.js"></script>
     <link rel="stylesheet" href="/src/static/css/sytle.css">
 </head>
 <body class="body_login">
-<!--Creo el body que me sirve para controlar el container-->
-<div class="body_overlay">
-    <div class="container__form__login">
-        <div class="perfil"> 
-            <img src="https://cdn-icons-png.flaticon.com/128/15678/15678795.png" class="icon" alt="">
+    <div class="body_overlay">
+        <div class="container__form__login">
+            <div class="perfil"> 
+                <img src="https://cdn-icons-png.flaticon.com/128/15678/15678795.png" class="icon" alt="">
+            </div>
+            <div id="g_id_onload"
+                data-client_id="887853903603-sbo2ffg27v2o12navndev9okvno8t4fn.apps.googleusercontent.com"
+                data-context="signin"
+                data-ux_mode="popup"
+                data-callback="handleCredentialResponse"
+                data-auto_select="false">
+            </div>
+
+            <div class="g_id_signin"
+                data-type="standard"
+                data-shape="pill"
+                data-theme="outline"
+                data-text="signin_with"
+                data-size="large"
+                data-logo_alignment="center"
+                data-width="400">
+            </div>
+
+            <form class="formulario"                 >
+                <div class="user">
+                    <label for="entrada1" class="label_input">Correo Electrónico</label><br>
+                    <input type="email" class="entrada"  id="entrada1" placeholder="Ingrese su correo" required autocomplete="email">
+                </div>
+                <div class="password">
+                    <label for="entrada2" class="label_input">Contraseña</label><br>
+                    <input type="password" class="entrada" id="entrada2" placeholder="Ingrese su contraseña" required autocomplete="current-password">
+                </div>
+                <div class="container_boton">
+                    <button class=" btn bIniciarSesion" type="button" onclick="login()">Iniciar Sesion</button>
+                </div>
+            </form>    
+            <p class="parrafo_r"><a href="/src/templates/registro.html" class="Registrarse"> Crear cuenta ahora</a> | <a href="/src/templates/olvidopass.html" class="Registrarse">¿Olvido su contraseña?</a></p>
         </div>
-        <div class="InicioGoogle">
-            <img src="https://cdn-icons-png.flaticon.com/128/281/281764.png" alt="google" class="gicon">
-            <a href="https://accounts.google.com/v3/signin/identifier?hl=es&ifkv=ASSHykqW0uSkUyBJ3FNckyFuruBc91gHrmwkPaw1r0qzusnwRqmbRhhndqyo-xdG_lznStnk9txnqA&flowName=GlifWebSignIn&flowEntry=ServiceLogin&dsh=S-601952507%3A1741881072575268" class="link">Iniciar sesión con google</a>
-        </div>
-        <form class="formulario">
-            <div class="user">
-                <label for="entrada1" class="label_input">Ingfresar correo</label><br>
-                <input type="email" class="entrada"  id="entrada1" placeholder="  Ingrese su correo" required>
-            </div>
-            <div class="password">
-                <label for="entrada2" class="label_input">Contraseña</label><br>
-                <input type="password" class="entrada" id="entrada2" placeholder="  Ingrese su contraseña" required>
-            </div>
-            <div class="container_boton">
-                <button class=" btn bIniciarSesion" type="button" onclick="login()">Iniciar Sesion</button>
-            </div>
-            <a href="/src/templates/registro.html" class="Registrarse">¿No tienes cuenta? Registrarme ahora</a>
-        </form>    
     </div>
-</div>
-<img src="/src/static/iconos/logo_login.png" alt="LogoEdupork" class="LogoEdupork">
-<img src="/src/static/iconos/cologo.png" alt="dsa" class="logBot">
-<img src="/src/static/iconos/senlogo.png" alt="ads" class="logBot logobot2">
+    <img src="/src/static/iconos/logo_login.png" alt="LogoEdupork" class="LogoEdupork">
+    <img src="/src/static/iconos/cologo.png" alt="dsa" class="logBot">
+    <img src="/src/static/iconos/senlogo.png" alt="ads" class="logBot logobot2">
 </body>
+<script src="/src/static/js/script.js"></script>
 </html>

@@ -1,16 +1,15 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link
-    href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap"
-    rel="stylesheet">
-  <link rel="stylesheet" href="/src/static/css/sytle.css">
-  <title>Edupork</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/src/static/css/sytle.css">
+    <title>Edupork</title>
 </head>
 
 <body class="body__porcinos">
@@ -32,61 +31,60 @@
                   <span>Edupork</span>
               </div>
           </div>
-
-            <nav class="navegacion">
-                <ul class="ul-navegacion">
-                    <li>
-                        <a href="/src/templates/home.html" onclick="redirectWithDelay(event, 'home.html')" > <!--dar estilo -->
-                            <img src="../static/iconos/home icon.svg" width="20px" alt="" class="icons-bar">
-                            <span>Home</span>
-                        </a>
-                    </li>
-                    <li>
-                        <a href="/src/templates/notificaciones.html">
-                            <img src="../static/iconos/notificacions.svg" width="20px" alt="" class="icons-bar">
-                            <span>Notificaciones </span>
-                        </a>
-                    </li>
-                    <li>
-                        <a href="/src/templates/porcinos.html" onclick="redirectWithDelay(event, 'porcinos.html')">
-                            <img src="../static/iconos/icon pig.svg" width="20px" alt="" class="icons-bar">
-                            <span>Porcinos</span>
-                        </a>
-                    </li>
-                    <li>
-                        <a href="/src/templates/alimentos.html" onclick="redirectWithDelay(event, 'alimentos.html')">
-                            <img src="../static/iconos/icon wheate.svg" title="alimentos" width="20px" alt="" class="icons-bar">
-                            <span>Alimentos</span>
-                        </a>
-                    </li>
-                    <li>
-                        <a href="#">
-                            <img src="../static/iconos/icon plate.svg" width="20px" alt="" class="icons-bar">
-                            <span>Dietas</span>
-                        </a>
-                    </li>
-                   <li>
-                        <a href="/src/templates/alimentos.html" onclick="redirectWithDelay(event, 'reportes.html')">
-                            <img src="../static/iconos/icon page.svg" title="alimentos" width="20px" alt="" class="icons-bar">
-                            <span>Alimentos</span>
-                        </a>
-                    </li>
-                    <li>
-                        <a href="/src/templates/perfil.html" onclick="redirectWithDelay(event, 'perfil.html')">
-                            <img src="../static/iconos/icon user.svg" width="20px" alt="" class="icons-bar">
-                            <span>Usuario</span>
-                        </a>
-                    </li>
-                    <li>
-                        <a href="/src/templates/configuracion.html" onclick="redirectWithDelay(event, 'configuracion.html')">
-                            <img src="../static/iconos/icon setting.svg" width="20px" alt="" class="icons-bar">
-                            <span>Configuración</span>
-                        </a>
-                    </li>
-                </ul>
-            </nav>
-        </div>
-    </section>
+          <nav class="navegacion">
+              <ul class="ul-navegacion">
+                  <li>
+                      <a href="/src/templates/home.html" onclick="redirectWithDelay(event, 'home.html')" > <!--dar estilo -->
+                          <img src="../static/iconos/home icon.svg" width="20px" alt="" class="icons-bar">
+                          <span>Home</span>
+                      </a>
+                  </li>
+                  <li>
+                      <a href="/src/templates/notificaciones.html">
+                          <img src="../static/iconos/notificacions.svg" width="20px" alt="" class="icons-bar">
+                          <span>Notificaciones </span>
+                      </a>
+                  </li>
+                  <li>
+                      <a href="/src/templates/porcinos.html" onclick="redirectWithDelay(event, 'porcinos.html')">
+                          <img src="../static/iconos/icon pig.svg" width="20px" alt="" class="icons-bar">
+                          <span>Porcinos</span>
+                      </a>
+                  </li>
+                  <li>
+                      <a href="/src/templates/alimentos.html" onclick="redirectWithDelay(event, 'alimentos.html')">
+                          <img src="../static/iconos/icon wheate.svg" title="alimentos" width="20px" alt="" class="icons-bar">
+                          <span>Alimentos</span>
+                      </a>
+                  </li>
+                  <li>
+                      <a href="#">
+                          <img src="../static/iconos/icon plate.svg" width="20px" alt="" class="icons-bar">
+                          <span>Dietas</span>
+                      </a>
+                  </li>
+                  <li>
+                      <a href="#">
+                          <img src="../static/iconos/icon page.svg" alt="" class="icons-bar">
+                          <span>Informes</span>
+                      </a>
+                  </li>
+                  <li>
+                      <a href="/src/templates/perfil.html" onclick="redirectWithDelay(event, 'perfil.html')">
+                          <img src="../static/iconos/icon user.svg" width="20px" alt="" class="icons-bar">
+                          <span>Usuario</span>
+                      </a>
+                  </li>
+                  <li>
+                      <a href="/src/templates/configuracion.html" onclick="redirectWithDelay(event, 'configuracion.html')">
+                          <img src="../static/iconos/icon setting.svg" width="20px" alt="" class="icons-bar">
+                          <span>Configuración</span>
+                      </a>
+                  </li>
+              </ul>
+          </nav>
+      </div>
+  </section>
   <section class="section__porcinos">
 
     <section class="container__logo__user">
@@ -102,46 +100,50 @@
       </div>
     </section>
 
-    <div class="content_perfil">
-      <h1 class="title_perfil">Perfil</h1>
-      <div class="perfil-wrapper">
-        <section class="perfil-section">
-          <div class="perfil-card">
+        <div class="content_perfil">
+            <h1 class="title_perfil">Perfil</h1>
 
-            <!-- NUEVO: Contenedor para imagen y datos alineados en fila -->
-            <div class="perfil-header">
-              <div class="perfil-photo">
+            <div class="perfil-wrapper">
+                <section class="perfil-section">
+                    <div class="perfil-card">
+                        <div class="perfil-header">
+                            <div class="perfil-photo">
+                                <img src="/src/static/iconos/icon user.svg" alt="Foto 1">
+                            </div>
 
-                <img src="/src/static/iconos/icon user.svg" alt="Foto 1">
+                            <div class="perfil-datos">
+                                <p><strong>Nombre:</strong> <span id="nombreUsuario" class="perfil-texto"></span></p>
+                                <p id="identificacionLinea"><strong>Nº identificación:</strong><span id="identificacionUsuario" class="perfil-texto"></span></p>
+                                <p><strong>Correo:</strong> <span id="correoUsuario" class="perfil-texto"></span></p>
+                            </div>
+                        </div>
 
-              </div>
-              <div class="perfil-datos">
-                <p><strong>Nombre:</strong> <span class="perfil-texto">pico</span></p>
-                <p><strong>Nº identificación:</strong> <span class="perfil-texto">2928724</span></p>
-                <p><strong>Correo:</strong> <span class="perfil-texto">juantovar@gmail.com</span></p>
-              </div>
+                        <div class="perfil-descripcion">
+                            <p>
+                                <strong>Descripción:</strong><br>
+                                soy uno de los desarrolladores web del proyecto...
+                            </p>
+                        </div>
+
+                        <div class="perfil-estadisticas">
+                            <div class="perfil-estadistica">
+                                <p>Dietas creadas</p>
+                                <span>3</span>
+                            </div>
+                            <div class="perfil-estadistica">
+                                <p>Informes creados</p>
+                                <span>1</span>
+                            </div>
+                        </div>
+                    </div>
+                </section>
             </div>
+        </div>
+    </section>
 
-            <div class="perfil-descripcion">
-              <p><strong>Descripción:</strong><br>soy uno de los desarrolladores web del proyecto...</p>
-            </div>
-
-            <div class="perfil-estadisticas">
-              <div class="perfil-estadistica">
-                <p>Dietas creadas</p>
-                <span>3</span>
-              </div>
-              <div class="perfil-estadistica">
-                <p>Informes creados</p>
-                <span>1</span>
-              </div>
-            </div>
-
-          </div>
-        </section>
-      </div>
-    </div>
-    <!-- al final de tu HTML -->
     <script src="/src/static/js/script.js"></script>
+    <script>
+        cargarDatosPerfil()
+    </script>
 </body>
 </html>

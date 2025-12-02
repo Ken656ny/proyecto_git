@@ -3,6 +3,7 @@ import pymysql
 import pymysql.cursors
 import secrets
 
+
 class Config():
     SECRET_KEY = secrets.token_hex(32)
     DEBUG = config('DEBUG', cast=bool)
