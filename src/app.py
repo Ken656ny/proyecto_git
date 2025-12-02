@@ -533,6 +533,12 @@ def registrar_porcinos():
                       INSERT INTO porcinos (peso_inicial,peso_final,fecha_nacimiento,sexo,id_raza,id_etapa,estado,descripcion,id_porcino) 
                       values (%s,%s,%s,%s,%s,%s,%s,%s,%s)""",
                       (p_ini,p_fin,fec_nac,sexo,id_ra,id_eta,estado,descripcion,id))
+          id_porcino = cur.lastrowid
+          cur.execute(f"""
+                      INSERT INTO notificaciones (id_usuario_destinatario, id_usuario_origen, titulo, mensaje, tipo)
+                      VALUES (3, 3, 'Registro de Porcino',
+                      CONCAT('Se registró un nuevo porcino con ID {id_porcino}'),'Ingreso');
+                      """)
           conn.commit()
     
     return jsonify({'Mensaje': f'Porcino con id {id} registrado'})
@@ -597,6 +603,11 @@ def actualizar_porcino(id):
       with conn.cursor() as cur:
         cur.execute('UPDATE porcinos SET peso_inicial = %s, peso_final = %s, fecha_nacimiento = %s, sexo = %s, id_raza = %s, id_etapa = %s, estado = %s, descripcion = %s WHERE id_porcino = %s',
                   (p_ini,p_fin,fec_nac,sexo,id_ra,id_eta,estado,descripcion,id))
+        cur.execute(f"""
+                      INSERT INTO notificaciones (id_usuario_destinatario, id_usuario_origen, titulo, mensaje, tipo)
+                      VALUES (3, 3, 'Actualizacion de la información del Porcino',
+                      CONCAT('Se actualizo la información del porcino con ID {id}'),'Actualización');
+                      """)
         conn.commit()
     
     return jsonify({'Mensaje': f'Informacion del porcino con id {id} actualizada'}), 200
@@ -626,6 +637,11 @@ def eliminar_porcino(id):
     with config['development'].conn() as conn:
       with conn.cursor() as cur:
         cur.execute('DELETE FROM porcinos WHERE id_porcino = %s', (id))
+        cur.execute(f"""
+                      INSERT INTO notificaciones (id_usuario_destinatario, id_usuario_origen, titulo, mensaje, tipo)
+                      VALUES (3, 3, 'Eliminación de la información del Porcino',
+                      CONCAT('Se eliminó la información del porcino con ID {id}'),'Eliminación');
+                      """)
         conn.commit()
     return jsonify({'Mensaje': f'El porcino con id {id} ha sido eliminado correctamente'})
     
@@ -723,6 +739,12 @@ def registrar_raza():
       with conn.cursor() as cur:
         cur.execute('INSERT INTO raza VALUES (null,%s,%s)',
                 (nombre,desc))
+        id_raza = cur.lastrowid
+        cur.execute(f"""
+                      INSERT INTO notificaciones (id_usuario_destinatario, id_usuario_origen, titulo, mensaje, tipo)
+                      VALUES (3, 3, 'Registro de Raza',
+                      CONCAT('Se registró una nueva raza con ID {id_raza}'),'Ingreso');
+                      """)
         conn.commit()
 
       return jsonify({'Mensaje': 'Raza registrada correctamente'})
@@ -767,6 +789,11 @@ def actualizar_raza(id):
       with conn.cursor() as cur:
         cur.execute('UPDATE raza SET nombre = %s, descripcion = %s WHERE id_raza = %s',
                 (nombre,desc,id))
+        cur.execute(f"""
+                      INSERT INTO notificaciones (id_usuario_destinatario, id_usuario_origen, titulo, mensaje, tipo)
+                      VALUES (3, 3, 'Actualizacion de la información de la Raza',
+                      CONCAT('Se actualizo la información de la raza con ID {id}'),'Actualización');
+                      """)
         conn.commit()
 
     return jsonify({'Mensaje': 'Raza actulizada correctamente'})
@@ -802,7 +829,12 @@ def eliminar_raza(id):
       with conn.cursor() as cur:
         cur.execute('DELETE FROM raza WHERE id_raza = %s',
                 (id))
-      conn.commit()
+        cur.execute(f"""
+                      INSERT INTO notificaciones (id_usuario_destinatario, id_usuario_origen, titulo, mensaje, tipo)
+                      VALUES (3, 3, 'Eliminación de la información de la Raza',
+                      CONCAT('Se eliminó la información de la raza con ID {id}'),'Eliminación');
+                      """)
+        conn.commit()
 
     return jsonify({'Mensaje': 'Raza eliminada correctamente'})
   except Exception as err:
@@ -926,7 +958,7 @@ def consulta_indi_etapa(id):
       if id_etapa not in etapa:
         etapa[id_etapa] = {
           "id_etapa" : id_etapa,
-          "nombre_etapa" : fila['nombre'],
+          "nombre" : fila['nombre'],
           "peso_min" : fila['peso_min'],
           "peso_max" : fila['peso_max'],
           "duracion_dias" : fila['duracion_dias'],
@@ -1011,6 +1043,12 @@ def registrar_etapa():
                           INSERT INTO requerimientos_nutricionales(id_etapa,id_elemento,porcentaje)
                           VALUES (%s,%s,%s)
                           """, (id_etapa,id_elemento,porcentaje))
+        
+        cur.execute(f"""
+                      INSERT INTO notificaciones (id_usuario_destinatario, id_usuario_origen, titulo, mensaje, tipo)
+                      VALUES (3, 3, 'Registro de Etapa de vida',
+                      CONCAT('Se registró una nueva etapa de vida con ID {id_etapa}'),'Ingreso');
+                      """)
         conn.commit()
 
     return jsonify({'Mensaje': 'Etapa de vida registrada correctamente'}), 201
@@ -1078,6 +1116,11 @@ def actualizar_etapa_vida(id):
                           INSERT INTO requerimientos_nutricionales(id_etapa,id_elemento,porcentaje)
                           VALUES (%s,%s,%s)
                           """, (id,id_elemento,porcentaje))
+        cur.execute(f"""
+                      INSERT INTO notificaciones (id_usuario_destinatario, id_usuario_origen, titulo, mensaje, tipo)
+                      VALUES (3, 3, 'Actualizacion de la información de la Etapa de Vida',
+                      CONCAT('Se actualizo la información de la etapa de vida con ID {id}'),'Actualización');
+                      """)
         conn.commit()
 
     return jsonify({'Mensaje': 'Etapa de vida actulizada correctamente'})
@@ -1120,6 +1163,11 @@ def eliminar_etapa_vida(id):
                     WHERE id_etapa = %s
                     """,
                     (id))
+        cur.execute(f"""
+                      INSERT INTO notificaciones (id_usuario_destinatario, id_usuario_origen, titulo, mensaje, tipo)
+                      VALUES (3, 3, 'Eliminación de la información de la Etapa de Vida',
+                      CONCAT('Se eliminó la información de la etapa de vida con ID {id}'),'Eliminación');
+                      """)
         conn.commit()
     return jsonify({'Mensaje': 'Etapa de vida eliminada correctamente'})
   except Exception as err:

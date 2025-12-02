@@ -622,7 +622,7 @@ async function cargarInfoPorcinoEdit(id, container) {
         <div class="container__label__input">
         <label>ID</label>
             <div class="container-inputs">
-            <input type="text" value="${p.id_porcino}" disabled>
+            <input type="text" value="${p.id_porcino}" readonly>
             </div>
         </div>
 
@@ -638,7 +638,7 @@ async function cargarInfoPorcinoEdit(id, container) {
         <div class="container__label__input">
             <label>Peso Final (Kg)</label>
             <div class="container-inputs">
-            <input id="peso-final-actu-${id}" type="text" value="${p.peso_final}">
+            <input id="peso-final-actu-${id}" type="text" value="${p.peso_final}" disabled>
             
             </div>
         </div>
@@ -1320,7 +1320,7 @@ function eliminar_porcino(id_porcino){
                     text: `${response.Mensaje}`,
                     icon: "success"
                 });
-
+                location.reload()
             }
         })
         .catch(error => console.error('Error', error));
@@ -2415,11 +2415,23 @@ function mostrar_notificaciones(notificaciones){
 }
 
 function crear_fila_notificaciones(item){
+    let fechaBD = item.fecha_creacion;
+    let fecha = new Date(fechaBD);
+
+    const opciones = {
+        weekday: "long",   // día de la semana
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit"
+    };
+
+    // Fecha bonita con día en español
+    const fecha_bonita = fecha.toLocaleDateString("es-CO", opciones);
     return `
         <div class="menssage__noti">
             <div class="menssage__noti__title__fecha">
                 <h3>${item.titulo} - ${item.tipo}</h3>
-                <h3>${item.fecha_creacion}</h3>
+                <h3>${fecha_bonita}</h3>
             </div>
             <p>${item.mensaje}</p>
         </div>
@@ -3517,6 +3529,7 @@ document.getElementById('btn_consultar_todo').addEventListener('click', () =>{
         filter_2.style.display = "none";
     }
     document.querySelectorAll(".rm_filter").forEach(select => {
+        select.disabled = false
         select.selectedIndex = 0;
     })
 
