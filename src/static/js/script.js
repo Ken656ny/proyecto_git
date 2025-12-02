@@ -2236,8 +2236,8 @@ function mostrarPagina(page) {
         });
 
         contenido.innerHTML += `
-            <tr class="nuevo1">
-                <td class="nuevo td__border__l">
+            <tr class="nuevo1" id="alimento_tour">
+                <td class="nuevo td__border__l ">
                     <img alt="logo de trigo" class="svg__alimento" src="/src/static/iconos/logo alimentospng.png">
                 </td>
                 <td class="nuevo">${element.id_alimento}</td>

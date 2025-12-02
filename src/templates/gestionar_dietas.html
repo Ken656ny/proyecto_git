@@ -108,26 +108,18 @@
         <header class="container container__title">
             <h1>Gestionar Dietas</h1>
         </header>
-
-        <section class="container container__search__bar">
-
-            <img src="/src/static/iconos/icon lupa.svg" alt="">
-            <input type="number" class="input__id" id="input_id" placeholder="Ingrese el ID de la dieta" min="0"
+<section class="container container__search__bar_alimentos">
+            <div class="separador">
+                <img src="/src/static/iconos/icon lupa.svg" alt="buscador ">
+            <input type="number" class="input__id" id="input_id"  placeholder="Ingrese el ID de la dieta" min="0"
                 oninput="this.value = Math.abs(this.value)">
-            <div class="container__filtro">
-                <img src="/src/static/iconos/icon filter.svg" alt="" id="svg__filter">
-                <select name="" id="" class="filter">
-                    <option value="" disabled selected>Filtrar por...</option>
-                    <option value="">Sexo</option>
-                    <option value="">Raza</option>
-                    <option value="">Etapa de vida</option>
-                    <option value="">Peso final</option>
-                    <option value="">Estado</option>
-                    <option value="">Consultar todo</option>
-                </select>
+                <label id="consultar_todo" onclick="consulta_dietas()" class="contenedor">
+                    <p style="color: #2c3d31;">consultar todo</p>
+                </label>
             </div>
-
-            <button type="button" class="btn" onclick="consulta_individual_dieta()">Consultar</button>
+            <div class="final_buttom">
+                <button id="enviar_consulta" type="button" class="btn" onclick="consulta_individual_dieta()">Consultar</button>
+            </div>
         </section>
 
         <div class="container__btn__options">

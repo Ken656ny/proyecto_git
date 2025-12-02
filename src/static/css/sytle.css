@@ -2593,7 +2593,7 @@ RESPONSIVE BAR
 
 .ayuda {
     position: fixed;
-    bottom: 1px;   /* separación del borde */
+    bottom: 1px;   
     right: 2px;
     color: #fff;
     border-radius: 10px;
@@ -2602,7 +2602,7 @@ RESPONSIVE BAR
 }
 .voz {
     position: fixed;
-    bottom: 50px;   /* separación del borde */
+    bottom: 50px;   
     right: 4px;
     color: #fff;
     border-radius: 10px;
