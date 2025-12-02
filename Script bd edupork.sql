@@ -35,6 +35,7 @@ CREATE TABLE IF NOT EXISTS usuario_externo (
    correo VARCHAR(80) UNIQUE NOT NULL,
    nombre VARCHAR(200),
    proveedor ENUM('Google'),
+   estado enum('Activo','Inactivo') not null,
    rol enum("Admin","Aprendiz") not null
 );
 
