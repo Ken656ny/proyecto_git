@@ -1939,6 +1939,9 @@ def obtener_dieta(id_dieta):
                 if not dieta:
                     return jsonify({"mensaje": None})
 
+                # Convertir fecha a formato "yy-mm-dd"
+                dieta["fecha_creacion"] = dieta["fecha_creacion"].strftime("%Y-%m-%d")
+
                 # Alimentos asociados
                 cur.execute("""
                     SELECT 
@@ -1953,7 +1956,9 @@ def obtener_dieta(id_dieta):
 
                 alimentos = cur.fetchall()
 
-        dieta["alimentos"] = alimentos
+                # Agregar lista de alimentos a la dieta
+                dieta["alimentos"] = alimentos
+
         return jsonify({"mensaje": dieta})
 
     except Exception as e:

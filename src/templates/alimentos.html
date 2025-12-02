@@ -127,9 +127,7 @@
                 <input type="text" class="input__id" id="id_alimento" placeholder="Nombre del alimento"
                     list="lista_alimentos">
                 <datalist id="lista_alimentos"></datalist>
-                <label id="consultar_todo" onclick="consulta_alimentos()" class="contenedor">
-                    <p style="color: #2c3d31;">consultar todo</p>
-                </label>
+                <button type="button" class="btn" id="btn_consultar_todo_historial" onclick="ver_alimentos()">Consultar Todo</button>
             </div>
             <div class="final_buttom">
                 <button id="enviar_consulta" type="button" class="btn" onclick="consulta_individual_alimento()">Consultar</button>
@@ -140,7 +138,7 @@
         <div class="container__btn__options">
             <div id="crear_alimento" class="container__btn__agregar">
                 <img src="/src/static/iconos/icon add.svg" alt="signo de agregar" class="svg__add">
-                <button  type="button" class="btn btn--agregar"
+                <button style="margin-left: 5px;"  type="button"  class="btn btn--agregar"
                     onclick="location.href = '/src/templates/add_alimento.html' ">Agregar alimento</button>
             </div>
         </div>
@@ -187,7 +185,9 @@
 
 
 
+
     <script src="/src/static/js/script.js"></script>
+    <script src="/src/static/js/driver.js"></script>
     <script>
         ver_alimentos();
         cargarAutocompletado();

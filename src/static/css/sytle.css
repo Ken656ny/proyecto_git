@@ -1090,6 +1090,7 @@ label.contenedor{
     justify-content: space-between;
     position: relative;
     font-family: var(--fuente--contenido);
+    gap: 5px;
 }
 
 .svg__add, .svg__btn{
