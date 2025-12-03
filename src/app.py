@@ -1797,7 +1797,16 @@ def crear_dieta():
 
         with config['development'].conn() as conn:
             with conn.cursor() as cur:
-                # calcular mezcla nutricional
+                # Obtener nombre de la etapa de vida
+                cur.execute("""
+                    SELECT nombre
+                    FROM etapa_vida
+                    WHERE id_etapa = %s
+                """, (id_etapa_vida,))
+                etapa = cur.fetchone()
+                nombre_etapa = etapa["nombre"] if etapa else "Desconocida"
+
+                # Calcular mezcla nutricional
                 for a in alimentos:
                     cur.execute("""
                         SELECT e.nombre AS nombre_elemento, ate.valor
@@ -1835,9 +1844,29 @@ def crear_dieta():
                         VALUES (%s, %s, %s)
                     """, (id_dieta, item["id_alimento"], item["cantidad"]))
 
+                # Crear notificación para todos los usuarios
+                cur.execute("SELECT id_usuario FROM usuario")
+                usuarios = cur.fetchall()
+                for u in usuarios:
+                    cur.execute("""
+                        INSERT INTO notificaciones (id_usuario_destinatario, id_usuario_origen, titulo, mensaje, tipo)
+                        VALUES (%s, %s, %s, %s, %s)
+                    """, (
+                        u["id_usuario"],
+                        id_usuario,
+                        "Nueva dieta creada",
+                        f'Se creó la dieta "{descripcion}" con ID {id_dieta} para la etapa "{nombre_etapa}"',
+                        "Ingreso"
+                    ))
+
                 conn.commit()
 
-        return jsonify({"mensaje": "Dieta creada correctamente", "id_dieta": id_dieta, "mezcla_nutricional": mezcla})
+        return jsonify({
+            "mensaje": "Dieta creada correctamente",
+            "id_dieta": id_dieta,
+            "nombre_etapa": nombre_etapa,
+            "mezcla_nutricional": mezcla
+        })
 
     except Exception as e:
         return jsonify({"error": str(e)}), 500

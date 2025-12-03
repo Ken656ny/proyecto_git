@@ -361,7 +361,7 @@ BARRA LATERAL
     position: fixed;
     display: flex;
     flex-direction: column;
-    width: 360px;
+    width: 80px;
     height: 100vh;
     padding: 2rem 1rem;
     background-color: var(--color--prede);

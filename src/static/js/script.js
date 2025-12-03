@@ -2465,6 +2465,7 @@ async function consultar_notificaciones() {
     }
 }
 
+
 // -------------------
 // GESTION DE ALIMENTOS
 // -------------------
@@ -3710,16 +3711,14 @@ function guardarDieta() {
     const id_usuario = 3; // reemplaza con el usuario logueado
     const id_etapa_vida = document.getElementById("select-etapas").value;
 
-    // Función para mostrar errores tipo toast
     function mostrarError(mensaje) {
         Swal.fire({
-            toast: true,
-            position: 'top-end',
-            icon: 'warning',
-            title: mensaje,
-            showConfirmButton: false,
-            timer: 2500,
-            timerProgressBar: true
+            icon: 'error',
+            title: 'Error',
+            text: mensaje,
+            confirmButtonText: 'Aceptar',
+            position: 'center',
+            backdrop: 'rgba(0,0,0,0.8)' // más opaco
         });
     }
 
@@ -3746,52 +3745,53 @@ function guardarDieta() {
         return;
     }
 
-    // Modal para agregar descripción (solo este es un modal)
-    Swal.fire({
-        title: '¿Quieres agregar una descripción?',
-        input: 'textarea',
-        inputPlaceholder: 'Escribe la descripción aquí...',
-        showCancelButton: true,
-        confirmButtonText: 'Guardar dieta',
-        cancelButtonText: 'No poner descripción',
-        backdrop: 'rgba(0,0,0,0.2)' // overlay ligero
-    }).then((result) => {
-        const descripcion = result.isConfirmed ? (result.value || '') : '';
-
-        // Enviar datos al backend
-        fetch(`${URL_BASE}/crear_dieta`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-                id_usuario,
-                id_etapa_vida,
-                descripcion,
-                alimentos
-            })
+    // Enviar datos al backend
+    fetch(`${URL_BASE}/crear_dieta`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+            id_usuario,
+            id_etapa_vida,
+            descripcion: "",
+            alimentos
         })
-        .then(res => res.json())
-        .then(data => {
-            if (data.error) {
-                // Toast de error
-                mostrarError(data.error);
-            } else {
-                // Toast de éxito
-                Swal.fire({
-                    toast: true,
-                    position: 'top-end',
-                    icon: 'success',
-                    title: 'Dieta creada correctamente',
-                    showConfirmButton: false,
-                    timer: 2500,
-                    timerProgressBar: true
-                });
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.error) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: data.error,
+                confirmButtonText: 'Aceptar',
+                position: 'center',
+                backdrop: 'rgba(0,0,0,0.8)'
+            });
+        } else {
+            Swal.fire({
+                icon: 'success',
+                title: 'Éxito',
+                text: 'Dieta creada correctamente',
+                confirmButtonText: 'Aceptar',
+                position: 'center',
+                backdrop: 'rgba(0,0,0,0.8)'
+            }).then(() => {
+                // Redirigir al hacer click en Aceptar
+                window.location.href = 'gestionar_dietas.html';
+            });
 
-                console.log("Mezcla nutricional:", data.mezcla_nutricional);
-            }
-        })
-        .catch(err => {
-            console.error(err);
-            mostrarError("No se pudo guardar la dieta");
+            console.log("Mezcla nutricional:", data.mezcla_nutricional);
+        }
+    })
+    .catch(err => {
+        console.error(err);
+        Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: "No se pudo guardar la dieta",
+            confirmButtonText: 'Aceptar',
+            position: 'center',
+            backdrop: 'rgba(0,0,0,0.8)'
         });
     });
 }
