@@ -1,15 +1,19 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="shortcut icon" href="../static/iconos/favicon.ico" type="image/x-icon">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/src/static/css/sytle.css">
-    <script src="https://accounts.google.com/gsi/client" async defer></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11.17.2/dist/sweetalert2.min.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://code.iconify.design/iconify-icon/3.0.0/iconify-icon.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/driver.js@0.9.8/dist/driver.min.css">
+    <!-- Driver.js JS -->
+    <script src="https://cdn.jsdelivr.net/npm/driver.js@0.9.8/dist/driver.min.js"></script>
     <title>Edupork</title>
 </head>
 <body class="body__porcinos">
@@ -58,7 +62,7 @@
                         </a>
                     </li>
                     <li>
-                        <a href="#">
+                        <a href="/src/templates/gestionar_dietas.html">
                             <img src="../static/iconos/icon plate.svg" width="20px" alt="" class="icons-bar">
                             <span>Dietas</span>
                         </a>
@@ -115,7 +119,7 @@
             <input type = "number" class = "input__id" id="input_id" placeholder = "Ingrese el ID del porcino" min="0" oninput = "this.value = Math.abs(this.value)">
             <div class="container__filtro">
                 <img src="/src/static/iconos/icon filter.svg" alt="" id="svg__filter">
-                <select name="filter" id="filter_porcino" class="filter" >
+                <select name="filter" id="filter_porcino" class="filter rm_filter" >
                     <option value="" disabled selected >Filtrar por...</option>
                     <option value="sexo">Sexo</option>
                     <option value="raza">Raza</option>
@@ -126,6 +130,7 @@
             </div>
 
             <button type="submit" class="btn" id="btn_consultar">Consultar</button>
+            <button type="button" id="btn_consultar_todo" class="btn">Consultar Todo</button>
         </form>
         
         <div class="container__btn__options">
@@ -154,7 +159,7 @@
                         <th></th>
                         <th>ID</th>
                         <th>Sexo</th>
-                        <th>Raza</th>
+                        <th>Raza</th> 
                         <th>Etapa de vida</th>
                         <th>Peso Final</th>
                         <th>Estado</th>
@@ -165,9 +170,14 @@
                 
                 </tbody>
             </table>
+            <div id="paginacion_porcino">
+            </div>
         </section>
-        
+        <div onclick="iniciarTourPorcinos()" class="ayuda">
+        <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24"><g fill="none"><path d="m12.593 23.258l-.011.002l-.071.035l-.02.004l-.014-.004l-.071-.035q-.016-.005-.024.005l-.004.01l-.017.428l.005.02l.01.013l.104.074l.015.004l.012-.004l.104-.074l.012-.016l.004-.017l-.017-.427q-.004-.016-.017-.018m.265-.113l-.013.002l-.185.093l-.01.01l-.003.011l.018.43l.005.012l.008.007l.201.093q.019.005.029-.008l.004-.014l-.034-.614q-.005-.018-.02-.022m-.715.002a.02.02 0 0 0-.027.006l-.006.014l-.034.614q.001.018.017.024l.015-.002l.201-.093l.01-.008l.004-.011l.017-.43l-.003-.012l-.01-.01z"/><path fill="#fff" d="M12 2c5.523 0 10 4.477 10 10s-4.477 10-10 10S2 17.523 2 12S6.477 2 12 2m0 14a1 1 0 1 0 0 2a1 1 0 0 0 0-2m0-9.5a3.625 3.625 0 0 0-3.625 3.625a1 1 0 1 0 2 0a1.625 1.625 0 1 1 2.23 1.51c-.676.27-1.605.962-1.605 2.115V14a1 1 0 1 0 2 0c0-.244.05-.366.261-.47l.087-.04A3.626 3.626 0 0 0 12 6.5"/></g></svg>
+    </div>
     </section>
+    
     <!-- DIALOGS -->
     <!-- DIALOG DE GESTIONAR RAZA -->
     <dialog class="dialog__ges__raz" id="dialog__ges__raz">
@@ -179,15 +189,16 @@
                 <h2>Gestionar Raza</h2>
                 <hr>
             </div>
-            <div class="container__search__bar bar--gestion">
+            <form class="container__search__bar bar--gestion" onsubmit="event.preventDefault(); consulta_indi_raza('',mostrar = true)">
                 <div class="conta__lupa__inp">
-                    <img src="/src/static/iconos/icon lupa.svg" alt="">
-                    <input type = "number" class = "input__id" id="input_id_raza" placeholder = "Ingrese el ID de la raza" min="0" oninput = "this.value = Math.abs(this.value)">
+                    <img src="/src/static/iconos/icon lupa.svg" alt="lupa">
+                    <input type = "number" class = "input__id" id="input_id_raza" placeholder = "Ingrese el ID de la raza" min="0" oninput = "this.value = Math.abs(this.value)" required>
                 </div>
                 <div>
-                    <button type="button" class="btn">Consultar</button>
+                    <button type="submit" class="btn">Consultar</button>
+                    <button type="button" class="btn" id="btn_consultar_todo_raza">Consultar Todo</button>
                 </div>
-            </div>
+            </form>
             <div class="container__btn__agregar">
                 <img src="/src/static/iconos/icon add.svg" alt="" class="svg__add">
                 <button type="button" class="btn btn--agregar" onclick="abrirDialog('dialog-registrar-raza')">Agregar Raza</button>
@@ -204,11 +215,16 @@
                     </thead>
                     <tbody class="registros" id="razas">
                         
+                        
                     </tbody>
                 </table>
+                <div class="" id="paginacion_raza">
+
+                </div>
             </div>
         </div>
     </dialog>
+
     <!-- DIALOG DE GESTIONAR ETAPA -->
     <dialog class="dialog__ges__raz" id="dialog__ges__eta">
         <div class="container__btn__close">
@@ -219,15 +235,16 @@
                 <h2>Gestionar Etapas</h2>
                 <hr>
             </div>
-            <div class="container__search__bar bar--gestion">
+            <form class="container__search__bar bar--gestion" onsubmit="event.preventDefault(); consulta_indi_etapas('',mostrar = true)">
                 <div class="conta__lupa__inp">
                     <img src="/src/static/iconos/icon lupa.svg" alt="">
-                    <input type = "number" class = "input__id" id="input_id_raza" placeholder = "Ingrese el ID de la etapa" min="0" oninput = "this.value = Math.abs(this.value)">
+                    <input type = "number" class = "input__id" id="input_id_etapa" placeholder = "Ingrese el ID de la etapa" min="0" oninput = "this.value = Math.abs(this.value)" required>
                 </div>
                 <div>
-                    <button type="button" class="btn">Consultar</button>
+                    <button type="submit" class="btn">Consultar</button>
+                    <button type="button" class="btn" id="btn_consultar_todo_etapa">Consultar Todo</button>
                 </div>
-            </div>
+            </form>
             <div class="container__btn__agregar">
                 <img src="/src/static/iconos/icon add.svg" alt="" class="svg__add">
                 <button type="button" class="btn btn--agregar" onclick="abrirDialog('dialog-registrar-etapa')" >Agregar Etapas</button>
@@ -238,7 +255,8 @@
                         <tr>
                             <th>ID</th>
                             <th>Nombre</th>
-                            <th>Descripcion</th>
+                            <th>Peso Minimo</th>
+                            <th>Peso Maximo</th>
                             <th>Acciones</th>
                         </tr>
                     </thead>
@@ -246,6 +264,7 @@
                         
                     </tbody>
                 </table>
+                <div class="" id="paginacion_etapa"></div>
             </div>
         </div>
     </dialog>
@@ -260,15 +279,16 @@
                 <h2>Historial de pesos</h2>
                 <hr>
             </div>
-            <div class="container__search__bar bar--gestion">
+            <form class="container__search__bar bar--gestion" onsubmit="event.preventDefault(); consulta_porcino_historial('',mostrar = true)">
                 <div class="conta__lupa__inp">
                     <img src="/src/static/iconos/icon lupa.svg" alt="">
-                    <input type = "number" class = "input__id" id="input_id_hp" placeholder = "Ingrese el ID del porcino" min="0" oninput = "this.value = Math.abs(this.value)">
+                    <input type = "number" class = "input__id" id="input_id_hp" placeholder = "Ingrese el ID del porcino" min="0" oninput = "this.value = Math.abs(this.value)" required>
                 </div>
                 <div>
-                    <button type="button" class="btn">Consultar</button>
+                    <button type="submit" class="btn">Consultar</button>
+                    <button type="button" class="btn" id="btn_consultar_todo_historial">Consultar Todo</button>
                 </div>
-            </div>
+            </form>
             <div class="container__btn__agregar">
                 <img src="/src/static/iconos/icon actua.svg" alt="" class="svg__add">
                 <button type="button" class="btn btn--agregar" onclick="abrirDialog('dialog-actualizar-peso')">Actualizar peso</button>
@@ -288,13 +308,117 @@
                         
                     </tbody>
                 </table>
+                <div class="" id="paginacion_historial"></div>
             </div>
         </div>
     </dialog>
 
+
+    <!-- DIALOG BASE EYE -->
+    <dialog id="modal-eye" class="dialog-icon-eye">
+        <div class="container__btn__close">
+            <button type="button" class="btn__close" onclick="document.getElementById('modal-eye').close()">X</button>
+        </div>
+        <form class="container__items__dialogs" onsubmit="event.preventDefault();">
+            <div class="title-dialog">
+                <h2 id="modal-eye-title">Información</h2>
+                <hr>
+            </div>
+
+            <!-- AQUÍ IRÁ EL CONTENIDO DINÁMICO -->
+            <div id="eye-content">
+
+            </div>
+
+            <div class="container-button-close">
+                <button type="button" id="button-eye" class="button-guardar" onclick="document.getElementById('modal-eye').close()">
+                    Cerrar
+                </button>
+            </div>
+        </form>
+    </dialog>
+
+    <!-- DIALOG BASE EDIT -->
+    <dialog id="modal-edit" class="dialog-icon-edit">
+        <div class="container__btn__close">
+            <button type="button" class="btn__close" onclick="document.getElementById('modal-edit').close()">X</button>
+        </div>
+
+        <form class="container__items__dialogs" id="form-edit">
+            <div class="title-dialog">
+                <h2 id="modal-edit-title">Información</h2>
+                <hr>
+            </div>
+
+            <!-- AQUÍ IRÁ EL CONTENIDO DINÁMICO -->
+            <div id="edit-content">
+
+            </div>
+
+            <div class="container-button-close">
+                <button type="submit" id="button-edit" class="button-guardar">
+                    Guardar
+                </button>
+            </div>
+        </form>
+    </dialog>
+
+    <!-- DIALOG BASE DELETE -->
+    <dialog id="modal-delete" class="dialog-icon-dele">
+        <div class="container__btn__close">
+            <button type="button" class="btn__close" onclick="document.getElementById('modal-delete').close()">X</button>
+        </div>
+
+        <form class="container__items__dialogs" id="form-delete">
+            <div class="title-dialog">
+                <h2 id="modal-delete-title">Información</h2>
+                <hr>
+            </div>
+
+            <!-- AQUÍ IRÁ EL CONTENIDO DINÁMICO -->
+            <div id="delete-content" class="info-delete">
+
+            </div>
+
+            <div class="container-button-close">
+                <button type="button" id="button-delete" class="button-guardar" onclick="document.getElementById('modal-delete-confirm').showModal()">
+                    Siguiente
+                </button>
+            </div>
+        </form>
+    </dialog>
+
+
+    <!-- DIALOG BASE DELETE CONFIRM-->
+    <dialog id="modal-delete-confirm" class="dialog-icon-dele">
+        <div class="container__btn__close">
+            <button type="button" class="btn__close" onclick="document.getElementById('modal-delete-confirm').close()">X</button>
+        </div>
+
+        <form class="container__items__dialogs" id="form-delete-confirm">
+            <div class="title-dialog">
+                <h2 id="modal-delete-confirm-title">Información</h2>
+                <hr>
+            </div>
+
+            <!-- AQUÍ IRÁ EL CONTENIDO DINÁMICO -->
+            <div id="delete-content-confirm" class="info-delete">
+
+            </div>
+
+            <div class="container-button-close">
+                <button type="submit" id="button-delete-confirm" class="button-guardar">
+                    Guardar
+                </button>
+            </div>
+        </form>
+    </dialog>
+
     <script src="/src/static/js/script.js"></script>
+    <script src="/src/static/js/driver.js"></script>
     <script>
-        consulta_general_porcinos();
+        consultar_porcinos_cache();
+        timesleep();
     </script>
 </body>
 </html>

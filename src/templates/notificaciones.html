@@ -46,7 +46,7 @@
                         </a>
                     </li>
                     <li>
-                        <a href="/src/templates/porcinos.html" onclick="manejarClickRol(event)">
+                        <a href="/src/templates/porcinos.html" onclick="redirectWithDelay(event, 'porcinos.html')">
                             <img src="../static/iconos/icon pig.svg" width="20px" alt="" class="icons-bar">
                             <span>Porcinos</span>
                         </a>
@@ -72,7 +72,7 @@
                     <li>
                         <a href="/src/templates/perfil.html" onclick="redirectWithDelay(event, 'perfil.html')">
                             <img src="../static/iconos/icon user.svg" width="20px" alt="" class="icons-bar">
-                            <span>Perfil</span>
+                            <span>Usuario</span>
                         </a>
                     </li>
                     <li>
@@ -112,21 +112,14 @@
             <div class="titulo__noti">
                 <h2>Hoy</h2>
             </div>
-            <div class="menssage__noti">
-                <p>Ya han pasado 3 días desde la ultima pesada de tus cerdos, Pésalos!!</p>
-            </div>
-            <div class="menssage__noti">
-                <p>Es hora de elaborar una dieta, que esperas???</p>
-            </div>
-            <div class="titulo__noti">
-                <h2>Anteriores</h2>
-            </div>
-            <div class="menssage__noti">
-                <p>Hola</p>
-            </div>
-            <button type="button" class=" btn--noti">Ver notificaciones anteriores</button>
+            <section class="section_hoy_noti" id="section_hoy_noti">
+                
+            </section>
         </section>
     </section>
     <script src="/src/static/js/script.js"></script>
+    <script>
+        consultar_notificaciones();
+    </script>
 </body>
 </html>

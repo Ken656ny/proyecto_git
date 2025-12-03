@@ -38,6 +38,7 @@
     --color-black: #000;
 }
 
+
 *{
     margin: 0;
     padding: 0;
@@ -53,7 +54,6 @@ body{
 .swal2-popup {
     font-family: 'Inter' !important; 
 }
-
 
 /* -------------------
 SECCION DE LOGIN
@@ -156,7 +156,7 @@ SECCION DE LOGIN
 .Registrarse{
     text-align: center;
     text-decoration: none;
-    color: #eaeaea; 
+    color: white;
     font-weight: bold;
 }
 
@@ -194,9 +194,10 @@ SECCION REGISTROS
     display: flex;
     justify-content: center;
     align-items: center;
-    min-height: 100vh;
+    height: 100vh;
     background-color: hsl(183, 100%, 93%);
-    color: white;;
+    color: white;
+    overflow: hidden;
     font-family: var(--fuente--contenido);
 }
 
@@ -206,13 +207,14 @@ SECCION REGISTROS
     padding: 0px 10px 25px 10px;
     border-radius: 35px;
     width: 566px;
+    overflow: hidden;
     box-shadow: 0 0 25px rgba(80, 129, 84, 0.7);
 }
 
 .form__registro{
     display: flex;
     flex-direction: column;
-    gap: 9px;
+    gap: 8px;
 }
 
 .label__registro {
@@ -221,7 +223,7 @@ SECCION REGISTROS
 }
 
 .form-input {
-    margin: 0px 10px 5px;
+    margin: 0px 10px 3px;
     padding: 0 70px;
 }
 
@@ -242,9 +244,9 @@ input:focus, select:focus {
 }
 
 legend {
-    padding: 28px 8px;
+    padding: 0px 8px;
     text-align: center;
-    font-size: 0.5em;
+    font-size: 0.9em;
 }
 
 fieldset {
@@ -254,19 +256,18 @@ fieldset {
     border-bottom: none;
     width: 70%;
     display: block;
-    margin: 2px auto -10px;
-    font-family: var(--fuente--contenido);
+    margin: 1px auto;
+    padding: 10px;
 }
 
 .btn__registro{
-    margin: 9px auto 0px;
+    margin: auto;
 }
 
 img {
     max-width: 100%;
     height: auto;
 }
-
 
 /* FONDO DE LA PÁGINA */
 .logoedupork {
@@ -361,6 +362,7 @@ BARRA LATERAL
     align-items: center;
     color: var(--color-white);
     font-family: var(--fuente--contenido);
+    cursor: pointer;
 }
 
 .barra-lateral .logo-edupork span{
@@ -504,19 +506,26 @@ SECCION DE NOTIFICACIONES
 .section__noti{
     display: grid;
     grid-template-rows: 85px 75px auto;
-    gap: 15px; 
-    overflow: hidden;
+    gap: 15px;
 }
 
 .container__noti{
     background-color: var(--color--fondos);
     width: 985px;
     height: 425px;
-    margin: 70px auto;
+    margin: auto;
     border: 1px solid var(--color-bor-contain);
     border-radius: 40px;
-    display: grid;
-    grid-template-rows: 50px 75px 85px 50px 75px 75px auto;
+    display: flex;
+    flex-direction:  column;
+    gap: 1em;
+    overflow-y: scroll;
+}
+
+.section_hoy_noti, .section_anteriores_noti{
+    display: flex;
+    flex-direction: column;
+    gap: 1em;
 }
 
 .titulo__noti{
@@ -525,19 +534,25 @@ SECCION DE NOTIFICACIONES
     margin: 24px 53px auto;
 }
 
+
 .menssage__noti{
     width: 925px;
     height: auto;
     margin: auto;
     padding: 15px;
     background-color: #AFAEAE;
-    color: #ffffff;
+    color: #3c4b40;
     border: 1px solid var(--color-bor-contain);
     border-radius: 15px;
-    box-shadow: 0px 4px 4px 0px rgba(0, 0, 0, 0.25);
+    box-shadow: 0px 4px 4px 0px #00000040;
     font-family: var(--fuente--contenido);
 }
 
+.menssage__noti__title__fecha{
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}
 
 .btn--noti{
     background-color: var(--color--btn--sin--hover);
@@ -574,12 +589,41 @@ SECCION DE PORCINOS
     background-attachment: fixed;
     min-height: 100vh;
 }
+.body_dietas{
+    display: grid;
+    grid-template-columns: 117px auto;
+    background-image: url(/src/static/iconos/pasto.svg);
+    background-repeat: no-repeat;
+    background-position: bottom;
+    background-size: 100%;
+    background-attachment: fixed;
+    
+}
+.body_dietas{
+    display: grid;
+    grid-template-columns: 117px auto;
+    background-image: url(/src/static/iconos/pasto.svg);
+    background-repeat: no-repeat;
+    background-position: bottom;
+    background-size: 100%;
+    background-attachment: fixed;
+    min-height: 100vh;
+}
 
 .section__porcinos{
     display: grid;
     grid-template-rows: 85px 70px 60px 40px auto;
     gap: 30px;
 }
+.contenido_dietas{
+    display: grid;
+    grid-template-columns: repeat(10,1fr);
+    grid-template-rows: repeat(10,1fr);
+    overflow-y: hidden;
+}
+
+
+
 
 .container__logo__user{
     width: 100%;
@@ -654,7 +698,6 @@ SECCION DE PORCINOS
     background: var(--color--btn--hover);
 }
 
-
 /* CODIGO DE LA SECCION DEL TITULO */
 
 .container__title{
@@ -669,6 +712,87 @@ SECCION DE PORCINOS
     border: 1px solid var(--color-bor-contain);
     border-radius: 14px;
 }
+.container__title_dietas{
+    grid-column: 4/8;
+    color: var(--color--letra);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 30px;
+    width: 550px;
+    height: fit-content;
+    border: 1px solid black;
+    border-radius: 14px;
+    margin-top: 10px;
+}
+
+.alimentos_en_dieta{
+    display: grid;
+    grid-template-columns: repeat(3,1fr);
+    grid-template-rows: repeat(2,1fr);
+    gap: 10px; /* espacio entre tarjetas */
+    padding: 10px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    max-height: 100%;
+    scrollbar-width: none;
+}
+.alimentos_dietas::-webkit-scrollbar{
+    display: none;
+}
+
+
+.alimentos_dietas{
+    display: flex;
+    flex-direction: column;
+    justify-content: left;
+    align-items: start;
+    width: 180px;
+    height: 225px;
+    border: 1px solid black;
+    padding: 10px;
+    background-color: #ECE6F0;
+    border-radius: 10px;
+}
+
+.alimentos_dietas{
+    display: flex;
+    flex-direction: column;
+    justify-content: left;
+    align-items: start;
+    width: 180px;
+    height: fit-content;
+    border: 1px solid black;
+    padding: 10px;
+    background-color: #ECE6F0;
+    border-radius: 10px;
+}
+.descripcion_dietas{
+    text-align: left;
+    margin: 0;
+    display: inline; 
+}
+
+.imagen_alimento_dieta img{
+    border-radius: 5px;
+    max-width: 158px;
+    max-height: 104px;
+}
+.sin_imagen_alimento_dieta {
+    border-radius: 5px;
+    width: 200px;   /* más grande */
+    height: 210px;
+    object-fit: contain;
+        object-fit: over;
+}
+.imagen_alimento_dieta img,
+.sin_imagen_alimento_dieta {
+    width: 158px;       /* ancho fijo */
+    height: 104px;      /* alto fijo */
+    border-radius: 5px;
+}
+
+
 
 /* CODIGO DE LA BARRA DE BUSQUEDA */
 
@@ -681,7 +805,7 @@ SECCION DE PORCINOS
     height: 60px;
     margin: auto;
     padding: 0 2rem;
-    gap: 4rem;
+    gap: 2rem;
     font-family: var(--fuente--contenido);
 }
 
@@ -690,6 +814,122 @@ SECCION DE PORCINOS
     border-radius: 10px;
     order: 3;
 }
+.container__search__bar_alimentos{
+    border: 1px solid var(--color-bor-contain);
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 1100px;
+    height: 60px;
+    margin: auto;
+    padding-left: 3em;
+    gap: 7em;
+    font-family: var(--fuente--contenido);
+}
+
+.separador{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+}
+.final_buttom{
+    margin-right: 15px;
+}
+.container__search__bar_dietas{
+    grid-column: 1/5;
+    grid-row: 2;
+    border: 1px solid black;
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 2%;
+    width: 115%;
+    height: 60px;
+    margin-top: 10px;
+    margin-left: 2%;
+    font-family: var(--fuente--contenido);
+    border: 1px solid black;
+}
+.buscador_etapa_dietas{
+    grid-column: 6/10;
+    grid-row: 2;
+    border: 1px solid black;
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 2%;
+    width: 115%;
+    height: 60px;
+    margin-top: 10px;
+    margin-left: 2%;
+    font-family: var(--fuente--contenido);
+    border: 1px solid black;
+}
+
+
+.formulario_buscar{
+    display: flex;
+    justify-content: space-between;
+    align-items:center;
+    gap: 5%;
+    flex-direction: row;
+}
+
+.container_dietas{
+    grid-column: 1/5;
+    grid-row: 3/11;
+    border: 1px solid black;
+    border-radius: 14px;
+    gap: 2%;
+    width: 115%;
+    height: 90%;
+    margin: auto;
+    margin-top: 3%;
+    margin-left: 2%;
+    font-family: var(--fuente--contenido);
+    display: grid;
+    grid-template-rows: 30px 1fr 60px;
+    grid-template-columns: 100%;
+    justify-content: center;
+}
+
+.container_requerimientos_alimento{
+    grid-column: 6/10;
+    grid-row: 3/6;
+    border: 1px solid black;
+    border-radius: 14px;
+    gap: 2%;
+    width: 115%;
+    height: 105%;
+    margin: auto;
+    margin-top: 3%;
+    margin-left: 2%;
+    margin-bottom: 7%;
+    font-family: var(--fuente--contenido);
+
+}
+.container_requerimientos_etapa{
+    grid-column: 6/10;
+    grid-row: 6/11;
+    border: 1px solid black;
+    border-radius: 14px;
+    gap: 2%;
+    width: 115%;
+    height: 75%;
+    margin: auto;
+    margin-left: 2%;
+    font-family: var(--fuente--contenido);
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+    align-items: center;
+    
+}
+
 
 .input__id{
     width: 220px;
@@ -737,6 +977,22 @@ SECCION DE PORCINOS
     border-radius: 20px;
     transition: background-color 0.5s ease-in-out;
     cursor: pointer;
+    padding: 0 0.5em;
+}
+.btn1{
+    background-color: var(--color--btn--sin--hover);
+    color: var(--color-white);
+    width: 130px;
+    height: 40px;
+    border: 1px solid var(--color-bor-btn);
+    font-family: inherit;
+    font-size: 15px;
+    font-weight: 600;
+    border-radius: 20px;
+    transition: background-color 0.5s ease-in-out;
+    cursor: pointer;
+    justify-self: center;
+    align-self: center;
 }
 
 
@@ -744,9 +1000,21 @@ SECCION DE PORCINOS
     background-color: var(--color--btn--hover);
     border: 1px solid var(--color-bor-btn-hover);
 }
+.btn1:hover{
+    background-color: var(--color--btn--hover);
+    border: 1px solid var(--color-bor-btn-hover);
+}
 
 #btn_consultar{
     order: 4;
+}
+
+#btn_consultar_todo,
+#btn_consultar_todo_raza,
+#btn_consultar_todo_etapa,
+#btn_consultar_todo_historial{
+    order: 5;
+    font-size: 12px;
 }
 /* CODIGO DE LA SECCION DEL BOTON DE AGREGAR */
 
@@ -798,7 +1066,7 @@ SECCION DE PORCINOS
 
 
 
-/* CODIGO DE LA SECCION DE LOS REGISTROS DE LOS PORCINOS */
+/* CODIGO DE LA SECCION DE LOS REGISTROS CONSULTADOS DE LA BASE DE DATOS DE LOS PORCINOS */
 
 .container__registros{
     background-color: var(--color--fondos);
@@ -821,12 +1089,13 @@ thead{
 }
 
 .table__registros{
-    width: 1150px ;
+    width: 1150px;
     margin: auto;
     border-collapse: collapse;
     font-family: var(--fuente--contenido);
     color: var(--color-letra-predeter);
 }
+
 
 .registro{
     background-color: var(--color-bg-registros);
@@ -834,10 +1103,59 @@ thead{
     border: 5px solid var(--color--fondos);
 }
 
+.registros tr > td > button{
+    width: 44px;
+    height: 43px;
+    border-radius: 11px;
+    border: 0;
+}
+
+
+#paginacion_porcino,
+#paginacion_raza,
+#paginacion_etapa,
+#paginacion_historial{
+    width: 100%;
+    padding: 1rem 2rem;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+}
+
+#paginacion_porcino > .container_btn_paginacion,
+#paginacion_raza > .container_btn_paginacion,
+#paginacion_etapa > .container_btn_paginacion,
+#paginacion_historial > .container_btn_paginacion{
+    display: flex;
+    flex-direction: row;
+    gap: 1em;
+    align-items: center;
+}
+
+#paginacion_porcino > span, #paginacion_porcino > container > span,
+#paginacion_raza > span, #paginacion_raza > container > span,
+#paginacion_etapa > span, #paginacion_etapa > container > span,
+#paginacion_historial > span, #paginacion_historial > container > span{
+    font-family: var(--fuente--contenido);
+    font-size: 14px;
+    font-weight: bold;
+    color: var(--color-letra-predeter);
+}
+
+iconify-icon{
+    cursor: pointer;
+}
+
 .svg__pig{
     position: relative;
     top: 5px;
     z-index: 1;
+}
+
+.svg__alimento{
+    position: relative;
+    top: 2px;
 }
 
 .icon-edit{
@@ -935,7 +1253,7 @@ th{
     padding: 10px 8px;
 }
 
-.info_raza_etapa > div > input, .info_raza_etapa > div > div > input {
+.info_raza_etapa > div > input, .info_raza_etapa > div > div > input, .info_raza_etapa > div > textarea {
     width: 100%;
 }
 
@@ -948,12 +1266,66 @@ th{
 }
 
 
+.layout_registrar_etapa{
+    display: grid;
+    grid-template-columns: repeat(2,1fr);
+    column-gap: 1em;
+}
+
+/* STEP 1 → participa del grid del padre */
+#step1 {
+    display: contents !important;
+}
+
+/* Cuando esté oculto */
+#step1.hidden {
+    display: none !important;
+}
+
+/* STEP 2 → por defecto oculto */
+#step2 {
+    display: none;
+}
+
+/* STEP 2 cuando está activo */
+#step2.active {
+    display: contents !important;
+}
+
+/* Regla general de steps */
+.step {
+    display: none;
+}
+
+/* Step visible */
+.step.active {
+    display: contents !important;
+}
+
+/* Botón guardar/siguiente a la derecha */
+.container-button-guardar .button-guardar {
+    order: 2;
+}
+
+
+.layout_registrar_etapa > #step2 > .container__label__input > label{
+    font-size: 12px;
+}
+
 /* CONTAINER DEL BOTTON CERRAR */
 
 .container-button-close, .container-button-guardar, .container-button-dele{
     margin-top: 1em;
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    gap: 0.5em;
+}
+container-button-dele1{
+    margin-top: 7em;
+    display: flex;
+    flex-direction: row;
     align-items: center;
 }
 
@@ -974,10 +1346,10 @@ th{
     position: relative;
 }
 
-.info-porcino > div > div > .vector-edit, .info_raza_etapa > div > div .vector-edit{
+.info-porcino > div > div > .vector-edit, .info_raza_etapa > div > div .vector-edit, .layout_registrar_etapa > div > div .vector-edit{
     position: absolute;
     right: 0;
-    bottom: -2px;
+    bottom: 1px;
     margin-right: 14px;
     z-index: 2;
 }
@@ -1014,6 +1386,16 @@ hr{
     margin-bottom: 24px;
 }
 
+
+.ayuda {
+    position: fixed;
+    bottom: 1px;   
+    right: 2px;
+    color: #fff;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: transform 0.5s ease-in;
+}
 
 /* REGISTRAR PORCINOS */
 
@@ -1070,6 +1452,7 @@ hr{
 }
 
 .btn--guardar{
+    font-size: smaller;
     grid-column: 2/4;
     margin: auto;
 }
@@ -1082,6 +1465,8 @@ hr{
     height: 490px;
     border-radius: 34px;
     border: 1px solid var(--color-bor-contain);
+    position: relative;
+    z-index: 2;
 }
 
 .container__items__dialogs{
@@ -1148,7 +1533,7 @@ hr{
 
 .container__registros__dia{
     width: 735px;
-    height: 200px;
+    height: 230px;
     place-self: center;
 }
 
@@ -1217,6 +1602,21 @@ hr{
     border: 1px solid var(--color-bor-contain);
     padding: 1em;
     font-family: var(--fuente--contenido);
+}
+
+/* LAYOUT DIALOG EYE HISTORIAL DE PESOS */
+.lay_content_histirial{
+    display: grid;
+    grid-template-columns: repeat(3,1fr);
+    column-gap: 1.5em;
+    row-gap: 0.5em;
+}
+
+#textare_eye_historial{
+    grid-column: 1 / 4;
+    overflow: hidden;
+    height: 80px;
+    resize: none;
 }
 
 
@@ -1657,18 +2057,18 @@ SECCION DE Perfil
 SI SALE MAL ES CULPA DE CRISTIAN
 ---------------------------------- */
 
-.contenedor {
-    display: inline-flex;
-    align-items: center;
-    padding: 10px 20px;
-    background-color: #f1f1f1; /* Color del fondo */
-    border: 1px solid var(--color-bor-contain);
-
-    border-radius: 20px;
-    font-family: sans-serif;
-    gap: 10px;
-    cursor: pointer;
-}
+  .contenedor {
+      display: inline-flex;
+      align-items: center;
+      padding: 4px 15px;
+      background-color: #f1f1f1; /* Color del fondo */
+      border: 1px solid var(--color-bor-contain);
+      border-radius: 20px;
+      gap: 10px;
+      cursor: pointer;
+      width: fit-content;
+      font-weight: lighter;
+    }
 
 .contenedor input[type="checkbox"] {
     display: none;
@@ -1682,66 +2082,98 @@ SI SALE MAL ES CULPA DE CRISTIAN
     background-color: #aee9c6; /* Verde claro */
 }
 
-.contenedor input[type="checkbox"]:checked + .custom-checkbox {
-    background-color: #7ed6a3;
-}
+    .contenedor input[type="checkbox"]:checked + .custom-checkbox {
+      background-color: #7ed6a3;
+    }
 
 .color_p{
     color:#8D8D8D;
 }
-.nuevo{
-    text-align: center;
-}
-.eliminar{
-    cursor: pointer;
 
-}
+  .contenedor1 {
+      display: inline-flex;
+      align-items: center;
+      padding: 10px 20px;
+      background-color: #ECE6F0;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: bold;
+      gap: 10px;
+      cursor: pointer;
+      justify-self: start;
+      align-self:flex-start ;
+      height: 100%;
+      margin-top: 1%;
+      margin-left:1%;
+      border: 1px solid black;
+      width: 40%;
+    }
+
+    .contenedor1 input[type="checkbox"] {
+      display: none;
+    }
+
+
+    .contenedor1 input[type="checkbox"]:checked + .custom-checkbox {
+      background-color:#60836A;
+    }
+
+
+    .nuevo{
+        text-align: center;
+    }
+    .eliminar{
+        cursor: pointer;
+
+    }
 
 .nuevo1{
     background-color: var(--color-bg-registros);
     border: 5px solid var(--color--fondos);
 }
 
-.container div p{
-    text-align: center;
-    color: #2C3D31;
-    font-weight:600;
-    margin-bottom: 4%;
-    margin-top: 4%;
-}
-.input_add{
-    border: 1px solid black;
-    background-color: #ECE6F0;
-    text-align: center;
-    
-}
-.input_add1{
-    width: 60%;
-    position: relative;
-    border: 1px solid black;
-    text-align: center;
-    margin-left: 170%;
-    font-weight: bolder;
-    background-color: var(--color--btn--sin--hover);
-    color: var(--color-white);
-    width: 130px;
-    height: 40px;
-    border: 1px solid var(--color-bor-btn);
-    font-family: inherit;
-    font-size: 15px;
-    font-weight: 600;
-    border-radius: 20px;
-    transition: background-color 0.5s ease-in-out;
-    cursor: pointer;
-}
+    .container div p{
+        text-align: center;
+        color: #2C3D31;
+        font-weight:600;
+        margin-bottom: 4%;
+        margin-top: 4%;
+    }
+    .input_add{
+        border: 1px solid black;
+        background-color: #ECE6F0;
+        text-align: center;
+        
+    }
+    .input_add1{
+        width: 60%;
+        position: relative;
+        border: 1px solid black;
+        text-align: center;
+        margin-left: 170%;
+        font-weight: bolder;
+        background-color: var(--color--btn--sin--hover);
+        color: var(--color-white);
+        width: 130px;
+        height: 40px;
+        border: 1px solid var(--color-bor-btn);
+        font-family: inherit;
+        font-size: 15px;
+        font-weight: 600;
+        border-radius: 20px;
+        transition: background-color 0.5s ease-in-out;
+        cursor: pointer;
+    }
 
 .input_add1:hover{
     background-color: var(--color--btn--hover);
     border: 1px solid var(--color-bor-btn-hover);
 }
-    .seccion1{
-        margin: 0% 5%;
+
+.seccion1{
+    margin: 0% 5%;
 }
+
 
 .container-user{
     display: none;
@@ -1751,8 +2183,170 @@ SI SALE MAL ES CULPA DE CRISTIAN
     display: block;
 }
 
+/* MODAL VER ALIMENTOS */
+.contenido-modal{
+    display: flex;
+    flex-direction: column;
+    gap: 25px;
+    width: fit-content;
+    height: fit-content;
+}
 
+/* ----------------------
+DIETASSSSSSSS 
+--------------------- */
+/* ===== CONTENEDOR DEL MODAL ===== */
+.modal-info {
+  width: 90%;
+  max-width: 1100px; /* verde suave */
+  border-radius: 25px;
+  background: #d4d4d4; /* gris claro */
+  padding: 0;
+  overflow: hidden;
+  box-shadow: 0 0 20px rgba(0,0,0,0.2);
+  height: fit-content;
+}
 
+/* ===== CABECERA ===== */
+.modal-header {
+  color: #2f4932; /* verde oscuro */
+  font-size: 25px;
+  font-family: 'Times New Roman', Times, serif;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.modal-header h2 {
+  margin: 10px 0;
+  font-size: 1.8rem;
+  font-weight: bold;
+  border-bottom: 2px solid #6b8e6b;
+  padding-bottom: 5px;
+  width: 90%;
+  text-align: center;
+}
+.modal-info-content {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 20px;
+}
+
+/* ===== CADA COLUMNA ===== */
+.modal-column {
+  flex: 1 1 240px;
+  min-width: 200px;
+  max-width: 280px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.modal-column p {
+  font-weight: bold;
+  color: #2f4932;
+  margin: 0;
+}
+
+/* ===== INPUTS ===== */
+.modal-input {
+  width: 100%;
+  padding: 10px;
+  border-radius: 15px;
+  border: 1px solid #6b8e6b;
+  background: #f2ebf3; /* lila claro */
+  color: #333;
+  text-align: center;
+  font-size: 0.95rem;
+}
+
+/* ===== PIE DEL MODAL ===== */
+.modal-footer {
+  text-align: center;
+  padding: 15px;
+}
+
+/* ===== BOTÓN CERRAR ===== */
+.modal-close {
+  padding: 10px 25px;
+  background: #f2ebf3;
+  color: #2f4932;
+  border: 2px solid #2f4932;
+  border-radius: 10px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: 0.3s ease;
+}
+
+.modal-close:hover {
+  background: #6b8e6b;
+  color: #fff;
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 768px) {
+  .modal-info-content {
+    flex-direction: column;
+    align-items: center;
+  }
+}
+
+/* 🔝 Elimina prioridad visual de tus contenedores de botones */
+.container-button-dele1 {
+  position: relative !important;
+  z-index: 1 !important; /* antes seguro tenía algo como 1000 o más */
+}
+.separador label p{
+    color: #8D8D8D;
+    font-size: medium;
+    font-weight: 400;
+}
+
+.input_dietas{
+    width: 100%;
+    height: 20px;
+    border: 1px solid black;
+    text-align: center;
+}
+
+.sin-alimentos {
+    color: #a00;
+    text-align: center;
+    font-weight: bold;
+    margin-top: 20px;
+}
+
+.titulo_requerimientos{
+    margin-top: 2%;
+    display: flex;
+    flex-direction: column;
+    justify-content: left;
+    align-items: start;
+    width: fit-content;
+    height: fit-content;
+    border: 1px solid black;
+    padding: 5px;
+    background-color: #ECE6F0;
+    border-radius: 50px;
+    color: #2C3D31;
+}
+
+.requerimientos_etapa{
+    display: flex;
+    flex-direction: column;
+    justify-content: left;
+    align-items: start;
+    width: fit-content;
+    height: fit-content;
+    border: 1px solid black;
+    padding: 5px;
+    background-color: #ECE6F0;
+    border-radius: 50px;
+    color: #2C3D31;
+}
 
 /* ---------------------
 RESPONSIVE BAR
@@ -1762,7 +2356,6 @@ RESPONSIVE BAR
     .barra-lateral .nombre-pagina{
         margin-bottom: 5px;
     }
-
 }
 
 @media(max-width: 600px){
@@ -1823,10 +2416,7 @@ RESPONSIVE BAR
         padding: 1rem;
         width: 100%;
     }
-
-
 }
-
 
 
 /* -----------------------------------------------------

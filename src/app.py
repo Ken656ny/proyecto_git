@@ -671,6 +671,39 @@ def historial_pesos():
     print(err)
     return jsonify({'Mensaje': 'Error'}), 500
 
+@app.route("/porcino/historial_pesos/transaccion/<int:id>", methods = ['GET'])
+@token_requerido
+@rol_requerido('Admin')
+def consulta_indi_transaccion(id):
+  """
+  Consultar individualmente la transaccion de pesos
+  ---
+  tags:
+    - Porcinos Historial
+  responses:
+    200:
+      description: Lista de la transaccion de pesos registrada
+  """
+  try:
+    with config['development'].conn() as conn:
+      with conn.cursor() as cur:
+        cur.execute("""
+                    SELECT tp.id_documento,tp.fecha_documento,tp.fecha_pesaje,tp.id_porcino,tp.peso_final,u.nombre,tp.descripcion
+                    FROM transaccion_peso tp
+                    JOIN usuario u
+                    ON tp.id_usuario = u.id_usuario
+                    WHERE tp.id_documento = %s
+                    ORDER BY fecha_documento DESC
+                    """, (id))
+        historial = cur.fetchone()
+        if historial:
+          return jsonify({'Historial': historial, 'Mensaje': 'Transaccion Consultada'})
+        else:
+          return jsonify({'Mensaje': 'No se econtró la transacción'})
+  except Exception as err:
+    print(err)
+    return jsonify({'Mensaje': 'Error'}), 500
+  
 
 @app.route('/porcino/historial_pesos/conteo_transacciones', methods=['GET'])
 @token_requerido
@@ -705,6 +738,39 @@ def conteo_transacciones():
         print(err)
         return jsonify({'Mensaje': 'Error'}), 500
 
+#Ruta para consultar el historial de pesos de un solo porcino
+@app.route('/porcino/historial_pesos/<int:id>', methods = ['GET'])
+@token_requerido
+@rol_requerido('Admin')
+def consulta_porcino_historial(id):
+  """
+  Consulta por ID del historial de los pesos de un porcino
+  ---
+  tags:
+    - Porcinos Historial
+  responses:
+    200:
+      description: Listado historial de pesos por ID 
+  """
+  try:
+    with config['development'].conn() as conn:
+      with conn.cursor() as cur:
+        cur.execute("""
+                    SELECT tp.id_documento,tp.fecha_documento,tp.fecha_pesaje,tp.id_porcino,tp.peso_final,u.nombre,tp.descripcion
+                    FROM transaccion_peso tp
+                    JOIN usuario u
+                    ON tp.id_usuario = u.id_usuario
+                    WHERE id_porcino = %s
+                    ORDER BY fecha_documento DESC
+                    """, (id,))
+        historial = cur.fetchall()
+        if historial:
+          return jsonify({'Historial': historial, 'Mensaje': f'Listado del historial de los pesos del porcino con ID {id}'}), 200
+        else:
+          return jsonify({'Mensaje': f'No hay historial de pesos para el porcino con ID {id}'})
+  except Exception as err:
+    print(err)
+    return jsonify({'Mensaje': 'Error'}), 500
 
 @app.route('/porcino/historial_pesos/actualizar', methods = ['POST'])
 @token_requerido
@@ -714,7 +780,7 @@ def actualizar_peso_porcinos():
   Registro de transaccion de peso y actualizacion del peso del porcino
   ---
   tags:
-    - Porcinos
+    - Porcinos Historial
   parameters: 
   - name: body
     in: body
@@ -748,6 +814,8 @@ def actualizar_peso_porcinos():
     peso_final = data['peso_final']
     id_usuario = data['id_usuario']
     descripcion = data['descripcion']
+    
+    print(data)
     
     with config['development'].conn() as conn:
       with conn.cursor() as cur :
@@ -944,7 +1012,6 @@ def eliminar_porcino(id):
     print(err)
     return jsonify({'Mensaje': f'Error al eliminar el porcino con id {id}'})
 
-# RUTA PARA CONSULTAR TODAS LAS RAZAS
 @app.route('/raza', methods = ['GET'])
 @token_requerido
 @rol_requerido('Admin')
@@ -995,15 +1062,13 @@ def consulta_indi_raza(id):
   try:
     with config['development'].conn() as conn:
       with conn.cursor() as cur:
-        cur.execute('SELECT * FROM etapa WHERE id_raza = %s',
-                    (id))
-    etapa = cur.fetchone()
-    print(etapa)
-    if etapa:
-      return jsonify({'Raza': etapa, 'Mensaje': 'Raza consultada'})
+        cur.execute('SELECT * FROM raza WHERE id_raza = %s',
+                    (id,))
+    raza = cur.fetchone()
+    if raza:
+      return jsonify({'razas': [raza], 'Mensaje': 'Raza consultada'})
     else:
-      return jsonify({'Mensaje': 'Error al consultar la etapa'})
-      
+      return jsonify({'Mensaje': f'No hay raza con ID {id}'})
   except Exception as err:
     print(err)
     return jsonify({'Mesaje':'Error en la base de datos'})
@@ -1042,6 +1107,12 @@ def registrar_raza():
       with conn.cursor() as cur:
         cur.execute('INSERT INTO raza VALUES (null,%s,%s)',
                 (nombre,desc))
+        id_raza = cur.lastrowid
+        cur.execute(f"""
+                      INSERT INTO notificaciones (id_usuario_destinatario, id_usuario_origen, titulo, mensaje, tipo)
+                      VALUES (3, 3, 'Registro de Raza',
+                      CONCAT('Se registró una nueva raza con ID {id_raza}'),'Ingreso');
+                      """)
         conn.commit()
 
       return jsonify({'Mensaje': 'Raza registrada correctamente'})
@@ -1088,6 +1159,11 @@ def actualizar_raza(id):
       with conn.cursor() as cur:
         cur.execute('UPDATE raza SET nombre = %s, descripcion = %s WHERE id_raza = %s',
                 (nombre,desc,id))
+        cur.execute(f"""
+                      INSERT INTO notificaciones (id_usuario_destinatario, id_usuario_origen, titulo, mensaje, tipo)
+                      VALUES (1, 1, 'Actualizacion de la información de la Raza',
+                      CONCAT('Se actualizo la información de la raza con ID {id}'),'Actualización');
+                      """)
         conn.commit()
 
     return jsonify({'Mensaje': 'Raza actulizada correctamente'})
@@ -1125,13 +1201,17 @@ def eliminar_raza(id):
       with conn.cursor() as cur:
         cur.execute('DELETE FROM raza WHERE id_raza = %s',
                 (id))
-      conn.commit()
+        cur.execute(f"""
+                      INSERT INTO notificaciones (id_usuario_destinatario, id_usuario_origen, titulo, mensaje, tipo)
+                      VALUES (3, 3, 'Eliminación de la información de la Raza',
+                      CONCAT('Se eliminó la información de la raza con ID {id}'),'Eliminación');
+                      """)
+        conn.commit()
 
     return jsonify({'Mensaje': 'Raza eliminada correctamente'})
   except Exception as err:
     print(err)
     return jsonify({'Mesaje':'Error en la base de datos'})
-
 
 #RUTA PARA CONSULTAR TODAS LAS ETAPAS DE VIDA
 @app.route('/etapa_vida', methods = ['GET'])
@@ -1155,11 +1235,49 @@ def consulta_gen_etapa():
     
     with config['development'].conn() as conn:
       with conn.cursor() as cur:
-        cur.execute('SELECT * FROM etapa_vida')
+        cur.execute("""
+            SELECT 
+                ev.id_etapa, 
+                ev.nombre, 
+                ev.peso_min, 
+                ev.peso_max, 
+                ev.duracion_dias,
+                ev.duracion_semanas,
+                ev.descripcion,
+                e.id_elemento,
+                e.nombre as nombre_elemento,
+                rn.porcentaje
+            FROM etapa_vida ev
+            LEFT JOIN requerimientos_nutricionales rn ON ev.id_etapa = rn.id_etapa
+            LEFT JOIN elementos e ON rn.id_elemento = e.id_elemento
+            ORDER BY ev.id_etapa;
+        """)
+        filas = cur.fetchall()
+        
+    etapas = {}
+    for fila in filas:
+      id_etapa = fila['id_etapa']
+      if id_etapa not in etapas:
+        etapas[id_etapa] = {
+          "id_etapa" : id_etapa,
+          "nombre" : fila['nombre'],
+          "peso_min" : fila['peso_min'],
+          "peso_max" : fila['peso_max'],
+          "duracion_dias" : fila['duracion_dias'],
+          "duracion_semanas" : fila['duracion_semanas'],
+          "descripcion" : fila['descripcion'],
+          "requerimientos" : []
+        }
+      if fila['nombre_elemento']:
+        etapas[id_etapa]['requerimientos'].append({
+          "id_elemento" : fila['id_elemento'],
+          "nombre_elemento" : fila["nombre_elemento"],
+          "porcentaje" : fila['porcentaje']
+        })
     
-    info = cur.fetchall()
-    if info:
-      return jsonify({'Mensaje': 'Lista de etapas registradas', 'etapas': info})
+    if etapas:
+      etapas = list(etapas.values())
+      return jsonify({'Mensaje': 'Lista de etapas registradas', 'etapas': etapas}), 200
     else:
       return jsonify({'Mensaje': 'No hay etapas registradas'})
   except Exception as err:
@@ -1188,18 +1306,57 @@ def consulta_indi_etapa(id):
   try:
     with config['development'].conn() as conn:
       with conn.cursor() as cur:
-        cur.execute('SELECT * FROM etapa_vida WHERE id_etapa = %s',
-                    (id))
-    etapa = cur.fetchone()
-    print(etapa)
+        cur.execute("""
+            SELECT 
+                ev.id_etapa, 
+                ev.nombre, 
+                ev.peso_min, 
+                ev.peso_max, 
+                ev.duracion_dias,
+                ev.duracion_semanas,
+                ev.descripcion,
+                e.id_elemento,
+                e.nombre as nombre_elemento,
+                rn.porcentaje
+            FROM etapa_vida ev
+            LEFT JOIN requerimientos_nutricionales rn ON ev.id_etapa = rn.id_etapa
+            LEFT JOIN elementos e ON rn.id_elemento = e.id_elemento
+            WHERE ev.id_etapa = %s
+            ORDER BY ev.id_etapa
+        """,(id,))
+    
+        filas = cur.fetchall()
+    
+    etapa = {}
+    for fila in filas:
+      id_etapa = fila['id_etapa']
+      if id_etapa not in etapa:
+        etapa[id_etapa] = {
+          "id_etapa" : id_etapa,
+          "nombre" : fila['nombre'],
+          "peso_min" : fila['peso_min'],
+          "peso_max" : fila['peso_max'],
+          "duracion_dias" : fila['duracion_dias'],
+          "duracion_semanas" : fila['duracion_semanas'],
+          "descripcion" : fila['descripcion'],
+          "requerimientos" : []
+        }
+        
+      if fila['nombre_elemento']:
+        etapa[id_etapa]['requerimientos'].append({
+          "id_elemento" : fila['id_elemento'],
+          "nombre_elemento" : fila["nombre_elemento"],
+          "porcentaje" : fila["porcentaje"]
+        })
+      
     if etapa:
-      return jsonify({'Etapa_vida': etapa, 'Mensaje': 'Etapa de vida consultada'})
+      etapa = list(etapa.values())
+      return jsonify({'etapas': etapa, 'Mensaje': 'Etapa de vida consultada'})
     else:
-      return jsonify({'Mensaje': 'Error al consultar la etapa'})
+      return jsonify({'Mensaje': f'No hay etapa con ID {id}'})
   except Exception as err:
     print(err)
     return jsonify( {'Mensaje': 'Error en la base de datos'} )
-
 
 # RUTA PARA REGISTRAR UNA ETAPA DE VIDA
 @app.route('/etapa_vida', methods = ['POST'])
@@ -1234,17 +1391,43 @@ def registrar_etapa():
       description: Error en la base de datos
   """
   try:
+    
     data = request.get_json()
-    nombre = data['nombre']
-    desc = data['descripcion']
+    nombre_etapa = data['nombre']
+    peso_min = data['peso_min']
+    peso_max = data['peso_max']
+    duracion_dias = data['duracion_dias']
+    duracion_semanas = data['duracion_semanas']
+    requerimientos = data['requerimientos']
+    descripcion = data['descripcion']
     
     with config['development'].conn() as conn:
       with conn.cursor() as cur:
-        cur.execute('INSERT INTO etapa_vida VALUES (null,%s,%s)',
-                    (nombre,desc))
+        cur.execute("""
+                    INSERT INTO etapa_vida(nombre,peso_min,peso_max,duracion_dias,duracion_semanas,descripcion)
+                    VALUES (%s,%s,%s,%s,%s,%s)
+                    """, (nombre_etapa,peso_min,peso_max,duracion_dias,duracion_semanas,descripcion))
+        
+        id_etapa = cur.lastrowid
+        
+        if requerimientos:
+          for req in requerimientos:
+            id_elemento = req['id_elemento']
+            porcentaje = req['porcentaje']
+            if id_elemento and porcentaje is not None:
+              cur.execute("""
+                          INSERT INTO requerimientos_nutricionales(id_etapa,id_elemento,porcentaje)
+                          VALUES (%s,%s,%s)
+                          """, (id_etapa,id_elemento,porcentaje))
+        
+        cur.execute(f"""
+                      INSERT INTO notificaciones (id_usuario_destinatario, id_usuario_origen, titulo, mensaje, tipo)
+                      VALUES (1, 1, 'Registro de Etapa de vida',
+                      CONCAT('Se registró una nueva etapa de vida con ID {id_etapa}'),'Ingreso');
+                      """)
         conn.commit()
 
-    return jsonify({'Mensaje': 'Etapa de vida registrada correctamente'})
+    return jsonify({'Mensaje': 'Etapa de vida registrada correctamente'}), 201
   except Exception as err:
     print(err)
     return jsonify({'Mesaje':'Error en la base de datos'})
@@ -1281,16 +1464,44 @@ def actualizar_etapa_vida(id):
   """
   try:
     data = request.get_json()
-    nombre = data['nombre']
-    desc = data['descripcion']
+    nombre_etapa = data['nombre']
+    peso_min = data['peso_min']
+    peso_max = data['peso_max']
+    duracion_dias = data['duracion_dias']
+    duracion_semanas = data['duracion_semanas']
+    requerimientos = data['requerimientos']
+    descripcion = data['descripcion']
     
     with config['development'].conn() as conn:
       with conn.cursor() as cur:
-        cur.execute('UPDATE etapa_vida SET nombre = %s, descripcion = %s WHERE id_etapa = %s',
-                    (nombre,desc,id))
+        cur.execute("""
+                    UPDATE etapa_vida
+                    SET nombre = %s, peso_min = %s, peso_max = %s, duracion_dias = %s, duracion_semanas = %s, descripcion = %s
+                    WHERE id_etapa = %s
+                    """, (nombre_etapa,peso_min,peso_max,duracion_dias,duracion_semanas,descripcion,id))
+        
+        cur.execute("""
+                    DELETE FROM requerimientos_nutricionales
+                    WHERE id_etapa = %s
+                    """, (id,))
+        
+        if requerimientos:
+          for req in requerimientos:
+            id_elemento = req['id_elemento']
+            porcentaje = req['porcentaje']
+            if id_elemento and porcentaje is not None:
+              cur.execute("""
+                          INSERT INTO requerimientos_nutricionales(id_etapa,id_elemento,porcentaje)
+                          VALUES (%s,%s,%s)
+                          """, (id,id_elemento,porcentaje))
+        cur.execute(f"""
+                      INSERT INTO notificaciones (id_usuario_destinatario, id_usuario_origen, titulo, mensaje, tipo)
+                      VALUES (1, 1, 'Actualizacion de la información de la Etapa de Vida',
+                      CONCAT('Se actualizo la información de la etapa de vida con ID {id}'),'Actualización');
+                      """)
         conn.commit()
 
-    return jsonify({'Mensaje': 'Raza actulizada correctamente'})
+    return jsonify({'Mensaje': 'Etapa de vida actulizada correctamente'})
   except Exception as err:
     print(err)
     return jsonify({'Mesaje':'Error en la base de datos'})
@@ -1323,14 +1534,56 @@ def eliminar_etapa_vida(id):
   try:
     with config['development'].conn() as conn:
       with conn.cursor() as cur:
-        cur.execute('DELETE FROM etapa_vida WHERE id_etapa = %s',
+        cur.execute("""
+                    DELETE FROM requerimientos_nutricionales
+                    WHERE id_etapa = %s
+                    """, (id))
+        cur.execute("""
+                    DELETE FROM etapa_vida 
+                    WHERE id_etapa = %s
+                    """,
                     (id))
+        cur.execute(f"""
+                      INSERT INTO notificaciones (id_usuario_destinatario, id_usuario_origen, titulo, mensaje, tipo)
+                      VALUES (1, 1, 'Eliminación de la información de la Etapa de Vida',
+                      CONCAT('Se eliminó la información de la etapa de vida con ID {id}'),'Eliminación');
+                      """)
         conn.commit()
     return jsonify({'Mensaje': 'Etapa de vida eliminada correctamente'})
   except Exception as err:
     print(err)
     return jsonify({'Mesaje':'Error en la base de datos'})
 
+#RUTA PARA CONSULTAR LAS NOTIFICAIONES DEL USUARIO
+@app.route("/notificaciones/<int:id>", methods = ['GET'])
+@token_requerido
+def consulta_notificaiones(id):
+  """
+  Consulta de notificaiones de un usuario
+  ---
+  tags:
+    - Notificaiones
+  responses:
+    200:
+      description: Lista de notificaiones de un usuario
+  """
+  try:
+    with config['development'].conn() as conn:
+      with conn.cursor() as cursor:
+        cursor.execute("""
+                      SELECT id_notificacion,titulo, mensaje, tipo,fecha_creacion
+                      FROM notificaciones 
+                      WHERE id_usuario_destinatario = %s
+                      ORDER BY fecha_creacion DESC
+                      """, (id))
+    info = cursor.fetchall()
+    if info:
+      return jsonify({'Mensaje' : 'Lista de notificaciones', 'Notificaciones' : info})
+    else:
+      return jsonify({'Mensaje': 'No hay notificaciones'})
+  except Exception as err:
+    print(err)
+    return jsonify({'Mensaje': 'Error'})
 
 # ----------------------------
 # SECCION GESTIONAR ALIMENTOS
