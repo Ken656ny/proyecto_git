@@ -1466,6 +1466,8 @@ hr{
     height: 490px;
     border-radius: 34px;
     border: 1px solid var(--color-bor-contain);
+    position: relative;
+    z-index: 2;
 }
 
 .container__items__dialogs{
@@ -2268,9 +2270,6 @@ DIETASSSSSSSS
   padding: 15px;
 }
 
-
-
-
 /* ===== BOTÓN CERRAR ===== */
 .modal-close {
   padding: 10px 25px;
@@ -2294,18 +2293,6 @@ DIETASSSSSSSS
     flex-direction: column;
     align-items: center;
   }
-}
-
-/* 🔝 Asegura que el SweetAlert esté por encima de todos tus modales */
-.swal2-container {
-  position: fixed !important;
-  z-index: 999999 !important;
-  inset: 0 !important;
-}
-
-.swal2-popup {
-  z-index: 1000000 !important;
-  position: relative !important;
 }
 
 /* 🔝 Elimina prioridad visual de tus contenedores de botones */
@@ -2370,7 +2357,6 @@ RESPONSIVE BAR
     .barra-lateral .nombre-pagina{
         margin-bottom: 5px;
     }
-
 }
 
 @media(max-width: 600px){
@@ -2431,10 +2417,7 @@ RESPONSIVE BAR
         padding: 1rem;
         width: 100%;
     }
-
-
 }
-
 
 
 /* -----------------------------------------------------

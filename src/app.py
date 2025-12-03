@@ -839,7 +839,7 @@ def eliminar_raza(id):
     return jsonify({'Mensaje': 'Raza eliminada correctamente'})
   except Exception as err:
     print(err)
-    return jsonify({'Mesaje':'Error en la base de datos'})
+    return jsonify({'Mensaje':'Error en la base de datos'})
 
 
 #RUTA PARA CONSULTAR TODAS LAS ETAPAS DE VIDA
@@ -1172,7 +1172,7 @@ def eliminar_etapa_vida(id):
     return jsonify({'Mensaje': 'Etapa de vida eliminada correctamente'})
   except Exception as err:
     print(err)
-    return jsonify({'Mesaje':'Error en la base de datos'})
+    return jsonify({'Mensaje':'Error en la base de datos'})
 
 #RUTA PARA CONSULTAR LAS NOTIFICAIONES DEL USUARIO
 @app.route("/notificaciones/<int:id>", methods = ['GET'])

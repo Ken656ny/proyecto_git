@@ -753,7 +753,7 @@ async function cargarInfoEtapaEdit(id, container) {
     <div id="step1" class="step">
         <div class="container__label__input">
         <label>ID Etapa:</label>
-        <input id="" type="text" value="${e.id_etapa}">
+        <input id="" type="text" value="${e.id_etapa}" disabled>
         </div>
         
         <div class="container__label__input">
@@ -1412,6 +1412,33 @@ function paginacion_historial(historial){
     render_paginacion()
 }
 
+function alertaSobreDialogs(pesoIngresado, pesoActual) {
+    const modal_actualizar_peso = document.getElementById("dialog-actualizar-peso");
+    const modal_gestionar_historial = document.getElementById("dialog__his__peso")
+
+    const estaba_abierto_map = modal_actualizar_peso.open;
+    const estaba_abierto_mgh = modal_gestionar_historial.open
+    if (estaba_abierto_map) modal_actualizar_peso.close();
+    if (estaba_abierto_mgh) modal_gestionar_historial.close();
+
+    Swal.fire({
+        title: "Peso inválido",
+        html: `
+            <b>El peso ingresado es menor al peso actual del porcino.</b><br><br>
+            <span style="font-size: 14px;">
+                <b>Ingresado:</b> ${pesoIngresado} kg <br>
+                <b>Peso actual:</b> ${pesoActual} kg
+            </span>
+        `,
+        icon: "warning",
+        confirmButtonText: "Entendido",
+        confirmButtonColor: "#facc15",
+    }).then(() => {
+        if (estaba_abierto_mgh) modal_gestionar_historial.showModal() ;
+        if (estaba_abierto_map) modal_actualizar_peso.showModal();
+    });
+}
+
 async function crearDialogActualizarPesoHistorial(){
     const nm = await conteoNumeroConsecutivo();
     const porcinos = await consultar_porcinos_cache();
@@ -1497,27 +1524,58 @@ async function crearDialogActualizarPesoHistorial(){
     `;
 
     setTimeout(() => {
-        const selectPorcino = document.getElementById('id-porcino-actu');
-        const pesoFinal = document.getElementById('peso-final-actu');
-        const descripcion = document.getElementById('descripcion-actu');
-        // Evento cuando cambia el ID del porcino
-        selectPorcino.addEventListener('change', async (e) => {
-            const idPorcino = e.target.value;
-            if (idPorcino) {
-                // Consultar los datos del porcino seleccionado
-                const porcino = await consulta_individual_porcino(idPorcino, false);
-                // Actualizar el texto del preview
-                actualizarPreview(porcino, pesoFinal.value, descripcion);
-            }
-        });
-        // Evento cuando cambia el peso
-        pesoFinal.addEventListener('input', async () => {
+    const selectPorcino = document.getElementById('id-porcino-actu');
+    const input_peso_final = document.getElementById('peso-final-actu');
+    const descripcion = document.getElementById('descripcion-actu');
+
+    let peso_actual_porcino = null;
+    let debounceTimer = null;
+
+    // Cambio de porcino
+    selectPorcino.addEventListener('change', async (e) => {
+        const idPorcino = e.target.value;
+        if (idPorcino) {
+            const porcino = await consulta_individual_porcino(idPorcino, false);
+            actualizarPreview(porcino, input_peso_final.value, descripcion);
+        }
+    });
+
+    // Input peso final con debounce
+    input_peso_final.addEventListener('input', () => {
+        clearTimeout(debounceTimer);
+        
+        debounceTimer = setTimeout(async () => {
             const idPorcino = selectPorcino.value;
-            const porcino = idPorcino ? await consulta_individual_porcino(idPorcino, false) : null;
-            actualizarPreview(porcino, pesoFinal.value, descripcion);
-        });
-    
-    }, 500); // Espera a que el modal esté renderizado
+            let porcino = null;
+
+            // Si no hay porcino seleccionado, no validar
+            if (!idPorcino) return;
+
+            porcino = await consulta_individual_porcino(idPorcino, false);
+            peso_actual_porcino = porcino.Porcinos[0].peso_final;
+
+            // ⛔ NO VALIDAR SI EL INPUT ESTÁ VACÍO
+            if (!input_peso_final.value.trim()) {
+                actualizarPreview(porcino, "", descripcion);
+                return;
+            }
+
+            const peso_final_actualizado = parseFloat(input_peso_final.value);
+
+            // Si no es número válido, no validar
+            if (isNaN(peso_final_actualizado)) return;
+
+            // Validación
+            if (peso_final_actualizado < peso_actual_porcino) {
+                alertaSobreDialogs(peso_final_actualizado,peso_actual_porcino)
+            }
+
+            actualizarPreview(porcino, input_peso_final.value, descripcion);
+
+        }, 2000);
+    });
+
+}, 500);
     return crearDialogBaseRaza('dialog-actualizar-peso', 'dialog__ges__raz', 'Actualizar Peso', HTML, 'Guardar', 'button-guardar', '', 'actualizar_peso_historial', '');
 }
 
@@ -1635,7 +1693,6 @@ async function actualizar_peso_historial() {
         const id_usuario = document.getElementById('id-usuario-actu').value;
         const descripcion = document.getElementById('descripcion-actu').textContent;
         const transa = {
-            
             "fecha_pesaje" : fecha_pesaje,
             "id_porcino" : id_porcino,
             "peso_final" : peso_final,
@@ -1848,7 +1905,6 @@ async function consulta_indi_raza(id_raza, mostrar = false){
         if (mostrar){
             paginacion_raza(response)
         }
-        console.log(response)
         return response
     } catch (error) {
         console.error(error)
@@ -2407,12 +2463,16 @@ async function eliminar_etapa(id) {
                         location.reload()
                     }
             })
+            console.log(response)
+            return response
         } else {
             input.style.backgroundColor = '#f8a5a5';
             input.classList.add('placerholder_eliminar')
             input.value = '';
             input.placeholder = 'ID incorrecto...';
         }
+        
+        
     } catch (error) {
         console.error(error)
     }
