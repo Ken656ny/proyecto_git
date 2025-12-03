@@ -2010,16 +2010,26 @@ async function eliminar_raza(id){
             cerrarDialog(`modal-delete-confirm`);
             cerrarDialog(`modal-delete`);
             cerrarDialog(`dialog__ges__raz`);
-            Swal.fire({
-                title: "Mensaje",
-                text: `${response.Mensaje}`,
-                icon: "success",
-                confirmButton: "Ok"
-                }).then((result) => {
-                    if (result.isConfirmed){
-                        location.reload()
-                    }
-            })
+            if (response.Mensaje === `Error en la base de datos`) {
+                Swal.fire({
+                    title: "Mensaje",
+                    text: `La raza con id ${id} esta asociada a un porcino, No puede ser eliminada`,
+                    icon: "error",
+                    confirmButton: "Ok",
+                    })
+            } else{
+                Swal.fire({
+                    title: "Mensaje",
+                    text: `${response.Mensaje}`,
+                    icon: "success",
+                    confirmButton: "Ok"
+                    }).then((result) => {
+                        if (result.isConfirmed){
+                            location.reload()
+                        }
+                })
+            }
+            return response
         } else{
             input.style.backgroundColor = '#f8a5a5';
             input.classList.add('placerholder_eliminar')
@@ -2453,17 +2463,25 @@ async function eliminar_etapa(id) {
             cerrarDialog(`modal-delete-confirm`);
             cerrarDialog(`modal-delete`);
             cerrarDialog(`dialog__ges__eta`);
-            Swal.fire({
-                title: "Mensaje",
-                text: `${response.Mensaje}`,
-                icon: "success",
-                confirmButton: "Ok"
-                }).then((result) => {
-                    if (result.isConfirmed){
-                        location.reload()
-                    }
-            })
-            console.log(response)
+            if (response.Mensaje === `Error en la base de datos`) {
+                Swal.fire({
+                    title: "Mensaje",
+                    text: `La etapa de vida con id ${id} esta asociada a un porcino o dieta, No puede ser eliminada`,
+                    icon: "error",
+                    confirmButton: "Ok",
+                    })
+            } else{
+                Swal.fire({
+                    title: "Mensaje",
+                    text: `${response.Mensaje}`,
+                    icon: "success",
+                    confirmButton: "Ok"
+                    }).then((result) => {
+                        if (result.isConfirmed){
+                            location.reload()
+                        }
+                })
+            }
             return response
         } else {
             input.style.backgroundColor = '#f8a5a5';
