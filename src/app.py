@@ -1958,6 +1958,7 @@ def obtener_dieta(id_dieta):
                         d.fecha_creacion,
                         d.estado,
                         d.descripcion,
+                        d.mezcla_nutricional,
                         ev.nombre AS etapa_vida
                     FROM dietas d
                     JOIN etapa_vida ev ON d.id_etapa_vida = ev.id_etapa
@@ -1982,11 +1983,19 @@ def obtener_dieta(id_dieta):
                     JOIN alimentos a ON dta.id_alimento = a.id_alimento
                     WHERE dta.id_dieta = %s
                 """, (id_dieta,))
-
                 alimentos = cur.fetchall()
-
-                # Agregar lista de alimentos a la dieta
                 dieta["alimentos"] = alimentos
+
+                # Mezcla nutricional
+                mezcla_nutricional = {}
+                if dieta.get("mezcla_nutricional"):
+                    try:
+                        import json
+                        mezcla_nutricional = json.loads(dieta["mezcla_nutricional"])
+                    except:
+                        mezcla_nutricional = dieta["mezcla_nutricional"]
+
+                dieta["mezcla_nutricional"] = mezcla_nutricional
 
         return jsonify({"mensaje": dieta})
 

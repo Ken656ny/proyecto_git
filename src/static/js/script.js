@@ -3592,7 +3592,7 @@ function mostrarPagina(page) {
             <td class="nuevo">${dieta.fecha_creacion}</td>
             <td class="nuevo">${dieta.estado}</td>
             <td class="nuevo td__border__r">
-                <img src="/src/static/iconos/icon eye.svg" onclick="abrirModalDieta(${dieta.id_dieta})" class="icon-eye">
+                <img src="/src/static/iconos/icon eye.svg" onclick="abrirVerDieta(${dieta.id_dieta})" class="icon-eye">
                 <img src="/src/static/iconos/edit icon.svg" onclick="abrirModalDieta(${dieta.id_dieta})" class="icon-edit">
 
                 <!-- AQUI LLAMAS AL MODAL -->
@@ -3643,6 +3643,12 @@ document.getElementById("nextPage").addEventListener("click", () => {
 consulta_dietas();
 
 }
+
+function abrirVerDieta(id_dieta) {
+    localStorage.setItem("dieta_a_ver", id_dieta); // Guardamos el ID
+    window.location.href = "ver_dietas.html";    // Redirigimos a la página de solo lectura
+}
+
 
 function consulta_individual_dieta() {
     const contenido = document.getElementById("contenido");
