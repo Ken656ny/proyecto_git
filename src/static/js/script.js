@@ -1093,11 +1093,12 @@ function alertaSobreDialogs(pesoIngresado, pesoActual) {
 async function crearDialogActualizarPesoHistorial(){
     const nm = await conteoNumeroConsecutivo();
     const porcinos = await consultar_porcinos_cache();
+    const usuario = JSON.parse(localStorage.getItem("usuario"));
     const campos = [
         { label: 'Fecha de pesaje', id: 'fecha-pesaje-actu', type: 'date', required: true },
         { label: 'ID porcino', id: 'id-porcino-actu', type: 'select', options: porcinos.Porcinos.map(por => por.id_porcino), required: true, placeholder: "Seleccione el ID del porcino" },
         { label: 'Peso final', id: 'peso-final-actu', type: 'number', required: true, placeholder: "Digite el peso en Kg" },
-        { label: 'Usuario', id: 'id-usuario-actu', type: 'text', required: true, placeholder: "Juan Tovar", value: 1 },
+        { label: 'Usuario', id: 'id-usuario-actu', type: 'text', required: true, placeholder: usuario.nombre, value: 1 },
     ];
 
     const camposHTML = campos.map(campo => {
@@ -1239,11 +1240,11 @@ function actualizarPreview(porcino, peso, elementoTexto) {
     const sexo = porcino.Porcinos[0].sexo || "XX";
     const etapa = porcino.Porcinos[0].etapa || "XX";
     const id = porcino.Porcinos[0].id_porcino || "XX";
-    const usuario = "Juan Tovar";
+    const usuario = JSON.parse(localStorage.getItem("usuario"));
 
     elementoTexto.textContent = `
         El porcino identificado con el ID ${id}, siendo de raza ${raza}, sexo ${sexo} y etapa de vida ${etapa},
-        después de su último pesaje registrado por el usuario ${usuario}, presenta un peso de ${peso || "XX"} Kg.
+        después de su último pesaje registrado por el usuario ${usuario.nombre}, presenta un peso de ${peso || "XX"} Kg.
     `;
 }
 
@@ -2645,9 +2646,9 @@ function crear_fila_notificaciones(item){
 async function consultar_notificaciones() {
     try {
         await verifyToken()
-        // EN ESTE ID DEBE IR EL ID DEL USUARIO QUE TIENE LA SESION ABIERTA
-        const id = 1
-        const promesa = await fetch(`${URL_BASE}/notificaciones/${id}`,
+        const usuario = JSON.parse(localStorage.getItem("usuario"));
+        const idUsuario = usuario.id_usuario;
+        const promesa = await fetch(`${URL_BASE}/notificaciones/${idUsuario}`,
             {
                 method : 'GET',
                 headers : getAuthHeaders()
@@ -2833,6 +2834,7 @@ async function login() {
         if (response.ok && data.Mensaje === 'Las credenciales son correctas') {
             localStorage.setItem("token", data.token);
             localStorage.setItem("usuario", JSON.stringify({
+                id_usuario: data.id_usuario,
                 nombre: data.nombre,
                 numero_identificacion: data.numero_identificacion,
                 correo: data.correo,

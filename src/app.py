@@ -158,6 +158,7 @@ def login():
             return jsonify({
                 'Mensaje': 'Las credenciales son correctas',
                 'token': token,
+                'id_usuario': user['id_usuario'],
                 'nombre': user['nombre'],
                 'numero_identificacion': user['numero_identificacion'],
                 'correo': user['correo'],
@@ -449,7 +450,7 @@ def perfil():
         es_google = usuario_token.get("es_google", False)
         
         datos_usuario_db = None
-        numero_identificacion = None 
+        numero_identificacion = None
         with config['development'].conn() as conn:
             with conn.cursor() as cur:
                 
@@ -1575,7 +1576,7 @@ def consulta_notificaiones(id):
                       FROM notificaciones 
                       WHERE id_usuario_destinatario = %s
                       ORDER BY fecha_creacion DESC
-                      """, (id))
+                      """, (id,))
     info = cursor.fetchall()
     if info:
       return jsonify({'Mensaje' : 'Lista de notificaciones', 'Notificaciones' : info})
