@@ -194,11 +194,11 @@ SECCION REGISTROS
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 100vh;
     background-color: hsl(183, 100%, 93%);
     color: white;
     overflow: hidden;
     font-family: var(--fuente--contenido);
+    min-height: 100vh;
 }
 
 /* CONTENEDOR */
@@ -209,6 +209,10 @@ SECCION REGISTROS
     width: 566px;
     overflow: hidden;
     box-shadow: 0 0 25px rgba(80, 129, 84, 0.7);
+}
+
+.H1{
+    font-size: 17px;
 }
 
 .form__registro{
@@ -256,8 +260,7 @@ fieldset {
     border-bottom: none;
     width: 70%;
     display: block;
-    margin: 1px auto;
-    padding: 10px;
+    margin: 20px auto;
 }
 
 .btn__registro{
