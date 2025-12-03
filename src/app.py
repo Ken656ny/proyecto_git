@@ -1203,7 +1203,7 @@ def eliminar_raza(id):
                 (id))
         cur.execute(f"""
                       INSERT INTO notificaciones (id_usuario_destinatario, id_usuario_origen, titulo, mensaje, tipo)
-                      VALUES (3, 3, 'Eliminación de la información de la Raza',
+                      VALUES (1, 1, 'Eliminación de la información de la Raza',
                       CONCAT('Se eliminó la información de la raza con ID {id}'),'Eliminación');
                       """)
         conn.commit()
@@ -1211,7 +1211,7 @@ def eliminar_raza(id):
     return jsonify({'Mensaje': 'Raza eliminada correctamente'})
   except Exception as err:
     print(err)
-    return jsonify({'Mesaje':'Error en la base de datos'})
+    return jsonify({'Mensaje':'Error en la base de datos'})
 
 #RUTA PARA CONSULTAR TODAS LAS ETAPAS DE VIDA
 @app.route('/etapa_vida', methods = ['GET'])
@@ -1552,7 +1552,7 @@ def eliminar_etapa_vida(id):
     return jsonify({'Mensaje': 'Etapa de vida eliminada correctamente'})
   except Exception as err:
     print(err)
-    return jsonify({'Mesaje':'Error en la base de datos'})
+    return jsonify({'Mensaje':'Error en la base de datos'})
 
 #RUTA PARA CONSULTAR LAS NOTIFICAIONES DEL USUARIO
 @app.route("/notificaciones/<int:id>", methods = ['GET'])
