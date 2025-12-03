@@ -179,11 +179,11 @@ SECCION REGISTROS
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 100vh;
     background-color: hsl(183, 100%, 93%);
     color: white;
     overflow: hidden;
     font-family: var(--fuente--contenido);
+    min-height: 100vh;
 }
 
 /* CONTENEDOR */
