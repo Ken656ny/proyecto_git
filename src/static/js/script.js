@@ -386,7 +386,7 @@ async function cargarInfoEtapa(id, container) {
         
         <div class="container__label__input">
         <label>Nombre de Etapa</label>
-        <input type="text" value="${e.nombre_etapa}" disabled>
+        <input type="text" value="${e.nombre}" disabled>
         </div>
         
         <div class="container__label__input">
@@ -758,27 +758,27 @@ async function cargarInfoEtapaEdit(id, container) {
         
         <div class="container__label__input">
         <label>Nombre de Etapa</label>
-        <input id="nombre-etapa-actu-${id}" type="text" value="${e.nombre}" >
+        <input id="nombre-etapa-actu-${id}" type="text" value="${e.nombre}">
         </div>
         
         <div class="container__label__input">
         <label>Peso Mínimo (Kg)</label>
-        <input id="peso-min-etapa-actu-${id}" type="text" value="${e.peso_min}" >
+        <input id="peso-min-etapa-actu-${id}" type="number" step="0.01" value="${e.peso_min}" >
         </div>
         
         <div class="container__label__input">
         <label>Peso Máximo (Kg)</label>
-        <input id="peso-max-etapa-actu-${id}" type="text" value="${e.peso_max}" >
+        <input id="peso-max-etapa-actu-${id}" type="number" step="0.01" value="${e.peso_max}" >
         </div>
         
         <div class="container__label__input">
         <label>Dias de Duración</label>
-        <input id="dias-dura-etapa-actu-${id}" type="text" value="${e.duracion_dias}" >
+        <input id="dias-dura-etapa-actu-${id}" type="number" value="${e.duracion_dias}" >
         </div>
         
         <div class="container__label__input">
         <label>Semanas de Duración</label>
-        <input id="semanas-dura-etapa-actu-${id}" type="text" value="${e.duracion_semanas}" >
+        <input id="semanas-dura-etapa-actu-${id}" type="number" value="${e.duracion_semanas}" >
         </div>
         
         <div class="container__label__input">
@@ -786,77 +786,74 @@ async function cargarInfoEtapaEdit(id, container) {
         <input id="descripcion-etapa-actu-${id}" type="text" value="${e.descripcion}" >
         </div>
     </div>
-    
 
     <div id="step2" class="step">
 
         <div class="container__label__input">
             <label>E. Metabolizable (Kcal/Kg)</label>
-            <input id="energia-metabo-actu-${id}" type="text" value="${mapaReq['energia_metabo'] || 0}" >
+            <input id="energia-metabo-actu-${id}" type="number" step="0.01" value="${mapaReq['energia_metabo'] || 0}">
         </div>
         
         <div class="container__label__input">
             <label>Proteína Cruda (%)</label>
-            <input id="proteina-cruda-actu-${id}" type="text" value="${mapaReq['proteina_cruda'] || 0 }" >
+            <input id="proteina-cruda-actu-${id}" type="number" step="0.01" value="${mapaReq['proteina_cruda'] || 0 }" >
         </div>
 
         <div class="container__label__input">
             <label>Fibra Cruda (%)</label>
-            <input id="fibra-cruda-actu-${id}" type="text" value="${mapaReq['fibra_cruda'] || 0}" >
+            <input id="fibra-cruda-actu-${id}" type="number" step="0.01" value="${mapaReq['fibra_cruda'] || 0}" >
         </div>
 
         <div class="container__label__input">
             <label>Extracto Etéreo (%)</label>
-            <input id="extracto-etereo-actu-${id}" type="text" value="${mapaReq['extracto_etereo'] || 0}" >
+            <input id="extracto-etereo-actu-${id}" type="number" step="0.01" value="${mapaReq['extracto_etereo'] || 0}" >
         </div>
 
         <div class="container__label__input">
             <label>Calcio (%)</label>
-            <input id="calcio-actu-${id}" type="text" value="${mapaReq['calcio'] || 0}" >
+            <input id="calcio-actu-${id}" type="number" step="0.01" value="${mapaReq['calcio'] || 0}" >
         </div>
 
         <div class="container__label__input">
             <label>Fosforo (%)</label>
-            <input id="fosforo-disponible-actu-${id}" type="text" value="${mapaReq['fosforo'] || 0}" >
+            <input id="fosforo-disponible-actu-${id}" type="number" step="0.01" value="${mapaReq['fosforo'] || 0}" >
         </div>
 
         <div class="container__label__input">
             <label>Sodio (%)</label>
-            <input id="sodio-actu-${id}" type="text" value="${mapaReq['sodio'] || 0}" >
+            <input id="sodio-actu-${id}" type="number" step="0.01" value="${mapaReq['sodio'] || 0}" >
         </div>
 
         <div class="container__label__input">
             <label>Arginina (%)</label>
-            <input id="arginina-actu-${id}" type="text" value="${mapaReq['arginina'] || 0}" >
+            <input id="arginina-actu-${id}" type="number" step="0.01" value="${mapaReq['arginina'] || 0}" >
         </div>
 
         <div class="container__label__input">
             <label>Lisina (%)</label>
-            <input id="lisina-actu-${id}" type="text" value="${mapaReq['lisina'] || 0}" >
+            <input id="lisina-actu-${id}" type="number" step="0.01" value="${mapaReq['lisina'] || 0}" >
         </div>
 
         <div class="container__label__input">
             <label>Treonina (%)</label>
-            <input id="treonina-actu-${id}" type="text" value="${mapaReq['treonina'] || 0}" >
+            <input id="treonina-actu-${id}" type="number" step="0.01" value="${mapaReq['treonina'] || 0}" >
         </div>
 
         <div class="container__label__input">
             <label>Metionina</label>
-            <input id="metionina-actu-${id}" type="text" value="${mapaReq['metionina'] || 0}" >
+            <input id="metionina-actu-${id}" type="number" step="0.01" value="${mapaReq['metionina'] || 0}" >
         </div>
 
         <div class="container__label__input">
             <label>Metionina + Cisteína (%)</label>
-            <input id="metionina-cisteina-actu-${id}" type="text" value="${mapaReq['metionina_cisteina'] || 0}" >
+            <input id="metionina-cisteina-actu-${id}" type="number" step="0.01" value="${mapaReq['metionina_cisteina'] || 0}" >
         </div>
 
         <div class="container__label__input">
             <label>Triptófano (%)</label>
-            <input id="triptofano-actu-${id}" type="text" value="${mapaReq['triptofano'] || 0}" >
+            <input id="triptofano-actu-${id}" type="number" step="0.01" value="${mapaReq['triptofano'] || 0}" >
         </div>
-
     </div>
-    
     `;
 }
 
@@ -2152,7 +2149,7 @@ function crearDialogRegistrarEtapa() {
     // ===========================
     // 2. Campo del STEP 2
     // ===========================
-    
+
     const campos2 = [
         {label: "E. Metabolizable (Kcal/Kg)", id: "r-energia-metabo", required: false, type: "number", placeholder : "Ingrese la Energia Metabolizable"},
         {label: "Proteína Cruda (%)", id: "r-proteina-cruda", required: false, type: "number", placeholder : "Ingrese la Proteina Cruda"},
@@ -2172,7 +2169,7 @@ function crearDialogRegistrarEtapa() {
     const htmlStep2 = campos2.map(campo => `
         <div class="container__label__input">
             <label>${campo.label}</label>
-            <input type="${campo.type || 'text'}" id="${campo.id}" placeholder="${campo.placeholder} min="0"">
+            <input class="numero-decimal" type="${campo.type || 'text'}" id="${campo.id}" placeholder="${campo.placeholder}" min="0" step="0.01">
         </div>
     `).join('');
 

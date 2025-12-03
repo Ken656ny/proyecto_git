@@ -601,7 +601,7 @@ def actualizar_porcino(id):
     
     with config['development'].conn() as conn:
       with conn.cursor() as cur:
-        cur.execute('UPDATE porcinos SET peso_inicial = %s, peso_final = %s, fecha_nacimiento = %s, sexo = %s, id_raza = %s, id_etapa = %s, estado = %s, descripcion = %s WHERE id_porcino = %s',
+        cur.execute('UPDATE porcinos SET peso_inicial = %s, peso_fjinal = %s, fecha_nacimiento = %s, sexo = %s, id_raza = %s, id_etapa = %s, estado = %s, descripcion = %s WHERE id_porcino = %s',
                   (p_ini,p_fin,fec_nac,sexo,id_ra,id_eta,estado,descripcion,id))
         cur.execute(f"""
                       INSERT INTO notificaciones (id_usuario_destinatario, id_usuario_origen, titulo, mensaje, tipo)
