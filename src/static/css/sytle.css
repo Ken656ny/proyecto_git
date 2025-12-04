@@ -646,9 +646,6 @@ SECCION DE PORCINOS
     overflow-y: hidden;
 }
 
-
-
-
 .container__logo__user{
     width: 100%;
     display: flex;
@@ -742,7 +739,6 @@ SECCION DE PORCINOS
     display: none;
 }
 
-
 .alimentos_dietas{
     display: flex;
     flex-direction: column;
@@ -792,8 +788,6 @@ SECCION DE PORCINOS
     height: 104px;      /* alto fijo */
     border-radius: 5px;
 }
-
-
 
 /* CODIGO DE LA BARRA DE BUSQUEDA */
 
@@ -1177,6 +1171,29 @@ th{
     padding: 20px 0;
 }
 
+.opciones {
+    position: fixed;
+    bottom: 1px;   
+    right: 2px;
+    color: #fff;
+    border-radius: 10px;
+    margin-right: 0.5rem;
+    cursor: pointer;
+    transition: transform 0.5s ease-in;
+}
+
+.opciones2 {
+    position: absolute;
+    bottom: 0.6em;   
+    right: 2px;
+    color: #fff;
+    border-radius: 10px;
+    margin-right: 0.5rem;
+    cursor: pointer;
+    transition: transform 0.5s ease-in;
+}
+
+
 
 /* CODIGO DE LAS ACCIONES VER, EDITAR Y ELIMINAR */
 
@@ -1385,17 +1402,6 @@ hr{
 .dialog-icon-dele p{
     color: #2C3D31;
     margin-bottom: 24px;
-}
-
-
-.ayuda {
-    position: fixed;
-    bottom: 1px;   
-    right: 2px;
-    color: #fff;
-    border-radius: 10px;
-    cursor: pointer;
-    transition: transform 0.5s ease-in;
 }
 
 /* REGISTRAR PORCINOS */

@@ -2486,13 +2486,10 @@ async function eliminar_etapa(id) {
             input.value = '';
             input.placeholder = 'ID incorrecto...';
         }
-        
-        
     } catch (error) {
         console.error(error)
     }
 }
-
 
 // --------------------------
 // GESTION DE NOTIFICACIONES
@@ -3648,3 +3645,17 @@ document.getElementById('btn_consultar_todo_historial').addEventListener('click'
     }
     consulta_gen_historial_pesos()
 })
+
+async function generar_pdf(tipo) {
+    const promesa = await fetch(`${URL_BASE}/PDF_${tipo}`);
+    const blob = await promesa.blob();
+
+    const url = URL.createObjectURL(blob);
+
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `reporte_${tipo}.pdf`;
+    a.click();
+}
+
+
