@@ -6,7 +6,6 @@ from flask_cors import CORS
 
 #PARA DOCUMENTAR LAS RUTAS DEL CODIGO
 from flasgger import Swagger
-
 # IMPORTO EL DICCIONARIO CONFIG EN LA POSICION DEVELOPMENT PARA ACCEDER LA INFORMACION DE CONEXION DE LA
 # BASE DE DATOS, DENTRO DE ESA CLASE HAY UN CLASSMETHOD QUE RETORNA LA CONEXION CON LA BASE DE DATOS
 from config import config
@@ -601,7 +600,7 @@ def actualizar_porcino(id):
     
     with config['development'].conn() as conn:
       with conn.cursor() as cur:
-        cur.execute('UPDATE porcinos SET peso_inicial = %s, peso_final = %s, fecha_nacimiento = %s, sexo = %s, id_raza = %s, id_etapa = %s, estado = %s, descripcion = %s WHERE id_porcino = %s',
+        cur.execute('UPDATE porcinos SET peso_inicial = %s, peso_fjinal = %s, fecha_nacimiento = %s, sexo = %s, id_raza = %s, id_etapa = %s, estado = %s, descripcion = %s WHERE id_porcino = %s',
                   (p_ini,p_fin,fec_nac,sexo,id_ra,id_eta,estado,descripcion,id))
         cur.execute(f"""
                       INSERT INTO notificaciones (id_usuario_destinatario, id_usuario_origen, titulo, mensaje, tipo)
@@ -839,7 +838,7 @@ def eliminar_raza(id):
     return jsonify({'Mensaje': 'Raza eliminada correctamente'})
   except Exception as err:
     print(err)
-    return jsonify({'Mesaje':'Error en la base de datos'})
+    return jsonify({'Mensaje':'Error en la base de datos'})
 
 
 #RUTA PARA CONSULTAR TODAS LAS ETAPAS DE VIDA
@@ -1172,7 +1171,7 @@ def eliminar_etapa_vida(id):
     return jsonify({'Mensaje': 'Etapa de vida eliminada correctamente'})
   except Exception as err:
     print(err)
-    return jsonify({'Mesaje':'Error en la base de datos'})
+    return jsonify({'Mensaje':'Error en la base de datos'})
 
 #RUTA PARA CONSULTAR LAS NOTIFICAIONES DEL USUARIO
 @app.route("/notificaciones/<int:id>", methods = ['GET'])
@@ -1950,11 +1949,11 @@ def obtener_dieta(id_dieta):
         with config['development'].conn() as conn:
             with conn.cursor() as cur:
 
-                # Datos generales de la dieta
+                # Datos generales de la dieta ----------------------------------
                 cur.execute("""
                     SELECT 
                         d.id_dieta,
-                        d.id_usuario,
+                        u.nombre AS usuario,
                         d.fecha_creacion,
                         d.estado,
                         d.descripcion,
@@ -1962,6 +1961,7 @@ def obtener_dieta(id_dieta):
                         ev.nombre AS etapa_vida
                     FROM dietas d
                     JOIN etapa_vida ev ON d.id_etapa_vida = ev.id_etapa
+                    JOIN usuario u ON d.id_usuario = u.id_usuario
                     WHERE d.id_dieta = %s
                 """, (id_dieta,))
                 dieta = cur.fetchone()
@@ -1969,10 +1969,10 @@ def obtener_dieta(id_dieta):
                 if not dieta:
                     return jsonify({"mensaje": None})
 
-                # Convertir fecha a formato "yy-mm-dd"
+                # Convertir fecha a formato "yy-mm-dd" --------------------------
                 dieta["fecha_creacion"] = dieta["fecha_creacion"].strftime("%Y-%m-%d")
 
-                # Alimentos asociados
+                # Alimentos asociados ------------------------------------------
                 cur.execute("""
                     SELECT 
                         a.id_alimento,
@@ -1986,7 +1986,7 @@ def obtener_dieta(id_dieta):
                 alimentos = cur.fetchall()
                 dieta["alimentos"] = alimentos
 
-                # Mezcla nutricional
+                # Mezcla nutricional -------------------------------------------
                 mezcla_nutricional = {}
                 if dieta.get("mezcla_nutricional"):
                     try:

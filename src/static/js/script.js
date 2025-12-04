@@ -385,7 +385,7 @@ async function cargarInfoEtapa(id, container) {
         
         <div class="container__label__input">
         <label>Nombre de Etapa</label>
-        <input type="text" value="${e.nombre_etapa}" disabled>
+        <input type="text" value="${e.nombre}" disabled>
         </div>
         
         <div class="container__label__input">
@@ -752,32 +752,32 @@ async function cargarInfoEtapaEdit(id, container) {
     <div id="step1" class="step">
         <div class="container__label__input">
         <label>ID Etapa:</label>
-        <input id="" type="text" value="${e.id_etapa}">
+        <input id="" type="text" value="${e.id_etapa}" disabled>
         </div>
         
         <div class="container__label__input">
         <label>Nombre de Etapa</label>
-        <input id="nombre-etapa-actu-${id}" type="text" value="${e.nombre}" >
+        <input id="nombre-etapa-actu-${id}" type="text" value="${e.nombre}">
         </div>
         
         <div class="container__label__input">
         <label>Peso Mínimo (Kg)</label>
-        <input id="peso-min-etapa-actu-${id}" type="text" value="${e.peso_min}" >
+        <input id="peso-min-etapa-actu-${id}" type="number" step="0.01" value="${e.peso_min}" >
         </div>
         
         <div class="container__label__input">
         <label>Peso Máximo (Kg)</label>
-        <input id="peso-max-etapa-actu-${id}" type="text" value="${e.peso_max}" >
+        <input id="peso-max-etapa-actu-${id}" type="number" step="0.01" value="${e.peso_max}" >
         </div>
         
         <div class="container__label__input">
         <label>Dias de Duración</label>
-        <input id="dias-dura-etapa-actu-${id}" type="text" value="${e.duracion_dias}" >
+        <input id="dias-dura-etapa-actu-${id}" type="number" value="${e.duracion_dias}" >
         </div>
         
         <div class="container__label__input">
         <label>Semanas de Duración</label>
-        <input id="semanas-dura-etapa-actu-${id}" type="text" value="${e.duracion_semanas}" >
+        <input id="semanas-dura-etapa-actu-${id}" type="number" value="${e.duracion_semanas}" >
         </div>
         
         <div class="container__label__input">
@@ -785,77 +785,74 @@ async function cargarInfoEtapaEdit(id, container) {
         <input id="descripcion-etapa-actu-${id}" type="text" value="${e.descripcion}" >
         </div>
     </div>
-    
 
     <div id="step2" class="step">
 
         <div class="container__label__input">
             <label>E. Metabolizable (Kcal/Kg)</label>
-            <input id="energia-metabo-actu-${id}" type="text" value="${mapaReq['energia_metabo'] || 0}" >
+            <input id="energia-metabo-actu-${id}" type="number" step="0.01" value="${mapaReq['energia_metabo'] || 0}">
         </div>
         
         <div class="container__label__input">
             <label>Proteína Cruda (%)</label>
-            <input id="proteina-cruda-actu-${id}" type="text" value="${mapaReq['proteina_cruda'] || 0 }" >
+            <input id="proteina-cruda-actu-${id}" type="number" step="0.01" value="${mapaReq['proteina_cruda'] || 0 }" >
         </div>
 
         <div class="container__label__input">
             <label>Fibra Cruda (%)</label>
-            <input id="fibra-cruda-actu-${id}" type="text" value="${mapaReq['fibra_cruda'] || 0}" >
+            <input id="fibra-cruda-actu-${id}" type="number" step="0.01" value="${mapaReq['fibra_cruda'] || 0}" >
         </div>
 
         <div class="container__label__input">
             <label>Extracto Etéreo (%)</label>
-            <input id="extracto-etereo-actu-${id}" type="text" value="${mapaReq['extracto_etereo'] || 0}" >
+            <input id="extracto-etereo-actu-${id}" type="number" step="0.01" value="${mapaReq['extracto_etereo'] || 0}" >
         </div>
 
         <div class="container__label__input">
             <label>Calcio (%)</label>
-            <input id="calcio-actu-${id}" type="text" value="${mapaReq['calcio'] || 0}" >
+            <input id="calcio-actu-${id}" type="number" step="0.01" value="${mapaReq['calcio'] || 0}" >
         </div>
 
         <div class="container__label__input">
             <label>Fosforo (%)</label>
-            <input id="fosforo-disponible-actu-${id}" type="text" value="${mapaReq['fosforo'] || 0}" >
+            <input id="fosforo-disponible-actu-${id}" type="number" step="0.01" value="${mapaReq['fosforo'] || 0}" >
         </div>
 
         <div class="container__label__input">
             <label>Sodio (%)</label>
-            <input id="sodio-actu-${id}" type="text" value="${mapaReq['sodio'] || 0}" >
+            <input id="sodio-actu-${id}" type="number" step="0.01" value="${mapaReq['sodio'] || 0}" >
         </div>
 
         <div class="container__label__input">
             <label>Arginina (%)</label>
-            <input id="arginina-actu-${id}" type="text" value="${mapaReq['arginina'] || 0}" >
+            <input id="arginina-actu-${id}" type="number" step="0.01" value="${mapaReq['arginina'] || 0}" >
         </div>
 
         <div class="container__label__input">
             <label>Lisina (%)</label>
-            <input id="lisina-actu-${id}" type="text" value="${mapaReq['lisina'] || 0}" >
+            <input id="lisina-actu-${id}" type="number" step="0.01" value="${mapaReq['lisina'] || 0}" >
         </div>
 
         <div class="container__label__input">
             <label>Treonina (%)</label>
-            <input id="treonina-actu-${id}" type="text" value="${mapaReq['treonina'] || 0}" >
+            <input id="treonina-actu-${id}" type="number" step="0.01" value="${mapaReq['treonina'] || 0}" >
         </div>
 
         <div class="container__label__input">
             <label>Metionina</label>
-            <input id="metionina-actu-${id}" type="text" value="${mapaReq['metionina'] || 0}" >
+            <input id="metionina-actu-${id}" type="number" step="0.01" value="${mapaReq['metionina'] || 0}" >
         </div>
 
         <div class="container__label__input">
             <label>Metionina + Cisteína (%)</label>
-            <input id="metionina-cisteina-actu-${id}" type="text" value="${mapaReq['metionina_cisteina'] || 0}" >
+            <input id="metionina-cisteina-actu-${id}" type="number" step="0.01" value="${mapaReq['metionina_cisteina'] || 0}" >
         </div>
 
         <div class="container__label__input">
             <label>Triptófano (%)</label>
-            <input id="triptofano-actu-${id}" type="text" value="${mapaReq['triptofano'] || 0}" >
+            <input id="triptofano-actu-${id}" type="number" step="0.01" value="${mapaReq['triptofano'] || 0}" >
         </div>
-
     </div>
-    
     `;
 }
 
@@ -1410,7 +1407,34 @@ function paginacion_historial(historial){
     render_paginacion()
 }
 
-async function crearDialogActualizarPesoHistorial() {
+function alertaSobreDialogs(pesoIngresado, pesoActual) {
+    const modal_actualizar_peso = document.getElementById("dialog-actualizar-peso");
+    const modal_gestionar_historial = document.getElementById("dialog__his__peso")
+
+    const estaba_abierto_map = modal_actualizar_peso.open;
+    const estaba_abierto_mgh = modal_gestionar_historial.open
+    if (estaba_abierto_map) modal_actualizar_peso.close();
+    if (estaba_abierto_mgh) modal_gestionar_historial.close();
+
+    Swal.fire({
+        title: "Peso inválido",
+        html: `
+            <b>El peso ingresado es menor al peso actual del porcino.</b><br><br>
+            <span style="font-size: 14px;">
+                <b>Ingresado:</b> ${pesoIngresado} kg <br>
+                <b>Peso actual:</b> ${pesoActual} kg
+            </span>
+        `,
+        icon: "warning",
+        confirmButtonText: "Entendido",
+        confirmButtonColor: "#facc15",
+    }).then(() => {
+        if (estaba_abierto_mgh) modal_gestionar_historial.showModal() ;
+        if (estaba_abierto_map) modal_actualizar_peso.showModal();
+    });
+}
+
+async function crearDialogActualizarPesoHistorial(){
     const nm = await conteoNumeroConsecutivo();
     const porcinos = await consultar_porcinos_cache();
     const campos = [
@@ -1495,27 +1519,58 @@ async function crearDialogActualizarPesoHistorial() {
     `;
 
     setTimeout(() => {
-        const selectPorcino = document.getElementById('id-porcino-actu');
-        const pesoFinal = document.getElementById('peso-final-actu');
-        const descripcion = document.getElementById('descripcion-actu');
-        // Evento cuando cambia el ID del porcino
-        selectPorcino.addEventListener('change', async (e) => {
-            const idPorcino = e.target.value;
-            if (idPorcino) {
-                // Consultar los datos del porcino seleccionado
-                const porcino = await consulta_individual_porcino(idPorcino, false);
-                // Actualizar el texto del preview
-                actualizarPreview(porcino, pesoFinal.value, descripcion);
-            }
-        });
-        // Evento cuando cambia el peso
-        pesoFinal.addEventListener('input', async () => {
-            const idPorcino = selectPorcino.value;
-            const porcino = idPorcino ? await consulta_individual_porcino(idPorcino, false) : null;
-            actualizarPreview(porcino, pesoFinal.value, descripcion);
-        });
+    const selectPorcino = document.getElementById('id-porcino-actu');
+    const input_peso_final = document.getElementById('peso-final-actu');
+    const descripcion = document.getElementById('descripcion-actu');
 
-    }, 500); // Espera a que el modal esté renderizado
+    let peso_actual_porcino = null;
+    let debounceTimer = null;
+
+    // Cambio de porcino
+    selectPorcino.addEventListener('change', async (e) => {
+        const idPorcino = e.target.value;
+        if (idPorcino) {
+            const porcino = await consulta_individual_porcino(idPorcino, false);
+            actualizarPreview(porcino, input_peso_final.value, descripcion);
+        }
+    });
+
+    // Input peso final con debounce
+    input_peso_final.addEventListener('input', () => {
+        clearTimeout(debounceTimer);
+        
+        debounceTimer = setTimeout(async () => {
+            const idPorcino = selectPorcino.value;
+            let porcino = null;
+
+            // Si no hay porcino seleccionado, no validar
+            if (!idPorcino) return;
+
+            porcino = await consulta_individual_porcino(idPorcino, false);
+            peso_actual_porcino = porcino.Porcinos[0].peso_final;
+
+            // ⛔ NO VALIDAR SI EL INPUT ESTÁ VACÍO
+            if (!input_peso_final.value.trim()) {
+                actualizarPreview(porcino, "", descripcion);
+                return;
+            }
+
+            const peso_final_actualizado = parseFloat(input_peso_final.value);
+
+            // Si no es número válido, no validar
+            if (isNaN(peso_final_actualizado)) return;
+
+            // Validación
+            if (peso_final_actualizado < peso_actual_porcino) {
+                alertaSobreDialogs(peso_final_actualizado,peso_actual_porcino)
+            }
+
+            actualizarPreview(porcino, input_peso_final.value, descripcion);
+
+        }, 2000);
+    });
+
+}, 500);
     return crearDialogBaseRaza('dialog-actualizar-peso', 'dialog__ges__raz', 'Actualizar Peso', HTML, 'Guardar', 'button-guardar', '', 'actualizar_peso_historial', '');
 }
 
@@ -1632,12 +1687,11 @@ async function actualizar_peso_historial() {
         const id_usuario = document.getElementById('id-usuario-actu').value;
         const descripcion = document.getElementById('descripcion-actu').textContent;
         const transa = {
-
-            "fecha_pesaje": fecha_pesaje,
-            "id_porcino": id_porcino,
-            "peso_final": peso_final,
-            "id_usuario": id_usuario,
-            "descripcion": descripcion
+            "fecha_pesaje" : fecha_pesaje,
+            "id_porcino" : id_porcino,
+            "peso_final" : peso_final,
+            "id_usuario" : id_usuario,
+            "descripcion" : descripcion
         }
 
         const promesa = await fetch(`${URL_BASE}/porcino/historial_pesos/actualizar`,
@@ -1845,7 +1899,6 @@ async function consulta_indi_raza(id_raza, mostrar = false){
         if (mostrar){
             paginacion_raza(response)
         }
-        console.log(response)
         return response
     } catch (error) {
         console.error(error)
@@ -1951,16 +2004,26 @@ async function eliminar_raza(id) {
             cerrarDialog(`modal-delete-confirm`);
             cerrarDialog(`modal-delete`);
             cerrarDialog(`dialog__ges__raz`);
-            Swal.fire({
-                title: "Mensaje",
-                text: `${response.Mensaje}`,
-                icon: "success",
-                confirmButton: "Ok"
-                }).then((result) => {
-                    if (result.isConfirmed){
-                        location.reload()
-                    }
-            })
+            if (response.Mensaje === `Error en la base de datos`) {
+                Swal.fire({
+                    title: "Mensaje",
+                    text: `La raza con id ${id} esta asociada a un porcino, No puede ser eliminada`,
+                    icon: "error",
+                    confirmButton: "Ok",
+                    })
+            } else{
+                Swal.fire({
+                    title: "Mensaje",
+                    text: `${response.Mensaje}`,
+                    icon: "success",
+                    confirmButton: "Ok"
+                    }).then((result) => {
+                        if (result.isConfirmed){
+                            location.reload()
+                        }
+                })
+            }
+            return response
         } else{
             input.style.backgroundColor = '#f8a5a5';
             input.classList.add('placerholder_eliminar')
@@ -2103,7 +2166,7 @@ function crearDialogRegistrarEtapa() {
     const htmlStep2 = campos2.map(campo => `
         <div class="container__label__input">
             <label>${campo.label}</label>
-            <input type="${campo.type || 'text'}" id="${campo.id}" placeholder="${campo.placeholder} min="0"">
+            <input class="numero-decimal" type="${campo.type || 'text'}" id="${campo.id}" placeholder="${campo.placeholder}" min="0" step="0.01">
         </div>
     `).join('');
 
@@ -2393,22 +2456,34 @@ async function eliminar_etapa(id) {
             cerrarDialog(`modal-delete-confirm`);
             cerrarDialog(`modal-delete`);
             cerrarDialog(`dialog__ges__eta`);
-            Swal.fire({
-                title: "Mensaje",
-                text: `${response.Mensaje}`,
-                icon: "success",
-                confirmButton: "Ok"
-                }).then((result) => {
-                    if (result.isConfirmed){
-                        location.reload()
-                    }
-            })
+            if (response.Mensaje === `Error en la base de datos`) {
+                Swal.fire({
+                    title: "Mensaje",
+                    text: `La etapa de vida con id ${id} esta asociada a un porcino o dieta, No puede ser eliminada`,
+                    icon: "error",
+                    confirmButton: "Ok",
+                    })
+            } else{
+                Swal.fire({
+                    title: "Mensaje",
+                    text: `${response.Mensaje}`,
+                    icon: "success",
+                    confirmButton: "Ok"
+                    }).then((result) => {
+                        if (result.isConfirmed){
+                            location.reload()
+                        }
+                })
+            }
+            return response
         } else {
             input.style.backgroundColor = '#f8a5a5';
             input.classList.add('placerholder_eliminar')
             input.value = '';
             input.placeholder = 'ID incorrecto...';
         }
+        
+        
     } catch (error) {
         console.error(error)
     }
@@ -2547,7 +2622,8 @@ function mostrarPagina(page) {
                     <img alt="eliminar" src="/src/static/iconos/delete icon.svg" onclick="abrirModal('dele', ${element.id_alimento})" class="icon-delete">
                 </td>
             </tr>
-             <dialog class="dialog-icon-eye modal-info" id="modal-eye-${element.id_alimento}">
+<!-- consulta ver -->
+<dialog  style="padding:10px;" class="dialog-icon-eye modal-info" id="modal-eye-${element.id_alimento}">
   <div class="title-dialog">
     <h2>Información del Alimento</h2>
     <hr>
@@ -2555,7 +2631,7 @@ function mostrarPagina(page) {
 
   <div class="modal-info-content">
     <!-- Columna 1 -->
-    <section class="modal-column">
+    <section  class="modal-column">
     <p>Nombre del alimento</p>
     <input value="${element.nombre}" readonly>
 
@@ -2621,6 +2697,16 @@ function mostrarPagina(page) {
 
 <!-- Modal editar -->
 <dialog class="dialog-icon-edit modal-info" id="modal-edit-${element.id_alimento}">
+
+  <!-- Botón X -->
+  <div class="container__btn__close">
+    <button 
+      type="button" 
+      class="btn__close" 
+      onclick="document.getElementById('modal-edit-${element.id_alimento}').close()"
+    >X</button>
+  </div>
+
   <div class="title-dialog">
     <h2>Editar Alimento</h2>
     <hr>
@@ -2628,9 +2714,9 @@ function mostrarPagina(page) {
 
   <div class="modal-info-content">
     <!-- Columna 1 -->
-    <section class="modal-column">
+    <section style="padding:0 0 0 10px;" class="modal-column">
       <p>Nombre del alimento</p>
-      <input  id="edit-nombre-${element.id_alimento}" value="${element.nombre}">
+      <input id="edit-nombre-${element.id_alimento}" value="${element.nombre}">
 
       <p>Proteína cruda (%)</p>
       <input type="number" id="edit-Proteina_cruda-${element.id_alimento}" value="${mapa['Proteina_cruda'] || ''}">
@@ -2641,11 +2727,12 @@ function mostrarPagina(page) {
       <p>Energía metabolizable (Kcal/kg)</p>
       <input type="number" id="edit-Energia_metabo-${element.id_alimento}" value="${mapa['Energia_metabo'] || ''}">
 
-            <p>Estado</p>
+      <p>Estado</p>
       <select id="edit-estado-${element.id_alimento}" class="input__id">
-        <option value="activo" ${element.estado === 'activo' ? 'selected' : ''}>Activo</option>
-        <option value="inactivo" ${element.estado === 'inactivo' ? 'selected' : ''}>Inactivo</option>
+        <option value="activo" ${element.estado?.toLowerCase() === 'activo' ? 'selected' : ''}>Activo</option>
+        <option value="inactivo" ${element.estado?.toLowerCase() === 'inactivo' ? 'selected' : ''}>Inactivo</option>
       </select>
+
     </section>
 
     <!-- Columna 2 -->
@@ -2679,7 +2766,7 @@ function mostrarPagina(page) {
     </section>
 
     <!-- Columna 4 -->
-    <section class="modal-column">
+    <section style="padding:0 30px 0 0;" class="modal-column">
       <p>Metionina (%)</p>
       <input type="number" id="edit-Metionina-${element.id_alimento}" value="${mapa['Metionina'] || ''}">
 
@@ -2690,32 +2777,49 @@ function mostrarPagina(page) {
       <input type="number" id="edit-Triptofano-${element.id_alimento}" value="${mapa['Triptofano'] || ''}">
 
       <p>Imagen (opcional)</p>
-      <input  type="file" id="edit-imagen-${element.id_alimento}" class="input__id" accept="image/*">
+      <input type="file" id="edit-imagen-${element.id_alimento}" class="input__id" accept="image/*">
     </section>
   </div>
 
   <div class="modal-footer">
-    <button onclick="cerrarModal('edit', ${element.id_alimento})" class="btn">Cancelar</button>
+    <!-- Botón cancelar removido -->
     <button onclick="guardarCambios(${element.id_alimento})" class="btn">Guardar</button>
   </div>
-</dialog>
 
+</dialog>
 
 
 <!-- Modal eliminar -->
-<dialog class="dialog-icon-dele" id="modal-dele-${element.id_alimento}">
-  <div class="title-dialog">
-    <h2>Eliminar registro del alimento</h2>
-  </div>
-  <hr>
-  <p>Eliminar el registro sin saber si el alimento tiene trazabilidad puede alterar el sistema.  
-     Es preferible cambiar el estado del alimento a inactivo.</p>
-  <span>¿Está seguro que quiere eliminar este registro?</span>
-  <div class="container-button-dele1">
-    <button class="btn" onclick="eliminar_alimento(${element.id_alimento})">Eliminar</button>
-    <button class="btn" onclick="cerrarModal('dele', ${element.id_alimento})">Cancelar</button>
-  </div>
+<dialog style="padding:10px;" class="dialog-icon-dele" id="modal-dele-${element.id_alimento}">
+
+    <div class="container__btn__close">
+        <button 
+            type="button" 
+            class="btn__close" 
+            onclick="document.getElementById('modal-dele-${element.id_alimento}').close()"
+        >X</button>
+    </div>
+
+    <div class="title-dialog">
+        <h2>Eliminar registro del alimento</h2>
+    </div>
+
+    <hr>
+
+    <p>
+        Eliminar el registro sin saber si el alimento tiene trazabilidad puede alterar el sistema.
+        Es preferible cambiar el estado del alimento a inactivo.
+    </p>
+
+    <span>¿Está seguro que quiere eliminar este registro?</span>
+
+    <div class="container-button-dele">
+        <button class="btn" onclick="eliminar_alimento(${element.id_alimento})">Eliminar</button>
+    </div>
+
 </dialog>
+
+
         `;
     });
     
@@ -2823,7 +2927,7 @@ function consulta_individual_alimento() {
                             <img src="/src/static/iconos/delete icon.svg" onclick="abrirModal('dele', ${element.id_alimento})" class="icon-delete">
                         </td>
                     </tr>
-                     <dialog class="dialog-icon-eye modal-info" id="modal-eye-${element.id_alimento}">
+                   <dialog  style="padding:10px;" class="dialog-icon-eye modal-info" id="modal-eye-${element.id_alimento}">
   <div class="title-dialog">
     <h2>Información del Alimento</h2>
     <hr>
@@ -2831,60 +2935,60 @@ function consulta_individual_alimento() {
 
   <div class="modal-info-content">
     <!-- Columna 1 -->
-    <section class="modal-column">
-      <p>Nombre del alimento</p>
-      <input  value="${element.nombre}" readonly>
+    <section  class="modal-column">
+    <p>Nombre del alimento</p>
+    <input value="${element.nombre}" readonly>
 
       <p>Proteína cruda (%)</p>
-      <input type="number" value="${mapa['Proteina_cruda']}" readonly>
+      <input value="${mapa['Proteina_cruda']}" readonly>
 
       <p>Materia seca (%)</p>
-      <input type="number" value="${mapa['Materia_seca']}" readonly>
+      <input value="${mapa['Materia_seca']}" readonly>
 
       <p>Energía metabolizable (Kcal/kg)</p>
-      <input type="number" value="${mapa['Energia_metabo']}" readonly>
+      <input value="${mapa['Energia_metabo']}" readonly>
     </section>
 
     <!-- Columna 2 -->
     <section class="modal-column">
       <p>Fibra cruda (%)</p>
-      <input type="number" value="${mapa['Fibra_cruda']}" readonly>
+      <input value="${mapa['Fibra_cruda']}" readonly>
 
       <p>Extracto etéreo (%)</p>
-      <input type="number" value="${mapa['Extracto_etereo']}" readonly>
+      <input value="${mapa['Extracto_etereo']}" readonly>
 
       <p>Calcio (%)</p>
-      <input type="number" value="${mapa['Calcio']}" readonly>
+      <input value="${mapa['Calcio']}" readonly>
 
       <p>Fósforo (%)</p>
-      <input type="number" value="${mapa['Fosforo']}" readonly>
+      <input value="${mapa['Fosforo']}" readonly>
     </section>
 
     <!-- Columna 3 -->
     <section class="modal-column">
       <p>Sodio (%)</p>
-      <input type="number" value="${mapa['Sodio']}" readonly>
+      <input value="${mapa['Sodio']}" readonly>
 
       <p>Arginina (%)</p>
-      <input type="number" value="${mapa['Arginina']}" readonly>
+      <input value="${mapa['Arginina']}" readonly>
 
       <p>Lisina (%)</p>
-      <input type="number" value="${mapa['Lisina']}" readonly>
+      <input value="${mapa['Lisina']}" readonly>
 
       <p>Treonina (%)</p>
-      <input type="number" value="${mapa['Treonina']}" readonly>
+      <input value="${mapa['Treonina']}" readonly>
     </section>
 
     <!-- Columna 4 -->
     <section class="modal-column">
       <p>Metionina (%)</p>
-      <input type="number" value="${mapa['Metionina']}" readonly>
+      <input class="input_id" value="${mapa['Metionina']}" readonly>
 
       <p>Metionina + Cisteína (%)</p>
-      <input type="number" value="${mapa['Metionina_Cisteina']}" readonly>
+      <input value="${mapa['Metionina_Cisteina']}" readonly>
 
       <p>Triptófano (%)</p>
-      <input type="number" value="${mapa['Triptofano']}" readonly>
+      <input value="${mapa['Triptofano']}" readonly>
     </section>
   </div>
 
@@ -2897,6 +3001,16 @@ function consulta_individual_alimento() {
 
 <!-- Modal editar -->
 <dialog class="dialog-icon-edit modal-info" id="modal-edit-${element.id_alimento}">
+
+  <!-- Botón X -->
+  <div class="container__btn__close">
+    <button 
+      type="button" 
+      class="btn__close" 
+      onclick="document.getElementById('modal-edit-${element.id_alimento}').close()"
+    >X</button>
+  </div>
+
   <div class="title-dialog">
     <h2>Editar Alimento</h2>
     <hr>
@@ -2904,9 +3018,9 @@ function consulta_individual_alimento() {
 
   <div class="modal-info-content">
     <!-- Columna 1 -->
-    <section class="modal-column">
+    <section style="padding:0 0 0 10px;" class="modal-column">
       <p>Nombre del alimento</p>
-      <input  id="edit-nombre-${element.id_alimento}" value="${element.nombre}">
+      <input id="edit-nombre-${element.id_alimento}" value="${element.nombre}">
 
       <p>Proteína cruda (%)</p>
       <input type="number" id="edit-Proteina_cruda-${element.id_alimento}" value="${mapa['Proteina_cruda'] || ''}">
@@ -2917,11 +3031,12 @@ function consulta_individual_alimento() {
       <p>Energía metabolizable (Kcal/kg)</p>
       <input type="number" id="edit-Energia_metabo-${element.id_alimento}" value="${mapa['Energia_metabo'] || ''}">
 
-            <p>Estado</p>
+      <p>Estado</p>
       <select id="edit-estado-${element.id_alimento}" class="input__id">
-        <option value="activo" ${element.estado === 'activo' ? 'selected' : ''}>Activo</option>
-        <option value="inactivo" ${element.estado === 'inactivo' ? 'selected' : ''}>Inactivo</option>
+        <option value="activo" ${element.estado?.toLowerCase() === 'activo' ? 'selected' : ''}>Activo</option>
+        <option value="inactivo" ${element.estado?.toLowerCase() === 'inactivo' ? 'selected' : ''}>Inactivo</option>
       </select>
+
     </section>
 
     <!-- Columna 2 -->
@@ -2955,7 +3070,7 @@ function consulta_individual_alimento() {
     </section>
 
     <!-- Columna 4 -->
-    <section class="modal-column">
+    <section style="padding:0 30px 0 0;" class="modal-column">
       <p>Metionina (%)</p>
       <input type="number" id="edit-Metionina-${element.id_alimento}" value="${mapa['Metionina'] || ''}">
 
@@ -2966,29 +3081,48 @@ function consulta_individual_alimento() {
       <input type="number" id="edit-Triptofano-${element.id_alimento}" value="${mapa['Triptofano'] || ''}">
 
       <p>Imagen (opcional)</p>
-      <input  type="file" id="edit-imagen-${element.id_alimento}" class="input__id" accept="image/*">
+      <input type="file" id="edit-imagen-${element.id_alimento}" class="input__id" accept="image/*">
     </section>
   </div>
 
   <div class="modal-footer">
-    <button onclick="cerrarModal('edit', ${element.id_alimento})" class="btn">Cancelar</button>
+    <!-- Botón cancelar removido -->
     <button onclick="guardarCambios(${element.id_alimento})" class="btn">Guardar</button>
   </div>
+
 </dialog>
+
+
 <!-- Modal eliminar -->
-<dialog class="dialog-icon-dele" id="modal-dele-${element.id_alimento}">
-  <div class="title-dialog">
-    <h2>Eliminar registro del alimento</h2>
-  </div>
-  <hr>
-  <p>Eliminar el registro sin saber si el alimento tiene trazabilidad puede alterar el sistema.  
-     Es preferible cambiar el estado del alimento a inactivo.</p>
-  <span>¿Está seguro que quiere eliminar este registro?</span>
-  <div class="container-button-dele1">
-    <button class="btn" onclick="eliminar_alimento(${element.id_alimento})">Eliminar</button>
-    <button class="btn" onclick="cerrarModal('dele', ${element.id_alimento})">Cancelar</button>
-  </div>
+<dialog style="padding:10px;" class="dialog-icon-dele" id="modal-dele-${element.id_alimento}">
+
+    <div class="container__btn__close">
+        <button 
+            type="button" 
+            class="btn__close" 
+            onclick="document.getElementById('modal-dele-${element.id_alimento}').close()"
+        >X</button>
+    </div>
+
+    <div class="title-dialog">
+        <h2>Eliminar registro del alimento</h2>
+    </div>
+
+    <hr>
+
+    <p>
+        Eliminar el registro sin saber si el alimento tiene trazabilidad puede alterar el sistema.
+        Es preferible cambiar el estado del alimento a inactivo.
+    </p>
+
+    <span>¿Está seguro que quiere eliminar este registro?</span>
+
+    <div class="container-button-dele">
+        <button class="btn" onclick="eliminar_alimento(${element.id_alimento})">Eliminar</button>
+    </div>
+
 </dialog>
+
                 `;
             });
         })
@@ -3601,19 +3735,36 @@ function mostrarPagina(page) {
         </tr>
 
         <!-- MODAL ELIMINAR -->
-        <dialog class="dialog-icon-dele" id="modal-dele-dieta-${dieta.id_dieta}">
-            <div class="title-dialog">
-                <h2>Eliminar dieta</h2>
-            </div>
-            <hr>
-            <p>Si elimina esta dieta, también se eliminarán sus alimentos asociados.</p>
-            <span>¿Está seguro que quiere eliminar esta dieta?</span>
+<dialog style="padding:10px;" class="dialog-icon-dele" id="modal-dele-dieta-${dieta.id_dieta}">
 
-            <div class="container-button-dele1">
-                <button class="btn" onclick="eliminarDieta(${dieta.id_dieta})">Eliminar</button>
-                <button class="btn" onclick="cerrarModalDieta(${dieta.id_dieta})">Cancelar</button>
-            </div>
-        </dialog>
+    <!-- Botón X -->
+    <div class="container__btn__close">
+        <button 
+            type="button" 
+            class="btn__close" 
+            onclick="document.getElementById('modal-dele-dieta-${dieta.id_dieta}').close()"
+        >X</button>
+    </div>
+
+    <div class="title-dialog">
+        <h2>Eliminar dieta</h2>
+    </div>
+
+    <hr>
+
+    <p>
+        Si elimina esta dieta, también se eliminarán sus alimentos asociados.
+    </p>
+
+    <span>¿Está seguro que quiere eliminar esta dieta?</span>
+
+    <div class="container-button-dele">
+        <button class="btn" onclick="eliminarDieta(${dieta.id_dieta})">Eliminar</button>
+        <!-- Botón Cancelar removido -->
+    </div>
+
+</dialog>
+
     `;
 });
 
@@ -3676,31 +3827,52 @@ function consulta_individual_dieta() {
             const dieta = data.mensaje;
 
             contenido.innerHTML = `
-                <tr class="nuevo1">
-                    <td class="nuevo td__border__l">
-                        <img class="svg__alimento" src="/src/static/iconos/ramen 1.svg">
-                    </td>
+ <tr class="nuevo1">
+            <td class="nuevo td__border__l"><img class="svg__alimento" src="/src/static/iconos/ramen 1.svg"></td>
+            <td class="nuevo">${dieta.id_dieta}</td>
+            <td class="nuevo">${dieta.usuario}</td>
+            <td class="nuevo">${dieta.etapa_vida}</td>
+            <td class="nuevo">${dieta.fecha_creacion}</td>
+            <td class="nuevo">${dieta.estado}</td>
+            <td class="nuevo td__border__r">
+                <img src="/src/static/iconos/icon eye.svg" onclick="abrirVerDieta(${dieta.id_dieta})" class="icon-eye">
+                <img src="/src/static/iconos/edit icon.svg" onclick="abrirModalDieta(${dieta.id_dieta})" class="icon-edit">
 
-                    <td class="nuevo">${dieta.id_dieta}</td>
-                    <td class="nuevo">${dieta.id_usuario}</td>
-                    <td class="nuevo">${dieta.etapa_vida}</td>
-                    <td class="nuevo">${dieta.fecha_creacion}</td>
-                    <td class="nuevo">${dieta.estado}</td>
+                <!-- AQUI LLAMAS AL MODAL -->
+                <img src="/src/static/iconos/delete icon.svg" onclick="abrirModalEliminarDieta(${dieta.id_dieta})" class="icon-delete">
+            </td>
+        </tr>
 
-                    <td class="nuevo td__border__r">
-                        <img src="/src/static/iconos/icon eye.svg" 
-                             onclick="abrirModalDieta(${dieta.id_dieta})" 
-                             class="icon-eye">
+        <!-- MODAL ELIMINAR -->
+<dialog style="padding:10px;" class="dialog-icon-dele" id="modal-dele-dieta-${dieta.id_dieta}">
 
-                        <img src="/src/static/iconos/edit icon.svg" 
-                             onclick="abrirModalDieta(${dieta.id_dieta})" 
-                             class="icon-edit">
+    <!-- Botón X -->
+    <div class="container__btn__close">
+        <button 
+            type="button" 
+            class="btn__close" 
+            onclick="document.getElementById('modal-dele-dieta-${dieta.id_dieta}').close()"
+        >X</button>
+    </div>
 
-                        <img src="/src/static/iconos/delete icon.svg" 
-                             onclick="abrirModalDieta(${dieta.id_dieta})" 
-                             class="icon-delete">
-                    </td>
-                </tr>
+    <div class="title-dialog">
+        <h2>Eliminar dieta</h2>
+    </div>
+
+    <hr>
+
+    <p>
+        Si elimina esta dieta, también se eliminarán sus alimentos asociados.
+    </p>
+
+    <span>¿Está seguro que quiere eliminar esta dieta?</span>
+
+    <div class="container-button-dele">
+        <button class="btn" onclick="eliminarDieta(${dieta.id_dieta})">Eliminar</button>
+        <!-- Botón Cancelar removido -->
+    </div>
+
+</dialog>
             `;
 
             Dietas_totales.innerHTML = "";

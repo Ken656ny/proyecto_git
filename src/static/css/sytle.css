@@ -650,6 +650,9 @@ SECCION DE PORCINOS
     grid-template-columns: repeat(10,1fr);
     grid-template-rows: repeat(10,1fr);
     overflow-y: hidden;
+    overflow-x: hidden;
+    height: 100vh;
+    width: 100%;
 }
 
 
@@ -736,7 +739,7 @@ SECCION DE PORCINOS
 .alimentos_en_dieta{
     display: grid;
     grid-template-columns: repeat(3,1fr);
-    grid-template-rows: repeat(2,1fr);
+    grid-template-rows: repeat(3,1fr);
     gap: 10px; 
     padding: 10px;
     overflow-y: auto;
@@ -905,6 +908,25 @@ label.contenedor{
     grid-template-columns: 100%;
     justify-content: center;
 }
+
+.container_dietas_ver{
+    grid-column: 1/5;
+    grid-row: 2/11;
+    border: 1px solid black;
+    border-radius: 14px;
+    gap: 2%;
+    width: 115%;
+    height: 92%;
+    margin: auto;
+    margin-top: 3%;
+    margin-left: 2%;
+    font-family: var(--fuente--contenido);
+    display: grid;
+    grid-template-rows: auto;
+    grid-template-columns: 100%;
+    justify-content: center;
+}
+
 
 .container_requerimientos_alimento{
     grid-column: 6/10;
@@ -1381,12 +1403,7 @@ th{
     align-items: center;
     gap: 0.5em;
 }
-container-button-dele1{
-    margin-top: 7em;
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-}
+
 
 .button-cerrar, .button-guardar, .button-eliminar{
     background-color: var(--color--btn--hover);
@@ -1524,6 +1541,8 @@ hr{
     height: 490px;
     border-radius: 34px;
     border: 1px solid var(--color-bor-contain);
+    position: relative;
+    z-index: 2;
 }
 
 .container__items__dialogs{
@@ -2135,7 +2154,7 @@ SI SALE MAL ES CULPA DE CRISTIAN
     width: 16px;
     height: 16px;
     border: 1px solid #000;
-    border-radius: 4px;
+    border-radius: 100px;
     background-color: #aee9c6; /* Verde claro */
 }
 
@@ -2223,8 +2242,13 @@ SI SALE MAL ES CULPA DE CRISTIAN
     }
 
 .input_add1:hover{
-    background-color: var(--color--btn--hover);
+    background-color: var(--color--btn--hover) !important;
     border: 1px solid var(--color-bor-btn-hover);
+}
+
+.input_add1:focus{
+background-color: var(--color--btn--hover) !important;
+    outline: 1px solid rgba(0, 0, 0, 0);
 }
 
 .seccion1{
@@ -2327,9 +2351,6 @@ DIETASSSSSSSS
   padding: 15px;
 }
 
-
-
-
 /* ===== BOTÓN CERRAR ===== */
 .modal-close {
   padding: 10px 25px;
@@ -2354,9 +2375,6 @@ DIETASSSSSSSS
     align-items: center;
   }
 }
-
-/* 🔝 Asegura que el SweetAlert esté por encima de todos tus modales */
-
 
 /* 🔝 Elimina prioridad visual de tus contenedores de botones */
 .container-button-dele1 {
@@ -2432,7 +2450,6 @@ RESPONSIVE BAR
     .barra-lateral .nombre-pagina{
         margin-bottom: 5px;
     }
-
 }
 
 @media(max-width: 600px){
@@ -2493,10 +2510,7 @@ RESPONSIVE BAR
         padding: 1rem;
         width: 100%;
     }
-
-
 }
-
 
 
 /* -----------------------------------------------------

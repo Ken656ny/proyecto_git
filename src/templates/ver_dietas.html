@@ -96,28 +96,18 @@
         </div>
     </section>
     <section class="contenido_dietas">
-
+                    <div class="container__back__logo">
+                <img onclick="window.location.href='/src/templates/gestionar_dietas.html'" src="/src/static/iconos/back icon.svg" alt="icon back" class="icon__back">
+            </div>
         <header class="container container__title_dietas">
-            <h1>Consultar Dietas</h1>
+            <h1>Dieta 47</h1>
         </header>
 
 
-        <section class="container container__search__bar_dietas">
-            <div class="separador">
-                <img src="/src/static/iconos/icon lupa.svg" alt="">
-                <input type="text" class="input__id" id="id_alimento" placeholder="Nombre del alimento"
-                    list="lista_alimentos">
-                <datalist id="lista_alimentos"></datalist>
-            </div>
-            <div class="final_buttom">
-                <button type="button" class="btn" onclick="consulta_individual_alimento_disponible()">Consultar</button>
-            </div>
-                <button id="enviar_consulta" type="button" class="btn" onclick="dietas()">Consultar todo</button>
-        </section>
 
 
-        <section id="contenedor_dietas" class="container container_dietas">
-            <div style="display: flex;"></div>
+
+        <section id="contenedor_dietas" class="container container_dietas_ver">
             <div class="alimentos_en_dieta" id="alimentos_en_dieta">
             </div>
         </section>
