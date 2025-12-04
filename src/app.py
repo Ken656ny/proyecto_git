@@ -49,7 +49,8 @@ def generar_token(usuario, es_google=False):
     convertidor_ni = int(usuario["numero_identificacion"])
 
     payload = {
-        "id_usuario": convertidor_ni,
+        "id_auto": usuario['id_usuario'], # id incrementable
+        "id_usuario": convertidor_ni, # numero de indentificacion
         "nombre": usuario["nombre"],
         "correo": usuario["correo"],
         "es_google": es_google,
@@ -72,6 +73,7 @@ def token_requerido(f):
                 token = token.replace("Bearer ", "")
             
             datos = jwt.decode(token, app.secret_key, algorithms=["HS256"])
+            print(datos)
             request.usuario = datos
             
         except jwt.ExpiredSignatureError:
@@ -134,6 +136,7 @@ def login():
                     FROM usuario WHERE correo = %s
                 ''', (correo,))
                 user = cur.fetchone()
+                print(user)
         
         if not user:
             return jsonify({'Mensaje': 'Usuario no encontrado'}), 404
@@ -305,7 +308,7 @@ def google_login():
             "correo": email,
             'rol': rol
         }
-        token = generar_token(usuario, es_google=True)
+        token = _token(usuario, es_google=True)
 
         return jsonify({
             "status": "success",
@@ -866,6 +869,10 @@ def registrar_porcinos():
       description: Registro agregado
   """
   try:
+    usuario = request.usuario   
+    id_usuario = usuario["id_auto"]
+
+    print(usuario)
     porcino = request.get_json()
     id =      porcino['id_porcino']
     p_ini =   float(porcino['peso_inicial'])
@@ -909,8 +916,19 @@ def registrar_porcinos():
                       INSERT INTO porcinos (peso_inicial,peso_final,fecha_nacimiento,sexo,id_raza,id_etapa,estado,descripcion,id_porcino) 
                       values (%s,%s,%s,%s,%s,%s,%s,%s,%s)""",
                       (p_ini,p_fin,fec_nac,sexo,id_ra,id_eta,estado,descripcion,id))
+          id_porcino = cur.lastrowid
+          cur.execute("""
+                INSERT INTO notificaciones (id_usuario_destinatario, id_usuario_origen, titulo, mensaje, tipo)
+                VALUES (%s, %s, %s, %s, %s)
+            """, (
+                id_usuario,  
+                id_usuario, 
+                'Registro de Porcino',
+                f'Se registró un nuevo porcino con ID {id_porcino}',
+                'Ingreso'
+            ))
           conn.commit()
-    
+
     return jsonify({'Mensaje': f'Porcino con id {id} registrado'})
   
   except Exception as err:
@@ -961,6 +979,9 @@ def actualizar_porcino(id):
       description: Registro actualizado
   """
   try:
+    usuario = request.usuario   
+    id_usuario = usuario["id_auto"]
+    
     porcino = request.get_json()
     p_ini =       porcino['peso_inicial']
     p_fin =       porcino['peso_final']
@@ -975,6 +996,10 @@ def actualizar_porcino(id):
       with conn.cursor() as cur:
         cur.execute('UPDATE porcinos SET peso_inicial = %s, peso_final = %s, fecha_nacimiento = %s, sexo = %s, id_raza = %s, id_etapa = %s, estado = %s, descripcion = %s WHERE id_porcino = %s',
                   (p_ini,p_fin,fec_nac,sexo,id_ra,id_eta,estado,descripcion,id))
+        cur.execute("""
+                      INSERT INTO notificaciones (id_usuario_destinatario, id_usuario_origen, titulo, mensaje, tipo)
+                      VALUES (%s, %s, %s, %s, %s)""", 
+                      (id_usuario,id_usuario,'Actualizacion de la información del Porcino',f'Se actualizo la información del porcino con ID {id}','Actualización'))
         conn.commit()
     
     return jsonify({'Mensaje': f'Informacion del porcino con id {id} actualizada'}), 200
@@ -1003,9 +1028,17 @@ def eliminar_porcino(id):
       description: Registro del porcino eliminado
   """
   try:
+    usuario = request.usuario
+    id_usuario = usuario["id_auto"]
+    
     with config['development'].conn() as conn:
       with conn.cursor() as cur:
         cur.execute('DELETE FROM porcinos WHERE id_porcino = %s', (id))
+        cur.execute(f"""
+                      INSERT INTO notificaciones (id_usuario_destinatario, id_usuario_origen, titulo, mensaje, tipo)
+                      VALUES ({id_usuario}, {id_usuario}, 'Eliminación de la información del Porcino',
+                      CONCAT('Se eliminó la información del porcino con ID {id}'),'Eliminación');
+                      """)
         conn.commit()
     return jsonify({'Mensaje': f'El porcino con id {id} ha sido eliminado correctamente'})
     
@@ -1101,6 +1134,9 @@ def registrar_raza():
       description: Raza registada correctamente
   """
   try:
+    usuario = request.usuario   
+    id_usuario = usuario["id_auto"]
+    
     data = request.get_json()
     nombre = data['nombre']
     desc = data['descripcion']
@@ -1111,7 +1147,7 @@ def registrar_raza():
         id_raza = cur.lastrowid
         cur.execute(f"""
                       INSERT INTO notificaciones (id_usuario_destinatario, id_usuario_origen, titulo, mensaje, tipo)
-                      VALUES (3, 3, 'Registro de Raza',
+                      VALUES ({id_usuario}, {id_usuario}, 'Registro de Raza',
                       CONCAT('Se registró una nueva raza con ID {id_raza}'),'Ingreso');
                       """)
         conn.commit()
@@ -1120,7 +1156,6 @@ def registrar_raza():
   except Exception as err:
     print(err)
     return jsonify({'Mensaje':'Error en la base de datos'})
-
 
 # RUTA PARA ACTUALIZAR LA INFORMACION DE UNA RAZA POR SU ID
 @app.route('/raza/<int:id>', methods = ['PUT'])
@@ -1198,16 +1233,25 @@ def eliminar_raza(id):
       
   """
   try:
+    usuario = request.usuario   
+    id_usuario = usuario["id_auto"]
     with config['development'].conn() as conn:
       with conn.cursor() as cur:
         cur.execute('DELETE FROM raza WHERE id_raza = %s',
                 (id))
-        cur.execute(f"""
-                      INSERT INTO notificaciones (id_usuario_destinatario, id_usuario_origen, titulo, mensaje, tipo)
-                      VALUES (1, 1, 'Eliminación de la información de la Raza',
-                      CONCAT('Se eliminó la información de la raza con ID {id}'),'Eliminación');
-                      """)
+        cur.execute("""
+                    INSERT INTO notificaciones (id_usuario_destinatario, id_usuario_origen, titulo, mensaje, tipo)
+                    VALUES (%s, %s, %s, %s, %s)
+                """, (
+                    id_usuario,   
+                    id_usuario,  
+                    'Eliminación de la información de la Raza',
+                    f'Se eliminó la información de la raza con ID {id}',
+                    'Eliminación'
+                ))
+
         conn.commit()
+
 
     return jsonify({'Mensaje': 'Raza eliminada correctamente'})
   except Exception as err:
@@ -1558,7 +1602,7 @@ def eliminar_etapa_vida(id):
 #RUTA PARA CONSULTAR LAS NOTIFICAIONES DEL USUARIO
 @app.route("/notificaciones/<int:id>", methods = ['GET'])
 @token_requerido
-def consulta_notificaiones(id):
+def consulta_notificaciones(id):
   """
   Consulta de notificaiones de un usuario
   ---
@@ -1575,7 +1619,7 @@ def consulta_notificaiones(id):
                       SELECT id_notificacion,titulo, mensaje, tipo,fecha_creacion
                       FROM notificaciones 
                       WHERE id_usuario_destinatario = %s
-                      ORDER BY fecha_creacion DESC
+                      ORDER BY fecha_creacion ASC
                       """, (id,))
     info = cursor.fetchall()
     if info:

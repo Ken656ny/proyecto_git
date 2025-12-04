@@ -7,6 +7,7 @@ const URL_BASE = 'http://127.0.0.1:5000'
 // Función auxiliar para obtener los headers con autorización
 function getAuthHeaders() {
     const token = localStorage.getItem("token");
+    console.log(token)
     return {
         "Content-type": "application/json",
         "Authorization": `Bearer ${token}`
@@ -2076,10 +2077,7 @@ async function registrar_raza() {
         const promesa = await fetch(`${URL_BASE}/raza`, {
             method : 'POST',
             body : JSON.stringify(raza),
-            headers: {
-                "Content-type" : "application/json",
-                headers: getAuthHeaders()
-            }
+            headers: getAuthHeaders()
         })
         const response = await promesa.json()
         if (response.Mensaje == "Raza registrada correctamente"){
@@ -2156,17 +2154,14 @@ async function actualizar_raza(id) {
 
 async function eliminar_raza(id){
     try {
-        await verifyToken()
+        await verifyToken();
         const input = document.getElementById(`input-eliminar-${id}`);
         const value_input = document.getElementById(`input-eliminar-${id}`).value;
         if (value_input == id){
             const promesa = await fetch(`${URL_BASE}/raza/${id}`, {method : 'DELETE',
-                headers : getAuthHeaders()
+                headers: getAuthHeaders()
             });
             const response = await promesa.json();
-            cerrarDialog(`modal-delete-confirm`);
-            cerrarDialog(`modal-delete`);
-            cerrarDialog(`dialog__ges__raz`);
             if (response.Mensaje === `Error en la base de datos`) {
                 Swal.fire({
                     title: "Mensaje",
@@ -2175,6 +2170,9 @@ async function eliminar_raza(id){
                     confirmButton: "Ok",
                     })
             } else{
+                cerrarDialog(`modal-delete-confirm`);
+                cerrarDialog(`modal-delete`);
+                cerrarDialog(`dialog__ges__raz`);           
                 Swal.fire({
                     title: "Mensaje",
                     text: `${response.Mensaje}`,
@@ -2647,7 +2645,9 @@ async function consultar_notificaciones() {
     try {
         await verifyToken()
         const usuario = JSON.parse(localStorage.getItem("usuario"));
+        console.log(usuario)
         const idUsuario = usuario.id_usuario;
+
         const promesa = await fetch(`${URL_BASE}/notificaciones/${idUsuario}`,
             {
                 method : 'GET',
@@ -2655,7 +2655,6 @@ async function consultar_notificaciones() {
             }
         )
         const response = await promesa.json()
-        console.log(response)
         mostrar_notificaciones(response)
         return response 
     } catch (error) {
