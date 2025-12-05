@@ -378,6 +378,303 @@ def consulta_porcino_historial(id):
     print(err)
     return jsonify({'Mensaje': 'Error'}), 500
 
+@app.route("/PDF_transacciones")
+def reporte_transacciones():
+
+  try:
+    try:
+      with config['development'].conn() as conn:
+        with conn.cursor() as cur:
+          cur.execute("""
+              SELECT tp.id_documento,tp.fecha_documento,tp.fecha_pesaje,tp.id_porcino,tp.peso_final,u.nombre,tp.descripcion
+              FROM transaccion_peso tp
+              JOIN usuario u
+              ON tp.id_usuario = u.id_usuario
+              ORDER BY fecha_documento DESC
+              """)
+        historial = cur.fetchall()
+    except Exception as err:
+      print(err)
+      return jsonify({'Error al Consultar los Porcinos'})
+
+    buffer = io.BytesIO()
+    pdf = SimpleDocTemplate(buffer, pagesize=landscape(letter))
+    elementos = []
+    codigo = random.randint(0,9999)
+    styles = getSampleStyleSheet()
+    style_normal = styles["Normal"]
+    style_normal.fontSize = 9  # si quieres ajustar tamaño
+    style_normal.leading = 11  # espacio entre líneas
+    # ================================================
+    #               ENCABEZADO PERSONALIZADO
+    # ================================================
+    ruta_logo = os.path.join("src/static/iconos/", "Logo_edupork.png")
+
+    if os.path.exists(ruta_logo):
+        logo = Image(ruta_logo, width=140, height=60)
+    else:
+        logo = Paragraph("LOGO", styles["Title"])
+    
+    titulo_central = [
+        Paragraph('<font color="#333333"><b>Edupork: Gestion de Alimentacion Porcina</b></font>', styles["Title"]),
+        Paragraph('<para align="center"><font color="#333333">Informe de Transacciones de peso </font></para>',styles["Normal"])
+    ]
+
+    info_derecha = [
+        Paragraph(f'<font color="#333333"><b>CÓDIGO:</b> {codigo}</font>', styles["Normal"]),
+        Paragraph('<font color="#333333"><b>VERSIÓN:</b> 1</font>', styles["Normal"]),
+    ]
+
+    ruta_logo_sena = os.path.join("src/static/iconos/", "logo_sena.png")
+
+    if os.path.exists(ruta_logo_sena):
+        logo_sena = Image(ruta_logo_sena, width=60, height=60)
+    else:
+        logo_sena = Paragraph("LOGO_SENA", styles["Title"])
+    
+    tabla_encabezado = Table(
+        [
+            [logo, titulo_central, info_derecha, logo_sena]
+        ],
+        colWidths=[120, 270, 100, 80]
+    )
+
+    tabla_encabezado.setStyle(TableStyle([
+        ("BOX", (0, 0), (-1, -1), 1, "#333333"),
+        ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
+        ("ALIGN", (1, 0), (1, 0), "CENTER"),
+        ("LEFTPADDING", (1, 0), (1, 0), 10),
+        ("RIGHTPADDING", (2, 0), (2, 0), 10),
+    ]))
+
+    elementos.append(tabla_encabezado)
+    elementos.append(Spacer(1, 20))
+
+    # ================================================
+    #                TABLA DE PORCINOS
+    # ================================================
+    elementos.append(Paragraph('<font color="#333333"><b>Listado de Transacciones de peso</b></font>', styles["Title"]))
+    
+    encabezado = ["ID Documento", "Fecha Documento", "Fecha Pesaje", "ID Porcino", "Peso Final", "Nombre Usuario", "Descripcion"]
+    tabla_data = [encabezado]
+
+    for h in historial:
+      descripcion_limpia = " ".join(str(h["descripcion"]).split())
+
+      tabla_data.append([
+          h["id_documento"],
+          h["fecha_documento"],
+          h["fecha_pesaje"],
+          h["id_porcino"],
+          h["peso_final"],
+          h["nombre"],
+          Paragraph(descripcion_limpia, style_normal),
+      ])
+
+
+
+    verde_header = colors.HexColor("#62804B")
+    verde_fila = colors.HexColor("#E7F6DD")
+
+    tabla = Table(tabla_data, colWidths=[80, 110, 90, 70, 70, 100, 200])
+
+    # ================================
+    #    ESTILOS BASE DE LA TABLA
+    # ================================
+    estilos_tabla = [
+        ("BACKGROUND", (0, 0), (-1, 0), verde_header),
+        ("TEXTCOLOR", (0, 0), (-1, 0), colors.HexColor('#ffffff')),
+        ("FONTNAME", (0, 0), (-1, 0), "Helvetica-Bold"),
+        ("FONTSIZE", (0, 0), (-1, 0), 12),
+
+        ("BOX", (0, 0), (-1, -1), 1, colors.HexColor("#9BC38A")),
+        ("GRID", (0, 0), (-1, -1), 0.5, colors.HexColor("#AACF96")),
+
+        ("ALIGN", (0, 0), (-1, -1), "CENTER"),
+        ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
+
+        ("FONTSIZE", (0, 1), (-1, -1), 10),
+    ]
+
+    # ======================================
+    #      ALTERNAR TODAS LAS FILAS
+    # ======================================
+    for i in range(1, len(tabla_data)):
+        if i % 2 == 1:
+            estilos_tabla.append(("BACKGROUND", (0, i), (-1, i), verde_fila))
+
+    tabla.setStyle(TableStyle(estilos_tabla))
+
+    elementos.append(tabla)
+
+    # ================================================
+    #                GENERAR PDF
+    # ================================================
+    pdf.build(elementos)
+
+    pdf_value = buffer.getvalue()
+    buffer.close()
+
+    response = make_response(pdf_value)
+    response.headers["Content-Type"] = "application/pdf"
+    response.headers["Content-Disposition"] = 'inline; filename="reporte_transacciones.pdf"'
+
+    return response
+
+  except Exception as err:
+    print(err)
+    return jsonify({'Mensaje': 'Error al generar el pdf'})
+
+
+@app.route("/PDF_transacciones/<int:id>")
+def reporte_transacciones_por_porcino(id):
+
+  try:
+    try:
+      with config['development'].conn() as conn:
+        with conn.cursor() as cur:
+          cur.execute("""
+                    SELECT tp.id_documento,tp.fecha_documento,tp.fecha_pesaje,tp.id_porcino,tp.peso_final,u.nombre,tp.descripcion
+                    FROM transaccion_peso tp
+                    JOIN usuario u
+                    ON tp.id_usuario = u.id_usuario
+                    WHERE id_porcino = %s
+                    ORDER BY fecha_documento DESC
+                    """, (id,))
+        historial = cur.fetchall()
+    except Exception as err:
+      print(err)
+      return jsonify({'Error al Consultar los Porcinos'})
+
+    buffer = io.BytesIO()
+    pdf = SimpleDocTemplate(buffer, pagesize=landscape(letter))
+    elementos = []
+    codigo = random.randint(0,9999)
+    styles = getSampleStyleSheet()
+    style_normal = styles["Normal"]
+    style_normal.fontSize = 9  # si quieres ajustar tamaño
+    style_normal.leading = 11  # espacio entre líneas
+    # ================================================
+    #               ENCABEZADO PERSONALIZADO
+    # ================================================
+    ruta_logo = os.path.join("src/static/iconos/", "Logo_edupork.png")
+
+    if os.path.exists(ruta_logo):
+        logo = Image(ruta_logo, width=140, height=60)
+    else:
+        logo = Paragraph("LOGO", styles["Title"])
+    
+    titulo_central = [
+        Paragraph('<font color="#333333"><b>Edupork: Gestion de Alimentacion Porcina</b></font>', styles["Title"]),
+        Paragraph('<para align="center"><font color="#333333">Informe de Transacciones de peso</font></para>',styles["Normal"])
+    ]
+
+    info_derecha = [
+        Paragraph(f'<font color="#333333"><b>CÓDIGO:</b> {codigo}</font>', styles["Normal"]),
+        Paragraph('<font color="#333333"><b>VERSIÓN:</b> 1</font>', styles["Normal"]),
+    ]
+
+    ruta_logo_sena = os.path.join("src/static/iconos/", "logo_sena.png")
+
+    if os.path.exists(ruta_logo_sena):
+        logo_sena = Image(ruta_logo_sena, width=60, height=60)
+    else:
+        logo_sena = Paragraph("LOGO_SENA", styles["Title"])
+    
+    tabla_encabezado = Table(
+        [
+            [logo, titulo_central, info_derecha, logo_sena]
+        ],
+        colWidths=[120, 270, 100, 80]
+    )
+
+    tabla_encabezado.setStyle(TableStyle([
+        ("BOX", (0, 0), (-1, -1), 1, "#333333"),
+        ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
+        ("ALIGN", (1, 0), (1, 0), "CENTER"),
+        ("LEFTPADDING", (1, 0), (1, 0), 10),
+        ("RIGHTPADDING", (2, 0), (2, 0), 10),
+    ]))
+
+    elementos.append(tabla_encabezado)
+    elementos.append(Spacer(1, 20))
+
+    # ================================================
+    #                TABLA DE PORCINOS
+    # ================================================
+    elementos.append(Paragraph(f'<font color="#333333"><b>Listado de Transacciones de peso del porcino {id}</b></font>', styles["Title"]))
+    
+    encabezado = ["ID Documento", "Fecha Documento", "Fecha Pesaje", "ID Porcino", "Peso Final", "Nombre Usuario", "Descripcion"]
+    tabla_data = [encabezado]
+
+    for h in historial:
+      descripcion_limpia = " ".join(str(h["descripcion"]).split())
+
+      tabla_data.append([
+          h["id_documento"],
+          h["fecha_documento"],
+          h["fecha_pesaje"],
+          h["id_porcino"],
+          h["peso_final"],
+          h["nombre"],
+          Paragraph(descripcion_limpia, style_normal),
+      ])
+
+
+
+    verde_header = colors.HexColor("#62804B")
+    verde_fila = colors.HexColor("#E7F6DD")
+
+    tabla = Table(tabla_data, colWidths=[80, 110, 90, 70, 70, 100, 200])
+
+    # ================================
+    #    ESTILOS BASE DE LA TABLA
+    # ================================
+    estilos_tabla = [
+        ("BACKGROUND", (0, 0), (-1, 0), verde_header),
+        ("TEXTCOLOR", (0, 0), (-1, 0), colors.HexColor('#ffffff')),
+        ("FONTNAME", (0, 0), (-1, 0), "Helvetica-Bold"),
+        ("FONTSIZE", (0, 0), (-1, 0), 12),
+
+        ("BOX", (0, 0), (-1, -1), 1, colors.HexColor("#9BC38A")),
+        ("GRID", (0, 0), (-1, -1), 0.5, colors.HexColor("#AACF96")),
+
+        ("ALIGN", (0, 0), (-1, -1), "CENTER"),
+        ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
+
+        ("FONTSIZE", (0, 1), (-1, -1), 10),
+    ]
+
+    # ======================================
+    #      ALTERNAR TODAS LAS FILAS
+    # ======================================
+    for i in range(1, len(tabla_data)):
+        if i % 2 == 1:
+            estilos_tabla.append(("BACKGROUND", (0, i), (-1, i), verde_fila))
+
+    tabla.setStyle(TableStyle(estilos_tabla))
+
+    elementos.append(tabla)
+
+    # ================================================
+    #                GENERAR PDF
+    # ================================================
+    pdf.build(elementos)
+
+    pdf_value = buffer.getvalue()
+    buffer.close()
+
+    response = make_response(pdf_value)
+    response.headers["Content-Type"] = "application/pdf"
+    response.headers["Content-Disposition"] = 'inline; filename="reporte_transacciones.pdf"'
+
+    return response
+
+  except Exception as err:
+    print(err)
+    return jsonify({'Mensaje': 'Error al generar el pdf'})
+
+
 
 @app.route('/porcino/historial_pesos/conteo_transacciones', methods=['GET'])
 def conteo_transacciones():
@@ -694,7 +991,7 @@ def reporte_porcinos():
         logo = Paragraph("LOGO", styles["Title"])
     
     titulo_central = [
-        Paragraph('<font color="#333333"><b>Edupork: Alimentación Porcina</b></font>', styles["Title"]),
+        Paragraph('<font color="#333333"><b>Edupork: Gestion de Alimentacion Porcina</b></font>', styles["Title"]),
         Paragraph('<para align="center"><font color="#333333">Informe de Porcinos registrados</font></para>',styles["Normal"])
     ]
 
@@ -1030,7 +1327,7 @@ def reporte_razas():
         logo = Paragraph("LOGO", styles["Title"])
     
     titulo_central = [
-        Paragraph('<font color="#333333"><b>Edupork: Alimentación Porcina</b></font>', styles["Title"]),
+        Paragraph('<font color="#333333"><b>Edupork: Gestion de Alimentacion Porcina</b></font>', styles["Title"]),
         Paragraph('<para align="center"><font color="#333333">Informe de Razas registradas</font></para>',styles["Normal"])
     ]
 
@@ -1542,7 +1839,7 @@ def reporte_etapas():
         logo_sena = Image(ruta_logo_sena, width=60, height=60) if os.path.exists(ruta_logo_sena) else Paragraph("SENA", styles["Title"])
 
         titulo_central = [
-            Paragraph('<para align="center"><b>Edupork: Alimentación Porcina</b></para>', styles["Title"]),
+            Paragraph('<para align="center"><b>Edupork: Gestion de Alimentacion Porcina</b></para>', styles["Title"]),
             Paragraph('<para align="center">Informe de Etapas de Vida Registradas</para>', styles["Normal"])
         ]
 

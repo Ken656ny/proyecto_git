@@ -3646,8 +3646,20 @@ document.getElementById('btn_consultar_todo_historial').addEventListener('click'
     consulta_gen_historial_pesos()
 })
 
-async function generar_pdf(tipo) {
-    const promesa = await fetch(`${URL_BASE}/PDF_${tipo}`);
+document.getElementById('form-consul-histo').addEventListener('submit', (e) =>{
+    e.preventDefault();
+    const btn_pdf = document.getElementById('impresora_hp')
+    const btn_pdf_searc = document.getElementById('impresora_searchbar')
+    btn_pdf.style.display = 'none'
+    btn_pdf_searc.style.display = 'inline-block'
+    const input_value = document.getElementById('input_id_hp').value;
+    btn_pdf_searc.addEventListener('click', () =>{
+        generar_pdf('transacciones', input_value)
+    })
+})
+
+async function generar_pdf(tipo, id) {
+    const promesa = await fetch(`${URL_BASE}/PDF_${tipo}${id ? `/${id}` : ''} `);
     const blob = await promesa.blob();
 
     const url = URL.createObjectURL(blob);
@@ -3657,5 +3669,3 @@ async function generar_pdf(tipo) {
     a.download = `reporte_${tipo}.pdf`;
     a.click();
 }
-
-
