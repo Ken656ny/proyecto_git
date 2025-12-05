@@ -3643,20 +3643,12 @@ document.getElementById('btn_consultar_todo_historial').addEventListener('click'
     if (input_id_historial){
         input_id_historial.value = "Ingrese el ID del porcino"
     }
+    document.getElementById('impresora_hp').style.display = 'inline-block'
+    document.getElementById('impresora_searchbar').style.display = 'none'
     consulta_gen_historial_pesos()
 })
 
-document.getElementById('form-consul-histo').addEventListener('submit', (e) =>{
-    e.preventDefault();
-    const btn_pdf = document.getElementById('impresora_hp')
-    const btn_pdf_searc = document.getElementById('impresora_searchbar')
-    btn_pdf.style.display = 'none'
-    btn_pdf_searc.style.display = 'inline-block'
-    const input_value = document.getElementById('input_id_hp').value;
-    btn_pdf_searc.addEventListener('click', () =>{
-        generar_pdf('transacciones', input_value)
-    })
-})
+// GENERAR PDFS
 
 async function generar_pdf(tipo, id) {
     const promesa = await fetch(`${URL_BASE}/PDF_${tipo}${id ? `/${id}` : ''} `);
@@ -3669,3 +3661,28 @@ async function generar_pdf(tipo, id) {
     a.download = `reporte_${tipo}.pdf`;
     a.click();
 }
+
+// GENERAR PDF POR PORCINO
+
+document.getElementById('form-consul-histo').addEventListener('submit', (e) =>{
+    e.preventDefault();
+
+    const btn_pdf = document.getElementById('impresora_hp');
+    const btn_pdf_searc = document.getElementById('impresora_searchbar');
+
+    btn_pdf.style.display = 'none';
+    btn_pdf_searc.style.display = 'inline-block';
+
+    const input_value = document.getElementById('input_id_hp').value;
+
+    // Guardar el ID sin eventos múltiples
+    btn_pdf_searc.dataset.id = input_value;
+});
+
+document.getElementById('impresora_searchbar').addEventListener('click', function () {
+    const id = this.dataset.id;
+    generar_pdf('transacciones', id);
+});
+
+
+
