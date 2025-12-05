@@ -1,5 +1,5 @@
 #ACCEDER A LAS FUNCIONES DE FLASK
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, request, make_response
 
 #PARA FACILITAR EL CONSUMO DE LA API GENERADA
 from flask_cors import CORS
@@ -10,11 +10,25 @@ from flasgger import Swagger
 # BASE DE DATOS, DENTRO DE ESA CLASE HAY UN CLASSMETHOD QUE RETORNA LA CONEXION CON LA BASE DE DATOS
 from config import config
 from pymysql.err import IntegrityError
-import os
+import io,os
 import json
 from werkzeug.utils import secure_filename
 
 from datetime import datetime ,date
+
+#IMPORTO PARA LA REALIZACION DE PDF
+from reportlab.lib.pagesizes import letter
+from reportlab.lib.pagesizes import landscape
+from reportlab.platypus import (SimpleDocTemplate, Table, TableStyle, Paragraph,Spacer, Image,PageBreak)
+from reportlab.lib import colors
+from reportlab.lib.styles import getSampleStyleSheet
+
+import random
+
+
+# grafica en el pdf
+import matplotlib.pyplot as plt
+
 
 app = Flask(__name__)
 app.secret_key = 'secretkey'
@@ -648,6 +662,155 @@ def eliminar_porcino(id):
     print(err)
     return jsonify({'Mensaje': f'Error al eliminar el porcino con id {id}'})
 
+#Ruta para generar PDF del listado de porcinos
+@app.route("/PDF_porcinos")
+def reporte_porcinos():
+
+  try:
+    try:
+      with config['development'].conn() as conn:
+        with conn.cursor() as cur:
+          cur.execute("""SELECT id_porcino,peso_inicial,peso_final,fecha_nacimiento,sexo,r.nombre as raza,e.nombre as etapa,estado,p.descripcion
+              FROM porcinos p 
+              JOIN raza r ON p.id_raza = r.id_raza 
+              JOIN etapa_vida e ON p.id_etapa = e.id_etapa
+              ORDER BY id_porcino ASC
+              """)
+          porcinos = cur.fetchall()
+    except Exception as err:
+      print(err)
+      return jsonify({'Error al Consultar los Porcinos'})
+
+    buffer = io.BytesIO()
+    pdf = SimpleDocTemplate(buffer, pagesize=landscape(letter))
+    elementos = []
+    codigo = random.randint(0,9999)
+    styles = getSampleStyleSheet()
+
+
+    # ================================================
+    #               ENCABEZADO PERSONALIZADO
+    # ================================================
+    ruta_logo = os.path.join("src/static/iconos/", "Logo_edupork.png")
+
+    if os.path.exists(ruta_logo):
+        logo = Image(ruta_logo, width=140, height=60)
+    else:
+        logo = Paragraph("LOGO", styles["Title"])
+    
+    titulo_central = [
+        Paragraph('<font color="#333333"><b>Edupork: Alimentación Porcina</b></font>', styles["Title"]),
+        Paragraph('<para align="center"><font color="#333333">Informe de Porcinos registrados</font></para>',styles["Normal"])
+    ]
+
+    info_derecha = [
+        Paragraph(f'<font color="#333333"><b>CÓDIGO:</b> {codigo}</font>', styles["Normal"]),
+        Paragraph('<font color="#333333"><b>VERSIÓN:</b> 1</font>', styles["Normal"]),
+    ]
+
+    ruta_logo_sena = os.path.join("src/static/iconos/", "logo_sena.png")
+
+    if os.path.exists(ruta_logo_sena):
+        logo_sena = Image(ruta_logo_sena, width=60, height=60)
+    else:
+        logo_sena = Paragraph("LOGO_SENA", styles["Title"])
+    
+    tabla_encabezado = Table(
+        [
+            [logo, titulo_central, info_derecha, logo_sena]
+        ],
+        colWidths=[120, 270, 100, 80]
+    )
+
+    tabla_encabezado.setStyle(TableStyle([
+        ("BOX", (0, 0), (-1, -1), 1, "#333333"),
+        ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
+        ("ALIGN", (1, 0), (1, 0), "CENTER"),
+        ("LEFTPADDING", (1, 0), (1, 0), 10),
+        ("RIGHTPADDING", (2, 0), (2, 0), 10),
+    ]))
+
+    elementos.append(tabla_encabezado)
+    elementos.append(Spacer(1, 20))
+
+
+    # ================================================
+    #                TABLA DE PORCINOS
+    # ================================================
+    elementos.append(Paragraph('<font color="#333333"><b>Listado de Porcinos</b></font>', styles["Title"]))
+    
+    encabezado = ["ID_porcino", "Peso_Inicial", "Peso_Final", "Fecha Nac.", "Sexo", "Raza", "Etapa", "Estado", "Descripcion"]
+    tabla_data = [encabezado]
+
+    for p in porcinos:
+        tabla_data.append([
+            p["id_porcino"],
+            p["peso_inicial"],
+            p["peso_final"],
+            p["fecha_nacimiento"],
+            p["sexo"],
+            p["raza"],
+            p["etapa"],
+            p["estado"],
+            p["descripcion"],
+        ])
+
+    verde_header = colors.HexColor("#62804B")
+    verde_fila = colors.HexColor("#E7F6DD")
+
+    tabla = Table(tabla_data)
+
+    # AUTO-AJUSTE DE COLUMNAS
+    tabla._argW = [None] * len(tabla_data[0])
+
+    # ================================
+    #    ESTILOS BASE DE LA TABLA
+    # ================================
+    estilos_tabla = [
+        ("BACKGROUND", (0, 0), (-1, 0), verde_header),
+        ("TEXTCOLOR", (0, 0), (-1, 0), colors.HexColor('#ffffff')),
+        ("FONTNAME", (0, 0), (-1, 0), "Helvetica-Bold"),
+        ("FONTSIZE", (0, 0), (-1, 0), 12),
+
+        ("BOX", (0, 0), (-1, -1), 1, colors.HexColor("#9BC38A")),
+        ("GRID", (0, 0), (-1, -1), 0.5, colors.HexColor("#AACF96")),
+
+        ("ALIGN", (0, 0), (-1, -1), "CENTER"),
+        ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
+
+        ("FONTSIZE", (0, 1), (-1, -1), 10),
+    ]
+
+    # ======================================
+    #      ALTERNAR TODAS LAS FILAS
+    # ======================================
+    for i in range(1, len(tabla_data)):
+        if i % 2 == 1:
+            estilos_tabla.append(("BACKGROUND", (0, i), (-1, i), verde_fila))
+
+    tabla.setStyle(TableStyle(estilos_tabla))
+
+    elementos.append(tabla)
+
+    # ================================================
+    #                GENERAR PDF
+    # ================================================
+    pdf.build(elementos)
+
+    pdf_value = buffer.getvalue()
+    buffer.close()
+
+    response = make_response(pdf_value)
+    response.headers["Content-Type"] = "application/pdf"
+    response.headers["Content-Disposition"] = 'inline; filename="reporte_porcinos.pdf"'
+
+    return response
+
+  except Exception as err:
+    print(err)
+    return jsonify({'Mensaje': 'Error al generar el pdf'})
+
+
 # RUTA PARA CONSULTAR TODAS LAS RAZAS
 @app.route('/raza', methods = ['GET'])
 def consulta_gen_raza():
@@ -705,7 +868,6 @@ def consulta_indi_raza(id):
   except Exception as err:
     print(err)
     return jsonify({'Mesaje':'Error en la base de datos'})
-
 
 # RUTA PARA REGISTRAR RAZAS
 @app.route('/raza', methods = ['POST'])
@@ -839,6 +1001,144 @@ def eliminar_raza(id):
   except Exception as err:
     print(err)
     return jsonify({'Mensaje':'Error en la base de datos'})
+
+
+#Ruta para generar PDF del listado de porcinos
+@app.route("/PDF_razas")
+def reporte_razas():
+
+  try:
+    try:
+      with config['development'].conn() as conn:
+        with conn.cursor() as cur:
+          cur.execute('SELECT * FROM raza')
+          razas = cur.fetchall()
+    except Exception as err:
+      print(err)
+      return jsonify({'Error al Consultar las Razas'})
+
+    buffer = io.BytesIO()
+    pdf = SimpleDocTemplate(buffer, pagesize=letter, topMargin=40)
+    elementos = []
+    codigo = random.randint(0,9999)
+    styles = getSampleStyleSheet()
+
+
+    # ================================================
+    #               ENCABEZADO PERSONALIZADO
+    # ================================================
+    ruta_logo = os.path.join("src/static/iconos/", "Logo_edupork.png")
+
+    if os.path.exists(ruta_logo):
+        logo = Image(ruta_logo, width=140, height=60)
+    else:
+        logo = Paragraph("LOGO", styles["Title"])
+    
+    titulo_central = [
+        Paragraph('<font color="#333333"><b>Edupork: Alimentación Porcina</b></font>', styles["Title"]),
+        Paragraph('<para align="center"><font color="#333333">Informe de Razas registradas</font></para>',styles["Normal"])
+    ]
+
+    info_derecha = [
+        Paragraph(f'<font color="#333333"><b>CÓDIGO:</b> {codigo}</font>', styles["Normal"]),
+        Paragraph('<font color="#333333"><b>VERSIÓN:</b> 1</font>', styles["Normal"]),
+    ]
+
+    ruta_logo_sena = os.path.join("src/static/iconos/", "logo_sena.png")
+
+    if os.path.exists(ruta_logo_sena):
+        logo_sena = Image(ruta_logo_sena, width=60, height=60)
+    else:
+        logo_sena = Paragraph("LOGO_SENA", styles["Title"])
+    
+    tabla_encabezado = Table(
+        [
+            [logo, titulo_central, info_derecha, logo_sena]
+        ],
+        colWidths=[120, 270, 100, 80]
+    )
+
+    tabla_encabezado.setStyle(TableStyle([
+        ("BOX", (0, 0), (-1, -1), 1, "#333333"),
+        ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
+        ("ALIGN", (1, 0), (1, 0), "CENTER"),
+        ("LEFTPADDING", (1, 0), (1, 0), 10),
+        ("RIGHTPADDING", (2, 0), (2, 0), 10),
+    ]))
+
+    elementos.append(tabla_encabezado)
+    elementos.append(Spacer(1, 20))
+
+
+    # ================================================
+    #                TABLA DE RAZAS
+    # ================================================
+    elementos.append(Paragraph('<font color="#333333"><b>Listado de Razas</b></font>', styles["Title"]))
+    
+    encabezado = ["ID Raza", "Nombre Raza", "Descripcion"]
+    tabla_data = [encabezado]
+
+    for r in razas:
+        tabla_data.append([
+            r["id_raza"],
+            r["nombre"],
+            r["descripcion"]
+        ])
+
+    verde_header = colors.HexColor("#62804B")
+    verde_fila = colors.HexColor("#E7F6DD")
+
+    tabla = Table(tabla_data)
+
+    tabla._argW = [None] * len(tabla_data[0])
+    
+    # ================================
+    #    ESTILOS BASE DE LA TABLA
+    # ================================
+    estilos_tabla = [
+        ("BACKGROUND", (0, 0), (-1, 0), verde_header),
+        ("TEXTCOLOR", (0, 0), (-1, 0), colors.HexColor('#ffffff')),
+        ("FONTNAME", (0, 0), (-1, 0), "Helvetica-Bold"),
+        ("FONTSIZE", (0, 0), (-1, 0), 12),
+
+        ("BOX", (0, 0), (-1, -1), 1, colors.HexColor("#9BC38A")),
+        ("GRID", (0, 0), (-1, -1), 0.5, colors.HexColor("#AACF96")),
+
+        ("ALIGN", (0, 0), (-1, -1), "CENTER"),
+        ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
+
+        ("FONTSIZE", (0, 1), (-1, -1), 10),
+    ]
+
+    # ======================================
+    #      ALTERNAR TODAS LAS FILAS
+    # ======================================
+    for i in range(1, len(tabla_data)):
+        if i % 2 == 1:
+            estilos_tabla.append(("BACKGROUND", (0, i), (-1, i), verde_fila))
+
+    tabla.setStyle(TableStyle(estilos_tabla))
+
+    elementos.append(tabla)
+
+    # ================================================
+    #                GENERAR PDF
+    # ================================================
+    pdf.build(elementos)
+
+    pdf_value = buffer.getvalue()
+    buffer.close()
+
+    response = make_response(pdf_value)
+    response.headers["Content-Type"] = "application/pdf"
+    response.headers["Content-Disposition"] = 'inline; filename="reporte_razas.pdf"'
+
+    return response
+
+  except Exception as err:
+    print(err)
+    return jsonify({'Mensaje': 'Error al generar el pdf'})
+
 
 
 #RUTA PARA CONSULTAR TODAS LAS ETAPAS DE VIDA
@@ -1173,6 +1473,185 @@ def eliminar_etapa_vida(id):
     print(err)
     return jsonify({'Mensaje':'Error en la base de datos'})
 
+
+#Ruta para generar PDF del listado de etapas
+@app.route("/PDF_etapas")
+def reporte_etapas():
+
+    try:
+        # ================================================
+        #            CONSULTA A LA BASE DE DATOS
+        # ================================================
+        with config['development'].conn() as conn:
+            with conn.cursor() as cur:
+                cur.execute("""
+                    SELECT 
+                        ev.id_etapa, 
+                        ev.nombre, 
+                        ev.peso_min, 
+                        ev.peso_max, 
+                        ev.duracion_dias,
+                        ev.duracion_semanas,
+                        ev.descripcion,
+                        e.id_elemento,
+                        e.nombre as nombre_elemento,
+                        rn.porcentaje
+                    FROM etapa_vida ev
+                    LEFT JOIN requerimientos_nutricionales rn ON ev.id_etapa = rn.id_etapa
+                    LEFT JOIN elementos e ON rn.id_elemento = e.id_elemento
+                    ORDER BY ev.id_etapa;
+                """)
+                filas = cur.fetchall()
+
+        # Organizar datos por etapa
+        etapas_dic = {}
+        for fila in filas:
+            id_etapa = fila["id_etapa"]
+
+            if id_etapa not in etapas_dic:
+                etapas_dic[id_etapa] = {
+                    "id_etapa": id_etapa,
+                    "nombre": fila["nombre"],
+                    "peso_min": fila["peso_min"],
+                    "peso_max": fila["peso_max"],
+                    "duracion_dias": fila["duracion_dias"],
+                    "duracion_semanas": fila["duracion_semanas"],
+                    "descripcion": fila["descripcion"],
+                    "requerimientos": []
+                }
+
+            if fila["nombre_elemento"]:
+                etapas_dic[id_etapa]["requerimientos"].append({
+                    "nombre_elemento": fila["nombre_elemento"],
+                    "porcentaje": fila["porcentaje"]
+                })
+
+        etapas = list(etapas_dic.values())
+
+        # ================================================
+        #                  CREAR PDF
+        # ================================================
+        buffer = io.BytesIO()
+        pdf = SimpleDocTemplate(buffer, pagesize=landscape(letter))
+        elementos = []
+        styles = getSampleStyleSheet()
+        codigo = random.randint(1000, 9999)
+
+        # ================================================
+        #               ENCABEZADO PERSONALIZADO
+        # ================================================
+        ruta_logo = os.path.join("src/static/iconos/", "Logo_edupork.png")
+        logo = Image(ruta_logo, width=140, height=60) if os.path.exists(ruta_logo) else Paragraph("LOGO", styles["Title"])
+
+        ruta_logo_sena = os.path.join("src/static/iconos/", "logo_sena.png")
+        logo_sena = Image(ruta_logo_sena, width=60, height=60) if os.path.exists(ruta_logo_sena) else Paragraph("SENA", styles["Title"])
+
+        titulo_central = [
+            Paragraph('<para align="center"><b>Edupork: Alimentación Porcina</b></para>', styles["Title"]),
+            Paragraph('<para align="center">Informe de Etapas de Vida Registradas</para>', styles["Normal"])
+        ]
+
+        info_derecha = [
+            Paragraph(f'<b>CÓDIGO:</b> {codigo}', styles["Normal"]),
+            Paragraph('<b>VERSIÓN:</b> 1', styles["Normal"]),
+        ]
+
+        tabla_encabezado = Table(
+            [[logo, titulo_central, info_derecha, logo_sena]],
+            colWidths=[120, 300, 120, 80]
+        )
+
+        tabla_encabezado.setStyle(TableStyle([
+            ("BOX", (0, 0), (-1, -1), 1, colors.black),
+            ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
+            ("ALIGN", (1, 0), (1, 0), "CENTER"),
+        ]))
+
+        elementos.append(tabla_encabezado)
+        elementos.append(Spacer(1, 20))
+
+        # ================================================
+        #                   TABLA PRINCIPAL
+        # ================================================
+        elementos.append(Paragraph('<b>Listado de Etapas de Vida</b>', styles["Title"]))
+        elementos.append(Spacer(1, 10))
+
+        encabezado = [
+            "ID", "Nombre", "Peso Min.", "Peso Max.",
+            "Duración (días)", "Duración (semanas)",
+            "Descripción", "Requerimientos Nutricionales"
+        ]
+
+        tabla_data = [encabezado]
+
+        for e in etapas:
+
+            # Convertir los requerimientos en texto dentro de una celda
+            req_text = "<br/>".join([
+                f"{req['nombre_elemento']}: {req['porcentaje']}%"
+                for req in e["requerimientos"]
+            ]) if e["requerimientos"] else "Sin registros"
+
+            tabla_data.append([
+                e["id_etapa"],
+                e["nombre"],
+                e["peso_min"],
+                e["peso_max"],
+                e["duracion_dias"],
+                e["duracion_semanas"],
+                e["descripcion"],
+                Paragraph(req_text, styles["Normal"])
+            ])
+
+        # ================================================
+        #               ESTILOS DE LA TABLA
+        # ================================================
+        verde_header = colors.HexColor("#62804B")
+        verde_fila = colors.HexColor("#E7F6DD")
+
+        tabla = Table(tabla_data)
+        tabla._argW = [None] * len(tabla_data[0])
+
+        estilos = [
+            ("BACKGROUND", (0, 0), (-1, 0), verde_header),
+            ("TEXTCOLOR", (0, 0), (-1, 0), colors.white),
+            ("FONTNAME", (0, 0), (-1, 0), "Helvetica-Bold"),
+            ("FONTSIZE", (0, 0), (-1, 0), 11),
+
+            ("BOX", (0, 0), (-1, -1), 1, colors.HexColor("#9BC38A")),
+            ("GRID", (0, 0), (-1, -1), 0.5, colors.HexColor("#AACF96")),
+
+            ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
+            ("ALIGN", (0, 0), (-1, -1), "CENTER"),
+        ]
+
+        # Alternar filas pastel
+        for i in range(1, len(tabla_data)):
+            if i % 2 == 1:
+                estilos.append(("BACKGROUND", (0, i), (-1, i), verde_fila))
+
+        tabla.setStyle(TableStyle(estilos))
+        elementos.append(tabla)
+
+        # ================================================
+        #                   EXPORTAR PDF
+        # ================================================
+        pdf.build(elementos)
+
+        pdf_value = buffer.getvalue()
+        buffer.close()
+
+        response = make_response(pdf_value)
+        response.headers["Content-Type"] = "application/pdf"
+        response.headers["Content-Disposition"] = 'inline; filename="reporte_etapas.pdf"'
+
+        return response
+
+    except Exception as err:
+        print(err)
+        return jsonify({"Mensaje": "Error al generar PDF"})
+
+
 #RUTA PARA CONSULTAR LAS NOTIFICAIONES DEL USUARIO
 @app.route("/notificaciones/<int:id>", methods = ['GET'])
 def consulta_notificaiones(id):
@@ -1298,6 +1777,137 @@ def consulta_alimento():
 
     except Exception as e:
         return jsonify({"error": str(e)})
+
+@app.route("/PDF_alimentos")
+def reporte_alimentos():
+    try:
+        # ================================
+        #      CONSULTA BASE DE DATOS
+        # ================================
+        try:
+            with config['development'].conn() as conn:
+                with conn.cursor() as cur:
+                    cur.execute("""
+                        SELECT 
+                            id_alimento,
+                            nombre,
+                            estado
+                        FROM alimentos
+                        ORDER BY id_alimento ASC
+                    """)
+                    alimentos = cur.fetchall()
+        except Exception as err:
+            print(err)
+            return jsonify({'Error': 'Error al consultar los alimentos'})
+
+        if not alimentos:
+            return jsonify({"mensaje": "No encontrado"})
+
+        # ================================
+        #      CREAR PDF
+        # ================================
+        buffer = io.BytesIO()
+        pdf = SimpleDocTemplate(buffer, pagesize=landscape(letter))
+        elementos = []
+        styles = getSampleStyleSheet()
+        codigo = random.randint(0, 9999)
+
+        # ================================================
+        #               ENCABEZADO PERSONALIZADO
+        # ================================================
+        ruta_logo = os.path.join("src/static/iconos/", "Logo_edupork.png")
+        logo = Image(ruta_logo, width=140, height=60) if os.path.exists(ruta_logo) else Paragraph("LOGO", styles["Title"])
+        
+        titulo_central = [
+            Paragraph('<font color="#333333"><b>Edupork: Alimentación Porcina</b></font>', styles["Title"]),
+            Paragraph('<para align="center"><font color="#333333">Informe de Alimentos Registrados</font></para>', styles["Normal"])
+        ]
+
+        info_derecha = [
+            Paragraph(f'<font color="#333333"><b>CÓDIGO:</b> {codigo}</font>', styles["Normal"]),
+            Paragraph('<font color="#333333"><b>VERSIÓN:</b> 1</font>', styles["Normal"]),
+        ]
+
+        ruta_logo_sena = os.path.join("src/static/iconos/", "logo_sena.png")
+        logo_sena = Image(ruta_logo_sena, width=60, height=60) if os.path.exists(ruta_logo_sena) else Paragraph("LOGO_SENA", styles["Title"])
+
+        tabla_encabezado = Table(
+            [[logo, titulo_central, info_derecha, logo_sena]],
+            colWidths=[120, 300, 120, 80]  # Más ancho en el título y código
+        )
+        tabla_encabezado.setStyle(TableStyle([
+            ("BOX", (0, 0), (-1, -1), 1, "#333333"),
+            ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
+            ("ALIGN", (1, 0), (1, 0), "CENTER"),
+            ("LEFTPADDING", (1, 0), (1, 0), 10),
+            ("RIGHTPADDING", (2, 0), (2, 0), 10),
+        ]))
+
+        elementos.append(tabla_encabezado)
+        elementos.append(Spacer(1, 20))
+
+        # ================================================
+        #                TABLA DE ALIMENTOS
+        # ================================================
+        elementos.append(Paragraph('<font color="#333333"><b>Listado de Alimentos</b></font>', styles["Title"]))
+
+        encabezado = ["ID", "Nombre", "Estado"]
+        tabla_data = [encabezado]
+
+        for a in alimentos:
+            tabla_data.append([a["id_alimento"], a["nombre"], a["estado"]])
+
+        verde_header = colors.HexColor("#62804B")
+        verde_fila = colors.HexColor("#E7F6DD")
+
+        tabla = Table(tabla_data)
+
+        # ANCHO PROPORCIONAL DE COLUMNAS
+        tabla._argW = [60, 400, 120]  # ID más pequeño, Nombre más ancho, Estado intermedio
+
+        # ================================
+        #    ESTILOS BASE DE LA TABLA
+        # ================================
+        estilos_tabla = [
+            ("BACKGROUND", (0, 0), (-1, 0), verde_header),
+            ("TEXTCOLOR", (0, 0), (-1, 0), colors.white),
+            ("FONTNAME", (0, 0), (-1, 0), "Helvetica-Bold"),
+            ("FONTSIZE", (0, 0), (-1, 0), 12),
+
+            ("BOX", (0, 0), (-1, -1), 1, colors.HexColor("#9BC38A")),
+            ("GRID", (0, 0), (-1, -1), 0.5, colors.HexColor("#AACF96")),
+
+            ("ALIGN", (0, 0), (-1, -1), "CENTER"),
+            ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
+
+            ("FONTSIZE", (0, 1), (-1, -1), 10),
+        ]
+
+        # ALTERNAR FILAS
+        for i in range(1, len(tabla_data)):
+            if i % 2 == 1:
+                estilos_tabla.append(("BACKGROUND", (0, i), (-1, i), verde_fila))
+
+        tabla.setStyle(TableStyle(estilos_tabla))
+        elementos.append(tabla)
+
+        # ================================================
+        #                GENERAR PDF
+        # ================================================
+        pdf.build(elementos)
+
+        pdf_value = buffer.getvalue()
+        buffer.close()
+
+        response = make_response(pdf_value)
+        response.headers["Content-Type"] = "application/pdf"
+        response.headers["Content-Disposition"] = 'inline; filename="reporte_alimentos.pdf"'
+
+        return response
+
+    except Exception as err:
+        print(err)
+        return jsonify({'Mensaje': 'Error al generar el PDF'})
 
 @app.route("/consulta_indi_alimento/<nombre>", methods=["GET"])
 def consulta_individual_alimento(nombre):
@@ -1610,7 +2220,6 @@ def actualizar_alimento(id_alimento):
     except Exception as e:
         print("Error en actualización:", e)
         return jsonify({"error": "Ocurrió un error en el servidor. Intente nuevamente."}), 500
-
 
 @app.route("/eliminar_alimento/<int:id>", methods=["DELETE"])
 def eliminar_alimento(id):
@@ -1943,6 +2552,145 @@ def consultar_dietas():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
+@app.route("/PDF_dietas")
+def reporte_dietas():
+    try:
+        # ================================
+        #      CONSULTA BASE DE DATOS
+        # ================================
+        try:
+            with config['development'].conn() as conn:
+                with conn.cursor() as cur:
+                    cur.execute("""
+                        SELECT 
+                            d.id_dieta,
+                            u.nombre AS usuario,
+                            ev.nombre AS etapa_vida,
+                            d.fecha_creacion,
+                            d.estado
+                        FROM dietas d
+                        JOIN usuario u ON u.id_usuario = d.id_usuario
+                        JOIN etapa_vida ev ON ev.id_etapa = d.id_etapa_vida
+                        ORDER BY d.id_dieta ASC
+                    """)
+                    dietas = cur.fetchall()
+        except Exception as err:
+            print(err)
+            return jsonify({'Error': 'Error al consultar las dietas'})
+
+        if not dietas:
+            return jsonify({"mensaje": "No encontrado"})
+
+        # ================================
+        #      CREAR PDF
+        # ================================
+        buffer = io.BytesIO()
+        pdf = SimpleDocTemplate(buffer, pagesize=landscape(letter))
+        elementos = []
+        styles = getSampleStyleSheet()
+        codigo = random.randint(0, 9999)
+
+        # ================================================
+        #               ENCABEZADO PERSONALIZADO
+        # ================================================
+        ruta_logo = os.path.join("src/static/iconos/", "Logo_edupork.png")
+        logo = Image(ruta_logo, width=140, height=60) if os.path.exists(ruta_logo) else Paragraph("LOGO", styles["Title"])
+        
+        titulo_central = [
+            Paragraph('<font color="#333333"><b>Edupork: Alimentacion porcina</b></font>', styles["Title"]),
+            Paragraph('<para align="center"><font color="#333333">Informe de Dietas Registradas</font></para>', styles["Normal"])
+        ]
+
+        info_derecha = [
+            Paragraph(f'<font color="#333333"><b>CÓDIGO:</b> {codigo}</font>', styles["Normal"]),
+            Paragraph('<font color="#333333"><b>VERSIÓN:</b> 1</font>', styles["Normal"]),
+        ]
+
+        ruta_logo_sena = os.path.join("src/static/iconos/", "logo_sena.png")
+        logo_sena = Image(ruta_logo_sena, width=60, height=60) if os.path.exists(ruta_logo_sena) else Paragraph("LOGO_SENA", styles["Title"])
+
+        tabla_encabezado = Table(
+            [[logo, titulo_central, info_derecha, logo_sena]],
+            colWidths=[120, 300, 120, 80]  # Más ancho en el título y código
+        )
+
+        tabla_encabezado.setStyle(TableStyle([
+            ("BOX", (0, 0), (-1, -1), 1, "#333333"),
+            ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
+            ("ALIGN", (1, 0), (1, 0), "CENTER"),
+            ("LEFTPADDING", (1, 0), (1, 0), 10),
+            ("RIGHTPADDING", (2, 0), (2, 0), 10),
+        ]))
+
+        elementos.append(tabla_encabezado)
+        elementos.append(Spacer(1, 20))
+
+        # ================================================
+        #                TABLA DE DIETAS
+        # ================================================
+        elementos.append(Paragraph('<font color="#333333"><b>Listado de Dietas</b></font>', styles["Title"]))
+
+        encabezado = ["ID", "Usuario Creador", "Etapa de Vida", "Fecha", "Estado"]
+        tabla_data = [encabezado]
+
+        for d in dietas:
+            tabla_data.append([
+                d["id_dieta"],
+                d["usuario"],
+                d["etapa_vida"],
+                str(d["fecha_creacion"]),
+                d["estado"]
+            ])
+
+        verde_header = colors.HexColor("#62804B")
+        verde_fila = colors.HexColor("#E7F6DD")
+
+        tabla = Table(tabla_data)
+        # ANCHO PROPORCIONAL COLUMNAS
+        tabla._argW = [60, 200, 200, 120, 100]  # Usuario y Etapa más anchos
+
+        estilos_tabla = [
+            ("BACKGROUND", (0, 0), (-1, 0), verde_header),
+            ("TEXTCOLOR", (0, 0), (-1, 0), colors.white),
+            ("FONTNAME", (0, 0), (-1, 0), "Helvetica-Bold"),
+            ("FONTSIZE", (0, 0), (-1, 0), 12),
+
+            ("BOX", (0, 0), (-1, -1), 1, colors.HexColor("#9BC38A")),
+            ("GRID", (0, 0), (-1, -1), 0.5, colors.HexColor("#AACF96")),
+
+            ("ALIGN", (0, 0), (-1, -1), "CENTER"),
+            ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
+
+            ("FONTSIZE", (0, 1), (-1, -1), 10),
+        ]
+
+        # Alternar fondo
+        for i in range(1, len(tabla_data)):
+            if i % 2 == 1:
+                estilos_tabla.append(("BACKGROUND", (0, i), (-1, i), verde_fila))
+
+        tabla.setStyle(TableStyle(estilos_tabla))
+        elementos.append(tabla)
+
+        # ================================================
+        #                GENERAR PDF
+        # ================================================
+        pdf.build(elementos)
+
+        pdf_value = buffer.getvalue()
+        buffer.close()
+
+        response = make_response(pdf_value)
+        response.headers["Content-Type"] = "application/pdf"
+        response.headers["Content-Disposition"] = 'inline; filename="reporte_dietas.pdf"'
+
+        return response
+
+    except Exception as err:
+        print(err)
+        return jsonify({'Mensaje': 'Error al generar el PDF'})
+
+
 @app.route("/dieta/<int:id_dieta>", methods=["GET"])
 def obtener_dieta(id_dieta):
     try:
@@ -2001,6 +2749,205 @@ def obtener_dieta(id_dieta):
 
     except Exception as e:
         return jsonify({"error": str(e)})
+
+@app.route("/PDF_dieta/<int:id_dieta>")
+def PDF_dieta(id_dieta):
+    try:
+        # ================================
+        #      OBTENER DATOS DE LA DIETA
+        # ================================
+        respuesta = obtener_dieta(id_dieta)
+        data = respuesta.get_json()["mensaje"]
+
+        if not data:
+            return jsonify({"mensaje": "Dieta no encontrada"})
+
+        # Datos generales
+        id_d = data["id_dieta"]
+        usuario = data["usuario"]
+        fecha = str(data["fecha_creacion"])
+        estado = data["estado"]
+        etapa = data["etapa_vida"]
+
+        # Alimentos
+        alimentos = data["alimentos"]
+
+        # Mezcla nutricional
+        mezcla = data["mezcla_nutricional"]
+
+        # ================================
+        #           CREAR PDF
+        # ================================
+        buffer = io.BytesIO()
+        pdf = SimpleDocTemplate(buffer, pagesize=landscape(letter))
+        elementos = []
+        styles = getSampleStyleSheet()
+        codigo = random.randint(0,9999)
+
+        # --- ENCABEZADO COMÚN ---
+        ruta_logo = os.path.join("src/static/iconos/", "Logo_edupork.png")
+        ruta_sena = os.path.join("src/static/iconos/", "logo_sena.png")
+        logo = Image(ruta_logo, width=140, height=60) if os.path.exists(ruta_logo) else Paragraph("LOGO", styles["Title"])
+        logo_sena = Image(ruta_sena, width=60, height=60) if os.path.exists(ruta_sena) else Paragraph("SENA", styles["Title"])
+
+        # ================================
+        # HOJA 1: INFORMACIÓN GENERAL Y ALIMENTOS
+        # ================================
+        titulo1 = [
+            Paragraph("<b>Edupork</b>", styles["Title"]),
+            Paragraph(f'<para align="center">Reporte Dieta ID {id_d}</para>', styles["Normal"])
+        ]
+        info1 = [
+            Paragraph(f"<b>CÓDIGO:</b> {codigo}", styles["Normal"]),
+            Paragraph("<b>VERSIÓN:</b> 1", styles["Normal"])
+        ]
+        tabla_head1 = Table([[logo, titulo1, info1, logo_sena]], colWidths=[120, 270, 100, 80])
+        tabla_head1.setStyle(TableStyle([
+            ("BOX", (0,0), (-1,-1), 1, "#333333"),
+            ("VALIGN", (0,0), (-1,-1), "MIDDLE"),
+            ("ALIGN", (1,0), (1,0), "CENTER")
+        ]))
+        elementos.append(tabla_head1)
+        elementos.append(Spacer(1, 20))
+
+        # Título de información general
+        elementos.append(Paragraph("<b>INFORMACIÓN GENERAL</b>", styles["Title"]))
+        elementos.append(Spacer(1, 10))
+
+        # Datos generales con estilo uniforme
+        tabla_info = [
+            ["ID Dieta", id_d],
+            ["Usuario Creador", usuario],
+            ["Etapa de Vida", etapa],
+            ["Fecha", fecha],
+            ["Estado", estado]
+        ]
+        tabla1 = Table(tabla_info, colWidths=[150, 300])
+        tabla1.setStyle(TableStyle([
+            ('BACKGROUND', (0,0), (-1,0), colors.HexColor("#62804B")),
+            ('TEXTCOLOR', (0,0), (-1,0), colors.white),
+            ('BACKGROUND', (0,1), (-1,-1), colors.HexColor("#E7F6DD")),
+            ('TEXTCOLOR', (0,1), (-1,-1), colors.black),
+            ('FONTNAME', (0,0), (-1,0), 'Helvetica-Bold'),
+            ('FONTNAME', (0,1), (-1,-1), 'Helvetica'),
+            ('FONTSIZE', (0,0), (-1,-1), 11),
+            ('ALIGN', (0,0), (-1,-1), 'LEFT'),
+            ('VALIGN', (0,0), (-1,-1), 'MIDDLE'),
+            ('BOX', (0,0), (-1,-1), 1, colors.HexColor("#62804B")),
+            ('INNERGRID', (0,0), (-1,-1), 0.5, colors.HexColor("#AACF96")),
+            ('LEFTPADDING', (0,0), (-1,-1), 8),
+            ('RIGHTPADDING', (0,0), (-1,-1), 8),
+            ('TOPPADDING', (0,0), (-1,-1), 4),
+            ('BOTTOMPADDING', (0,0), (-1,-1), 4),
+        ]))
+        elementos.append(tabla1)
+        elementos.append(Spacer(1, 20))
+
+        # Tabla de alimentos con totales
+        elementos.append(Paragraph("<b>Alimentos de la dieta</b>", styles["Title"]))
+        total_cant = sum(a["cantidad"] for a in alimentos)
+        tabla_alim = [["ID", "Alimento", "Cantidad(KG)", "Porcentaje"]]
+        for a in alimentos:
+            porcentaje = (a["cantidad"]/total_cant*100) if total_cant>0 else 0
+            tabla_alim.append([a["id_alimento"], a["alimento"], f"{a['cantidad']}", f"{porcentaje:.2f}%"])
+
+        # Fila total con suma de cantidad y 100% de porcentaje
+        tabla_alim.append(["", "TOTAL", f"{total_cant:.2f}", "100.00%"])
+
+        tabla2 = Table(tabla_alim, colWidths=[60,200,100,100])
+        tabla2.setStyle(TableStyle([
+            ('BACKGROUND', (0,0), (-1,0), colors.HexColor("#62804B")),
+            ('TEXTCOLOR', (0,0), (-1,0), colors.white),
+            ('FONTNAME', (0,0), (-1,0), 'Helvetica-Bold'),
+            ('BACKGROUND', (0,1), (-1,-2), colors.HexColor("#E7F6DD")),
+            ('BACKGROUND', (0,-1), (-1,-1), colors.HexColor("#C0E4B5")),  # color total
+            ('TEXTCOLOR', (0,1), (-1,-1), colors.black),
+            ('GRID', (0,0), (-1,-1), 0.5, colors.HexColor("#AACF96")),
+            ('ALIGN', (0,0), (-1,-1), 'CENTER'),
+            ('VALIGN', (0,0), (-1,-1), 'MIDDLE'),
+        ]))
+        elementos.append(tabla2)
+        elementos.append(PageBreak())  # Fin hoja 1
+
+        # ================================
+        # HOJA 2: MEZCLA NUTRICIONAL
+        # ================================
+        elementos.append(Paragraph("<b>COMPOSICIÓN NUTRICIONAL</b>", styles["Title"]))
+        if mezcla:
+            # Diccionario de traducción de abreviaturas a nombres completos
+            nombres_nutrientes = {
+                "ARG": "ARGININA",
+                "CAL": "CALCIO",
+                "EE": "EXT. ETEREO",
+                "EM-C": "E.M. CERDOS (kcal/kg)",
+                "F.DIS": "FOSF. DISP.",
+                "FC": "FIBRA CRUDA",
+                "LIS": "LISINA",
+                "M+CIS": "MET + CIS",
+                "MET": "METIONINA",
+                "MS": "MATERIA S.",
+                "PC": "PROTEÍNA C.",
+                "SOD": "SODIO",
+                "TREO": "TREONINA",
+                "TRIP": "TRIPTOFANO"
+            }
+
+            tabla_mezcla = [["Nutriente", "Valor"]]
+            for abrev, nombre in nombres_nutrientes.items():
+                valor = mezcla.get(abrev, "-")
+                # Para EM-C se muestra kcal/kg, resto %
+                if abrev != "EM-C" and valor != "-":
+                    valor = f"{valor}%" 
+                tabla_mezcla.append([nombre, str(valor)])
+
+            tabla3 = Table(tabla_mezcla, colWidths=[200,200])
+            tabla3.setStyle(TableStyle([
+                ('BACKGROUND', (0,0), (-1,0), colors.HexColor("#62804B")),
+                ('TEXTCOLOR', (0,0), (-1,0), colors.white),
+                ('FONTNAME', (0,0), (-1,0), 'Helvetica-Bold'),
+                ('BACKGROUND', (0,1), (-1,-1), colors.HexColor("#E7F6DD")),
+                ('TEXTCOLOR', (0,1), (-1,-1), colors.black),
+                ('GRID', (0,0), (-1,-1), 0.5, colors.HexColor("#AACF96")),
+                ('ALIGN', (0,0), (-1,-1), 'CENTER'),
+                ('VALIGN', (0,0), (-1,-1), 'MIDDLE'),
+            ]))
+            elementos.append(tabla3)
+        else:
+            elementos.append(Paragraph("No se registró mezcla nutricional.", styles["Normal"]))
+        elementos.append(PageBreak())  # Fin hoja 2
+
+        # ================================
+        # HOJA 3: GRÁFICA DE TORTA
+        # ================================
+        cantidades = [a["cantidad"] for a in alimentos]
+        labels = [a["alimento"] for a in alimentos]
+        if cantidades:
+            import matplotlib.pyplot as plt
+            fig, ax = plt.subplots()
+            colores = ["#62804B","#E7F6DD","#A1C181","#9BC995","#DDE7B6","#FFC857","#E9724C","#C5283D"]
+            ax.pie(cantidades, labels=labels, autopct="%1.1f%%", colors=colores[:len(cantidades)])
+            ax.set_title("Distribución de alimentos (%)")
+
+            img_buf = io.BytesIO()
+            plt.savefig(img_buf, format='png', dpi=100, bbox_inches='tight')
+            plt.close()
+            img_buf.seek(0)
+
+            elementos.append(Image(img_buf, width=450, height=450))
+
+        # --- GENERAR PDF ---
+        pdf.build(elementos)
+        pdf_value = buffer.getvalue()
+        buffer.close()
+
+        response = make_response(pdf_value)
+        response.headers["Content-Type"] = "application/pdf"
+        response.headers["Content-Disposition"] = f'inline; filename="Dieta_{id_d}.pdf"'
+        return response
+
+    except Exception as err:
+        print(err)
+        return jsonify({'Mensaje': 'Error al generar el PDF'})
 
 @app.route("/actualizar_dieta/<int:id_dieta>", methods=["PUT"])
 def actualizar_dieta(id_dieta):

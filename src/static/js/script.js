@@ -2482,13 +2482,10 @@ async function eliminar_etapa(id) {
             input.value = '';
             input.placeholder = 'ID incorrecto...';
         }
-        
-        
     } catch (error) {
         console.error(error)
     }
 }
-
 
 // --------------------------
 // GESTION DE NOTIFICACIONES
@@ -4364,3 +4361,28 @@ document.getElementById('btn_consultar_todo_historial').addEventListener('click'
     }
     consulta_gen_historial_pesos()
 })
+
+async function generar_pdf(tipo) {
+    const promesa = await fetch(`${URL_BASE}/PDF_${tipo}`);
+    const blob = await promesa.blob();
+
+    const url = URL.createObjectURL(blob);
+
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `reporte_${tipo}.pdf`;
+    a.click();
+}
+async function generar_pdf_dieta_individual(id) {
+    const promesa = await fetch(`${URL_BASE}/PDF_dieta/${id}`);
+    const blob = await promesa.blob();
+
+    const url = URL.createObjectURL(blob);
+
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `reporte_dieta_${id}.pdf`;
+    a.click();
+}
+
+

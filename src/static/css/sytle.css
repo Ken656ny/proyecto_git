@@ -178,11 +178,11 @@ SECCION REGISTROS
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 100vh;
     background-color: hsl(183, 100%, 93%);
     color: white;
     overflow: hidden;
     font-family: var(--fuente--contenido);
+    min-height: 100vh;
 }
 
 /* CONTENEDOR */
@@ -655,9 +655,6 @@ SECCION DE PORCINOS
     width: 100%;
 }
 
-
-
-
 .container__logo__user{
     width: 100%;
     display: flex;
@@ -751,7 +748,6 @@ SECCION DE PORCINOS
     display: none;
 }
 
-
 .alimentos_dietas{
     display: flex;
     flex-direction: column;
@@ -804,6 +800,7 @@ SECCION DE PORCINOS
 
 
 
+/* CODIGO DE LA BARRA DE BUSQUEDA */
 
 .container__search__bar{
     border: 1px solid var(--color-bor-contain);
@@ -1257,6 +1254,29 @@ th{
     padding: 20px 0;
 }
 
+.opciones {
+    position: fixed;
+    bottom: 1px;   
+    right: 2px;
+    color: #fff;
+    border-radius: 10px;
+    margin-right: 0.5rem;
+    cursor: pointer;
+    transition: transform 0.5s ease-in;
+}
+
+.opciones2 {
+    position: absolute;
+    bottom: 0.6em;   
+    right: 2px;
+    color: #fff;
+    border-radius: 10px;
+    margin-right: 0.5rem;
+    cursor: pointer;
+    transition: transform 0.5s ease-in;
+}
+
+
 
 /* CODIGO DE LAS ACCIONES VER, EDITAR Y ELIMINAR */
 
@@ -1460,17 +1480,6 @@ hr{
 .dialog-icon-dele p{
     color: #2C3D31;
     margin-bottom: 24px;
-}
-
-
-.ayuda {
-    position: fixed;
-    bottom: 1px;   
-    right: 2px;
-    color: #fff;
-    border-radius: 10px;
-    cursor: pointer;
-    transition: transform 0.5s ease-in;
 }
 
 /* REGISTRAR PORCINOS */
