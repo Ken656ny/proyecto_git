@@ -102,7 +102,8 @@
           <header class="content_reportes_pesos">
          <h2 class="title_reportes_pesos">Generar informes de los pesos mas altos y mas bajos</h2>
         </header>
-            <section class="container container__reportes_pesos">
+           <section class="container__reportes_pesos">
+
         <!-- Ícono documento -->
         <img src="/src/static/iconos/Vector (6).svg" alt="icono informe" class="icon__informe">
 
@@ -147,12 +148,14 @@
     </div>
 </div>
 <img src="/src/static/iconos/exportar_pdf.svg" 
-     alt="icono export" 
-     class="icon__export" 
-     onclick="exportarReporteAlimentos()">
+     class="icon__export"
+     onclick="exportarReportePesos()">
+
 
     </section>
+    
     <section class="container__Reportes_peso_">
+        <div class="contenido__tabla"> 
     <table class="table__peso" id="tabla_pesos">
     <thead>
         <tr>
@@ -160,15 +163,47 @@
             <th>ID del porcino</th>
             <th>Rango de peso (KG)</th>
             <th>Peso Actual (KG)</th>
+            <th></th>
         </tr>
     </thead>
 
+
+
+
+    
     <tbody id="tbody_pesos">
     </tbody>
 </table>
 
+
     </section>
       <script src="/src/static/js/script.js "></script>
-   
+   <!-- =============================
+     ÁREA OCULTA PARA GENERAR PDF
+============================= -->
+<div id="reportePDF" style="display:none; font-family: Inter;">
+    
+    <div style="text-align:center; margin-bottom:20px;">
+        <img src="/src/static/iconos/Logo.svg" width="300">
+        <h2>Reporte de Pesos</h2>
+    </div>
+
+    <table style="width:100%; border-collapse: collapse; font-size: 16px;">
+        <thead>
+            <tr style="background:#e8e8e8;">
+                <th style="padding:20px; border:2px solid #ccc;"></th>
+                <th style="padding:20px; border:2px solid #ccc;">ID del Porcino</th>
+                <th style="padding:20px; border:2px solid #ccc;">Rango de Peso (KG)</th>
+                <th style="padding:20px; border:2px solid #ccc;">Peso Actual (KG)</th>
+            </tr>
+        </thead>
+
+        <tbody id="contenidoReporte">
+            <!-- JS rellenará esto -->
+        </tbody>
+    </table>
+
+</div>
+
 </body>
 </html>

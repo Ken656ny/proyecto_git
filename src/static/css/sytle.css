@@ -565,7 +565,6 @@ SECCION DE PORCINOS
 }
 
 .body__porcinos{
-    display: grid;
     grid-template-columns: 117px auto;
     background-image: url(/src/static/iconos/pasto.svg);
     background-repeat: no-repeat;
@@ -2920,7 +2919,7 @@ reportes
 /* cuando se hace click */
 .input__id:focus {
   border-color: var(--color--btn--hover);
-  box-shadow: 0 0 5px rgba(76, 175, 80, 0.6);
+  box-shadow: 0 0 5px rgba(192, 191, 191, 0.6);
 }
 
 
@@ -2966,20 +2965,18 @@ reportes pesos
 }
 
 .container__reportes_pesos {
-    border: 1px solid var(--color-bor-contain);
-    border-radius: 14px;
     display: flex;
     align-items: center;
+    justify-content: center; /* 🔥 CENTRADO REAL */
     width: 1050px;
     height: 60px;
-   margin: 40px auto 0 auto;
-    padding-left: 3em;
-    gap: 7em;
-    font-family: var(--fuente--contenido);
+    margin: 40px auto 0 auto;
+    padding: 12px 20px;
     background: #ddd;
-    padding: 12px;
+    border: 1px solid var(--color-bor-contain);
     border-radius: 15px;
-    gap: 15px; /* espacio normal entre los de la izquierda */
+    gap: 25px; /* separación equilibrada */
+    font-family: var(--fuente--contenido);
 }
 
 /* 🔹 agrupamos los de la izquierda en un contenedor */
@@ -3085,10 +3082,18 @@ tabla y contenedor
   font-family: var(--fuente--contenido, Inter, sans-serif);
   color: var(--color-letra-predeter, #333);
   text-align: center;
-  table-layout: fixed;
-  height: 10px;
+
+    table-layout: auto;  /* ✔ deja que las columnas crezcan */
+
+  
+}
+#tbody_pesos tr {
+    height: 60px;      /* AUMENTA LA ALTURA DE LA FILA */
 }
 
+#tbody_pesos td {
+    padding: 12px 8px; /* ESPACIO INTERNO */
+}
 
 /* TODO EL TEXTO DE LA TABLA EN NEGRITA */
 .table__peso tbody td {
@@ -3106,7 +3111,7 @@ tabla y contenedor
 
 /* Aumentar el icono del cerdito */
 .table__peso img {
-    width: 80px !important;  /* antes 25px */
+    width: 100px !important;  /* antes 25px */
     height: auto;
 }
 
@@ -3114,6 +3119,11 @@ tabla y contenedor
 .table__peso td:first-child {
     width: 70px;
     text-align: center;
+}
+#tbody_pesos img {
+    width: 38px !important;
+    height: auto !important;
+    max-width: none !important;
 }
 
 /* Responsive mejorado */
@@ -3155,6 +3165,7 @@ tabla y contenedor
   border-top-right-radius: 20px;
   border-bottom-right-radius: 20px;
 }
+
 
 
 
@@ -3235,7 +3246,32 @@ tabla y contenedor
     border-spacing: 0 12px;  /* separa filas igual que pesos */
     font-family: var(--fuente--contenido);
     text-align: center;
+    height: 30px;
     
+}
+/* ================================
+   BOTÓN DE FILTRAR / REFRESH (icono)
+================================ */
+.btn-refresh {
+    width: 45px;
+    height: 45px;
+    padding: 10px;
+    background: #ffffff;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: .3s ease;
+    border: 2px solid #60836a;
+    box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.btn-refresh:hover {
+    background: #f0f6ff;
+    transform: rotate(20deg) scale(1.1);
+    box-shadow: 0px 4px 14px rgba(0, 123, 255, 0.35);
+}
+
+.btn-refresh:active {
+    transform: scale(0.95);
 }
 
 /* Encabezado */
@@ -3280,7 +3316,7 @@ tabla y contenedor
    IMAGEN DEL USUARIO (más grande)
    =============================== */
 .img-usuario {
-    width: 40px;
+    width: 30px;
     height: auto;
 }
 .td-img-usuario {
@@ -3393,15 +3429,15 @@ tabla y contenedor
    ================================ */
 
 .table__alimento {
-    width: 1150px;
-    height: 320px;
+   width: 100%;                  /* se adapta al contenedor */
+    max-width: 1150px; 
     margin: auto;
     border-radius: 40px;
     border-collapse: separate;
     border-spacing: 0 15px; /* separación entre filas */
     text-align: center;
     font-family: var(--fuente--contenido, Inter, sans-serif);
-    overflow-y: scroll;
+   
 
 
 
@@ -3409,7 +3445,18 @@ tabla y contenedor
   color: var(--color-letra-predeter, #333);
 
 }
+/* Donde va el scroll */
+.contenido__tabla {
+    max-height: 300px;
+    overflow-y: auto;
+    position: relative;      /* 🔥 OBLIGATORIO para que sticky funcione */
+    scrollbar-width: none;   /* Ocultar scroll firefox */
+}
 
+
+.contenido__tabla::-webkit-scrollbar {
+    display: none;           /* Ocultar scroll chrome */
+}
 .table__alimento thead tr,
 .table__alimento thead th {
     font-weight: 800 !important; /* texto normal como pesos */
@@ -3459,14 +3506,14 @@ tabla y contenedor
 
 /* Imagen alimento (misma lógica que cerdito en PESO) */
 .table__alimento img {
-    width: 60px !important;
+    width: 45px !important;
     height: auto;
 }
 
 /* Columna imagen */
 .table__alimento td:nth-child(1),
 .table__alimento th:nth-child(1) {
-    width: 87px;
+    width: 30px;
 }
 
 /* Hover */
@@ -3722,3 +3769,147 @@ input:checked + .slider:before {
     font-family: "Times New Roman";
     outline: none;
 }
+@media print {
+    body * {
+        visibility: hidden !important;
+    }
+
+    #reportePDF, #reportePDF * {
+        visibility: visible !important;
+    }
+
+    #reportePDF {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        padding: 20px;
+        background: white;
+    }
+}
+/* Fondo oscuro */
+.modal-usuario {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(17, 17, 17, 0.60);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9000;
+}
+
+/* Oculto */
+.oculto {
+    display: none !important;
+}
+
+/* Caja del modal */
+.modal-contenido {
+    background: #ffffff;
+    width: 420px;
+    padding: 30px 25px;
+    border-radius: 15px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.25);
+    text-align: center;
+    animation: aparecer 0.25s ease-out;
+}
+
+/* Icono de advertencia */
+.icon-warning {
+    width: 80px;
+    margin-bottom: 15px;
+}
+
+/* Título */
+.titulo-modal {
+    font-size: 25px;
+    font-weight: 700;
+    margin: 0 0 10px 0;
+    color: #2D2D2D;
+}
+
+/* Texto */
+.texto-modal {
+    font-size: 17px;
+    color: #444;
+    margin-bottom: 20px;
+    line-height: 1.4;
+}
+
+/* Botón centrado */
+.modal-botones-centro {
+    display: flex;
+    justify-content: center;
+}
+
+/* Botón */
+.btn-cerrar {
+    background-color: #E53935;
+    color: white;
+    border: none;
+    padding: 10px 25px;
+    border-radius: 10px;
+    font-size: 16px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: 0.2s;
+}
+
+.btn-cerrar:hover {
+    background-color: #c62828;
+}
+
+/* Animación */
+@keyframes aparecer {
+    from {
+        transform: scale(0.95);
+        opacity: 0;
+    }
+    to {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* ================================
+   BOTÓN CONSULTAR (Principal)
+================================ */
+.btn-consultar {
+  
+    background-color: var(--color--btn--sin--hover);
+    color: var(--color-white);
+    width: 130px;
+    height: 40px;
+    border: 1px solid var(--color-bor-btn);
+    font-family: inherit;
+    font-size: 15px;
+    font-weight: 600;
+    border-radius: 20px;
+    transition: background-color 0.5s 
+ease-in-out;
+    cursor: pointer;
+
+}
+
+.btn-consultar:hover {
+    
+    background-color: var(--color--btn--hover);
+    border: 1px solid var(--color-bor-btn-hover);
+
+}
+

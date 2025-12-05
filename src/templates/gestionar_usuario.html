@@ -109,7 +109,7 @@
 
     <!-- Buscador por ID -->
     <div class="dropdown filtro-fecha">
-        <input type="text" class="input__id" id="input_rango_fecha" placeholder="Id de usuario">
+        <input type="text" class="input__id" id="input_rango_fecha" placeholder="ID de usuario">
         <div class="dropdown__content"></div>
     </div>
 
@@ -122,6 +122,7 @@
 </section>
 
 <section class="container__gestionar_usuario_">
+    <div class="contenido__tabla"> 
     <table class="table__gestionar_usuario">
        <thead>
             <tr>
@@ -143,50 +144,63 @@ function abrirDialogEditUsuario(item){
 }
 </script>
 <!-- MODALES (colocados AL FINAL del <body>) -->
-<!-- EDITAR -->
-<div id="modalEditarUsuario" class="modal-usuario oculto" aria-hidden="true">
-  <div class="modal-contenido-usuario contenido-modal" role="dialog" aria-modal="true">
+<!-- EDITAR --><!-- MODAL EDITAR -->
+<div id="modalEditarUsuario" class="modal-usuario oculto">
+  <div class="modal-contenido-usuario contenido-modal">
+
     <div class="modal-header">
       <h2>Editar información del usuario</h2>
       <button class="btn-cerrar" onclick="cerrarModalEditar()">×</button>
     </div>
 
     <div class="modal-body">
+
       <div class="grupo-input">
         <label>ID</label>
         <input id="edit_id" type="text" disabled>
       </div>
+
       <div class="grupo-input">
         <label>Nombre</label>
         <input id="edit_nombre" type="text" disabled>
       </div>
+
       <div class="grupo-input">
         <label>Correo</label>
         <input id="edit_correo" type="text" disabled>
       </div>
-   <div class="grupo-input">
-    <label>Estado</label>
-    <select id="edit_estado" class="select-estado">
-        <option value="Activo">Activo</option>
-        <option value="Inactivo">Inactivo</option>
-    </select>
-</div>
-
 
       <div class="grupo-input">
-        <label>Rol / Tipo</label>
-        <select id="edit_tipo">
-          <option value="Admin">Admin</option>
-          <option value="Usuario">Usuario</option>
+        <label>Estado</label>
+        <select id="edit_estado">
+          <option value="Activo">Activo</option>
+          <option value="Inactivo">Inactivo</option>
         </select>
       </div>
+
+      <div class="grupo-input">
+        <label>Tipo de usuario</label>
+        <input id="edit_tipo" type="text" disabled>
+      </div>
+
+      <div class="grupo-input">
+        <label>Rol</label>
+        <select id="edit_rol">
+          <option value="Admin">Admin</option>
+    
+          <option value="Aprendiz">Aprendiz</option>
+        </select>
+      </div>
+
     </div>
 
     <div class="modal-footer">
       <button class="btn-guardar" onclick="guardarEdicionUsuario()">Guardar</button>
     </div>
+
   </div>
 </div>
+
 
 <!-- ELIMINAR -->
 <div id="modalEliminarUsuario" class="modal-usuario oculto" aria-hidden="true">
@@ -205,24 +219,26 @@ function abrirDialogEditUsuario(item){
   </div>
 </div>
 
-<!-- NO SE PUEDE ELIMINAR -->
-<div id="modalNoSePuedeEliminar" class="modal-usuario oculto" aria-hidden="true">
-  <div class="modal__container contenido-modal" role="dialog" aria-modal="true">
-    <h2 class="modal__titulo modal__titulo--error">⚠ No se puede eliminar este usuario</h2>
-    <p class="modal__texto">Este usuario tiene alimentos registrados en el sistema. Debe eliminar o reasignar esos registros antes de borrarlo.</p>
-    <div class="modal__acciones">
-      <button class="btn-modal btn-cerrar" onclick="cerrarModalNoSePuedeEliminar()">Cerrar</button>
+<div id="modalNoSePuedeEliminar" class="modal-usuario oculto">
+    <div class="modal-contenido modal-eliminar">
+
+
+        <h2 class="titulo-modal">No se puede eliminar</h2>
+
+        <p id="modalNoSePuedeEliminar_texto" class="texto-modal">
+            Este usuario tiene información asociada.
+        </p>
+
+        <div class="modal-botones-centro">
+            <button class="btn-cerrar" onclick="cerrarModalNoSePuedeEliminar()">
+                Entendido
+            </button>
+        </div>
+
     </div>
-  </div>
 </div>
 
-<!-- SCRIPT: siempre justo antes del cierre del body -->
-<script src="/src/static/js/script.js"></script>
-</body>
-</html>
-
-
-    <script src="/src/static/js/script.js"></script>
+    <script src="/src/static/js/reportes.js"></script>
    
 </body>
 </html>

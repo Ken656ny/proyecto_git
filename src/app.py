@@ -7,6 +7,23 @@ from config import config
 
 #PARA FACILITAR EL CONSUMO DE LA API GENERADA
 from flask_cors import CORS
+# Librerías que te faltan
+from werkzeug.security import generate_password_hash, check_password_hash
+from datetime import datetime, timedelta, timezone
+import jwt
+import secrets
+import random
+import time
+
+# Para Google Login
+from google.oauth2 import id_token
+from google.auth.transport import requests as google_requests
+
+# Para usar decoradores @wraps
+from functools import wraps
+
+# Para enviar correos
+from flask_mail import Mail, Message
 
 
 #PARA DOCUMENTAR LAS RUTAS DEL CODIGO
@@ -1587,23 +1604,51 @@ def editar_usuario():
         with config['development'].conn() as conn:
             with conn.cursor() as cur:
 
-                # Usuario interno → solo cambia ESTADO
+                # ================================
+                #   USUARIO INTERNO
+                # ================================
                 if data["tipo"] == "Interno":
-                    sql = """
-                        UPDATE usuario
-                        SET estado=%s
-                        WHERE id_usuario=%s
-                    """
-                    cur.execute(sql, (data["estado"], data["id"]))
 
-                # Usuario Google → solo cambia ROL
+                    # Si manda ambos, estado y rol → actualizar los dos
+                    if "estado" in data and "rol" in data:
+                        sql = """
+                            UPDATE usuario
+                            SET estado=%s, rol=%s
+                            WHERE id_usuario=%s
+                        """
+                        cur.execute(sql, (data["estado"], data["rol"], data["id"]))
+
+                    # Solo estado
+                    elif "estado" in data:
+                        sql = """
+                            UPDATE usuario
+                            SET estado=%s
+                            WHERE id_usuario=%s
+                        """
+                        cur.execute(sql, (data["estado"], data["id"]))
+
+                    # Solo rol
+                    elif "rol" in data:
+                        sql = """
+                            UPDATE usuario
+                            SET rol=%s
+                            WHERE id_usuario=%s
+                        """
+                        cur.execute(sql, (data["rol"], data["id"]))
+
+                # ================================
+                #   USUARIO GOOGLE
+                # ================================
                 elif data["tipo"] == "Google":
-                    sql = """
-                        UPDATE usuario_externo
-                        SET rol=%s
-                        WHERE id_usuario_externo=%s
-                    """
-                    cur.execute(sql, (data["rol"], data["id"]))
+
+                    # Google solo puede cambiar rol (tu tabla no tiene 'estado')
+                    if "rol" in data:
+                        sql = """
+                            UPDATE usuario_externo
+                            SET rol=%s
+                            WHERE id_usuario_externo=%s
+                        """
+                        cur.execute(sql, (data["rol"], data["id"]))
 
                 else:
                     return jsonify({"error": "Tipo inválido"}), 400
@@ -1615,7 +1660,6 @@ def editar_usuario():
     except Exception as e:
         print("❌ Error:", e)
         return jsonify({"error": "Error interno"}), 500
-
   
 # ----------------------------------------------------
 # API: BUSCAR USUARIO POR ID
@@ -1657,27 +1701,58 @@ def buscar_usuario():
 
     except Exception as e:
         return jsonify({"error": str(e)}), 500
-  
-# ----------------------------------------------------
-# API: ELIMINAR USUARIO
-# ----------------------------------------------------
+      
+      
 @app.route("/usuarios", methods=["DELETE"])
 def eliminar_usuario():
-
-    id = request.args.get("id")
+    id_usuario = request.args.get("id")
     tipo = request.args.get("tipo")
 
-    if not id or not tipo:
+    if not id_usuario or not tipo:
         return jsonify({"error": "Faltan parámetros"}), 400
 
     try:
         with config['development'].conn() as conn:
             with conn.cursor() as cur:
 
+                # ---------------------------------------
+                # 1. Validar que el usuario exista
+                # ---------------------------------------
                 if tipo == "Interno":
-                    cur.execute("DELETE FROM usuario WHERE id_usuario=%s", (id,))
+                    cur.execute("SELECT * FROM usuario WHERE id_usuario=%s", (id_usuario,))
+                else:  # Google
+                    cur.execute("SELECT * FROM usuario_externo WHERE id_usuario_externo=%s", (id_usuario,))
+
+                existe = cur.fetchone()
+                if not existe:
+                    return jsonify({"error": "NO_EXISTE"}), 404
+
+                # ---------------------------------------
+                # 2. Validar dependencias (si aplica)
+                # ---------------------------------------
+                # verifica si tiene alimentos registrados
+                cur.execute("SELECT COUNT(*) AS total FROM alimentos WHERE id_usuario=%s", (id_usuario,))
+                if cur.fetchone()["total"] > 0:
+                    return jsonify({
+                        "error": "NO_SE_PUEDE",
+                        "reason": "El usuario tiene alimentos registrados"
+                    }), 409
+
+                # verifica si tiene dietas registradas
+                cur.execute("SELECT COUNT(*) AS total FROM dietas WHERE id_usuario=%s", (id_usuario,))
+                if cur.fetchone()["total"] > 0:
+                    return jsonify({
+                        "error": "NO_SE_PUEDE",
+                        "reason": "El usuario tiene dietas registradas"
+                    }), 409
+
+                # ---------------------------------------
+                # 3. Borrar según tipo
+                # ---------------------------------------
+                if tipo == "Interno":
+                    cur.execute("DELETE FROM usuario WHERE id_usuario=%s", (id_usuario,))
                 elif tipo == "Google":
-                    cur.execute("DELETE FROM usuario_externo WHERE id_usuario_externo=%s", (id,))
+                    cur.execute("DELETE FROM usuario_externo WHERE id_usuario_externo=%s", (id_usuario,))
                 else:
                     return jsonify({"error": "Tipo inválido"}), 400
 
@@ -1686,11 +1761,8 @@ def eliminar_usuario():
         return jsonify({"message": "Usuario eliminado correctamente"})
 
     except Exception as e:
-        print("❌ Error:", e)
+        print("❌ Error eliminando usuario:", e)
         return jsonify({"error": "Error interno"}), 500
-
-
-
 
 
 
@@ -1820,16 +1892,7 @@ def reportes_alimentos():
     
     
     
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
+
     
     
     

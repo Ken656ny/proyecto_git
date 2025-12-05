@@ -107,35 +107,26 @@
         <!-- Ícono documento -->
         <img src="/src/static/iconos/Vector (6).svg" alt="icono informe" class="icon__informe">
 
+<!-- Buscador por NOMBRE con autocompletado -->
+<div class="dropdown filtro-nombre">
+    <input type="text" class="input__id" id="buscar_alimento" placeholder="Nombre del alimento...">
+    <div class="dropdown__content" id="lista_autocompletado"></div>
+</div>
 
-<!-- Buscador por ID -->
-    <div class="dropdown filtro-fecha">
-        <input type="text" class="input__id" id="input_rango_fecha" placeholder="ID de alimento">
-        <div class="dropdown__content"></div>
-    </div>
 
     <!-- Filtro con icono -->
     <div class="dropdown filtro-peso">
         <img src="/src/static/iconos/icon filter.svg" alt="icon filtro" class="icon__filtro_dropdown">
         <input type="text" class="input__id" id="input_filtro_peso" placeholder="Alimentos" readonly>
         <div class="dropdown__content">
+            <a onclick="cargarReporteAlimentos('todos')">Todos</a>
             <a onclick="cargarReporteAlimentos('mayor')">Mayor consumido</a>
-<a onclick="cargarReporteAlimentos('menor')">Menor consumido</a>
-<a onclick="cargarReporteAlimentos('todos')">Todos</a>
+            <a onclick="cargarReporteAlimentos('menor')">Menor consumido</a>
+
 
         </div>
     </div>
 
-    <!-- Rango de fecha -->
-    <div class="dropdown filtro-fecha">
-        <input type="text" class="input__id" id="input_rango_fecha" placeholder="Escoja el rango de fecha..." readonly>
-        <div class="dropdown__content">
-            <a href="#">Última semana</a>
-            <a href="#">Últimos 15 días</a>
-            <a href="#">Último mes</a>
-            <a href="#">Últimos 6 meses</a>
-            <a href="#">Último año</a>
-        </div>
     </div>
 <img src="/src/static/iconos/exportar_pdf.svg" 
      alt="icono export" 
@@ -145,13 +136,12 @@
     </section>
 
 <!-- TABLA --><section class="container__Reportes_alimento_">
-
-    <div class="contenido__tabla">   <!-- AGREGADO -->
+       <div class="contenido__tabla"> 
         <table class="table__alimento">
             <thead id="cabecera-alimentos">
                 <tr> 
                     <th></th>
-                    <th>ID alimento</th>
+                    <th>Nombre de alimento</th>
                     <th>Mayor consumido se usó en</th>
                     <th>Menor consumido se usó</th>
                     <th>Promedio de cantidad usada (KG)</th>
@@ -163,12 +153,63 @@
         </table>
     </div> <!-- FIN DEL DIV AGREGADO -->
 
-</section>
+</section><div id="reportePDF" style="display:none; font-family: Inter;">
+    <div style="text-align:center; margin-bottom:20px;">
+        <img src="/src/static/iconos/Logo.svg" width="300">
+        <h2>Informe de Alimentos</h2>
+    </div>
 
-
+    <table style="width:100%; border-collapse: collapse; font-size: 16px;">
+        <thead>
+            <tr style="background:#e8e8e8;">
+                <th style="padding:20px; border:2px solid #ccc;"></th>
+                <th style="padding:20px; border:2px solid #ccc;">Nombre</th>
+                <th style="padding:20px; border:2px solid #ccc;">Mayor consumido</th>
+                <th style="padding:20px; border:2px solid #ccc;">Menor consumido</th>
+                <th style="padding:20px; border:2px solid #ccc;">Promedio KG</th>
+            </tr>
+        </thead>
+        <tbody id="contenidoReporte"></tbody>
+    </table>
 </div>
 
-    <script src="/src/static/js/script.js"></script>
+
+</div><div id="modalGrafica" class="modal_grafica" style="
+    position: fixed; 
+    top:0; left:0; right:0; bottom:0;
+    background: rgba(0,0,0,0.5);
+    display:none;
+    justify-content:center;
+    align-items:center;
+    z-index:9999;
+">
+    <div style="
+        width: 450px;
+        background:white;
+        padding:20px;
+        border-radius:20px;
+        text-align:center;
+        position:relative;
+    ">
+        <h3 id="tituloGrafica"></h3>
+
+        <canvas id="chartAlimento" width="300" height="300"></canvas>
+
+        <button onclick="cerrarGrafica()" style="
+            margin-top:15px; 
+            padding:10px 20px;
+            background:#333;
+            color:white;
+            border:none;
+            border-radius:10px;
+        ">
+            Cerrar
+        </button>
+    </div>
+</div>
+
+
+    <script src="/src/static/js/reportes.js"></script>
     <script>
         consulta_alimentos();
     </script>

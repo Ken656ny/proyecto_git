@@ -2115,114 +2115,58 @@ function mostrarTabla(datos) {
 
         tbody.innerHTML += `
             <tr>
-                <td><img src="/src/static/iconos/pig_icon.svg" width="25"></td>
+                <td><img src="/src/static/iconos/pig_icon.svg" width="300"></td>
                 <td>${item.id_porcino}</td>
                 <td>${item.peso_min} - ${item.peso_max} KG</td>
                 <td>${item.peso_final} KG</td>
+                <td><img src="/src/static/iconos/stadic.svg" width="35"></td>
                 
             </tr>
         `;
     });
 }
 
-  function prepararImpresion() {
-    // 1. Mostrar la sección que se va a imprimir
-    const reporte = document.getElementById("reportePDF");
-    reporte.style.display = "block";
 
-    // 2. Obtener el contenido dinámico (si tu tabla ya existe en el DOM)
-    const tabla = document.getElementById("tablaReportes"); // ⚠️ Asegúrate que este ID exista
+
+   function exportarReportePesos() {
+
+    const filas = document.querySelectorAll("#tbody_pesos tr");
     const destino = document.getElementById("contenidoReporte");
 
-    if (tabla && destino) {
-        destino.innerHTML = tabla.outerHTML;
-    }
+    destino.innerHTML = ""; // limpiar contenido
 
-    // 3. Dar un pequeño delay para que el navegador cargue el contenido
-    setTimeout(() => {
-        window.print();
-    }, 200);
-}
-
-
-function prepararImpresion() {
-    const tabla = document.querySelector("#tabla_pesos tbody");
-
-    if (!tabla) {
-        alert("No se encontró la tabla de reportes.");
-        return;
-    }
-
-    const filas = tabla.querySelectorAll("tr");
-    const destino = document.getElementById("contenidoReporte");
-
-    destino.innerHTML = "";
-
-    // =============================
-    // ENCABEZADO HORIZONTAL BONITO
-    // =============================
-    destino.innerHTML += `
-        <div style="
-            display: grid;
-            grid-template-columns: 120px 200px 220px 200px;
-            align-items: center;
-            font-size: 20px;
-            font-weight: 90;
-            border-bottom: 3px solid black;
-            padding: 15px 0;
-            margin-bottom: 18px;
-            text-align: left;
-            gap: 15px;
-        ">
-            <div style="text-align:center;">🐖</div>
-            <div>ID del porcino</div>
-            <div>Rango de peso (KG)</div>
-            <div>Peso actual (KG)</div>
-        </div>
-    `;
-
-    // =============================
-    // CADA PORCINO EN FILA HORIZONTAL
-    // =============================
     filas.forEach(fila => {
-        const celdas = fila.querySelectorAll("td");
 
+        // ❌ si la fila está oculta, no se imprime
+        if (fila.style.display === "none") return;
+
+        const celdas = fila.children;
+
+        const img = celdas[0].querySelector("img").src;
         const id = celdas[1].innerText;
         const rango = celdas[2].innerText;
         const actual = celdas[3].innerText;
 
         destino.innerHTML += `
-            <div style="
-                display: grid;
-                grid-template-columns: 120px 200px 220px 200px;
-                align-items: center;
-                font-size: 18px;
-                padding: 12px 0;
-                border-bottom: 1px solid #dcdcdc;
-                gap: 15px;
-                text-align: left;
-            ">
-                <div style="text-align:center;">
-                    <img src="/src/static/iconos/cerdo.png" width="50">
-                </div>
-
-                <div>${id}</div>
-                <div>${rango}</div>
-                <div>${actual}</div>
-            </div>
+            <tr>
+                <td style="border:2px solid #ccc; padding:10px; text-align:center;">
+                    <img src="${img}" width="50">
+                </td>
+                <td style="border:2px solid #ccc; padding:10px;">${id}</td>
+                <td style="border:2px solid #ccc; padding:10px;">${rango}</td>
+                <td style="border:2px solid #ccc; padding:10px;">${actual}</td>
+            </tr>
         `;
     });
 
-    const imprimirSeccion = document.getElementById("reportePDF");
-    imprimirSeccion.style.display = "block";
+    const areaPDF = document.getElementById("reportePDF");
+    areaPDF.style.display = "block";
 
-    
+    setTimeout(() => {
+        window.print();
+        areaPDF.style.display = "none";
+    }, 200);
 }
-
-
-
-
-
 
 
 
@@ -2233,7 +2177,7 @@ function prepararImpresion() {
 
 
 // =====================================================
-//  area gestionar usuario 
+//  área gestionar usuario 
 // =====================================================
 document.addEventListener("DOMContentLoaded", cargarUsuarios);
 
@@ -2254,9 +2198,19 @@ function cargarUsuarios() {
                         <td>${u.correo}</td>
                         <td style="font-weight:600;">${u.estado}</td>
                         <td class="td__border__r">
+
+                            <!-- ✔ AQUÍ EL onclick CORRECTO -->
                             <img src="/src/static/iconos/edit icon.svg" 
                                  class="accion-grande"
-                                 onclick='abrirModalEditar("${u.id}", "${u.nombre}", "${u.correo}", "${u.estado}", "${u.tipo}")'>
+                                 onclick='abrirModalEditar(
+                                     "${u.id}",
+                                     "${u.nombre}",
+                                     "${u.correo}",
+                                     "${u.estado}",
+                                     "${u.rol}",
+                                     "${u.tipo}"
+                                 )'>
+
                             <img src="/src/static/iconos/delete icon.svg" 
                                  class="accion-grande"
                                  onclick='abrirModalEliminar("${u.id}", "${u.tipo}")'>
@@ -2272,19 +2226,23 @@ function cargarUsuarios() {
 // =====================================================
 //   VARIABLES GLOBALES
 // =====================================================
-function abrirModalEditar(id, nombre, correo, estado, rol) {
+function abrirModalEditar(id, nombre, correo, estado, rol, tipo) {
 
     document.getElementById("edit_id").value = id;
     document.getElementById("edit_nombre").value = nombre;
     document.getElementById("edit_correo").value = correo;
 
-    document.getElementById("edit_estado").checked = (estado === "Activo");
+    // Estado
+    document.getElementById("edit_estado").value = estado;
 
-    document.getElementById("edit_tipo").value = rol; // ✔ ahora sí refleja Admin / Usuario
+    // Tipo Interno/Google (NO se edita)
+    document.getElementById("edit_tipo").value = tipo;
+
+    // Rol (SÍ se edita)
+    document.getElementById("edit_rol").value = rol;
 
     document.getElementById("modalEditarUsuario").classList.remove("oculto");
 }
-
 
 
 
@@ -2294,12 +2252,15 @@ function abrirModalEditar(id, nombre, correo, estado, rol) {
 function cerrarModalEditar() {
     document.getElementById("modalEditarUsuario").classList.add("oculto");
 }
+
+
 function guardarEdicionUsuario() {
 
     const datos = {
         id: document.getElementById("edit_id").value,
-        estado: document.getElementById("edit_estado").checked ? "Activo" : "Inactivo",
-        tipo: document.getElementById("edit_tipo").value   // Admin o Usuario
+        tipo: document.getElementById("edit_tipo").value,   // Interno | Google
+        estado: document.getElementById("edit_estado").value,
+        rol: document.getElementById("edit_rol")?.value     // SI EXISTE SELECT DE ROL
     };
 
     fetch(`${URL_BASE}/usuarios`, {
@@ -2309,41 +2270,25 @@ function guardarEdicionUsuario() {
     })
     .then(res => res.json())
     .then(resp => {
+        console.log("RESP SERV:", resp);
         cerrarModalEditar();
         cargarUsuarios();
     });
 }
+let usuarioAEliminar = null;
 
-
-function guardarEdicionUsuario() {
-
-    const datos = {
-        id: document.getElementById("edit_id").value,
-        tipo: document.getElementById("edit_tipo_original").value, // Interno / Google
-        estado: document.getElementById("edit_estado").checked ? "Activo" : "Inactivo",
-        rol: document.getElementById("edit_tipo").value
-    };
-
-    fetch(`${URL_BASE}/usuarios`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(datos)
-    })
-    .then(res => res.json())
-    .then(resp => {
-        cerrarModalEditar();
-        cargarUsuarios();
-    });
-}
-
-let usuarioAEliminar = { id: null, tipo: null };
-let idUsuarioAEliminar = null;
-
+// =====================================================
+//   ABRIR MODAL ELIMINAR
+// =====================================================
 function abrirModalEliminar(id, tipo) {
-    usuarioAEliminar.id = id;
-    usuarioAEliminar.tipo = tipo;
 
-    console.log("🟥 Eliminando:", usuarioAEliminar);
+    // 👉 Guardamos el usuario como OBJETO (antes era solo un string)
+    usuarioAEliminar = { 
+        id: id, 
+        tipo: tipo 
+    };
+
+    console.log("Usuario a eliminar:", usuarioAEliminar);
 
     document.getElementById("modalEliminarUsuario").classList.remove("oculto");
 }
@@ -2357,42 +2302,79 @@ function cerrarModalEliminar() {
 }
 
 
-
-function confirmarEliminarUsuario() {
-
-    fetch(`${URL_BASE}/usuarios?id=${usuarioAEliminar.id}&tipo=${usuarioAEliminar.tipo}`, {
-        method: "DELETE"
-    })
-    .then(response => {
-
-        // VALIDAMOS SI HAY ERROR 500 (FOREIGN KEY)
-        if (response.status === 500) {
-            cerrarModalEliminar();            // cerramos el modal de confirmación
-            mostrarModalNoSePuedeEliminar();  // mostramos el modal informativo
-            return;
-        }
-
-        return response.json();
-    })
-    .then(resp => {
-        if (resp) {
-            cerrarModalEliminar();
-            cargarUsuarios();
-        }
-    })
-    .catch(error => {
-        console.error("❌ Error eliminando usuario:", error);
-    });
-}
-
+// =====================================================
+//   MOSTRAR MODAL — NO SE PUEDE ELIMINAR
+// =====================================================
 function mostrarModalNoSePuedeEliminar() {
     document.getElementById("modalNoSePuedeEliminar").classList.remove("oculto");
 }
 
+// =====================================================
+//   CERRAR MODAL — NO SE PUEDE ELIMINAR
+// =====================================================
 function cerrarModalNoSePuedeEliminar() {
     document.getElementById("modalNoSePuedeEliminar").classList.add("oculto");
 }
 
+
+// =====================================================
+//   CONFIRMAR ELIMINACIÓN
+// =====================================================
+function confirmarEliminarUsuario() {
+
+    if (!usuarioAEliminar || !usuarioAEliminar.id || !usuarioAEliminar.tipo) {
+        console.error("❌ No hay usuario válido para eliminar.");
+        return;
+    }
+
+    fetch(`${URL_BASE}/usuarios?id=${usuarioAEliminar.id}&tipo=${usuarioAEliminar.tipo}`, {
+        method: "DELETE"
+    })
+    .then(async response => {
+
+        console.log("STATUS DELETE:", response.status);
+
+        const body = await response.json().catch(()=> ({}));
+
+        // ❌ ERROR: DEPENDENCIAS (NO SE PUEDE ELIMINAR)
+        if (response.status === 409) {
+            cerrarModalEliminar();
+
+            document.getElementById("modalNoSePuedeEliminar_texto").textContent =
+                body.reason || "No se puede eliminar este usuario.";
+
+            mostrarModalNoSePuedeEliminar(); 
+            return;
+        }
+
+        // ❌ ERROR: BD O FK
+        if (response.status === 500) {
+            cerrarModalEliminar();
+            mostrarModalNoSePuedeEliminar();
+            return;
+        }
+
+        // ❌ OTRO ERROR
+        if (!response.ok) {
+            console.error("❌ Error desconocido al eliminar:", body);
+            cerrarModalEliminar();
+            return;
+        }
+
+        // ✔ ELIMINADO CORRECTAMENTE
+        cerrarModalEliminar();
+        cargarUsuarios();
+
+    })
+    .catch(err => {
+        console.error("❌ Error eliminando usuario:", err);
+    });
+}
+
+
+// =====================================================
+//   ELIMINAR DIRECTO (NO USAR - QUEDA POR SI ALGO)
+// =====================================================
 function eliminarUsuario(id, tipo) {
 
     fetch(`http://localhost:5000/usuarios?id=${id}&tipo=${tipo}`, {
@@ -2401,9 +2383,8 @@ function eliminarUsuario(id, tipo) {
     .then(response => {
         if (!response.ok) {
 
-            // Si MySQL bloquea por llave foránea → error 500
             if (response.status === 500) {
-                mostrarModalNoEliminar();  
+                mostrarModalNoEliminar();
                 return;
             }
 
@@ -2413,32 +2394,37 @@ function eliminarUsuario(id, tipo) {
         return response.json();
     })
     .then(data => {
-        if (data) {
-            cargarUsuarios("todos");
-        }
+        if (data) cargarUsuarios("todos");
     })
     .catch(err => {
         console.error("Error eliminando usuario:", err);
     });
 }
+
+
+// =====================================================
+//   BUSCAR USUARIO POR ID
+// =====================================================
 function consultarUsuarios() {
+
     const id = document.getElementById("input_rango_fecha").value.trim();
 
-    // Si input está vacío → cargar todos
     if (id === "") {
         cargarUsuarios();
         return;
     }
 
-    fetch(`http://localhost:5000/usuarios/buscar?id=${id}`)
+    fetch(`${URL_BASE}/usuarios/buscar?id=${id}`)
         .then(res => res.json())
         .then(u => {
+
             if (u.error) {
                 alert("No existe un usuario con ese ID");
                 return;
             }
 
             const tbody = document.getElementById("contenido_USUARIO");
+
             tbody.innerHTML = `
                 <tr>
                     <td class="td-img-usuario">
@@ -2465,162 +2451,193 @@ function consultarUsuarios() {
         .catch(e => console.error("Error en consulta:", e));
 }
 
-
-// =====================================================
-//  area de filtrar reportes_ alimentos
-// =====================================================
-document.addEventListener("DOMContentLoaded", function () {
-    if (document.getElementById("contenido")) {
-        cargarReporteAlimentos("todos");
-    }
-});
-
 function cargarReporteAlimentos(filtro = "todos") {
 
     fetch(`${URL_BASE}/reportes/alimentos?filtro=${filtro}`)
         .then(response => response.json())
         .then(lista => {
 
-            if (!Array.isArray(lista)) {
-                console.error("El backend no devolvió una lista:", lista);
-                return;
-            }
-
             const tbody = document.getElementById("contenido");
-            if (!tbody) {
-                console.error("No existe el elemento contenido");
-                return;
-            }
+            const thead = document.getElementById("cabecera-alimentos");
 
             tbody.innerHTML = "";
 
+            // ============================
+            // CABECERA DINÁMICA
+            // ============================
+            if (filtro === "todos") {
+                thead.innerHTML = `
+                    <tr>
+                        <th></th>
+                        <th>Nombre de alimento</th>
+                        <th>Mayor consumido se usó en</th>
+                        <th>Menor consumido se usó en</th>
+                        <th>Promedio de cantidad usada (KG)</th>
+                        <th></th>
+                    </tr>`;
+            }
+
+            if (filtro === "mayor") {
+                thead.innerHTML = `
+                    <tr>
+                        <th></th>
+                        <th>Nombre de alimento</th>
+                        <th>Mayor consumido se usó en</th>
+                        <th>Promedio de cantidad usada (KG)</th>
+                        <th></th>
+                    </tr>`;
+            }
+
+            if (filtro === "menor") {
+                thead.innerHTML = `
+                    <tr>
+                        <th></th>
+                        <th>Nombre de alimento</th>
+                        <th>Menor consumido se usó en</th>
+                        <th>Promedio de cantidad usada (KG)</th>
+                        <th></th>
+                    </tr>`;
+            }
+
+            // ============================
+            // FILTRAR SI ES "MENOR"
+            // ============================
+            if (filtro === "menor") {
+                lista = lista.filter(
+                    x => x.menor.totalUsadas === Math.min(...lista.map(y => y.menor.totalUsadas))
+                );
+            }
+
+            // ============================
+            // FILTRAR SI ES "MAYOR"
+            // ============================
+            if (filtro === "mayor") {
+                lista = lista.filter(
+                    x => x.mayor.totalUsadas === Math.max(...lista.map(y => y.mayor.totalUsadas))
+                );
+            }
+
+            // ============================
+            // RENDERIZAR FILAS
+            // ============================
             lista.forEach(dato => {
 
                 const mayorTexto = `${dato.mayor.totalUsadas} de ${dato.totalDietas} dietas elaboradas`;
                 const menorTexto = `${dato.menor.totalUsadas} de ${dato.totalDietas} dietas elaboradas`;
 
-                tbody.innerHTML += `
-                    <tr>
-                        <td class="col-img"><img src="/src/static/iconos/icon wheat (1).svg" class="icon-alimento"></td>
-                        <td>${dato.id_alimento}</td>
-                        <td>${mayorTexto}</td>
-                        <td>${menorTexto}</td>
-                        <td>${dato.promedio} KG</td>
-                        <td class="col-img"><img src="/src/static/iconos/stadic.svg" class="icon-alimento icon-th"></td>
-                    </tr>
-                `;
+                if (filtro === "todos") {
+                    tbody.innerHTML += `
+                        <tr>
+                            <td><img src="/src/static/iconos/icon wheat (1).svg"></td>
+                            <td>${dato.nombre}</td>
+                            <td>${mayorTexto}</td>
+                            <td>${menorTexto}</td>
+                            <td>${dato.promedio} KG</td>
+                            <td><img src="/src/static/iconos/stadic.svg"></td>
+                        </tr>`;
+                }
+
+                if (filtro === "mayor") {
+                    tbody.innerHTML += `
+                        <tr>
+                            <td><img src="/src/static/iconos/icon wheat (1).svg"></td>
+                            <td>${dato.nombre}</td>
+                            <td>${mayorTexto}</td>
+                            <td>${dato.promedio} KG</td>
+                            <td><img src="/src/static/iconos/stadic.svg"></td>
+                        </tr>`;
+                }
+
+                if (filtro === "menor") {
+                    tbody.innerHTML += `
+                        <tr>
+                            <td><img src="/src/static/iconos/icon wheat (1).svg"></td>
+                            <td>${dato.nombre}</td>
+                            <td>${menorTexto}</td>
+                            <td>${dato.promedio} KG</td>
+                            <td><img src="/src/static/iconos/stadic.svg"></td>
+                        </tr>`;
+                }
+
             });
         })
         .catch(err => console.log("Error: ", err));
 }
-X
 
 
 
+// =====================================================
+//  FILTRAR VISUALMENTE LA TABLA POR NOMBRE
+// =====================================================
+function filtrarTablaAlimentos(nombre) {
+    const filas = document.querySelectorAll("#contenido tr");
 
+    if (!filas) return;
 
+    nombre = nombre.trim().toLowerCase();
 
-let alimentosData = [];  // Aquí se guardan los datos que devuelve consulta_alimentos()
-
-// Llamamos tu función original
-async function consulta_alimentos() {
-    const response = await fetch("/backend/alimentos");  // tu ruta real
-    const data = await response.json();
-
-    alimentosData = data; // Guardamos para poder filtrar sin volver a cargar
-
-    renderTabla(alimentosData, "Todos"); // Carga inicial
-}
-
-
-// ⭐ cuando seleccionas un filtro, cambia la tabla INMEDIATO
-document.querySelectorAll(".filtro-peso .dropdown__content a").forEach(opcion => {
-    opcion.addEventListener("click", function() {
-
-        let filtro = this.textContent.trim(); 
-        document.getElementById("input_filtro_peso").value = filtro;
-
-        // Renderizamos automáticamente según la opción seleccionada
-        renderTabla(alimentosData, filtro);
-    });
-});
-
-
-// ⭐ función que construye las columnas dinámicas
-function renderTabla(alimentos, filtro) {
-
-    let cabecera = `
-        <tr>
-            <th></th>
-            <th>ID alimento</th>
-    `;
-
-    if (filtro === "Mayor consumido" || filtro === "Todos") {
-        cabecera += `<th>Mayor consumido se usó en</th>`;
+    // Mostrar todo si está vacío
+    if (nombre === "") {
+        filas.forEach(f => f.style.display = "");
+        return;
     }
 
-    if (filtro === "Menor consumido" || filtro === "Todos") {
-        cabecera += `<th>Menor consumido se usó en</th>`;
+    filas.forEach(fila => {
+        const nombreCelda = fila.children[1]?.innerText.toLowerCase() || "";
+        fila.style.display = nombreCelda.includes(nombre) ? "" : "none";
+    });
+}
+
+
+
+// =====================================================
+//  AUTOCOMPLETADO DIRECTO DESDE LA TABLA YA RENDERIZADA
+// =====================================================
+document.getElementById("buscar_alimento").addEventListener("keyup", function () {
+
+    const texto = this.value.toLowerCase();
+    const lista = document.getElementById("lista_autocompletado");
+
+    if (texto === "") {
+        lista.innerHTML = "";
+        filtrarTablaAlimentos("");
+        return;
     }
 
-    cabecera += `
-            <th>Promedio de cantidad usada (KG)</th>
-        </tr>
-    `;
+    // Tomar nombres reales que están en la tabla
+    const nombres = [...document.querySelectorAll("#contenido tr td:nth-child(2)")]
+        .map(td => td.innerText);
 
-    document.getElementById("cabecera-alimentos").innerHTML = cabecera;
+    const coincidencias = nombres.filter(n =>
+        n.toLowerCase().includes(texto)
+    );
 
-    // FILAS
-    let contenido = "";
-
-    alimentos.forEach(a => {
-        contenido += `
-        <tr>
-            <td><img src="/src/static/iconos/icon wheate.svg"></td>
-            <td>${a.id_alimento}</td>
-        `;
-
-        if (filtro === "Mayor consumido" || filtro === "Todos") {
-            contenido += `<td>${a.mayor_consumido} de ${a.total_dietas} dietas</td>`;
-        }
-
-        if (filtro === "Menor consumido" || filtro === "Todos") {
-            contenido += `<td>${a.menor_consumido} de ${a.total_dietas} dietas</td>`;
-        }
-
-        contenido += `<td>${a.promedio_kg} KG</td></tr>`;
-    });
-
-    document.getElementById("contenido").innerHTML = contenido;
-}
-function mostrarModalNoEliminar() {
-    document.getElementById("modalNoEliminar").style.display = "flex";
-}
-
-document.getElementById("cerrarModalNoEliminar").addEventListener("click", () => {
-    document.getElementById("modalNoEliminar").style.display = "none";
+    lista.innerHTML = coincidencias
+        .map(n => `<a onclick="seleccionarAlimento('${n}')">${n}</a>`)
+        .join("");
 });
 
 
 
+// =====================================================
+//  SELECCIONAR DESDE AUTOCOMPLETADO
+// =====================================================
+function seleccionarAlimento(nombre) {
+    document.getElementById("buscar_alimento").value = nombre;
+    document.getElementById("lista_autocompletado").innerHTML = "";
+    filtrarTablaAlimentos(nombre);
+}
 
 
 
-
-
-
-
-
-
-
-
-// Función para verificar si es aprendiz
+// =====================================================
+//  RESTRICCIÓN DE ROL (NO SE TOCA)
+// =====================================================
 function esAprendiz() {
     const usuario = JSON.parse(localStorage.getItem("usuario") || "{}");
     return usuario.rol === 'Aprendiz';
 }
 
-// Función específica para aprendices
 function verificarRol() {
     if (esAprendiz()) {
         Swal.fire({
@@ -2641,21 +2658,65 @@ function verificarRol() {
     return true;
 }
 
-// Función para manejar las restricciones
 function manejarClickRol(event) {
     if (!verificarRol()) {
-        event.preventDefault(); // Evita la redirección
-        event.stopPropagation(); // Evita que otros eventos se ejecuten
+        event.preventDefault();
+        event.stopPropagation();
         return false;
     }
 }
 
-// =============================================
-// EVENT LISTENER PRINCIPAL (AL FINAL)
-// =============================================
 
+// =====================================================
+//  EVENTOS GENERALES
+// =====================================================
 document.addEventListener('DOMContentLoaded', function() {
     crearDialogRegistrarRaza();
     crearDialogRegistrarEtapa();
     crearDialogActualizarPesoHistorial();
 });
+
+
+
+
+function exportarReporteAlimentos() {
+
+    const filas = document.querySelectorAll("#contenido tr");
+    const destino = document.getElementById("contenidoReporte");
+
+    destino.innerHTML = ""; // limpiar contenido anterior
+
+    filas.forEach(fila => {
+
+        // ❌ Si la fila está OCULTA → NO se imprime
+        if (fila.style.display === "none") return;
+
+        const celdas = fila.children;
+
+        const img = celdas[0].querySelector("img").src;
+        const nombre = celdas[1].innerText;
+        const mayor = celdas[2].innerText;
+        const menor = celdas[3].innerText;
+        const promedio = celdas[4].innerText;
+
+        destino.innerHTML += `
+            <tr>
+                <td style="border:2px solid #ccc; padding:10px; text-align:center;">
+                    <img src="${img}" width="45">
+                </td>
+                <td style="border:2px solid #ccc; padding:10px;">${nombre}</td>
+                <td style="border:2px solid #ccc; padding:10px;">${mayor}</td>
+                <td style="border:2px solid #ccc; padding:10px;">${menor}</td>
+                <td style="border:2px solid #ccc; padding:10px;">${promedio}</td>
+            </tr>
+        `;
+    });
+
+    const areaPDF = document.getElementById("reportePDF");
+    areaPDF.style.display = "block";
+
+    setTimeout(() => {
+        window.print();
+        areaPDF.style.display = "none";
+    }, 200);
+}
