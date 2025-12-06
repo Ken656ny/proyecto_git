@@ -205,6 +205,24 @@
     <script src="/src/static/js/script.js"></script>
     <script src="/src/static/js/driver.js"></script>
     <script>
+        // Mostrar Swal después del refresh
+window.addEventListener("DOMContentLoaded", () => {
+    const mensaje = JSON.parse(localStorage.getItem("swal_mensaje"));
+    if (mensaje && mensaje.tipo === "success") {
+        Swal.fire({
+            title: "Éxito",
+            text: mensaje.texto,
+            icon: "success",
+            timer: 5000,
+            showConfirmButton: false,
+            heightAuto: false
+        });
+        localStorage.removeItem("swal_mensaje");
+    }
+
+    // Aquí puedes abrir un modal si quieres, usando localStorage
+});
+
         crear_alimento()
         notificaciones_nuevo();
         document.getElementById("formRegistrar").addEventListener("keydown", function (e) {

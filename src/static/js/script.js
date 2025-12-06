@@ -3175,24 +3175,31 @@ async function guardarCambios(id_alimento) {
 
         const data = await response.json();
 
-        if (response.ok) {
-            if (data.imagen) {
-                const preview = document.getElementById(`preview-imagen-${id_alimento}`);
-                if (preview) preview.src = data.imagen + "?t=" + new Date().getTime();
-            }
+if (response.ok) {
+    // Guardar mensaje de éxito en localStorage
+    localStorage.setItem("swal_mensaje", JSON.stringify({
+        tipo: "success",
+        texto: "El alimento se actualizó exitosamente."
+    }));
+    
+    // Guardar modal a abrir
+    localStorage.setItem("modal_a_abrir", JSON.stringify({
+        tipo: "edit",
+        id: id_alimento
+    }));
 
-            cerrarModal("edit", id_alimento);
-            Swal.fire({
-                icon: "success",
-                title: "Actualizado correctamente",
-                text: "El alimento se actualizó exitosamente."
-            }).then(() => ver_alimentos());
-        } else {
+    // Refrescar para mostrar cambios
+    window.location.reload();
+}
+
+        else {
+            // Mostrar errores inmediatamente sin recargar
             cerrarModal("edit", id_alimento);
             Swal.fire({
                 icon: "error",
                 title: "Error",
-                text: data.error || "No se pudo actualizar el alimento."
+                text: data.error || "No se pudo actualizar el alimento.",
+                heightAuto: false
             }).then(() => abrirModal("edit", id_alimento));
         }
     } catch (error) {
@@ -3201,10 +3208,13 @@ async function guardarCambios(id_alimento) {
         Swal.fire({
             icon: "error",
             title: "Error inesperado",
-            text: "Ocurrió un problema al intentar actualizar el alimento."
+            text: "Ocurrió un problema al intentar actualizar el alimento.",
+            heightAuto: false
         }).then(() => abrirModal("edit", id_alimento));
     }
 }
+
+
 
 async function eliminar_alimento(id) {
     try {
@@ -3338,11 +3348,11 @@ function consulta_individual_alimento_disponible() {
             alimentos_en_dieta.innerHTML = `<p>Error al consultar el alimento.</p>`;
         });
 }
-
 function crear_alimento() {
     document.getElementById("formRegistrar").addEventListener("submit", function (e) {
         e.preventDefault();
 
+        // Validación de números
         const numeros = document.querySelectorAll('input[type="number"]');
         for (let input of numeros) {
             if (parseFloat(input.value) < 0) {
@@ -3350,7 +3360,8 @@ function crear_alimento() {
                     title: "Valor inválido",
                     text: "No se permiten números negativos.",
                     icon: "warning",
-                    confirmButtonText: "Entendido"
+                    confirmButtonText: "Entendido",
+                    heightAuto: false
                 });
                 return;
             }
@@ -3358,66 +3369,62 @@ function crear_alimento() {
 
         const formData = new FormData();
         const imagen = document.getElementById("imagen").files[0];
-        if (imagen) {
-            formData.append("imagen", imagen);
-        }
+        if (imagen) formData.append("imagen", imagen);
 
         formData.append("nombre_alimento", document.getElementById("nombre").value);
 
-const elementos = [
-    { id: 1, valor: parseFloat(document.getElementById("proteina_cruda").value) || 0 },
-    { id: 2, valor: parseFloat(document.getElementById("fosforo").value) || 0 },
-    { id: 3, valor: parseFloat(document.getElementById("treonina").value) || 0 },
-    { id: 4, valor: parseFloat(document.getElementById("fibra_cruda").value) || 0 },
-    { id: 5, valor: parseFloat(document.getElementById("sodio").value) || 0 },
-    { id: 6, valor: parseFloat(document.getElementById("metionina").value) || 0 },
-    { id: 7, valor: parseFloat(document.getElementById("materia_seca").value) || 0 },
-    { id: 8, valor: parseFloat(document.getElementById("extracto_etereo").value) || 0 },
-    { id: 9, valor: parseFloat(document.getElementById("arginina").value) || 0 },
-    { id: 10, valor: parseFloat(document.getElementById("metionina_cisteina").value) || 0 },
-    { id: 11, valor: parseFloat(document.getElementById("energia_m").value) || 0 }, // este input sigue siendo "energia_m"
-    { id: 12, valor: parseFloat(document.getElementById("calcio").value) || 0 },
-    { id: 13, valor: parseFloat(document.getElementById("lisina").value) || 0 },
-    { id: 14, valor: parseFloat(document.getElementById("triptofano").value) || 0 }
-];
-
+        const elementos = [
+            { id: 1, valor: parseFloat(document.getElementById("proteina_cruda").value) || 0 },
+            { id: 2, valor: parseFloat(document.getElementById("fosforo").value) || 0 },
+            { id: 3, valor: parseFloat(document.getElementById("treonina").value) || 0 },
+            { id: 4, valor: parseFloat(document.getElementById("fibra_cruda").value) || 0 },
+            { id: 5, valor: parseFloat(document.getElementById("sodio").value) || 0 },
+            { id: 6, valor: parseFloat(document.getElementById("metionina").value) || 0 },
+            { id: 7, valor: parseFloat(document.getElementById("materia_seca").value) || 0 },
+            { id: 8, valor: parseFloat(document.getElementById("extracto_etereo").value) || 0 },
+            { id: 9, valor: parseFloat(document.getElementById("arginina").value) || 0 },
+            { id: 10, valor: parseFloat(document.getElementById("metionina_cisteina").value) || 0 },
+            { id: 11, valor: parseFloat(document.getElementById("energia_m").value) || 0 },
+            { id: 12, valor: parseFloat(document.getElementById("calcio").value) || 0 },
+            { id: 13, valor: parseFloat(document.getElementById("lisina").value) || 0 },
+            { id: 14, valor: parseFloat(document.getElementById("triptofano").value) || 0 }
+        ];
 
         formData.append("elementos", JSON.stringify(elementos));
 
-        fetch(`${URL_BASE}/registrar_alimento`, {
+        fetch(`${URL_BASE}/registrar_alimento/`, {
             method: "POST",
             body: formData
         })
-            .then(async res => {
-                try {
-                    return await res.json();
-                } catch (error) {
-                    throw new Error("El servidor no envió un JSON válido.");
-                }
-            })
-            .then(res => {
-                if (res.mensaje) {
-                    Swal.fire({
-                        title: "Registrado",
-                        text: res.mensaje,
-                        icon: "success",
-                        confirmButtonText: "Aceptar",
-                        allowOutsideClick: false,
-                        allowEscapeKey: false
-                    }).then(result => {
-                        if (result.isConfirmed) {
-                            window.location.href = "alimentos.html";
-                        }
-                    });
-                } else if (res.error) {
-                    Swal.fire("Error", res.error, "error");
-                }
-            })
-            .catch(err => {
-                Swal.fire("Error", err.message, "error");
+        .then(async res => await res.json())
+        .then(res => {
+            if (res.mensaje) {
+                // Guardar mensaje de éxito en localStorage antes de recargar
+                localStorage.setItem("swal_mensaje", JSON.stringify({
+                    tipo: "success",
+                    texto: res.mensaje
+                }));
+                // Refrescar solo si se creó correctamente
+                window.location.reload();
+            } else if (res.error) {
+                // Mostrar errores inmediatamente sin recargar
+                Swal.fire({
+                    title: "Error",
+                    text: res.error,
+                    icon: "error",
+                    heightAuto: false
+                });
+            }
+        })
+        .catch(err => {
+            Swal.fire({
+                title: "Error",
+                text: "Ocurrió un problema al registrar el alimento.",
+                icon: "error",
+                heightAuto: false
             });
+        });
     });
-
 }
 
 function abrirModal(tipo, id) {

@@ -2312,15 +2312,19 @@ def registrar_alimento():
         if not nombre:
             return jsonify({"error": "El nombre del alimento es obligatorio"}), 400
 
+        # Guardar imagen si existe
+        imagen_web = None
         if imagen_file and imagen_file.filename != "":
-            filename = secure_filename(imagen_file.filename)
-            ruta = os.path.join(app.config["cargar_imagenes"], filename)
-            imagen_file.save(ruta)
-            imagen_web = f"/static/imagenes_base_de_datos/{filename}"
-        else:
-            imagen_web = None
+            try:
+                filename = secure_filename(imagen_file.filename)
+                ruta = os.path.join(app.config["cargar_imagenes"], filename)
+                imagen_file.save(ruta)
+                imagen_web = f"/static/imagenes_base_de_datos/{filename}"
+            except Exception as e:
+                print("Error al guardar imagen:", e)
+                return jsonify({"error": "No se pudo guardar la imagen."}), 500
 
-        id_usuario = 3  # Cambia según tu login real
+        id_usuario = 3  # Cambiar según login real
 
         with config['development'].conn() as conn:
             with conn.cursor() as cur:
@@ -2330,7 +2334,6 @@ def registrar_alimento():
                         INSERT INTO alimentos(nombre, estado, imagen, id_usuario)
                         VALUES (%s, %s, %s, %s)
                     """, (nombre, "Activo", imagen_web, id_usuario))
-                    
                     id_alimento = cur.lastrowid
 
                     # Insertar elementos si existen
@@ -2342,7 +2345,7 @@ def registrar_alimento():
                                 VALUES (%s, %s, %s)
                             """, (id_alimento, elem["id"], elem["valor"]))
 
-                    # Crear notificación para todos los usuarios
+                    # Crear notificaciones para todos los usuarios
                     cur.execute("SELECT id_usuario FROM usuario")
                     usuarios = cur.fetchall()
                     for u in usuarios:
@@ -2355,19 +2358,23 @@ def registrar_alimento():
                     conn.commit()
 
                 except Exception as db_err:
-                    # Verificar error de clave duplicada
+                    # Error de clave duplicada
                     if hasattr(db_err, 'args') and db_err.args[0] == 1062:
                         return jsonify({"error": f'El nombre "{nombre}" ya está registrado.'}), 400
                     else:
+                        print("Error DB:", db_err)
                         return jsonify({"error": "Error en el servidor, intente nuevamente."}), 500
 
+        # Respuesta final para JS
         return jsonify({
-            "mensaje": "Alimento creado correctamente",
+            "exito": True,
+            "mensaje": f'Alimento "{nombre}" creado correctamente',
             "id_alimento": id_alimento,
             "imagen": imagen_web
         })
 
     except Exception as e:
+        print("Error registrar_alimento:", e)
         return jsonify({"error": "Error en el servidor, intente nuevamente."}), 500
 
 @app.route("/consulta_indi_alimento_disponible/<nombre>", methods=["GET"])

@@ -194,11 +194,35 @@
     <script src="/src/static/js/script.js"></script>
     <script src="/src/static/js/driver.js"></script>
     <script>
-        ver_alimentos();
-        cargarAutocompletado();
-        timesleep();
-        notificaciones_nuevo();
+window.addEventListener("DOMContentLoaded", () => {
+    // Mostrar mensaje de éxito si existe
+    const mensaje = JSON.parse(localStorage.getItem("swal_mensaje"));
+    if (mensaje && mensaje.tipo === "success") {
+        Swal.fire({
+            title: "Éxito",
+            text: mensaje.texto,
+            icon: "success",
+            timer: 5000,
+            showConfirmButton: false,
+            heightAuto: false
+        });
+        localStorage.removeItem("swal_mensaje");
+    }
 
+    // Abrir modal si existe
+    const modalInfo = JSON.parse(localStorage.getItem("modal_a_abrir"));
+    if (modalInfo) {
+        abrirModal(modalInfo.tipo, modalInfo.id);
+        localStorage.removeItem("modal_a_abrir");
+    }
+
+});
+
+// Funciones existentes
+ver_alimentos();
+cargarAutocompletado();
+timesleep();
+notificaciones_nuevo();
 
 </script>
 
