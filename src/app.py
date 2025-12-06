@@ -27,6 +27,8 @@ import random
 
 
 # grafica en el pdf
+import matplotlib
+matplotlib.use('Agg')  # backend sin GUI, no abre ventanas
 import matplotlib.pyplot as plt
 
 
@@ -2760,7 +2762,7 @@ def crear_dieta():
                         u["id_usuario"],
                         id_usuario,
                         "Nueva dieta creada",
-                        f'Se creó la dieta "{descripcion}" con ID {id_dieta} para la etapa "{nombre_etapa}"',
+                        f'Se creó la dieta con ID {id_dieta} para la etapa "{nombre_etapa}"',
                         "Ingreso"
                     ))
 
@@ -3250,36 +3252,97 @@ def PDF_dieta(id_dieta):
 def actualizar_dieta(id_dieta):
     try:
         data = request.get_json()
+        if not data:
+            return jsonify({"error": "No se recibieron datos"}), 400
+
         id_etapa_vida = data.get("id_etapa_vida")
         descripcion = data.get("descripcion")
         alimentos = data.get("alimentos", [])
 
+        if not id_etapa_vida or not descripcion:
+            return jsonify({"error": "Faltan datos obligatorios"}), 400
+
+        nutrientes = ["MS","EM-C","PC","FC","EE","CAL","F.DIS","SOD","ARG","LIS","MET","M+CIS","TREO","TRIP"]
+        nombre_bd_a_clave = {
+            "proteina_cruda": "PC",
+            "fosforo": "F.DIS",
+            "treonina": "TREO",
+            "fibra_cruda": "FC",
+            "sodio": "SOD",
+            "metionina": "MET",
+            "materia_seca": "MS",
+            "extracto_etereo": "EE",
+            "arginina": "ARG",
+            "metionina_cisteina": "M+CIS",
+            "energia_metabo": "EM-C",
+            "calcio": "CAL",
+            "lisina": "LIS",
+            "triptofano": "TRIP"
+        }
+
+        total_kg = sum(a["cantidad"] for a in alimentos)
+        if total_kg <= 0:
+            return jsonify({"error": "La cantidad total debe ser mayor a 0"}), 400
+
+        mezcla = {nutriente: 0 for nutriente in nutrientes}
+
         with config['development'].conn() as conn:
             with conn.cursor() as cur:
+                # Calcular mezcla nutricional
+                for a in alimentos:
+                    cur.execute("""
+                        SELECT e.nombre AS nombre_elemento, ate.valor
+                        FROM alimento_tiene_elemento ate
+                        JOIN elementos e ON e.id_elemento = ate.id_elemento
+                        WHERE ate.id_alimento = %s
+                    """, (a["id_alimento"],))
+                    elementos = cur.fetchall()
 
-                # Actualizar datos generales
+                    nutr_alimento = {}
+                    for n in elementos:
+                        clave = nombre_bd_a_clave.get(n["nombre_elemento"].lower())
+                        if clave:
+                            nutr_alimento[clave] = float(n["valor"])
+
+                    for nutriente in nutrientes:
+                        mezcla[nutriente] += nutr_alimento.get(nutriente, 0) * a["cantidad"]
+
+                # calcular promedio según total_kg
+                for nutriente in mezcla:
+                    mezcla[nutriente] = round(mezcla[nutriente] / total_kg, 2)
+
+                # Actualizar dieta con mezcla nutricional
                 cur.execute("""
                     UPDATE dietas 
-                    SET id_etapa_vida = %s, descripcion = %s
+                    SET id_etapa_vida = %s, descripcion = %s, mezcla_nutricional = %s
                     WHERE id_dieta = %s
-                """, (id_etapa_vida, descripcion, id_dieta))
+                """, (id_etapa_vida, descripcion, json.dumps(mezcla), id_dieta))
 
                 # Eliminar alimentos actuales
                 cur.execute("DELETE FROM dieta_tiene_alimentos WHERE id_dieta = %s", (id_dieta,))
 
                 # Insertar nuevos alimentos
                 for item in alimentos:
+                    id_alimento = item.get("id_alimento")
+                    cantidad = item.get("cantidad")
+                    if id_alimento is None or cantidad is None:
+                        continue
                     cur.execute("""
                         INSERT INTO dieta_tiene_alimentos (id_dieta, id_alimento, cantidad)
                         VALUES (%s, %s, %s)
-                    """, (id_dieta, item["id_alimento"], item["cantidad"]))
+                    """, (id_dieta, id_alimento, cantidad))
 
-                conn.commit()
+            conn.commit()
 
-        return jsonify({"mensaje": "Dieta actualizada correctamente"})
+        return jsonify({
+            "mensaje": "Dieta actualizada correctamente",
+            "mezcla_nutricional": mezcla
+        })
 
     except Exception as e:
-        return jsonify({"error": str(e)})
+        if 'conn' in locals():
+            conn.rollback()
+        return jsonify({"error": str(e)}), 500
 
 @app.route("/eliminar_dieta/<int:id_dieta>", methods=["DELETE"])
 def eliminar_dieta(id_dieta):

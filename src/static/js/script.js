@@ -3724,7 +3724,7 @@ function mostrarPagina(page) {
             <td class="nuevo">${dieta.estado}</td>
             <td class="nuevo td__border__r">
                 <img src="/src/static/iconos/icon eye.svg" onclick="abrirVerDieta(${dieta.id_dieta})" class="icon-eye">
-                <img src="/src/static/iconos/edit icon.svg" onclick="abrirModalDieta(${dieta.id_dieta})" class="icon-edit">
+                <img src="/src/static/iconos/edit icon.svg" onclick="abrirEditarDieta(${dieta.id_dieta})" class="icon-edit">
 
                 <!-- AQUI LLAMAS AL MODAL -->
                 <img src="/src/static/iconos/delete icon.svg" onclick="abrirModalEliminarDieta(${dieta.id_dieta})" class="icon-delete">
@@ -3751,15 +3751,42 @@ function mostrarPagina(page) {
 
     <p>
         Si elimina esta dieta, también se eliminarán sus alimentos asociados.
+        eliminar una dieta si tiene trazabilidad puede generar problemas, lo mejor seria desactivarlo
     </p>
 
     <span>¿Está seguro que quiere eliminar esta dieta?</span>
 
     <div class="container-button-dele">
-        <button class="btn" onclick="eliminarDieta(${dieta.id_dieta})">Eliminar</button>
+        <button class="btn" onclick="abrirModalconfirmacionEliminarDieta(${dieta.id_dieta})">Eliminar</button>
         <!-- Botón Cancelar removido -->
     </div>
 
+</dialog>
+<dialog id="modal-confirm-dele-dieta-${dieta.id_dieta}" class="dialog-icon-dele">
+    <div class="container__btn__close">
+        <button type="button" class="btn__close" 
+            onclick="document.getElementById('modal-confirm-dele-dieta-${dieta.id_dieta}').close()">X</button>
+    </div>
+
+    <form class="container__items__dialogs" id="form-delete-confirm-${dieta.id_dieta}">
+        <div class="title-dialog">
+            <h2>Confirmar la Eliminación de la Dieta</h2>
+            <hr>
+        </div>
+
+        <div id="delete-content-confirm-${dieta.id_dieta}" class="info-delete">
+            <p>Escriba el ID "${dieta.id_dieta}" de la dieta y presione eliminar si así lo desea: le recuerdo eliminar una dieta si tiene trazabilidad puede generar problemas, lo mejor seria desactivarlo</p>
+            <input id="input-eliminar-${dieta.id_dieta}" class="input__add__por" 
+                type="number" oninput="this.value = Math.abs(this.value)" 
+                placeholder="Ingrese el ID">
+        </div>
+
+        <div class="container-button-close">
+            <button type="submit" onclick="confirmar(${dieta.id_dieta})" class="button-guardar">
+                Eliminar
+            </button>
+        </div>
+    </form>
 </dialog>
 
     `;
@@ -3796,7 +3823,10 @@ function abrirVerDieta(id_dieta) {
     localStorage.setItem("dieta_a_ver", id_dieta); // Guardamos el ID
     window.location.href = "ver_dietas.html";    // Redirigimos a la página de solo lectura
 }
-
+function abrirEditarDieta(id_dieta) {
+    localStorage.setItem("dieta_a_ver", id_dieta); // Guardamos el ID
+    window.location.href = "edit_dietas.html";    // Redirigimos a la página de solo lectura
+}
 
 function consulta_individual_dieta() {
     const contenido = document.getElementById("contenido");
@@ -4013,10 +4043,55 @@ function abrirModalEliminarDieta(id) {
     const modal = document.getElementById(`modal-dele-dieta-${id}`);
     if (modal) modal.showModal();
 }
+function abrirModalconfirmacionEliminarDieta(id) {
+    const modal = document.getElementById(`modal-confirm-dele-dieta-${id}`);
+    if (modal) modal.showModal();
+}
+
 function cerrarModalDieta(id) {
     const modal = document.getElementById(`modal-dele-dieta-${id}`);
     if (modal) modal.close();
 }
+function cerrarModalconfirmacionDieta(id) {
+    const modal = document.getElementById(`modal-confirm-dele-dieta-${id}`);
+    if (modal) modal.close();
+}
+
+function confirmar(id_dieta) {
+    const dialog = document.getElementById(`modal-confirm-dele-dieta-${id_dieta}`);
+    const dialog2 = document.getElementById(`modal-dele-dieta-${id_dieta}`);
+    const input = document.getElementById(`input-eliminar-${id_dieta}`).value;
+
+    if (parseInt(input) === id_dieta) {
+        // Mostrar mensaje de éxito primero
+        Swal.fire({
+            icon: 'success',
+            title: 'Dieta eliminada',
+            text: `La dieta con ID ${id_dieta} fue eliminada correctamente.`,
+            timer: 2000,
+            showConfirmButton: false,
+            didOpen: () => {
+                // Eliminar dieta y cerrar modal mientras se muestra Swal
+                eliminarDieta(id_dieta);
+                dialog.close();
+            }
+        });
+    } else {
+        dialog.close();
+        dialog2.close();
+        // Mostrar mensaje de error primero
+        Swal.fire({
+            icon: 'error',
+            title: 'ID incorrecto',
+            text: 'El ID ingresado no coincide con la dieta.',
+        }).then(() => {
+            // Reabrir el modal para que el usuario intente otra vez
+            dialog.showModal();
+        });
+    }
+}
+
+
 
 
 
