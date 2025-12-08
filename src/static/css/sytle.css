@@ -1179,6 +1179,28 @@ th{
     padding: 20px 0;
 }
 
+.opciones {
+    position: fixed;
+    bottom: 1px;   
+    right: 2px;
+    color: #fff;
+    border-radius: 10px;
+    margin-right: 0.5rem;
+    cursor: pointer;
+    transition: transform 0.5s ease-in;
+}
+
+.opciones2 {
+    position: absolute;
+    bottom: 0.6em;   
+    right: 2px;
+    color: #fff;
+    border-radius: 10px;
+    margin-right: 0.5rem;
+    cursor: pointer;
+    transition: transform 0.5s ease-in;
+}
+
 
 /* CODIGO DE LAS ACCIONES VER, EDITAR Y ELIMINAR */
 

@@ -47,16 +47,26 @@ def ruta_principal():
 #GENARADOR DE TOKEN
 def generar_token(usuario, es_google=False):
     convertidor_ni = int(usuario["numero_identificacion"])
+    if (es_google):
+      payload = {
+          "id_usuario": convertidor_ni, # numero de indentificacion
+          "nombre": usuario["nombre"],
+          "correo": usuario["correo"],
+          "es_google": es_google,
+          "rol": usuario.get("rol", "Aprendiz"),
+          "exp": datetime.now(timezone.utc) + timedelta(minutes=120)
+      }
+    else:
+      payload = {
+          "id_auto": usuario['id_usuario'], # id incrementable
+          "id_usuario": convertidor_ni, # numero de indentificacion
+          "nombre": usuario["nombre"],
+          "correo": usuario["correo"],
+          "es_google": es_google,
+          "rol": usuario.get("rol", "Aprendiz"),
+          "exp": datetime.now(timezone.utc) + timedelta(minutes=120)
+      }
 
-    payload = {
-        "id_auto": usuario['id_usuario'], # id incrementable
-        "id_usuario": convertidor_ni, # numero de indentificacion
-        "nombre": usuario["nombre"],
-        "correo": usuario["correo"],
-        "es_google": es_google,
-        "rol": usuario.get("rol", "Aprendiz"),
-        "exp": datetime.now(timezone.utc) + timedelta(minutes=120)
-    }
     token = jwt.encode(payload, app.secret_key, algorithm="HS256")
     return token
 
@@ -308,7 +318,7 @@ def google_login():
             "correo": email,
             'rol': rol
         }
-        token = _token(usuario, es_google=True)
+        token = generar_token(usuario, es_google=True)
 
         return jsonify({
             "status": "success",
