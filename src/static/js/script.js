@@ -242,29 +242,24 @@ async function openModalEye(type, id) {
 
 }
 
-function resetModalEye() {
-    const modal = document.getElementById("modal-eye");
-    const content = document.getElementById("eye-content");
+function resetModalSteps(modalId, mainButtonId) {
+
+    const modal = document.getElementById(modalId);
+
+    if (!modal) return;
 
     // 1. Resetear Grid si existe
     const grid = modal.querySelector(".layout_registrar_etapa");
-    if (grid) {
-        grid.style.gridTemplateColumns = "";
-    }
-    
-    // 2. Limpiar contenido dinámico
-    content.innerHTML = "";
-    content.className = "";
-    
-    
-    // 3. Eliminar botones creados por activarSteps()
+    if (grid) grid.style.gridTemplateColumns = "";
+
+    // 2. Eliminar botones creados por activarSteps()
     const btnAtras = modal.querySelector(".btn-atras");
     if (btnAtras) btnAtras.remove();
 
-    const btnGuardar = modal.querySelector(".button-eliminar[type='submit']");
+    const btnGuardar = modal.querySelector(".btn-guardar");
     if (btnGuardar) btnGuardar.remove();
 
-    // 4. Restaurar estado de Steps (si existen)
+    // 3. Restaurar estado de los steps
     const step1 = modal.querySelector("#step1");
     const step2 = modal.querySelector("#step2");
 
@@ -276,12 +271,13 @@ function resetModalEye() {
         step2.classList.add("hidden");
     }
 
-    // 5. Restaurar el botón principal
-    const mainBtn = document.getElementById("button-eye");
-    if (mainBtn) {
-        mainBtn.textContent = "Cerrar";
-        mainBtn.style.display = "inline-block";
-        mainBtn.onclick = () => modal.close();
+    // 4. Restaurar botón principal (si existe)
+    if (mainButtonId) {
+        const mainBtn = document.getElementById(mainButtonId);
+        if (mainBtn) {
+            mainBtn.style.display = "inline-block";
+            mainBtn.textContent = "Siguiente";
+        }
     }
 }
 
@@ -3603,7 +3599,10 @@ document.addEventListener("click", (e) => {
     }
 });
 
-document.getElementById("modal-eye").addEventListener("close", resetModalEye);
+
+// LO USO PARA RESETEAR EL BOTON DE LOS MODALES EYE Y EDIT EN ETAPA DE VIDA
+document.getElementById("modal-eye").addEventListener("close", () => resetModalSteps('modal-eye', 'button-eye'));
+document.getElementById("modal-edit").addEventListener("close", () => resetModalSteps('modal-edit', 'button-edit'));
 
 document.getElementById('btn_consultar_todo').addEventListener('click', () =>{
     const input_id = document.getElementById('input_id');
