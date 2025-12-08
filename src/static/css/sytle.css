@@ -1180,6 +1180,8 @@ th{
     margin-right: 0.5rem;
     cursor: pointer;
     transition: transform 0.5s ease-in;
+    display: flex;
+    flex-direction: column;
 }
 
 .opciones2 {
