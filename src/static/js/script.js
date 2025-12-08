@@ -184,29 +184,24 @@ async function openModalEye(type, id) {
 
 }
 
-function resetModalEye() {
-    const modal = document.getElementById("modal-eye");
-    const content = document.getElementById("eye-content");
+function resetModalSteps(modalId, mainButtonId) {
+
+    const modal = document.getElementById(modalId);
+
+    if (!modal) return;
 
     // 1. Resetear Grid si existe
     const grid = modal.querySelector(".layout_registrar_etapa");
-    if (grid) {
-        grid.style.gridTemplateColumns = "";
-    }
-    
-    // 2. Limpiar contenido dinámico
-    content.innerHTML = "";
-    content.className = "";
-    
-    
-    // 3. Eliminar botones creados por activarSteps()
+    if (grid) grid.style.gridTemplateColumns = "";
+
+    // 2. Eliminar botones creados por activarSteps()
     const btnAtras = modal.querySelector(".btn-atras");
     if (btnAtras) btnAtras.remove();
 
-    const btnGuardar = modal.querySelector(".button-eliminar[type='submit']");
+    const btnGuardar = modal.querySelector(".btn-guardar");
     if (btnGuardar) btnGuardar.remove();
 
-    // 4. Restaurar estado de Steps (si existen)
+    // 3. Restaurar estado de los steps
     const step1 = modal.querySelector("#step1");
     const step2 = modal.querySelector("#step2");
 
@@ -218,12 +213,13 @@ function resetModalEye() {
         step2.classList.add("hidden");
     }
 
-    // 5. Restaurar el botón principal
-    const mainBtn = document.getElementById("button-eye");
-    if (mainBtn) {
-        mainBtn.textContent = "Cerrar";
-        mainBtn.style.display = "inline-block";
-        mainBtn.onclick = () => modal.close();
+    // 4. Restaurar botón principal (si existe)
+    if (mainButtonId) {
+        const mainBtn = document.getElementById(mainButtonId);
+        if (mainBtn) {
+            mainBtn.style.display = "inline-block";
+            mainBtn.textContent = "Siguiente";
+        }
     }
 }
 
@@ -3266,7 +3262,25 @@ document.addEventListener("click", (e) => {
     }
 });
 
-document.getElementById("modal-eye").addEventListener("close", resetModalEye);
+document.getElementById("modal-eye").addEventListener("close", () => resetModalSteps('modal-eye', 'button-eye'));
+document.getElementById("modal-edit").addEventListener("close", () => resetModalSteps('modal-edit', 'button-edit'));
+
+document.getElementById('btn_consultar_todo').addEventListener('click', () =>{
+    const input_id = document.getElementById('input_id');
+    input_id.readOnly = false
+    input_id.disabled = false
+    input_id.value = "Ingrese el ID del porcino"
+    const filter_2 = document.getElementById("filter__options__2");
+    if (filter_2){
+        filter_2.style.display = "none";
+    }
+    document.querySelectorAll(".rm_filter").forEach(select => {
+        select.disabled = false
+        select.selectedIndex = 0;
+    })
+
+    consulta_general_porcinos()
+})
 
 document.getElementById('btn_consultar_todo_raza').addEventListener('click', () => {
     const input_id_raza = document.getElementById('input_id_raza');
@@ -3275,6 +3289,73 @@ document.getElementById('btn_consultar_todo_raza').addEventListener('click', () 
     }
     consultar_razas()
 })
+
+document.getElementById('btn_consultar_todo_etapa').addEventListener('click', () => {
+    const input_id_etapa = document.getElementById('input_id_etapa');
+    if (input_id_etapa){
+        input_id_etapa.value = "Ingrese el ID de la etapa";
+    }
+    consultar_etapas()
+})
+
+document.getElementById('btn_consultar_todo_historial').addEventListener('click', () =>{
+    const input_id_historial = document.getElementById('input_id_hp');
+    if (input_id_historial){
+        input_id_historial.value = "Ingrese el ID del porcino"
+    }
+    document.getElementById('impresora_hp').style.display = 'inline-block'
+    document.getElementById('impresora_searchbar').style.display = 'none'
+    consulta_gen_historial_pesos()
+})
+
+// GENERAR PDFS
+
+async function generar_pdf(tipo, id) {
+    try {
+        verifyToken()
+        const promesa = await fetch(`${URL_BASE}/PDF_${tipo}${id ? `/${id}` : ''} `,
+        {
+            method : 'GET',
+            headers: getAuthHeaders()
+        }
+        );
+        const blob = await promesa.blob();
+
+        const url = URL.createObjectURL(blob);
+
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = `reporte_${tipo}.pdf`;
+        a.click();
+    } catch (error) {
+        console.error(error)
+        handleAuthError()
+    }
+    
+}
+
+// GENERAR PDF POR PORCINO
+
+document.getElementById('form-consul-histo').addEventListener('submit', (e) =>{
+    e.preventDefault();
+
+    const btn_pdf = document.getElementById('impresora_hp');
+    const btn_pdf_searc = document.getElementById('impresora_searchbar');
+
+    btn_pdf.style.display = 'none';
+    btn_pdf_searc.style.display = 'inline-block';
+
+    const input_value = document.getElementById('input_id_hp').value;
+
+    // Guardar el ID sin eventos múltiples
+    btn_pdf_searc.dataset.id = input_value;
+});
+
+document.getElementById('impresora_searchbar').addEventListener('click', function () {
+    const id = this.dataset.id;
+    generar_pdf('transacciones', id);
+});
+
 
 document.addEventListener('DOMContentLoaded', function() {
     crearDialogRegistrarRaza();
