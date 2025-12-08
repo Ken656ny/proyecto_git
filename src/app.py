@@ -47,9 +47,8 @@ def ruta_principal():
 #GENARADOR DE TOKEN
 def generar_token(usuario, es_google=False):
     convertidor_ni = int(usuario["numero_identificacion"])
-
-    payload = {
-        "id_auto": usuario['id_usuario'], # id incrementable
+    if (es_google):
+      payload = {
         "id_usuario": convertidor_ni, # numero de indentificacion
         "nombre": usuario["nombre"],
         "correo": usuario["correo"],
@@ -57,6 +56,16 @@ def generar_token(usuario, es_google=False):
         "rol": usuario.get("rol", "Aprendiz"),
         "exp": datetime.now(timezone.utc) + timedelta(minutes=120)
     }
+    else:
+      payload = {
+          "id_auto": usuario['id_usuario'], # id incrementable
+          "id_usuario": convertidor_ni, # numero de indentificacion
+          "nombre": usuario["nombre"],
+          "correo": usuario["correo"],
+          "es_google": es_google,
+          "rol": usuario.get("rol", "Aprendiz"),
+          "exp": datetime.now(timezone.utc) + timedelta(minutes=120)
+      }
     token = jwt.encode(payload, app.secret_key, algorithm="HS256")
     return token
 
@@ -308,7 +317,7 @@ def google_login():
             "correo": email,
             'rol': rol
         }
-        token = _token(usuario, es_google=True)
+        token = generar_token(usuario, es_google=True)
 
         return jsonify({
             "status": "success",
@@ -819,8 +828,6 @@ def actualizar_peso_porcinos():
     id_usuario = data['id_usuario']
     descripcion = data['descripcion']
     
-    print(data)
-    
     with config['development'].conn() as conn:
       with conn.cursor() as cur :
         cur.execute("CALL sp_actualizar_peso_historial(%s,%s,%s,%s,%s)",(fec_pesa,id_porcino,peso_final,id_usuario,descripcion))
@@ -872,7 +879,6 @@ def registrar_porcinos():
     usuario = request.usuario   
     id_usuario = usuario["id_auto"]
 
-    print(usuario)
     porcino = request.get_json()
     id =      porcino['id_porcino']
     p_ini =   float(porcino['peso_inicial'])

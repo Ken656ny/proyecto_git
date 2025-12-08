@@ -2162,6 +2162,9 @@ async function eliminar_raza(id){
                 headers: getAuthHeaders()
             });
             const response = await promesa.json();
+            cerrarDialog(`modal-delete-confirm`);
+            cerrarDialog(`modal-delete`);
+            cerrarDialog(`dialog__ges__raz`);    
             if (response.Mensaje === `Error en la base de datos`) {
                 Swal.fire({
                     title: "Mensaje",
@@ -2169,10 +2172,7 @@ async function eliminar_raza(id){
                     icon: "error",
                     confirmButton: "Ok",
                     })
-            } else{
-                cerrarDialog(`modal-delete-confirm`);
-                cerrarDialog(`modal-delete`);
-                cerrarDialog(`dialog__ges__raz`);           
+            } else{          
                 Swal.fire({
                     title: "Mensaje",
                     text: `${response.Mensaje}`,
