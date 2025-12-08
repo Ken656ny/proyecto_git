@@ -361,7 +361,7 @@ BARRA LATERAL
     position: fixed;
     display: flex;
     flex-direction: column;
-    width: 80px;
+    width: 250px;
     height: 100vh;
     padding: 2rem 1rem;
     background-color: var(--color--prede);
@@ -373,7 +373,7 @@ BARRA LATERAL
 
 .mini-barra-lateral{
     width: 80px;
-} 
+}
 
 /* -----------------------------------------------------------------nombre de la paginaaa */
 

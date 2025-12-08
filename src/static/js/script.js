@@ -50,9 +50,9 @@ function redirectWithDelay(event, url) {
 
 const nav_bar = document.querySelectorAll('.nav__item')
 
-function bar_funct() {
-    nav_bar.forEach((item) =>
-        item.classList.remove('active'));
+function bar_funct(){
+    nav_bar.forEach((item) => 
+    item.classList.remove('active'));
     this.classList.add('active');
 }
 nav_bar.forEach((item) => item.addEventListener('click', bar_funct));
@@ -4090,11 +4090,6 @@ function confirmar(id_dieta) {
     }
 }
 
-
-
-
-
-
 // ----------------------------------funciones adicionales
 
 function iniciarComandosDeVoz() {
@@ -4262,6 +4257,7 @@ function timesleep() {
     document.onkeydown = reiniciarInactividad;
     document.onclick = reiniciarInactividad;
 }
+
 const cerdo = document.getElementById("cerdo");
 const barralateral = document.querySelector(".barra-lateral");
 const spans = document.querySelectorAll("span");

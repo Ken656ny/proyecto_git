@@ -14,7 +14,7 @@ import io,os
 import json
 from werkzeug.utils import secure_filename
 
-from datetime import datetime ,date
+from datetime import datetime , date
 
 #IMPORTO PARA LA REALIZACION DE PDF
 from reportlab.lib.pagesizes import letter
@@ -1775,7 +1775,6 @@ def eliminar_etapa_vida(id):
 #Ruta para generar PDF del listado de etapas
 @app.route("/PDF_etapas")
 def reporte_etapas():
-
     try:
         # ================================================
         #            CONSULTA A LA BASE DE DATOS
@@ -2855,7 +2854,8 @@ def consultar_dietas():
         return jsonify({"mensaje": resultado})
 
     except Exception as e:
-        return jsonify({"error": str(e)}), 500
+      print(e)
+      return jsonify({"error": str(e)}), 500
 
 @app.route("/PDF_dietas")
 def reporte_dietas():
