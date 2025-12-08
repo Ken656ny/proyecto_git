@@ -224,7 +224,7 @@ window.addEventListener("DOMContentLoaded", () => {
                 console.log(dieta)
                 titulo_ver_dieta.innerHTML=`Dieta ${dieta.id_dieta}`
                 const div = document.createElement("div");
-                div.classList.add("alimentos_dietas");
+                div.classList.add("alimentos_dietas_ver");
                 div.innerHTML = `
                     <div class="imagen_alimento_dieta">
                         <img src="${URL_BASE}${a.imagen}" alt="${a.alimento}" width="50"
@@ -270,6 +270,7 @@ window.addEventListener("DOMContentLoaded", () => {
         });
 });
     const idDieta2 = parseInt(localStorage.getItem("dieta_a_ver"));
+    
 function pdf_indi() {
     generar_pdf_dieta_individual(idDieta2);
 }

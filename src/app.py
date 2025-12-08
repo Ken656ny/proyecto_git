@@ -2996,7 +2996,6 @@ def reporte_dietas():
         print(err)
         return jsonify({'Mensaje': 'Error al generar el PDF'})
 
-
 @app.route("/dieta/<int:id_dieta>", methods=["GET"])
 def obtener_dieta(id_dieta):
     try:
@@ -3262,9 +3261,14 @@ def actualizar_dieta(id_dieta):
         if not data:
             return jsonify({"error": "No se recibieron datos"}), 400
 
+        # Campos obligatorios
         id_etapa_vida = data.get("id_etapa_vida")
         descripcion = data.get("descripcion")
         alimentos = data.get("alimentos", [])
+        estado = data.get("estado", "activo")  # por defecto activo
+
+        if estado not in ["Activo", "Inactivo"]:
+            return jsonify({"error": "Estado inválido"}), 400
 
         if not id_etapa_vida or not descripcion:
             return jsonify({"error": "Faltan datos obligatorios"}), 400
@@ -3318,12 +3322,12 @@ def actualizar_dieta(id_dieta):
                 for nutriente in mezcla:
                     mezcla[nutriente] = round(mezcla[nutriente] / total_kg, 2)
 
-                # Actualizar dieta con mezcla nutricional
+                # Actualizar dieta con mezcla nutricional y estado
                 cur.execute("""
                     UPDATE dietas 
-                    SET id_etapa_vida = %s, descripcion = %s, mezcla_nutricional = %s
+                    SET id_etapa_vida = %s, descripcion = %s, mezcla_nutricional = %s, estado = %s
                     WHERE id_dieta = %s
-                """, (id_etapa_vida, descripcion, json.dumps(mezcla), id_dieta))
+                """, (id_etapa_vida, descripcion, json.dumps(mezcla), estado, id_dieta))
 
                 # Eliminar alimentos actuales
                 cur.execute("DELETE FROM dieta_tiene_alimentos WHERE id_dieta = %s", (id_dieta,))

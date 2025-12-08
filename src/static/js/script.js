@@ -3619,7 +3619,6 @@ function verAlimentosSeleccionados() {
         }
     });
 }
-
 function rellenar_etapa_vida_en_dietas() {
     fetch(`${URL_BASE}/etapa_vida`)
         .then(res => res.json())
@@ -3679,7 +3678,6 @@ function rellenar_etapa_vida_en_dietas() {
     });
 
 }
-
 function ver_dietas(){
     // Variables globales para paginación
 let dietasData = [];       // Aquí guardamos todas las dietas
@@ -3825,13 +3823,12 @@ document.getElementById("nextPage").addEventListener("click", () => {
 consulta_dietas();
 
 }
-
 function abrirVerDieta(id_dieta) {
     localStorage.setItem("dieta_a_ver", id_dieta); // Guardamos el ID
     window.location.href = "ver_dietas.html";    // Redirigimos a la página de solo lectura
 }
 function abrirEditarDieta(id_dieta) {
-    localStorage.setItem("dieta_a_ver", id_dieta); // Guardamos el ID
+    localStorage.setItem("dieta_a_modificar", id_dieta); // Guardamos el ID
     window.location.href = "edit_dietas.html";    // Redirigimos a la página de solo lectura
 }
 
@@ -4044,7 +4041,6 @@ function eliminarDieta(id_dieta) {
         
     
 }
-
 
 function abrirModalEliminarDieta(id) {
     const modal = document.getElementById(`modal-dele-dieta-${id}`);
