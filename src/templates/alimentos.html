@@ -4,6 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Gestión de alimentos y mezcla nutricional para porcinos">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link
@@ -11,76 +12,89 @@
         rel="stylesheet">
     <link rel="stylesheet" href="/src/static/css/sytle.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11.17.2/dist/sweetalert2.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11" async></script>
+    <script src="https://code.iconify.design/iconify-icon/3.0.0/iconify-icon.min.js"></script>
+    
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/driver.js@0.9.8/dist/driver.min.css">
+    <!-- Driver.js JS -->
+    <script src="https://cdn.jsdelivr.net/npm/driver.js@0.9.8/dist/driver.min.js"></script>
+
+
     <title>Edupork</title>
 </head>
 
 <body class="body__porcinos">
-    <section class="section-nav-bar" >
+    <section class="section-nav-bar">
         <div class="container-user">
             <div class="container__btn__perfil">
-                <img src="../static/iconos/icon user.svg" alt="" width="25" class="svg__user__2">
+                <img src="../static/iconos/icon user.svg" alt="usuario" width="25" class="svg__user__2">
                 <button type="button" class="btn__perfil">Juan Tovar</button>
             </div>
             <div class="menu">
-                <img src="../static/iconos/menu_icon.svg" alt="" class="menu-icons">
-                <img src="../static/iconos/close_icon.svg" alt="" class="menu-icons">
+                <img src="../static/iconos/menu_icon.svg" alt="menu" class="menu-icons">
+                <img src="../static/iconos/close_icon.svg" alt="menu" class="menu-icons">
             </div>
         </div>
         <div class="barra-lateral">
             <div>
                 <div class="logo-edupork">
-                    <img id="cerdo" class="nombre" src="../static/iconos/cerdo.png" width="20px" alt="">
+                    <img id="cerdo" class="nombre" src="../static/iconos/cerdo.png" width="20px" alt="logo-edupork">
                     <span>Edupork</span>
                 </div>
             </div>
             <nav class="navegacion">
                 <ul class="ul-navegacion">
                     <li>
-                        <a href="/src/templates/home.html" onclick="redirectWithDelay(event, 'home.html')" > <!--dar estilo -->
-                            <img src="../static/iconos/home icon.svg" width="20px" alt="" class="icons-bar">
+                        <a href="/src/templates/home.html" onclick="redirectWithDelay(event, 'home.html')">
+                            <!--dar estilo -->
+                            <img src="../static/iconos/home icon.svg" width="20px" alt="logo de una casa"
+                                class="icons-bar">
                             <span>Home</span>
                         </a>
                     </li>
                     <li>
                         <a href="/src/templates/notificaciones.html">
-                            <img src="../static/iconos/notificacions.svg" width="20px" alt="" class="icons-bar">
+                            <img src="../static/iconos/notificacions.svg" width="20px" alt="notificaciones"
+                                class="icons-bar">
                             <span>Notificaciones </span>
                         </a>
                     </li>
                     <li>
                         <a href="/src/templates/porcinos.html" onclick="redirectWithDelay(event, 'porcinos.html')">
-                            <img src="../static/iconos/icon pig.svg" width="20px" alt="" class="icons-bar">
+                            <img src="../static/iconos/icon pig.svg" width="20px" alt="porcinos" class="icons-bar">
                             <span>Porcinos</span>
                         </a>
                     </li>
                     <li>
                         <a href="/src/templates/alimentos.html" onclick="redirectWithDelay(event, 'alimentos.html')">
-                            <img src="../static/iconos/icon wheate.svg" title="alimentos" width="20px" alt="" class="icons-bar">
+                            <img src="../static/iconos/icon wheate.svg" title="alimentos" width="20px" alt="alimentos"
+                                class="icons-bar">
                             <span>Alimentos</span>
                         </a>
                     </li>
                     <li>
                         <a href="/src/templates/gestionar_dietas.html">
-                            <img src="../static/iconos/icon plate.svg" width="20px" alt="" class="icons-bar">
+                            <img src="../static/iconos/icon plate.svg" width="20px" alt="dietas" class="icons-bar">
                             <span>Dietas</span>
                         </a>
                     </li>
                     <li>
                         <a href="#">
-                            <img src="../static/iconos/icon page.svg" alt="" class="icons-bar">
+                            <img src="../static/iconos/icon page.svg" alt="informes" class="icons-bar">
                             <span>Informes</span>
                         </a>
                     </li>
                     <li>
                         <a href="/src/templates/perfil.html" onclick="redirectWithDelay(event, 'perfil.html')">
-                            <img src="../static/iconos/icon user.svg" width="20px" alt="" class="icons-bar">
+                            <img src="../static/iconos/icon user.svg" width="20px" alt="usuario" class="icons-bar">
                             <span>Usuario</span>
                         </a>
                     </li>
                     <li>
-                        <a href="/src/templates/configuracion.html" onclick="redirectWithDelay(event, 'configuracion.html')">
-                            <img src="../static/iconos/icon setting.svg" width="20px" alt="" class="icons-bar">
+                        <a href="/src/templates/configuracion.html"
+                            onclick="redirectWithDelay(event, 'configuracion.html')">
+                            <img src="../static/iconos/icon setting.svg" width="20px" alt="configuracion"
+                                class="icons-bar">
                             <span>Configuración</span>
                         </a>
                     </li>
@@ -88,7 +102,7 @@
             </nav>
         </div>
     </section>
-    <section class="section__porcinos" >
+    <section class="section__porcinos">
 
         <section class="container__logo__user">
             <div class="container__back__logo">
@@ -98,7 +112,7 @@
                 </a>
             </div>
             <div class="container__user__btn">
-                <img src="/src/static/iconos/icon user.svg" alt="" class="svg__user">
+                <img src="/src/static/iconos/icon user.svg" alt="usuario" class="svg__user">
                 <button type="button" class="btn__perfil">cristhian</button>
             </div>
         </section>
@@ -109,24 +123,22 @@
 
         <section class="container container__search__bar_alimentos">
             <div class="separador">
-                <img src="/src/static/iconos/icon lupa.svg" alt="">
+                <img src="/src/static/iconos/icon lupa.svg" alt="buscador ">
                 <input type="text" class="input__id" id="id_alimento" placeholder="Nombre del alimento"
                     list="lista_alimentos">
                 <datalist id="lista_alimentos"></datalist>
-                <label onclick="consulta_alimentos()" class="contenedor">
-                    <p class="color_linea">consultar todo</p>
-                </label>
+                <button type="button" class="btn" id="btn_consultar_todo_historial" onclick="ver_alimentos()">Consultar Todo</button>
             </div>
             <div class="final_buttom">
-                <button type="button" class="btn" onclick="consulta_individual_alimento()">Consultar</button>
+                <button id="enviar_consulta" type="button" class="btn" onclick="consulta_individual_alimento()">Consultar</button>
             </div>
         </section>
 
 
         <div class="container__btn__options">
-            <div class="container__btn__agregar">
-                <img src="/src/static/iconos/icon add.svg" alt="" class="svg__add">
-                <button type="button" class="btn btn--agregar"
+            <div id="crear_alimento" class="container__btn__agregar">
+                <img src="/src/static/iconos/icon add.svg" alt="signo de agregar" class="svg__add">
+                <button style="margin-left: 5px;"  type="button"  class="btn btn--agregar"
                     onclick="location.href = '/src/templates/add_alimento.html' ">Agregar alimento</button>
             </div>
         </div>
@@ -135,34 +147,85 @@
 
         <section class="container__registros">
             <table class="table__registros">
-                <thead>
+                <thead id="head_alimento">
                     <tr>
                         <th></th>
                         <th>ID </th>
                         <th>Nombre </th>
+                        <th>Proteina<br> cruda(%)</th>
                         <th>Materia <br> seca(%)</th>
                         <th>Energia <br> metabolizable(%)</th>
-                        <th>Proteina<br> cruda(%)</th>
                         <th>Fibra <br> cruda(%)</th>
-                        <th onclick="ordenarTabla('estado')">Estado <span id="flecha-estado"></span></th>
+                        <th>Estado</th>
                         <th>Acciones</th>
                     </tr>
 
                 </thead>
                 <tbody class="registros" id="contenido">
-
+                    <tr class="sin-alimentos">
+                        <td colspan="9">
+                            <p>No hay Alimentos Disponibles</p>
+                        </td>
+                    </tr>
                 </tbody>
             </table>
+            <div class="paginacion_alimentos">
+                <p id="alimentos_totales"></p>
+                <div class="paginacion_alimentos" id="paginacion_alimentos">
+                    <iconify-icon id="prevPage" icon="bxs:left-arrow" width="24" height="24"  style="color: #2C3D31"></iconify-icon>
+                    <span id="pageInfo"></span>
+                    <iconify-icon id="nextPage" icon="bxs:right-arrow" width="24" height="24"  style="color: #2C3D31" ></iconify-icon>
+                </div>
+            </div>
         </section>
     </section>
-    <script src="/src/static/js/script.js"></script>
-    <script>
-        consulta_alimentos();
-        cargarAutocompletado();
-        timesleep();
-      
+        <div class="opciones">
+            <div id="impresora" class="impresora" onclick="generar_pdf('alimentos')" title="Generar PDF">
+                <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 26 26"><g fill="none"><defs><mask id="SVGrO71tccb"><path fill="#fff" d="M0 0h26v26H0z"/><path fill="#fff" d="M7.5 5a1 1 0 0 1 1-1h9a1 1 0 0 1 1 1v4.5h-11z"/><path fill="#000" d="M8 9.5H7V5.1c0-.866.612-1.6 1.417-1.6h9.166c.805 0 1.417.734 1.417 1.6v4.4h-1V5.1c0-.35-.209-.6-.417-.6H8.417c-.208 0-.417.25-.417.6z"/><path fill="#000" fill-rule="evenodd" d="M19 9H7a3 3 0 0 0-3 3v5a3 3 0 0 0 3 3h12a3 3 0 0 0 3-3v-5a3 3 0 0 0-3-3M5 12a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2z" clip-rule="evenodd"/><path fill="#fff" d="M18.5 20.531a1 1 0 0 1-1 1h-9a1 1 0 0 1-1-1V14.97h11z"/><path fill="#000" d="M18 14.969h1v5.25c0 .97-.588 1.812-1.417 1.812H8.417C7.588 22.031 7 21.19 7 20.22v-5.25h1v5.25c0 .479.233.812.417.812h9.166c.184 0 .417-.333.417-.812z"/><path fill="#000" d="M16.5 18.5a.5.5 0 0 1 0 1h-7a.5.5 0 0 1 0-1zm0-2a.5.5 0 0 1 0 1h-7a.5.5 0 0 1 0-1z"/></mask></defs><circle cx="13" cy="13" r="13" fill="#fff" mask="url(#SVGrO71tccb)"/></g></svg>
+            </div>
+            <div onclick="iniciarTourAlimentos()"  title="Ayuda">
+                <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24"><g fill="none"><path d="m12.593 23.258l-.011.002l-.071.035l-.02.004l-.014-.004l-.071-.035q-.016-.005-.024.005l-.004.01l-.017.428l.005.02l.01.013l.104.074l.015.004l.012-.004l.104-.074l.012-.016l.004-.017l-.017-.427q-.004-.016-.017-.018m.265-.113l-.013.002l-.185.093l-.01.01l-.003.011l.018.43l.005.012l.008.007l.201.093q.019.005.029-.008l.004-.014l-.034-.614q-.005-.018-.02-.022m-.715.002a.02.02 0 0 0-.027.006l-.006.014l-.034.614q.001.018.017.024l.015-.002l.201-.093l.01-.008l.004-.011l.017-.43l-.003-.012l-.01-.01z"/><path fill="#fff" d="M12 2c5.523 0 10 4.477 10 10s-4.477 10-10 10S2 17.523 2 12S6.477 2 12 2m0 14a1 1 0 1 0 0 2a1 1 0 0 0 0-2m0-9.5a3.625 3.625 0 0 0-3.625 3.625a1 1 0 1 0 2 0a1.625 1.625 0 1 1 2.23 1.51c-.676.27-1.605.962-1.605 2.115V14a1 1 0 1 0 2 0c0-.244.05-.366.261-.47l.087-.04A3.626 3.626 0 0 0 12 6.5"/></g></svg>
+            </div>
+        </div>
 
-    </script>
+
+
+
+    <script src="/src/static/js/script.js"></script>
+    <script src="/src/static/js/driver.js"></script>
+    <script>
+window.addEventListener("DOMContentLoaded", () => {
+    // Mostrar mensaje de éxito si existe
+    const mensaje = JSON.parse(localStorage.getItem("swal_mensaje"));
+    if (mensaje && mensaje.tipo === "success") {
+        Swal.fire({
+            title: "Éxito",
+            text: mensaje.texto,
+            icon: "success",
+            timer: 5000,
+            showConfirmButton: false,
+            heightAuto: false
+        });
+        localStorage.removeItem("swal_mensaje");
+    }
+
+    // Abrir modal si existe
+    const modalInfo = JSON.parse(localStorage.getItem("modal_a_abrir"));
+    if (modalInfo) {
+        abrirModal(modalInfo.tipo, modalInfo.id);
+        localStorage.removeItem("modal_a_abrir");
+    }
+
+});
+
+// Funciones existentes
+ver_alimentos();
+cargarAutocompletado();
+timesleep();
+notificaciones_nuevo();
+
+</script>
+
 </body>
 
 </html>

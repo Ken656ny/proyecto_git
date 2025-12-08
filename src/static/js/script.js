@@ -1,7 +1,7 @@
 const URL_BASE = 'http://127.0.0.1:5000'
 
 // Al cargar la página, crear los diálogos directamente
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     crearDialogRegistrarRaza();
     crearDialogRegistrarEtapa();
     crearDialogActualizarPesoHistorial();
@@ -39,7 +39,6 @@ function redirectWithDelay(event, url) {
     event.preventDefault(); // Evita que el enlace redirija de inmediato
 
     // Aquí puedes poner una animación o efecto antes de redirigir
-    console.log("Esperando antes de redirigir...");
 
     // Esperar 1 segundo (1000 ms) antes de redirigir
     setTimeout(() => {
@@ -51,9 +50,9 @@ function redirectWithDelay(event, url) {
 
 const nav_bar = document.querySelectorAll('.nav__item')
 
-function bar_funct(){
-    nav_bar.forEach((item) => 
-    item.classList.remove('active'));
+function bar_funct() {
+    nav_bar.forEach((item) =>
+        item.classList.remove('active'));
     this.classList.add('active');
 }
 nav_bar.forEach((item) => item.addEventListener('click', bar_funct));
@@ -70,7 +69,7 @@ async function registro_usuarios() {
         const contraseña = document.getElementById('password').value;
         const constraseña_confirm = document.getElementById('confirmPassword').value;
 
-        if ((constraseña_confirm == contraseña) && (contraseña != '')){
+        if ((constraseña_confirm == contraseña) && (contraseña != '')) {
             const user = {
                 "numero_identificacion": numero_identificacion,
                 "nombre": nombre,
@@ -79,7 +78,7 @@ async function registro_usuarios() {
                 "estado": "Activo",
                 "id_tipo_identificacion": tipo_identificacion,
             }
-            fetch(`${URL_BASE}/users`, 
+            fetch(`${URL_BASE}/users`,
                 {
                     method: 'POST',
                     body: JSON.stringify(user),
@@ -128,7 +127,7 @@ async function login() {
             }).then(response => {
                 return response.json()
             }).then(response => {
-                if (response.Mensaje === 'Las crendenciales son correctas'){
+                if (response.Mensaje === 'Las crendenciales son correctas') {
                     location.href = 'home.html'
                 } else if (response.Mensaje === 'Contraseña incorrecta') {
                     Swal.fire({
@@ -948,8 +947,7 @@ async function cargarInfoDeleteConfirm(id,container) {
 // CONSUMO DE DATOS DE LOS PORCINOS REGISTRADOS
 
 async function consulta_general_porcinos() {
-    try 
-    {
+    try {
         const response = await fetch(`${URL_BASE}/porcino`);
         if (!response.ok) throw new Error(`Error: ${response.status}`);
         const porcinos = await response.json();
@@ -1044,17 +1042,17 @@ function paginacion_porcinos(porcinos){
 async function consulta_individual_porcino(id, mostrar = false) {
     try {
         const promesa = await fetch(`${URL_BASE}/porcino/${id}`, {
-        method: 'GET',
-        headers: { "Content-type": "application/json" }
+            method: 'GET',
+            headers: { "Content-type": "application/json" }
         });
-        const response = await promesa.json(); 
+        const response = await promesa.json();
         if (response.Mensaje === 'Porcino no encontrado') {
-        Swal.fire({
-            title: "Mensaje",
-            text: response.Mensaje,
-            icon: "error"
-        });
-        return null;
+            Swal.fire({
+                title: "Mensaje",
+                text: response.Mensaje,
+                icon: "error"
+            });
+            return null;
         }
 
         if (mostrar) {
@@ -1069,20 +1067,20 @@ async function consulta_individual_porcino(id, mostrar = false) {
     }
 }
 
-function refrescar_porcinos(id_porcino){
+function refrescar_porcinos(id_porcino) {
     const row = document.querySelector(`tr[porcino-id = "${id_porcino}"]`)
-    if (row){
+    if (row) {
         row.remove;
         consultar_porcinos_cache();
     }
 }
 
-function crearSelects(filtro,opciones){
+function crearSelects(filtro, opciones) {
     const old_select = document.getElementById('filter__options__2');
     const container_search = document.getElementById("container__search__bar");
-    
+
     if (old_select) old_select.remove();
-    if (filtro === 'peso_final'){
+    if (filtro === 'peso_final') {
         let input = document.createElement('input');
         input.id = "filter__options__2"
         input.className = "input_id"
@@ -1090,18 +1088,18 @@ function crearSelects(filtro,opciones){
         input.min = '0';
         input.placeholder = opciones
         container_search.appendChild(input)
-    }else{
+    } else {
         let select = document.createElement('select')
         select.id = "filter__options__2"
         select.classList.add("input_id", "rm_filter")
         select.setAttribute('required', true)
         let value_pred = document.createElement('option');
         value_pred.text = "Seleccione..."
-        value_pred. value = ""
+        value_pred.value = ""
         value_pred.disabled = true
         value_pred.selected = true
         select.appendChild(value_pred)
-        if (filtro === 'sexo' || filtro === 'estado'){
+        if (filtro === 'sexo' || filtro === 'estado') {
             opciones.forEach(opcion => {
                 let option = document.createElement('option')
                 option.text = opcion
@@ -1126,15 +1124,15 @@ function porcino_filtros() {
         const filter = document.getElementById("filter_porcino");
         input__id.addEventListener('input', () => {
             filter.disabled = parseInt(input__id.value) !== 0;
-            if (parseInt(input__id.value) === 0){
+            if (parseInt(input__id.value) === 0) {
                 return consultar_porcinos_cache()
             }
-            
+
         });
         const opciones = {
-            "sexo" : ["Macho","Hembra"],
-            "estado" : ["Activo","Inactivo"],
-            "peso_final" : ["Escriba el peso final"]
+            "sexo": ["Macho", "Hembra"],
+            "estado": ["Activo", "Inactivo"],
+            "peso_final": ["Escriba el peso final"]
         }
         filter.addEventListener('change', () => {
             input__id.readOnly = true;
@@ -1148,8 +1146,8 @@ function porcino_filtros() {
                     if (filter.value === 'raza'){
                         crearSelects(filter.value,razas.razas)
                     }
-                    if (filter.value === 'etapa'){
-                        crearSelects(filter.value,etapas.etapas)
+                    if (filter.value === 'etapa') {
+                        crearSelects(filter.value, etapas.etapas)
                     }
                 },);
             }
@@ -1166,18 +1164,18 @@ async function consulta_filtros() {
             const input_id = document.getElementById('input_id').value;
             console.log(input_id)
             return consulta_individual_porcino(input_id, true)
-        } else{
+        } else {
             const valor = document.getElementById('filter__options__2').value;
             const info = {
-                "filtro" : filtro.value,
-                "valor" : valor
+                "filtro": filtro.value,
+                "valor": valor
             }
-            const promesa = await fetch(`${URL_BASE}/porcino/filtros`, 
+            const promesa = await fetch(`${URL_BASE}/porcino/filtros`,
                 {
-                    method : 'POST',
-                    body : JSON.stringify(info),
-                    headers : {
-                        "Content-type" : "application/json"
+                    method: 'POST',
+                    body: JSON.stringify(info),
+                    headers: {
+                        "Content-type": "application/json"
                     }
                 }
             )
@@ -1186,10 +1184,10 @@ async function consulta_filtros() {
                 paginacion_porcinos(response)
             } else{
                 Swal.fire({
-                title: "Mensaje",
-                text: `${response.Mensaje}`,
-                icon: "error",
-            });
+                    title: "Mensaje",
+                    text: `${response.Mensaje}`,
+                    icon: "error",
+                });
             }
         }
     } catch (error) {
@@ -1197,7 +1195,7 @@ async function consulta_filtros() {
     }
 }
 
-async function agregar_porcino(){
+async function agregar_porcino() {
     try {
         const id_porcino = document.getElementById('id_porcino').value;
         const peso_inicial = document.getElementById('peso_inicial').value;
@@ -1209,38 +1207,38 @@ async function agregar_porcino(){
         const descripcion = document.getElementById('descripcion').value;
 
         const porcino = {
-            "id_porcino" : id_porcino,
-            "peso_inicial" : peso_inicial,
-            "peso_final" : peso_final,
-            "fecha_nacimiento" : fecha,
-            "id_raza" : raza,
-            "sexo" : sexo,
-            "id_etapa" : etapa,
-            "estado" : "Activo",
-            "descripcion" : descripcion 
+            "id_porcino": id_porcino,
+            "peso_inicial": peso_inicial,
+            "peso_final": peso_final,
+            "fecha_nacimiento": fecha,
+            "id_raza": raza,
+            "sexo": sexo,
+            "id_etapa": etapa,
+            "estado": "Activo",
+            "descripcion": descripcion
         }
         const promesa = await fetch(`${URL_BASE}/porcino`, {
-            method : 'POST',
-            body : JSON.stringify(porcino),
-            headers : {
-                "Content-type" : "application/json"
+            method: 'POST',
+            body: JSON.stringify(porcino),
+            headers: {
+                "Content-type": "application/json"
             }
         })
         const response = await promesa.json()
-        if (response.Mensaje == `Porcino con id ${id_porcino} registrado`){
+        if (response.Mensaje == `Porcino con id ${id_porcino} registrado`) {
             Swal.fire({
-            title: "Mensaje",
-            text: `${response.Mensaje}`,
-            icon: "success",
-            
-        });
-        }else{
+                title: "Mensaje",
+                text: `${response.Mensaje}`,
+                icon: "success",
+
+            });
+        } else {
             Swal.fire({
-            title: "Mensaje",
-            text: `${response.Mensaje}`,
-            icon: "error",
-            
-        });
+                title: "Mensaje",
+                text: `${response.Mensaje}`,
+                icon: "error",
+
+            });
         }
         return response
     } catch (error) {
@@ -1260,21 +1258,21 @@ async function actualizar_porcino(id_porcino) {
         const descripcion = document.getElementById(`descripcion-actu-${id_porcino}`).value;
 
         const porcino = {
-            "peso_inicial" : peso_inicial,
-            "peso_final" : peso_final,
-            "fecha_nacimiento" : fecha,
-            "id_raza" : raza,
-            "sexo" : sexo,
-            "id_etapa" : etapa,
-            "estado" :estado,
-            "descripcion" : descripcion 
+            "peso_inicial": peso_inicial,
+            "peso_final": peso_final,
+            "fecha_nacimiento": fecha,
+            "id_raza": raza,
+            "sexo": sexo,
+            "id_etapa": etapa,
+            "estado": estado,
+            "descripcion": descripcion
         }
-        const promesa = await fetch(`${URL_BASE}/porcino/${id_porcino}`, 
+        const promesa = await fetch(`${URL_BASE}/porcino/${id_porcino}`,
             {
-                method : "PUT",
-                body : JSON.stringify(porcino),
-                headers : {
-                    "Content-type" : "application/json"
+                method: "PUT",
+                body: JSON.stringify(porcino),
+                headers: {
+                    "Content-type": "application/json"
                 }
             }
         );
@@ -1302,7 +1300,7 @@ async function actualizar_porcino(id_porcino) {
 }
 
 
-function eliminar_porcino(id_porcino){
+function eliminar_porcino(id_porcino) {
     const input = document.getElementById(`input-eliminar-${id_porcino}`);
     const id_input = document.getElementById(`input-eliminar-${id_porcino}`).value;
     if (id_input == id_porcino){
@@ -1591,11 +1589,11 @@ function actualizarPreview(porcino, peso, elementoTexto) {
 
 async function consulta_gen_historial_pesos(){
     try {
-        const promesa = await fetch(`${URL_BASE}/porcino/historial_pesos`, 
+        const promesa = await fetch(`${URL_BASE}/porcino/historial_pesos`,
             {
-                method : 'GET',
-                headers : {
-                    "Content-type" : "application/json",
+                method: 'GET',
+                headers: {
+                    "Content-type": "application/json",
                 }
             })
         const response = await promesa.json();
@@ -1603,9 +1601,9 @@ async function consulta_gen_historial_pesos(){
             paginacion_historial(response)
         } else {
             Swal.fire({
-            title: "Mensaje",
-            text: `${response.Mensaje}`,
-            icon: "error",
+                title: "Mensaje",
+                text: `${response.Mensaje}`,
+                icon: "error",
             });
         }
         return response
@@ -1641,8 +1639,7 @@ async function consulta_porcino_historial(id_porcino,mostrar = false){
         const id = document.getElementById('input_id_hp').value;
         const promesa = await fetch(`${URL_BASE}/porcino/historial_pesos/${id || id_porcino}`);
         const response = await promesa.json()
-        console.log(response)
-        if (response.Mensaje === `No hay historial de pesos para el porcino con ID ${id}`){
+        if (response.Mensaje === `No hay historial de pesos para el porcino con ID ${id}`) {
             cerrarDialog('dialog__his__peso');
             Swal.fire({
                 title: "Mensaje",
@@ -1655,7 +1652,7 @@ async function consulta_porcino_historial(id_porcino,mostrar = false){
             paginacion_historial(response)
         }
         return response
-    }catch(error){
+    } catch (error) {
         console.error(error)
     }
 }
@@ -1665,9 +1662,9 @@ async function conteoNumeroConsecutivo() {
     try {
         const promesa = await fetch(`${URL_BASE}/porcino/historial_pesos/conteo_transacciones`,
             {
-                method : 'GET',
-                headers : {
-                    "Content-type" : "application/json"
+                method: 'GET',
+                headers: {
+                    "Content-type": "application/json"
                 }
             }
         )
@@ -1692,32 +1689,32 @@ async function actualizar_peso_historial() {
             "id_usuario" : id_usuario,
             "descripcion" : descripcion
         }
-        
+
         const promesa = await fetch(`${URL_BASE}/porcino/historial_pesos/actualizar`,
             {
-                method : 'POST',
-                body : JSON.stringify(transa),
-                headers : {
-                    "Content-type" : "application/json"
+                method: 'POST',
+                body: JSON.stringify(transa),
+                headers: {
+                    "Content-type": "application/json"
                 }
             }
         )
         const response = await promesa.json()
         cerrarDialog(`dialog-actualizar-peso`);
         cerrarDialog(`dialog__his__peso`);
-        if (response.Mensaje ===  `El Peso Final del porcino con id ${id_porcino} actualizado`){
-            
+        if (response.Mensaje === `El Peso Final del porcino con id ${id_porcino} actualizado`) {
+
             Swal.fire({
-            title: "Mensaje",
-            text: `${response.Mensaje}`,
-            icon: "success",
+                title: "Mensaje",
+                text: `${response.Mensaje}`,
+                icon: "success",
             });
-            
+
         } else {
             Swal.fire({
-            title: "Mensaje",
-            text: `${response.Mensaje}`,
-            icon: "error",
+                title: "Mensaje",
+                text: `${response.Mensaje}`,
+                icon: "error",
             });
         }
         return response
@@ -1812,30 +1809,30 @@ function paginacion_raza(razas){
     render_paginacion()
 }
 
-function crearDialogRegistrarRaza(){
+function crearDialogRegistrarRaza() {
     const campos = [
-        {label: 'Nombre', id: 'nombre_raza', required: false},
-        {label: 'Descripcion', id: 'descripcion_raza', required: true},
+        { label: 'Nombre', id: 'nombre_raza', required: false },
+        { label: 'Descripcion', id: 'descripcion_raza', required: true },
     ]
-    
+
     const camposHTML = campos.map(campo => `
         <div class = "container__label__input">
             <label for="${campo.id}">${campo.label}</label>
             <input type="text" class="campo-info" id="${campo.id}" ${campo.required ? '' : 'required'}>
         </div>
         `).join('');
-    return crearDialogBaseRaza(`dialog-registrar-raza`, 'dialog-icon-eye', 'Registrar Raza', camposHTML, 'Guardar', 'button-guardar', '', 'registrar_raza','');
+    return crearDialogBaseRaza(`dialog-registrar-raza`, 'dialog-icon-eye', 'Registrar Raza', camposHTML, 'Guardar', 'button-guardar', '', 'registrar_raza', '');
 }
 
 function crearDialogBaseRaza(id, clase, titulo, contenido, textoBoton, claseBoton, uniqueId, funct, params) {
     // Crear el dialogo
     const dialog = document.createElement("dialog");
-    
+
     dialog.className = clase;
     dialog.id = id;
     // Armar contenido interno
     dialog.innerHTML = `
-        ${ clase ? `
+        ${clase ? `
             <div class="container__btn__close">
                 <button type="button" class="${clase.toLowerCase() === 'dialog__ges__raz' ? 'btn__close btn__close__cruds' : 'btn__close'}" onclick="cerrarDialog('${id}')">X</button>
             </div>
@@ -1851,14 +1848,14 @@ function crearDialogBaseRaza(id, clase, titulo, contenido, textoBoton, claseBoto
             ${textoBoton ? `
                 <div class="container-button-${claseBoton.includes('cerrar') ? 'close' : 'guardar'}">
                     <button 
-                    type="${['cerrar', 'continuar','siguiente'].includes(textoBoton.toLowerCase()) ? 'button' : 'submit'}"
+                    type="${['cerrar', 'continuar', 'siguiente'].includes(textoBoton.toLowerCase()) ? 'button' : 'submit'}"
                     class="${claseBoton}"
                     ${textoBoton.toLowerCase() === 'cerrar' ? `onclick="cerrarDialog('${id}')"` : ""}
-                    ${funct && funct.toLowerCase() === 'eliminar_raza' 
-                        ? `onclick="abrirDialog('dialog-delete-conf-r-${uniqueId}')"` 
-                        : funct && funct.toLowerCase() === 'eliminar_etapa' 
-                        ? `onclick="abrirDialog('dialog-delete-conf-e-${uniqueId}')"` 
-                        : ""}
+                    ${funct && funct.toLowerCase() === 'eliminar_raza'
+                ? `onclick="abrirDialog('dialog-delete-conf-r-${uniqueId}')"`
+                : funct && funct.toLowerCase() === 'eliminar_etapa'
+                    ? `onclick="abrirDialog('dialog-delete-conf-e-${uniqueId}')"`
+                    : ""}
                     >
                     ${textoBoton}
                     </button>
@@ -1871,7 +1868,7 @@ function crearDialogBaseRaza(id, clase, titulo, contenido, textoBoton, claseBoto
 
 async function consultar_razas(){
     try {
-        const promesa = await fetch(`${URL_BASE}/raza`, {method: 'GET'});
+        const promesa = await fetch(`${URL_BASE}/raza`, { method: 'GET' });
         if (!promesa.ok) throw new Error(`Error: ${promesa.status}`);
         const response = await promesa.json();
         paginacion_raza(response)
@@ -1886,7 +1883,7 @@ async function consulta_indi_raza(id_raza, mostrar = false){
         const id = document.getElementById('input_id_raza').value;
         const promesa = await fetch(`${URL_BASE}/raza/${id || id_raza}`);
         const response = await promesa.json();
-        if (response.Mensaje === `No hay raza con ID ${id}`){
+        if (response.Mensaje === `No hay raza con ID ${id}`) {
             cerrarDialog('dialog__ges__raz');
             Swal.fire({
                 title: "Mensaje",
@@ -1915,10 +1912,10 @@ async function registrar_raza() {
         }
 
         const promesa = await fetch(`${URL_BASE}/raza`, {
-            method : 'POST',
-            body : JSON.stringify(raza),
+            method: 'POST',
+            body: JSON.stringify(raza),
             headers: {
-                "Content-type" : "application/json"
+                "Content-type": "application/json"
             }
         })
         const response = await promesa.json()
@@ -1937,10 +1934,10 @@ async function registrar_raza() {
             })
         } else{
             Swal.fire({
-            title: "Mensaje",
-            text: `${response.Mensaje}`,
-            icon: "error"
-        });
+                title: "Mensaje",
+                text: `${response.Mensaje}`,
+                icon: "error"
+            });
         }
         return response
     } catch (error) {
@@ -1959,10 +1956,10 @@ async function actualizar_raza(id) {
         }
 
         const promesa = await fetch(`${URL_BASE}/raza/${id}`, {
-            method : 'PUT',
-            body : JSON.stringify(raza),
+            method: 'PUT',
+            body: JSON.stringify(raza),
             headers: {
-                "Content-type" : "application/json"
+                "Content-type": "application/json"
             }
         })
         const response = await promesa.json()
@@ -1993,7 +1990,7 @@ async function actualizar_raza(id) {
     }
 }
 
-async function eliminar_raza(id){
+async function eliminar_raza(id) {
     try {
         const input = document.getElementById(`input-eliminar-${id}`);
         const value_input = document.getElementById(`input-eliminar-${id}`).value;
@@ -2127,12 +2124,12 @@ function crearDialogRegistrarEtapa() {
     // 1. Campos del STEP 1
     // ===========================
     const campos1 = [
-        {label: "Nombre", id: "nombre_etapa", required: false, placeholder : "Ingrese el nombre de la etapa..."},
-        {label: 'Peso Minimo (Kg)', id: 'peso_min_etapa', required: false, type : "number", placeholder : "Ingrese el peso minimo..."},
-        {label: 'Peso Maximo (Kg)', id: 'peso_max_etapa', required: false, type : "number", placeholder : "Ingrese el peso maximo..."},
-        {label: 'Dias de duración', id: 'dias_dura_etapa', required: false, type : "number", placeholder : "Duración en días..."},
-        {label: 'Semana de duración', id: 'semanas_dura_etapa', required: false, type : "number", placeholder : "Duración en semanas..."},
-        {label: 'Descripcion (Opcional)', id: 'descripcion_etapa', required: true, type : "text", placeholder : "Descripción..."},
+        { label: "Nombre", id: "nombre_etapa", required: false, placeholder: "Ingrese el nombre de la etapa..." },
+        { label: 'Peso Minimo (Kg)', id: 'peso_min_etapa', required: false, type: "number", placeholder: "Ingrese el peso minimo..." },
+        { label: 'Peso Maximo (Kg)', id: 'peso_max_etapa', required: false, type: "number", placeholder: "Ingrese el peso maximo..." },
+        { label: 'Dias de duración', id: 'dias_dura_etapa', required: false, type: "number", placeholder: "Duración en días..." },
+        { label: 'Semana de duración', id: 'semanas_dura_etapa', required: false, type: "number", placeholder: "Duración en semanas..." },
+        { label: 'Descripcion (Opcional)', id: 'descripcion_etapa', required: true, type: "text", placeholder: "Descripción..." },
     ];
 
     const htmlStep1 = campos1.map(c => `
@@ -2147,19 +2144,19 @@ function crearDialogRegistrarEtapa() {
     // ===========================
 
     const campos2 = [
-        {label: "E. Metabolizable (Kcal/Kg)", id: "r-energia-metabo", required: false, type: "number", placeholder : "Ingrese la Energia Metabolizable"},
-        {label: "Proteína Cruda (%)", id: "r-proteina-cruda", required: false, type: "number", placeholder : "Ingrese la Proteina Cruda"},
-        {label: "Fibra Cruda (%)", id: "r-fibra-cruda", required: false, type: "number", placeholder : "Ingrese la Fibra Cruda"},
-        {label: "Extracto Etéreo (%)", id: "r-extracto-etereo", required: false, type: "number", placeholder : "Ingrese la Extracto Etéreo"},
-        {label: "Calcio (%)", id: "r-calcio", required: false, type: "number", placeholder : "Ingrese el Calcio"},
-        {label: "Fosforo Disponible (%)", id: "r-fosforo-disponible", required: false, type: "number", placeholder : "Ingrese el Fosforo Disponible"},
-        {label: "Sodio (%)", id: "r-sodio", required: false, type: "number", placeholder : "Ingrese el sodio"},
-        {label: "Arginina (%)", id: "r-arginina", required: false, type: "number", placeholder : "Ingrese la Arginina"},
-        {label: "Lisina (%)", id: "r-lisina", required: false, type: "number", placeholder : "Ingrese la Lisina"},
-        {label: "Treonina (%)", id: "r-treonina", required: false, type: "number", placeholder : "Ingrese la Treonina"},
-        {label: "Metionina (%)", id: "r-metionina", required: false, type: "number", placeholder : "Ingrese la Metionina"},
-        {label: "Metionina + Cisteína (%)", id: "r-metionina-cisteina", required: false, type: "number", placeholder : "Ingrese la Metionina + Cisteína"},
-        {label: "Triptófano (%)", id: "r-triptofano", required: false, type: "number", placeholder : "Ingrese el Triptófano"},
+        { label: "E. Metabolizable (Kcal/Kg)", id: "r-energia-metabo", required: false, type: "number", placeholder: "Ingrese la Energia Metabolizable" },
+        { label: "Proteína Cruda (%)", id: "r-proteina-cruda", required: false, type: "number", placeholder: "Ingrese la Proteina Cruda" },
+        { label: "Fibra Cruda (%)", id: "r-fibra-cruda", required: false, type: "number", placeholder: "Ingrese la Fibra Cruda" },
+        { label: "Extracto Etéreo (%)", id: "r-extracto-etereo", required: false, type: "number", placeholder: "Ingrese la Extracto Etéreo" },
+        { label: "Calcio (%)", id: "r-calcio", required: false, type: "number", placeholder: "Ingrese el Calcio" },
+        { label: "Fosforo Disponible (%)", id: "r-fosforo-disponible", required: false, type: "number", placeholder: "Ingrese el Fosforo Disponible" },
+        { label: "Sodio (%)", id: "r-sodio", required: false, type: "number", placeholder: "Ingrese el sodio" },
+        { label: "Arginina (%)", id: "r-arginina", required: false, type: "number", placeholder: "Ingrese la Arginina" },
+        { label: "Lisina (%)", id: "r-lisina", required: false, type: "number", placeholder: "Ingrese la Lisina" },
+        { label: "Treonina (%)", id: "r-treonina", required: false, type: "number", placeholder: "Ingrese la Treonina" },
+        { label: "Metionina (%)", id: "r-metionina", required: false, type: "number", placeholder: "Ingrese la Metionina" },
+        { label: "Metionina + Cisteína (%)", id: "r-metionina-cisteina", required: false, type: "number", placeholder: "Ingrese la Metionina + Cisteína" },
+        { label: "Triptófano (%)", id: "r-triptofano", required: false, type: "number", placeholder: "Ingrese el Triptófano" },
     ]
 
     const htmlStep2 = campos2.map(campo => `
@@ -2172,7 +2169,7 @@ function crearDialogRegistrarEtapa() {
     // ===========================
     // 3. Creamos STEP 1 y STEP 2
     // ===========================
-    
+
     const contenido = `
         <div id="step1" class="step">
             ${htmlStep1}
@@ -2191,10 +2188,10 @@ function crearDialogRegistrarEtapa() {
         'dialog-icon-eye',
         'Registrar Etapa de vida',
         contenido,
-        'Siguiente',                  
+        'Siguiente',
         'button-guardar',             // CLASE REAL DEL BOTÓN
         '',
-        'registrar_etapas', 
+        'registrar_etapas',
         ''
     );
 
@@ -2288,12 +2285,12 @@ function activarSteps(modalId, botonSelector, funct) {
 }
 
 async function consultar_etapas() {
-    try{
-        const promesa = await fetch(`${URL_BASE}/etapa_vida`, {method: 'GET'});
+    try {
+        const promesa = await fetch(`${URL_BASE}/etapa_vida`, { method: 'GET' });
         const response = await promesa.json();
         paginacion_etapa(response)
         return response
-    } catch(error){
+    } catch (error) {
         console.error(error)
     }
 }
@@ -2317,21 +2314,20 @@ async function consulta_indi_etapas(id_etapa, mostrar = false){
         }
         return response
     } catch (error) {
-        console.log()
     }
 }
 
 
-async function registrar_etapas(){
+async function registrar_etapas() {
     try {
         const etapa = {
             "nombre" : document.getElementById('nombre_etapa').value,
             "descripcion" : document.getElementById("descripcion_etapa").value,
             "peso_min": document.getElementById("peso_min_etapa").value,
             "peso_max": document.getElementById("peso_max_etapa").value,
-            "duracion_dias" : document.getElementById("dias_dura_etapa").value,
-            "duracion_semanas" : document.getElementById("semanas_dura_etapa").value,
-            "requerimientos" : [
+            "duracion_dias": document.getElementById("dias_dura_etapa").value,
+            "duracion_semanas": document.getElementById("semanas_dura_etapa").value,
+            "requerimientos": [
                 { id_elemento: 1, porcentaje: parseFloat(document.getElementById("r-proteina-cruda").value) || 0 },
                 { id_elemento: 2, porcentaje: parseFloat(document.getElementById("r-fosforo-disponible").value) || 0 },
                 { id_elemento: 3, porcentaje: parseFloat(document.getElementById("r-treonina").value) || 0 },
@@ -2349,10 +2345,10 @@ async function registrar_etapas(){
         }
 
         const promesa = await fetch(`${URL_BASE}/etapa_vida`, {
-            method : 'POST',
+            method: 'POST',
             body: JSON.stringify(etapa),
-            headers : {
-                "Content-type" : "application/json"
+            headers: {
+                "Content-type": "application/json"
             }
         })
         const response = await promesa.json()
@@ -2371,10 +2367,10 @@ async function registrar_etapas(){
             })
         } else{
             Swal.fire({
-            title: "Mensaje",
-            text: `${response.Mensaje}`,
-            icon: "error"
-        });
+                title: "Mensaje",
+                text: `${response.Mensaje}`,
+                icon: "error"
+            });
         }
         return response
     } catch (error) {
@@ -2409,10 +2405,10 @@ async function actualizar_etapa(id) {
         }
 
         const promesa = await fetch(`${URL_BASE}/etapa_vida/${id}`, {
-            method : 'PUT',
+            method: 'PUT',
             body: JSON.stringify(etapa),
-            headers : {
-                "Content-type" : "application/json",
+            headers: {
+                "Content-type": "application/json",
             }
         })
         const response = await promesa.json();
@@ -2448,7 +2444,7 @@ async function eliminar_etapa(id) {
         const input = document.getElementById(`input-eliminar-${id}`);
         const value_input = document.getElementById(`input-eliminar-${id}`).value;
 
-        if (value_input == id){
+        if (value_input == id) {
             const promesa = await fetch(`${URL_BASE}/etapa_vida/${id}`, {
                 method: 'DELETE',
             })
@@ -2491,7 +2487,7 @@ async function eliminar_etapa(id) {
 // GESTION DE NOTIFICACIONES
 // --------------------------
 
-function mostrar_notificaciones(notificaciones){
+function mostrar_notificaciones(notificaciones) {
     const info = notificaciones.Notificaciones.map(item => crear_fila_notificaciones(item)).join('');
     document.getElementById('section_hoy_noti').innerHTML = info
 }
@@ -2526,235 +2522,101 @@ async function consultar_notificaciones() {
         const id = 3
         const promesa = await fetch(`${URL_BASE}/notificaciones/${id}`,
             {
-                method : 'GET',
+                method: 'GET',
             }
         )
         const response = await promesa.json()
-        console.log(response)
         mostrar_notificaciones(response)
-        return response 
+        return response
     } catch (error) {
         console.error(error)
     }
 }
 
+
 // -------------------
 // GESTION DE ALIMENTOS
 // -------------------
 
+
+function ver_alimentos(){
+    
+let currentPage = 1;       // página actual
+const itemsPerPage = 3;   // cantidad de alimentos por página
+let alimentosData = [];    // aquí guardaremos los datos de fetch
+
+const contenido = document.getElementById("contenido");
+const alimentos_totales = document.getElementById("alimentos_totales");
+const pageInfo = document.getElementById("pageInfo");
+const prevPage = document.getElementById("prevPage");
+const nextPage = document.getElementById("nextPage");
+
 function consulta_alimentos() {
-    const contenido = document.getElementById("contenido");
     fetch(`${URL_BASE}/alimentos`, { method: "GET" })
         .then(res => res.json())
         .then(data => {
-            console.log(data)
-            contenido.innerHTML = "";
-            data.mensaje.forEach(element => {
-                const mapa = {};
-                element.elementos.forEach(e => {
-                    mapa[e.nombre] = e.valor;
-                });
-
-                contenido.innerHTML += `
-            <tr class="nuevo1">
-                <td class="nuevo td__border__l"><img class="svg__pig" src="/src/static/iconos/logo alimentospng.png"></td>
-                <td class="nuevo">${element.id_alimento}</td>
-                <td class="nuevo">${element.nombre}</td>
-                <td class="nuevo">${mapa["Materia_seca"]}</td>
-                <td class="nuevo">${mapa["Energia_metabo"]}</td>
-                <td class="nuevo">${mapa["Proteina_cruda"]}</td>
-                <td class="nuevo">${mapa["Fibra_cruda"]}</td>
-                <td class="nuevo">${element.estado}</td>
-                <td class="nuevo td__border__r">
-
-                <img src="/src/static/iconos/icon eye.svg " class="icon-eye">
-
-                <img src="/src/static/iconos/edit icon.svg" class="icon-edit">
-
-                <img class="eliminar" onclick="eliminar_alimento(${element.id_alimento})" src="/src/static/iconos/delete icon.svg" class="icon-edit">
-                </td>
-            </tr>
-            `
-            });
-        })
+            alimentosData = data.mensaje; // guardamos todos los alimentos
+            mostrarPagina(currentPage);
+        });
 }
 
-function eliminar_alimento(id) {
-    fetch(`${URL_BASE}/eliminar_alimento/${id}`, { method: "delete" })
-        .then(res => res.json())
-        .then(data => {
-            console.log("eliminado correctamente")
-            alert("eliminado correctamente")
-            window.location.reload()
-        })
-}
+function mostrarPagina(page) {
+    const totalAlimentos = alimentosData.length;
+    const totalPages = Math.ceil(totalAlimentos / itemsPerPage);
 
-async function consulta_individual_alimento() {
-  const nombre = document.getElementById("id_alimento").value.trim();
-  const contenido = document.getElementById("contenido");
-  contenido.innerHTML = "";
+    // Mostrar información de totales
+    alimentos_totales.innerText = `Alimentos Totales: ${totalAlimentos}`;
+    pageInfo.innerText = `Pagina ${page} de ${totalPages}`;
 
-  if (!nombre) {
-    Swal.fire({
-      icon: "warning",
-      title: "Campo vacío",
-      text: "Por favor ingresa un nombre de alimento para buscar.",
-      confirmButtonColor: "#3085d6",
-      customClass: { popup: "swal-elevado" }
-    });
-    return;
-  }
-
-  try {
-    const response = await fetch(`${URL_BASE}/consulta_indi_alimento/${nombre}`);
-    const data = await response.json();
-
-    if (!response.ok || !data.mensaje) {
-      Swal.fire({
-        icon: "error",
-        title: "No encontrado",
-        text: "No se encontró ningún alimento con ese nombre.",
-        confirmButtonColor: "#d33",
-        customClass: { popup: "swal-elevado" }
-      });
-      return;
+    // **Ocultar paginación si no es necesaria**
+    const pagContainer = document.getElementById("paginacion_alimentos");
+    if (totalAlimentos <= itemsPerPage) {
+        pagContainer.style.display = "none";
+    } else {
+        pagContainer.style.display = "flex"; // o "block" según tu diseño
     }
 
-    // 🔹 Convierte en array si no lo es
-    const alimentos = Array.isArray(data.mensaje) ? data.mensaje : [data.mensaje];
+    // Calcular rango
+    const start = (page - 1) * itemsPerPage;
+    const end = start + itemsPerPage;
+    const alimentosPagina = alimentosData.slice(start, end);
 
-    alimentos.forEach(element => {
-      const mapa = {};
-      element.elementos.forEach(e => {
-        mapa[e.nombre] = e.valor;
-      });
+    contenido.innerHTML = "";
 
-      contenido.innerHTML += `
-        <tr class="nuevo1">
-          <td class="nuevo td__border__l"><img class="svg__alimento" src="/src/static/iconos/logo alimentospng.png"></td>
-          <td class="nuevo">${element.id_alimento}</td>
-          <td class="nuevo">${element.nombre}</td>
-          <td class="nuevo">${mapa["Materia_seca"] || ''}</td>
-          <td class="nuevo">${mapa["Energia_metabo"] || ''}</td>
-          <td class="nuevo">${mapa["Proteina_cruda"] || ''}</td>
-          <td class="nuevo">${mapa["Fibra_cruda"] || ''}</td>
-          <td class="nuevo">${element.estado}</td>
-          <td class="nuevo td__border__r">
-              <img src="/src/static/iconos/icon eye.svg" onclick="abrirModal('eye', ${element.id_alimento})" class="icon-eye">
-              <img src="/src/static/iconos/edit icon.svg" onclick="abrirModal('edit', ${element.id_alimento})" class="icon-edit">
-              <img src="/src/static/iconos/delete icon.svg" onclick="abrirModal('dele', ${element.id_alimento})" class="icon-delete">
-          </td>
-        </tr>
+    if (alimentosPagina.length === 0) {
+        contenido.innerHTML = `
+            <tr class="sin-alimentos">
+                <td colspan="9"><p>No hay Alimentos Disponibles</p></td>
+            </tr>`;
+        return;
+    }
 
-        <!-- Modal ver -->
-        <dialog class="dialog-icon-eye modal-info" id="modal-eye-${element.id_alimento}">
-          <div class="title-dialog">
-            <h2>Información del alimento</h2>
-            <hr>
-          </div>
-          <div class="modal-info-content">
-            <section class="modal-column">
-              <p>Nombre del alimento</p>
-              <input class="input__id" value="${element.nombre}" readonly>
-              <p>Proteína cruda (%)</p>
-              <input class="input__id" value="${mapa["Proteina_cruda"] || ''}" readonly>
-              <p>Materia seca (%)</p>
-              <input class="input__id" value="${mapa["Materia_seca"] || ''}" readonly>
-              <p>Energía metabolizable (Kcal/kg)</p>
-              <input class="input__id" value="${mapa["Energia_metabo"] || ''}" readonly>
-            </section>
+    alimentosPagina.forEach(element => {
+        const mapa = {};
+        element.elementos.forEach(e => {
+            mapa[e.nombre] = e.valor;
+        });
 
-            <section class="modal-column">
-              <p>Fibra cruda (%)</p>
-              <input class="input__id" value="${mapa["Fibra_cruda"] || ''}" readonly>
-              <p>Extracto etéreo (%)</p>
-              <input class="input__id" value="${mapa["Extracto_etereo"] || ''}" readonly>
-              <p>Calcio (%)</p>
-              <input class="input__id" value="${mapa["Calcio"] || ''}" readonly>
-              <p>Fósforo (%)</p>
-              <input class="input__id" value="${mapa["Fosforo"] || ''}" readonly>
-            </section>
-          </div>
-          <div class="modal-footer">
-            <button onclick="cerrarModal('eye', ${element.id_alimento})" class="btn">Cerrar</button>
-          </div>
-        </dialog>
-
-        <!-- Modal eliminar -->
-        <dialog class="dialog-icon-dele modal-info" id="modal-dele-${element.id_alimento}">
-          <div class="title-dialog">
-            <h2>Eliminar registro del alimento</h2>
-          </div>
-          <hr>
-          <p>Eliminar el registro sin saber si el alimento tiene trazabilidad puede alterar el sistema.  
-          Es preferible cambiar el estado del alimento a inactivo.</p>
-          <span>¿Está seguro que quiere eliminar este registro?</span>
-          <div class="container-button-dele1">
-            <button class="button-eliminar" onclick="eliminar_alimento(${element.id_alimento})">Eliminar</button>
-            <button class="button-cerrar" onclick="cerrarModal('dele', ${element.id_alimento})">Cancelar</button>
-          </div>
-        </dialog>
-      `;
-    });
-
-  } catch (error) {
-    console.error("Error al consultar alimento:", error);
-    Swal.fire({
-      icon: "error",
-      title: "Error inesperado",
-      text: "Ocurrió un problema al consultar el alimento.",
-      confirmButtonColor: "#d33",
-      customClass: { popup: "swal-elevado" }
-    });
-  }
-}
-
-function consulta_alimentos() {
-    const contenido = document.getElementById("contenido");
-    fetch(`${URL_BASE}/alimentos`, { method: "GET" })
-        .then(res => res.json())
-        .then(data => {
-            console.log(data)
-            contenido.innerHTML = "";
-            data.mensaje.forEach(element => {
-                const mapa = {};
-                element.elementos.forEach(e => {
-                    mapa[e.nombre] = e.valor;
-                });
-                contenido.innerHTML += `
-            <tr class="nuevo1">
-                <td class="nuevo td__border__l">
-                    <img class="svg__alimento" src="/src/static/iconos/logo alimentospng.png">
+        contenido.innerHTML += `
+            <tr class="nuevo1" id="alimento_tour">
+                <td class="nuevo td__border__l ">
+                    <img alt="logo de trigo" class="svg__alimento" src="/src/static/iconos/logo alimentospng.png">
                 </td>
                 <td class="nuevo">${element.id_alimento}</td>
                 <td class="nuevo">${element.nombre}</td>
+                <td class="nuevo">${mapa["Proteina_cruda"]}</td>
                 <td class="nuevo">${mapa["Materia_seca"]}</td>
                 <td class="nuevo">${mapa["Energia_metabo"]}</td>
-                <td class="nuevo">${mapa["Proteina_cruda"]}</td>
                 <td class="nuevo">${mapa["Fibra_cruda"]}</td>
                 <td class="nuevo">${element.estado}</td>
-                <td class="nuevo td__border__r">
-
-                    <!-- Abrir modal ver -->
-                    <img src="/src/static/iconos/icon eye.svg" 
-                         onclick="abrirModal('eye', ${element.id_alimento})" 
-                         class="icon-eye">
-
-                    <!-- Abrir modal editar -->
-                    <img src="/src/static/iconos/edit icon.svg"  
-                         onclick="abrirModal('edit', ${element.id_alimento})" 
-                         class="icon-edit">
-
-                    <!-- Abrir modal eliminar -->
-                    <img src="/src/static/iconos/delete icon.svg" 
-                         onclick="abrirModal('dele', ${element.id_alimento})" 
-                         class="icon-delete">
-
+                <td style="margin-bottom:2%;" class="nuevo td__border__r">
+                    <img alt="ver" src="/src/static/iconos/icon eye.svg" onclick="abrirModal('eye', ${element.id_alimento})" class="icon-eye">
+                    <img alt="editar" src="/src/static/iconos/edit icon.svg" onclick="abrirModal('edit', ${element.id_alimento})" class="icon-edit">
+                    <img alt="eliminar" src="/src/static/iconos/delete icon.svg" onclick="abrirModal('dele', ${element.id_alimento})" class="icon-delete">
                 </td>
             </tr>
-
-            <!-- Modal ver -->
-<dialog class="dialog-icon-eye modal-info" id="modal-eye-${element.id_alimento}">
+<!-- consulta ver -->
+<dialog  style="padding:10px;" class="dialog-icon-eye modal-info" id="modal-eye-${element.id_alimento}">
   <div class="title-dialog">
     <h2>Información del Alimento</h2>
     <hr>
@@ -2762,60 +2624,60 @@ function consulta_alimentos() {
 
   <div class="modal-info-content">
     <!-- Columna 1 -->
-    <section class="modal-column">
-      <p>Nombre del alimento</p>
-      <input class="input__id" value="${element.nombre}" readonly>
+    <section  class="modal-column">
+    <p>Nombre del alimento</p>
+    <input value="${element.nombre}" readonly>
 
       <p>Proteína cruda (%)</p>
-      <input class="input__id" value="${mapa['Proteina_cruda']}" readonly>
+      <input value="${mapa['Proteina_cruda']}" readonly>
 
       <p>Materia seca (%)</p>
-      <input class="input__id" value="${mapa['Materia_seca']}" readonly>
+      <input value="${mapa['Materia_seca']}" readonly>
 
       <p>Energía metabolizable (Kcal/kg)</p>
-      <input class="input__id" value="${mapa['Energia_metabo']}" readonly>
+      <input value="${mapa['Energia_metabo']}" readonly>
     </section>
 
     <!-- Columna 2 -->
     <section class="modal-column">
       <p>Fibra cruda (%)</p>
-      <input class="input__id" value="${mapa['Fibra_cruda']}" readonly>
+      <input value="${mapa['Fibra_cruda']}" readonly>
 
       <p>Extracto etéreo (%)</p>
-      <input class="input__id" value="${mapa['Extracto_etereo']}" readonly>
+      <input value="${mapa['Extracto_etereo']}" readonly>
 
       <p>Calcio (%)</p>
-      <input class="input__id" value="${mapa['Calcio']}" readonly>
+      <input value="${mapa['Calcio']}" readonly>
 
       <p>Fósforo (%)</p>
-      <input class="input__id" value="${mapa['Fosforo']}" readonly>
+      <input value="${mapa['Fosforo']}" readonly>
     </section>
 
     <!-- Columna 3 -->
     <section class="modal-column">
       <p>Sodio (%)</p>
-      <input class="input__id" value="${mapa['Sodio']}" readonly>
+      <input value="${mapa['Sodio']}" readonly>
 
       <p>Arginina (%)</p>
-      <input class="input__id" value="${mapa['Arginina']}" readonly>
+      <input value="${mapa['Arginina']}" readonly>
 
       <p>Lisina (%)</p>
-      <input class="input__id" value="${mapa['Lisina']}" readonly>
+      <input value="${mapa['Lisina']}" readonly>
 
-      <p>Treitona (%)</p>
-      <input class="input__id" value="${mapa['Treitona']}" readonly>
+      <p>Treonina (%)</p>
+      <input value="${mapa['Treonina']}" readonly>
     </section>
 
     <!-- Columna 4 -->
     <section class="modal-column">
       <p>Metionina (%)</p>
-      <input class="input__id" value="${mapa['Metionina']}" readonly>
+      <input class="input_id" value="${mapa['Metionina']}" readonly>
 
       <p>Metionina + Cisteína (%)</p>
-      <input class="input__id" value="${mapa['Metionina_Cisteina']}" readonly>
+      <input value="${mapa['Metionina_Cisteina']}" readonly>
 
       <p>Triptófano (%)</p>
-      <input class="input__id" value="${mapa['Triptofano']}" readonly>
+      <input value="${mapa['Triptofano']}" readonly>
     </section>
   </div>
 
@@ -2828,6 +2690,16 @@ function consulta_alimentos() {
 
 <!-- Modal editar -->
 <dialog class="dialog-icon-edit modal-info" id="modal-edit-${element.id_alimento}">
+
+  <!-- Botón X -->
+  <div class="container__btn__close">
+    <button 
+      type="button" 
+      class="btn__close" 
+      onclick="document.getElementById('modal-edit-${element.id_alimento}').close()"
+    >X</button>
+  </div>
+
   <div class="title-dialog">
     <h2>Editar Alimento</h2>
     <hr>
@@ -2835,108 +2707,181 @@ function consulta_alimentos() {
 
   <div class="modal-info-content">
     <!-- Columna 1 -->
-    <section class="modal-column">
+    <section style="padding:0 0 0 10px;" class="modal-column">
       <p>Nombre del alimento</p>
-      <input  id="edit-nombre-${element.id_alimento}" class="input__id" value="${element.nombre}">
+      <input id="edit-nombre-${element.id_alimento}" value="${element.nombre}">
 
       <p>Proteína cruda (%)</p>
-      <input type="number" id="edit-Proteina_cruda-${element.id_alimento}" class="input__id" value="${mapa['Proteina_cruda'] || ''}">
+      <input type="number" id="edit-Proteina_cruda-${element.id_alimento}" value="${mapa['Proteina_cruda'] || ''}">
 
       <p>Materia seca (%)</p>
-      <input type="number" id="edit-Materia_seca-${element.id_alimento}" class="input__id" value="${mapa['Materia_seca'] || ''}">
+      <input type="number" id="edit-Materia_seca-${element.id_alimento}" value="${mapa['Materia_seca'] || ''}">
 
       <p>Energía metabolizable (Kcal/kg)</p>
-      <input type="number" id="edit-Energia_metabo-${element.id_alimento}" class="input__id" value="${mapa['Energia_metabo'] || ''}">
+      <input type="number" id="edit-Energia_metabo-${element.id_alimento}" value="${mapa['Energia_metabo'] || ''}">
 
-            <p>Estado</p>
+      <p>Estado</p>
       <select id="edit-estado-${element.id_alimento}" class="input__id">
-        <option value="activo" ${element.estado === 'activo' ? 'selected' : ''}>Activo</option>
-        <option value="inactivo" ${element.estado === 'inactivo' ? 'selected' : ''}>Inactivo</option>
+        <option value="activo" ${element.estado?.toLowerCase() === 'activo' ? 'selected' : ''}>Activo</option>
+        <option value="inactivo" ${element.estado?.toLowerCase() === 'inactivo' ? 'selected' : ''}>Inactivo</option>
       </select>
+
     </section>
 
     <!-- Columna 2 -->
     <section class="modal-column">
       <p>Fibra cruda (%)</p>
-      <input type="number" id="edit-Fibra_cruda-${element.id_alimento}" class="input__id" value="${mapa['Fibra_cruda'] || ''}">
+      <input type="number" id="edit-Fibra_cruda-${element.id_alimento}" value="${mapa['Fibra_cruda'] || ''}">
 
       <p>Extracto etéreo (%)</p>
-      <input type="number" id="edit-Extracto_etereo-${element.id_alimento}" class="input__id" value="${mapa['Extracto_etereo'] || ''}">
+      <input type="number" id="edit-Extracto_etereo-${element.id_alimento}" value="${mapa['Extracto_etereo'] || ''}">
 
       <p>Calcio (%)</p>
-      <input type="number" id="edit-Calcio-${element.id_alimento}" class="input__id" value="${mapa['Calcio'] || ''}">
+      <input type="number" id="edit-Calcio-${element.id_alimento}" value="${mapa['Calcio'] || ''}">
 
       <p>Fósforo (%)</p>
-      <input type="number" id="edit-Fosforo-${element.id_alimento}" class="input__id" value="${mapa['Fosforo'] || ''}">
+      <input type="number" id="edit-Fosforo-${element.id_alimento}" value="${mapa['Fosforo'] || ''}">
     </section>
 
     <!-- Columna 3 -->
     <section class="modal-column">
       <p>Sodio (%)</p>
-      <input type="number" id="edit-Sodio-${element.id_alimento}" class="input__id" value="${mapa['Sodio'] || ''}">
+      <input type="number" id="edit-Sodio-${element.id_alimento}" value="${mapa['Sodio'] || ''}">
 
       <p>Arginina (%)</p>
-      <input type="number" id="edit-Arginina-${element.id_alimento}" class="input__id" value="${mapa['Arginina'] || ''}">
+      <input type="number" id="edit-Arginina-${element.id_alimento}" value="${mapa['Arginina'] || ''}">
 
       <p>Lisina (%)</p>
-      <input type="number" id="edit-Lisina-${element.id_alimento}" class="input__id" value="${mapa['Lisina'] || ''}">
+      <input type="number" id="edit-Lisina-${element.id_alimento}" value="${mapa['Lisina'] || ''}">
 
-      <p>Treitona (%)</p>
-      <input type="number" id="edit-Treitona-${element.id_alimento}" class="input__id" value="${mapa['Treitona'] || ''}">
+      <p>Treonina (%)</p>
+      <input type="number" id="edit-Treonina-${element.id_alimento}" value="${mapa['Treonina'] || ''}">
     </section>
 
     <!-- Columna 4 -->
-    <section class="modal-column">
+    <section style="padding:0 30px 0 0;" class="modal-column">
       <p>Metionina (%)</p>
-      <input type="number" id="edit-Metionina-${element.id_alimento}" class="input__id" value="${mapa['Metionina'] || ''}">
+      <input type="number" id="edit-Metionina-${element.id_alimento}" value="${mapa['Metionina'] || ''}">
 
       <p>Metionina + Cisteína (%)</p>
-      <input type="number" id="edit-Metionina_Cisteina-${element.id_alimento}" class="input__id" value="${mapa['Metionina_Cisteina'] || ''}">
+      <input type="number" id="edit-Metionina_Cisteina-${element.id_alimento}" value="${mapa['Metionina_Cisteina'] || ''}">
 
       <p>Triptófano (%)</p>
-      <input type="number" id="edit-Triptofano-${element.id_alimento}" class="input__id" value="${mapa['Triptofano'] || ''}">
+      <input type="number" id="edit-Triptofano-${element.id_alimento}" value="${mapa['Triptofano'] || ''}">
 
       <p>Imagen (opcional)</p>
-      <input  type="file" id="edit-imagen-${element.id_alimento}" class="input__id" accept="image/*">
+      <input type="file" id="edit-imagen-${element.id_alimento}" class="input__id" accept="image/*">
     </section>
   </div>
 
   <div class="modal-footer">
-    <button onclick="cerrarModal('edit', ${element.id_alimento})" class="btn">Cancelar</button>
+    <!-- Botón cancelar removido -->
     <button onclick="guardarCambios(${element.id_alimento})" class="btn">Guardar</button>
   </div>
-</dialog>
 
+</dialog>
 
 
 <!-- Modal eliminar -->
-<dialog class="dialog-icon-dele" id="modal-dele-${element.id_alimento}">
-  <div class="title-dialog">
-    <h2>Eliminar registro del alimento</h2>
-  </div>
-  <hr>
-  <p>Eliminar el registro sin saber si el alimento tiene trazabilidad puede alterar el sistema.  
-     Es preferible cambiar el estado del alimento a inactivo.</p>
-  <span>¿Está seguro que quiere eliminar este registro?</span>
-  <div class="container-button-dele1">
-    <button class="btn" onclick="eliminar_alimento(${element.id_alimento})">Eliminar</button>
-    <button class="btn" onclick="cerrarModal('dele', ${element.id_alimento})">Cancelar</button>
-  </div>
+<dialog style="padding:10px;" class="dialog-icon-dele" id="modal-dele-${element.id_alimento}">
+
+    <div class="container__btn__close">
+        <button 
+            type="button" 
+            class="btn__close" 
+            onclick="document.getElementById('modal-dele-${element.id_alimento}').close()"
+        >X</button>
+    </div>
+
+    <div class="title-dialog">
+        <h2>Eliminar registro del alimento</h2>
+    </div>
+
+    <hr>
+
+    <p>
+        Eliminar el registro sin saber si el alimento tiene trazabilidad puede alterar el sistema.
+        Es preferible cambiar el estado del alimento a inactivo.
+    </p>
+
+    <span>¿Está seguro que quiere eliminar este registro?</span>
+
+    <div class="container-button-dele">
+        <button class="btn" onclick="eliminar_alimento(${element.id_alimento})">Eliminar</button>
+    </div>
+
 </dialog>
-            `
-            });
-        })
+
+
+        `;
+    });
+    
+    if (page <= 1) {
+        prevPage.disabled = true;
+        prevPage.style.opacity = 0.5;
+        prevPage.style.cursor = "not-allowed";
+    } else {
+        prevPage.disabled = false;
+        prevPage.style.opacity = 1;
+        prevPage.style.cursor = "pointer";
+    }
+
+    if (page >= totalPages) {
+        nextPage.disabled = true;
+        nextPage.style.opacity = 0.5;
+        nextPage.style.cursor = "not-allowed";
+    } else {
+        nextPage.disabled = false;
+        nextPage.style.opacity = 1;
+        nextPage.style.cursor = "pointer";
+    }
+}
+
+
+// Eventos de botones
+prevPage.addEventListener('click', () => {
+    if (currentPage > 1) {
+        currentPage--;
+        mostrarPagina(currentPage);
+    }
+});
+
+nextPage.addEventListener('click', () => {
+    const totalPages = Math.ceil(alimentosData.length / itemsPerPage);
+    if (currentPage < totalPages) {
+        currentPage++;
+        mostrarPagina(currentPage);
+    }
+});
+
+consulta_alimentos()
 }
 
 function consulta_individual_alimento() {
     const nombre = document.getElementById("id_alimento").value;
     const contenido = document.getElementById("contenido");
+    const pagContainer = document.getElementById("paginacion_alimentos"); // contenedor de paginación
+    const pageInfo = document.getElementById("pageInfo"); // info de página
     contenido.innerHTML = "";
+
+    // Ocultar paginación y página cuando es búsqueda individual
+    pagContainer.style.display = "none";
+    pageInfo.innerText = "";
+
+    if (nombre === "") {
+        Swal.fire({
+            title: "Campo vacío",
+            text: "Por favor ingresa el nombre o ID del alimento.",
+            icon: "warning",
+            confirmButtonText: "OK"
+        });
+        return ver_alimentos(); // aquí volverá la paginación
+    }
 
     fetch(`${URL_BASE}/consulta_indi_alimento/${nombre}`)
         .then(res => res.json())
         .then(data => {
-            console.log("resultados;",data)
+            alimentos_totales.innerHTML = "";
             if (!data.mensaje) {
                 Swal.fire({
                     title: "Mensaje",
@@ -2945,7 +2890,7 @@ function consulta_individual_alimento() {
                     confirmButtonText: "OK"
                 }).then((result) => {
                     if (result.isConfirmed) {
-                        window.location.reload();
+                        ver_alimentos(); // aquí volverá la paginación
                     }
                 });
                 return;
@@ -2964,21 +2909,18 @@ function consulta_individual_alimento() {
                         <td class="nuevo td__border__l"><img class="svg__alimento" src="/src/static/iconos/logo alimentospng.png"></td>
                         <td class="nuevo">${element.id_alimento}</td>
                         <td class="nuevo">${element.nombre}</td>
+                        <td class="nuevo">${mapa["Proteina_cruda"] || ''}</td>
                         <td class="nuevo">${mapa["Materia_seca"] || ''}</td>
                         <td class="nuevo">${mapa["Energia_metabo"] || ''}</td>
-                        <td class="nuevo">${mapa["Proteina_cruda"] || ''}</td>
                         <td class="nuevo">${mapa["Fibra_cruda"] || ''}</td>
                         <td class="nuevo">${element.estado}</td>
                         <td class="nuevo td__border__r">
                             <img src="/src/static/iconos/icon eye.svg" onclick="abrirModal('eye', ${element.id_alimento})" class="icon-eye">
-                            <img src="/src/static/iconos/edit icon.svg" onclick="abrirModal('edit', ${element.id_alimento})" 
-                         class="icon-edit" class="icon-edit">
+                            <img src="/src/static/iconos/edit icon.svg" onclick="abrirModal('edit', ${element.id_alimento})" class="icon-edit">
                             <img src="/src/static/iconos/delete icon.svg" onclick="abrirModal('dele', ${element.id_alimento})" class="icon-delete">
                         </td>
                     </tr>
-
-                    <!-- Modal ver -->
-                   <dialog class="dialog-icon-eye modal-info" id="modal-eye-${element.id_alimento}">
+                   <dialog  style="padding:10px;" class="dialog-icon-eye modal-info" id="modal-eye-${element.id_alimento}">
   <div class="title-dialog">
     <h2>Información del Alimento</h2>
     <hr>
@@ -2986,60 +2928,60 @@ function consulta_individual_alimento() {
 
   <div class="modal-info-content">
     <!-- Columna 1 -->
-    <section class="modal-column">
-      <p>Nombre del alimento</p>
-      <input  class="input__id" value="${element.nombre}" readonly>
+    <section  class="modal-column">
+    <p>Nombre del alimento</p>
+    <input value="${element.nombre}" readonly>
 
       <p>Proteína cruda (%)</p>
-      <input type="number" class="input__id" value="${mapa['Proteina_cruda']}" readonly>
+      <input value="${mapa['Proteina_cruda']}" readonly>
 
       <p>Materia seca (%)</p>
-      <input type="number" class="input__id" value="${mapa['Materia_seca']}" readonly>
+      <input value="${mapa['Materia_seca']}" readonly>
 
       <p>Energía metabolizable (Kcal/kg)</p>
-      <input type="number" class="input__id" value="${mapa['Energia_metabo']}" readonly>
+      <input value="${mapa['Energia_metabo']}" readonly>
     </section>
 
     <!-- Columna 2 -->
     <section class="modal-column">
       <p>Fibra cruda (%)</p>
-      <input type="number" class="input__id" value="${mapa['Fibra_cruda']}" readonly>
+      <input value="${mapa['Fibra_cruda']}" readonly>
 
       <p>Extracto etéreo (%)</p>
-      <input type="number" class="input__id" value="${mapa['Extracto_etereo']}" readonly>
+      <input value="${mapa['Extracto_etereo']}" readonly>
 
       <p>Calcio (%)</p>
-      <input type="number" class="input__id" value="${mapa['Calcio']}" readonly>
+      <input value="${mapa['Calcio']}" readonly>
 
       <p>Fósforo (%)</p>
-      <input type="number" class="input__id" value="${mapa['Fosforo']}" readonly>
+      <input value="${mapa['Fosforo']}" readonly>
     </section>
 
     <!-- Columna 3 -->
     <section class="modal-column">
       <p>Sodio (%)</p>
-      <input type="number" class="input__id" value="${mapa['Sodio']}" readonly>
+      <input value="${mapa['Sodio']}" readonly>
 
       <p>Arginina (%)</p>
-      <input type="number" class="input__id" value="${mapa['Arginina']}" readonly>
+      <input value="${mapa['Arginina']}" readonly>
 
       <p>Lisina (%)</p>
-      <input type="number" class="input__id" value="${mapa['Lisina']}" readonly>
+      <input value="${mapa['Lisina']}" readonly>
 
-      <p>Treitona (%)</p>
-      <input type="number" class="input__id" value="${mapa['Treitona']}" readonly>
+      <p>Treonina (%)</p>
+      <input value="${mapa['Treonina']}" readonly>
     </section>
 
     <!-- Columna 4 -->
     <section class="modal-column">
       <p>Metionina (%)</p>
-      <input type="number" class="input__id" value="${mapa['Metionina']}" readonly>
+      <input class="input_id" value="${mapa['Metionina']}" readonly>
 
       <p>Metionina + Cisteína (%)</p>
-      <input type="number" class="input__id" value="${mapa['Metionina_Cisteina']}" readonly>
+      <input value="${mapa['Metionina_Cisteina']}" readonly>
 
       <p>Triptófano (%)</p>
-      <input type="number" class="input__id" value="${mapa['Triptofano']}" readonly>
+      <input value="${mapa['Triptofano']}" readonly>
     </section>
   </div>
 
@@ -3052,6 +2994,16 @@ function consulta_individual_alimento() {
 
 <!-- Modal editar -->
 <dialog class="dialog-icon-edit modal-info" id="modal-edit-${element.id_alimento}">
+
+  <!-- Botón X -->
+  <div class="container__btn__close">
+    <button 
+      type="button" 
+      class="btn__close" 
+      onclick="document.getElementById('modal-edit-${element.id_alimento}').close()"
+    >X</button>
+  </div>
+
   <div class="title-dialog">
     <h2>Editar Alimento</h2>
     <hr>
@@ -3059,91 +3011,111 @@ function consulta_individual_alimento() {
 
   <div class="modal-info-content">
     <!-- Columna 1 -->
-    <section class="modal-column">
+    <section style="padding:0 0 0 10px;" class="modal-column">
       <p>Nombre del alimento</p>
-      <input  id="edit-nombre-${element.id_alimento}" class="input__id" value="${element.nombre}">
+      <input id="edit-nombre-${element.id_alimento}" value="${element.nombre}">
 
       <p>Proteína cruda (%)</p>
-      <input type="number" id="edit-Proteina_cruda-${element.id_alimento}" class="input__id" value="${mapa['Proteina_cruda'] || ''}">
+      <input type="number" id="edit-Proteina_cruda-${element.id_alimento}" value="${mapa['Proteina_cruda'] || ''}">
 
       <p>Materia seca (%)</p>
-      <input type="number" id="edit-Materia_seca-${element.id_alimento}" class="input__id" value="${mapa['Materia_seca'] || ''}">
+      <input type="number" id="edit-Materia_seca-${element.id_alimento}" value="${mapa['Materia_seca'] || ''}">
 
       <p>Energía metabolizable (Kcal/kg)</p>
-      <input type="number" id="edit-Energia_metabo-${element.id_alimento}" class="input__id" value="${mapa['Energia_metabo'] || ''}">
+      <input type="number" id="edit-Energia_metabo-${element.id_alimento}" value="${mapa['Energia_metabo'] || ''}">
 
-            <p>Estado</p>
+      <p>Estado</p>
       <select id="edit-estado-${element.id_alimento}" class="input__id">
-        <option value="activo" ${element.estado === 'activo' ? 'selected' : ''}>Activo</option>
-        <option value="inactivo" ${element.estado === 'inactivo' ? 'selected' : ''}>Inactivo</option>
+        <option value="activo" ${element.estado?.toLowerCase() === 'activo' ? 'selected' : ''}>Activo</option>
+        <option value="inactivo" ${element.estado?.toLowerCase() === 'inactivo' ? 'selected' : ''}>Inactivo</option>
       </select>
+
     </section>
 
     <!-- Columna 2 -->
     <section class="modal-column">
       <p>Fibra cruda (%)</p>
-      <input type="number" id="edit-Fibra_cruda-${element.id_alimento}" class="input__id" value="${mapa['Fibra_cruda'] || ''}">
+      <input type="number" id="edit-Fibra_cruda-${element.id_alimento}" value="${mapa['Fibra_cruda'] || ''}">
 
       <p>Extracto etéreo (%)</p>
-      <input type="number" id="edit-Extracto_etereo-${element.id_alimento}" class="input__id" value="${mapa['Extracto_etereo'] || ''}">
+      <input type="number" id="edit-Extracto_etereo-${element.id_alimento}" value="${mapa['Extracto_etereo'] || ''}">
 
       <p>Calcio (%)</p>
-      <input type="number" id="edit-Calcio-${element.id_alimento}" class="input__id" value="${mapa['Calcio'] || ''}">
+      <input type="number" id="edit-Calcio-${element.id_alimento}" value="${mapa['Calcio'] || ''}">
 
       <p>Fósforo (%)</p>
-      <input type="number" id="edit-Fosforo-${element.id_alimento}" class="input__id" value="${mapa['Fosforo'] || ''}">
+      <input type="number" id="edit-Fosforo-${element.id_alimento}" value="${mapa['Fosforo'] || ''}">
     </section>
 
     <!-- Columna 3 -->
     <section class="modal-column">
       <p>Sodio (%)</p>
-      <input type="number" id="edit-Sodio-${element.id_alimento}" class="input__id" value="${mapa['Sodio'] || ''}">
+      <input type="number" id="edit-Sodio-${element.id_alimento}" value="${mapa['Sodio'] || ''}">
 
       <p>Arginina (%)</p>
-      <input type="number" id="edit-Arginina-${element.id_alimento}" class="input__id" value="${mapa['Arginina'] || ''}">
+      <input type="number" id="edit-Arginina-${element.id_alimento}" value="${mapa['Arginina'] || ''}">
 
       <p>Lisina (%)</p>
-      <input type="number" id="edit-Lisina-${element.id_alimento}" class="input__id" value="${mapa['Lisina'] || ''}">
+      <input type="number" id="edit-Lisina-${element.id_alimento}" value="${mapa['Lisina'] || ''}">
 
-      <p>Treitona (%)</p>
-      <input type="number" id="edit-Treitona-${element.id_alimento}" class="input__id" value="${mapa['Treitona'] || ''}">
+      <p>Treonina (%)</p>
+      <input type="number" id="edit-Treonina-${element.id_alimento}" value="${mapa['Treonina'] || ''}">
     </section>
 
     <!-- Columna 4 -->
-    <section class="modal-column">
+    <section style="padding:0 30px 0 0;" class="modal-column">
       <p>Metionina (%)</p>
-      <input type="number" id="edit-Metionina-${element.id_alimento}" class="input__id" value="${mapa['Metionina'] || ''}">
+      <input type="number" id="edit-Metionina-${element.id_alimento}" value="${mapa['Metionina'] || ''}">
 
       <p>Metionina + Cisteína (%)</p>
-      <input type="number" id="edit-Metionina_Cisteina-${element.id_alimento}" class="input__id" value="${mapa['Metionina_Cisteina'] || ''}">
+      <input type="number" id="edit-Metionina_Cisteina-${element.id_alimento}" value="${mapa['Metionina_Cisteina'] || ''}">
 
       <p>Triptófano (%)</p>
-      <input type="number" id="edit-Triptofano-${element.id_alimento}" class="input__id" value="${mapa['Triptofano'] || ''}">
+      <input type="number" id="edit-Triptofano-${element.id_alimento}" value="${mapa['Triptofano'] || ''}">
 
       <p>Imagen (opcional)</p>
-      <input  type="file" id="edit-imagen-${element.id_alimento}" class="input__id" accept="image/*">
+      <input type="file" id="edit-imagen-${element.id_alimento}" class="input__id" accept="image/*">
     </section>
   </div>
 
   <div class="modal-footer">
-    <button onclick="cerrarModal('edit', ${element.id_alimento})" class="btn">Cancelar</button>
+    <!-- Botón cancelar removido -->
     <button onclick="guardarCambios(${element.id_alimento})" class="btn">Guardar</button>
   </div>
+
 </dialog>
+
+
 <!-- Modal eliminar -->
-<dialog class="dialog-icon-dele" id="modal-dele-${element.id_alimento}">
-  <div class="title-dialog">
-    <h2>Eliminar registro del alimento</h2>
-  </div>
-  <hr>
-  <p>Eliminar el registro sin saber si el alimento tiene trazabilidad puede alterar el sistema.  
-     Es preferible cambiar el estado del alimento a inactivo.</p>
-  <span>¿Está seguro que quiere eliminar este registro?</span>
-  <div class="container-button-dele1">
-    <button class="button-eliminar" onclick="eliminar_alimento(${element.id_alimento})">Eliminar</button>
-    <button class="button-cerrar" onclick="cerrarModal('dele', ${element.id_alimento})">Cancelar</button>
-  </div>
+<dialog style="padding:10px;" class="dialog-icon-dele" id="modal-dele-${element.id_alimento}">
+
+    <div class="container__btn__close">
+        <button 
+            type="button" 
+            class="btn__close" 
+            onclick="document.getElementById('modal-dele-${element.id_alimento}').close()"
+        >X</button>
+    </div>
+
+    <div class="title-dialog">
+        <h2>Eliminar registro del alimento</h2>
+    </div>
+
+    <hr>
+
+    <p>
+        Eliminar el registro sin saber si el alimento tiene trazabilidad puede alterar el sistema.
+        Es preferible cambiar el estado del alimento a inactivo.
+    </p>
+
+    <span>¿Está seguro que quiere eliminar este registro?</span>
+
+    <div class="container-button-dele">
+        <button class="btn" onclick="eliminar_alimento(${element.id_alimento})">Eliminar</button>
+    </div>
+
 </dialog>
+
                 `;
             });
         })
@@ -3156,210 +3128,158 @@ function consulta_individual_alimento() {
                 confirmButtonText: "OK"
             }).then((result) => {
                 if (result.isConfirmed) {
-                  consulta_individual_alimento()
+                    consulta_individual_alimento()
                 }
             });
-            return;
         });
 }
 
 async function guardarCambios(id_alimento) {
-  const formData = new FormData();
+    const formData = new FormData();
 
-  const nombre = document.getElementById(`edit-nombre-${id_alimento}`).value.trim();
-  const estado = document.getElementById(`edit-estado-${id_alimento}`).value;
-  const imagen = document.getElementById(`edit-imagen-${id_alimento}`).files[0];
+    const nombre = document.getElementById(`edit-nombre-${id_alimento}`).value.trim();
+    const estado = document.getElementById(`edit-estado-${id_alimento}`).value;
+    const imagen = document.getElementById(`edit-imagen-${id_alimento}`).files[0];
 
-  const elementos = [
-    { id_elemento: 1,  valor: parseFloat(document.getElementById(`edit-Proteina_cruda-${id_alimento}`).value) || 0 },
-    { id_elemento: 2,  valor: parseFloat(document.getElementById(`edit-Fosforo-${id_alimento}`).value) || 0 },
-    { id_elemento: 3,  valor: parseFloat(document.getElementById(`edit-Treitona-${id_alimento}`).value) || 0 },
-    { id_elemento: 4,  valor: parseFloat(document.getElementById(`edit-Fibra_cruda-${id_alimento}`).value) || 0 },
-    { id_elemento: 5,  valor: parseFloat(document.getElementById(`edit-Sodio-${id_alimento}`).value) || 0 },
-    { id_elemento: 6,  valor: parseFloat(document.getElementById(`edit-Metionina-${id_alimento}`).value) || 0 },
-    { id_elemento: 7,  valor: parseFloat(document.getElementById(`edit-Materia_seca-${id_alimento}`).value) || 0 },
-    { id_elemento: 8,  valor: parseFloat(document.getElementById(`edit-Extracto_etereo-${id_alimento}`).value) || 0 },
-    { id_elemento: 9,  valor: parseFloat(document.getElementById(`edit-Arginina-${id_alimento}`).value) || 0 },
-    { id_elemento: 10, valor: parseFloat(document.getElementById(`edit-Metionina_Cisteina-${id_alimento}`).value) || 0 },
-    { id_elemento: 11, valor: parseFloat(document.getElementById(`edit-Energia_metabo-${id_alimento}`).value) || 0 },
-    { id_elemento: 12, valor: parseFloat(document.getElementById(`edit-Calcio-${id_alimento}`).value) || 0 },
-    { id_elemento: 13, valor: parseFloat(document.getElementById(`edit-Lisina-${id_alimento}`).value) || 0 },
-    { id_elemento: 14, valor: parseFloat(document.getElementById(`edit-Triptofano-${id_alimento}`).value) || 0 }
-  ];
+    const elementos = [
+        { id_elemento: 1, valor: parseFloat(document.getElementById(`edit-Proteina_cruda-${id_alimento}`).value) || 0 },
+        { id_elemento: 2, valor: parseFloat(document.getElementById(`edit-Fosforo-${id_alimento}`).value) || 0 },
+        { id_elemento: 3, valor: parseFloat(document.getElementById(`edit-Treonina-${id_alimento}`).value) || 0 },
+        { id_elemento: 4, valor: parseFloat(document.getElementById(`edit-Fibra_cruda-${id_alimento}`).value) || 0 },
+        { id_elemento: 5, valor: parseFloat(document.getElementById(`edit-Sodio-${id_alimento}`).value) || 0 },
+        { id_elemento: 6, valor: parseFloat(document.getElementById(`edit-Metionina-${id_alimento}`).value) || 0 },
+        { id_elemento: 7, valor: parseFloat(document.getElementById(`edit-Materia_seca-${id_alimento}`).value) || 0 },
+        { id_elemento: 8, valor: parseFloat(document.getElementById(`edit-Extracto_etereo-${id_alimento}`).value) || 0 },
+        { id_elemento: 9, valor: parseFloat(document.getElementById(`edit-Arginina-${id_alimento}`).value) || 0 },
+        { id_elemento: 10, valor: parseFloat(document.getElementById(`edit-Metionina_Cisteina-${id_alimento}`).value) || 0 },
+        { id_elemento: 11, valor: parseFloat(document.getElementById(`edit-Energia_metabo-${id_alimento}`).value) || 0 },
+        { id_elemento: 12, valor: parseFloat(document.getElementById(`edit-Calcio-${id_alimento}`).value) || 0 },
+        { id_elemento: 13, valor: parseFloat(document.getElementById(`edit-Lisina-${id_alimento}`).value) || 0 },
+        { id_elemento: 14, valor: parseFloat(document.getElementById(`edit-Triptofano-${id_alimento}`).value) || 0 }
+    ];
 
-  formData.append("nombre", nombre);
-  formData.append("estado", estado);
-  formData.append("elementos", JSON.stringify(elementos));
-  if (imagen) formData.append("imagen", imagen);
+    formData.append("nombre", nombre);
+    formData.append("estado", estado);
+    formData.append("elementos", JSON.stringify(elementos));
+    if (imagen) formData.append("imagen", imagen);
 
-  try {
-    const response = await fetch(`${URL_BASE}/actualizar_alimento/${id_alimento}`, {
-      method: "POST",
-      body: formData
-    });
+    try {
+        const response = await fetch(`${URL_BASE}/actualizar_alimento/${id_alimento}`, {
+            method: "POST",
+            body: formData
+        });
 
-    const data = await response.json();
+        const data = await response.json();
 
-    if (response.ok) {
-      if (data.imagen) {
-        const preview = document.getElementById(`preview-imagen-${id_alimento}`);
-        if (preview) preview.src = data.imagen + "?t=" + new Date().getTime();
-      }
+if (response.ok) {
+    // Guardar mensaje de éxito en localStorage
+    localStorage.setItem("swal_mensaje", JSON.stringify({
+        tipo: "success",
+        texto: "El alimento se actualizó exitosamente."
+    }));
+    
+    // Guardar modal a abrir
+    localStorage.setItem("modal_a_abrir", JSON.stringify({
+        tipo: "edit",
+        id: id_alimento
+    }));
 
-      cerrarModal("edit", id_alimento);
-      Swal.fire({
-        icon: "success",
-        title: "Actualizado correctamente",
-        text: "El alimento se actualizó exitosamente."
-      }).then(() => consulta_alimentos());
-    } else {
-      cerrarModal("edit", id_alimento);
-      Swal.fire({
-        icon: "error",
-        title: "Error",
-        text: data.error || "No se pudo actualizar el alimento."
-      }).then(() => abrirModal("edit", id_alimento));
-    }
-  } catch (error) {
-    console.error("Error al actualizar:", error);
-    cerrarModal("edit", id_alimento);
-    Swal.fire({
-      icon: "error",
-      title: "Error inesperado",
-      text: "Ocurrió un problema al intentar actualizar el alimento."
-    }).then(() => abrirModal("edit", id_alimento));
-  }
-}
-function abrirModal(tipo, id) {
-    document.getElementById(`modal-${tipo}-${id}`).showModal();
-}
-function cerrarModal(tipo, id) {
-    document.getElementById(`modal-${tipo}-${id}`).close();
-}
-async function eliminar_alimento(id) {
-  try {
-    const response = await fetch(`${URL_BASE}/eliminar_alimento/${id}`, { method: "DELETE" });
-    const data = await response.json();
-
-    cerrarModal("dele", id);
-
-    if (response.ok) {
-      setTimeout(() => {
-        Swal.fire({
-          icon: "success",
-          title: "Eliminado",
-          text: "El alimento se eliminó correctamente.",
-          confirmButtonColor: "#3085d6",
-          background: "#fff",
-          heightAuto: false
-        }).then(() => consulta_alimentos());
-      }, 200);
-    } else {
-      Swal.fire({
-        icon: "error",
-        title: "Error",
-        text: data.error || "No se pudo eliminar el alimento.",
-        confirmButtonColor: "#3085d6",
-        background: "#fff",
-        heightAuto: false
-      }).then(() => {
-        abrirModal("dele", id);
-      });
-    }
-  } catch (error) {
-    console.error("Error al eliminar:", error);
-    Swal.fire({
-      icon: "error",
-      title: "Error inesperado",
-      text: "Ocurrió un problema al eliminar el alimento.",
-      confirmButtonColor: "#3085d6",
-      background: "#fff",
-      heightAuto: false
-    }).then(() => {
-      abrirModal("dele", id);
-    });
-  }
+    // Refrescar para mostrar cambios
+    window.location.reload();
 }
 
-
-
-async function cargarAutocompletado() {
-  try {
-    const response = await fetch(`${URL_BASE}/alimentos`);
-    if (!response.ok) throw new Error("Error al obtener alimentos");
-
-    const data = await response.json();
-
-    // Aquí está el arreglo real
-    const alimentos = data.mensaje || [];
-
-    const lista = document.getElementById("lista_alimentos");
-    lista.innerHTML = "";
-
-    alimentos.forEach(alimento => {
-      const option = document.createElement("option");
-      option.value = alimento.nombre; // usa el campo correcto
-      lista.appendChild(option);
-    });
-
-  } catch (error) {
-    console.error("Error cargando autocompletado:", error);
-  }
-}
-function dietas() {
-    const alimentos_en_dieta = document.getElementById("alimentos_en_dieta");
-
-    fetch(`${URL_BASE}/alimentos_disponible`)
-        .then(res => {
-            if (!res.ok) throw new Error(`Error HTTP ${res.status}`);
-            return res.json();
-        })
-        .then(data => {
-            console.log(data);
-            alimentos_en_dieta.innerHTML = "";
-
-            if (!data.mensaje || data.mensaje.length === 0) {
-                Swal.fire({
-                    icon: "info",
-                    title: "Sin alimentos disponibles",
-                    text: "Actualmente no hay alimentos registrados o activos.",
-                    confirmButtonColor: "#3085d6"
-                });
-                alimentos_en_dieta.innerHTML = `
-                    <p class="sin-alimentos">No hay alimentos disponibles actualmente.</p>
-                `;
-                return;
-            }
-
-            data.mensaje.forEach(element => {
-                alimentos_en_dieta.innerHTML += `
-                    <div class="alimentos_dietas">
-                        <div class="imagen_alimento_dieta">
-                            <img src="${URL_BASE}${element.imagen}" 
-                                 onerror="this.onerror=null; this.src='/src/static/iconos/imagen no encontrada.svg'; this.classList.add('sin_imagen_alimento_dieta')" 
-                                 alt="no hay imagen">
-                        </div>
-                        <div class="descripcion_dietas">
-                            <p><strong>Nombre:</strong> ${element.nombre}</p>
-                            <p><strong>Cantidad (Kg):</strong></p>
-                            <input type="number" min="0" class="input_dietas" id="cantidad-${element.nombre}" placeholder="Cantidad">
-                        </div>
-                    </div>
-                `;
-            });
-        })
-        .catch(err => {
-            console.error(err);
+        else {
+            // Mostrar errores inmediatamente sin recargar
+            cerrarModal("edit", id_alimento);
             Swal.fire({
                 icon: "error",
-                title: "Error al cargar los alimentos",
-                text: "Ocurrió un problema al obtener los alimentos disponibles.",
-                confirmButtonColor: "#d33"
-            });
-            alimentos_en_dieta.innerHTML = `<p>Error al cargar los alimentos.</p>`;
-        });
+                title: "Error",
+                text: data.error || "No se pudo actualizar el alimento.",
+                heightAuto: false
+            }).then(() => abrirModal("edit", id_alimento));
+        }
+    } catch (error) {
+        console.error("Error al actualizar:", error);
+        cerrarModal("edit", id_alimento);
+        Swal.fire({
+            icon: "error",
+            title: "Error inesperado",
+            text: "Ocurrió un problema al intentar actualizar el alimento.",
+            heightAuto: false
+        }).then(() => abrirModal("edit", id_alimento));
+    }
 }
 
+
+
+async function eliminar_alimento(id) {
+    try {
+        const response = await fetch(`${URL_BASE}/eliminar_alimento/${id}`, { method: "DELETE" });
+        const data = await response.json();
+
+        cerrarModal("dele", id);
+
+        if (response.ok) {
+            setTimeout(() => {
+                Swal.fire({
+                    icon: "success",
+                    title: "Eliminado",
+                    text: "El alimento se eliminó correctamente.",
+                    confirmButtonColor: "#3085d6",
+                    background: "#fff",
+                    heightAuto: false
+                }).then(() => ver_alimentos());
+            }, 200);
+        } else {
+            Swal.fire({
+                icon: "error",
+                title: "Error",
+                text: data.error || "No se pudo eliminar el alimento.",
+                confirmButtonColor: "#3085d6",
+                background: "#fff",
+                heightAuto: false
+            }).then(() => {
+                abrirModal("dele", id);
+            });
+        }
+    } catch (error) {
+        console.error("Error al eliminar:", error);
+        Swal.fire({
+            icon: "error",
+            title: "Error inesperado",
+            text: "Ocurrió un problema al eliminar el alimento.",
+            confirmButtonColor: "#3085d6",
+            background: "#fff",
+            heightAuto: false
+        }).then(() => {
+            abrirModal("dele", id);
+        });
+    }
+}
+
+async function cargarAutocompletado() {
+    try {
+        const response = await fetch(`${URL_BASE}/alimentos`);
+        if (!response.ok) throw new Error("Error al obtener alimentos");
+
+        const data = await response.json();
+
+        // Aquí está el arreglo real
+        const alimentos = data.mensaje || [];
+
+        const lista = document.getElementById("lista_alimentos");
+        lista.innerHTML = "";
+
+        alimentos.forEach(alimento => {
+            const option = document.createElement("option");
+            option.value = alimento.nombre; // usa el campo correcto
+            lista.appendChild(option);
+        });
+
+    } catch (error) {
+        console.error("Error cargando autocompletado:", error);
+    }
+}
 
 function consulta_individual_alimento_disponible() {
     const nombre = document.getElementById("id_alimento").value.trim();
@@ -3370,7 +3290,7 @@ function consulta_individual_alimento_disponible() {
             icon: "warning",
             title: "Campo vacío",
             text: "Por favor, escribe el nombre del alimento antes de consultar.",
-            confirmButtonColor: "#f1c40f"
+            confirmButtonColor: "#008cffff"
         });
         return;
     }
@@ -3423,112 +3343,940 @@ function consulta_individual_alimento_disponible() {
             });
             alimentos_en_dieta.innerHTML = `<p>Error al consultar el alimento.</p>`;
         });
+}
+function crear_alimento() {
+    document.getElementById("formRegistrar").addEventListener("submit", function (e) {
+        e.preventDefault();
+
+        // Validación de números
+        const numeros = document.querySelectorAll('input[type="number"]');
+        for (let input of numeros) {
+            if (parseFloat(input.value) < 0) {
+                Swal.fire({
+                    title: "Valor inválido",
+                    text: "No se permiten números negativos.",
+                    icon: "warning",
+                    confirmButtonText: "Entendido",
+                    heightAuto: false
+                });
+                return;
+            }
+        }
+
+        const formData = new FormData();
+        const imagen = document.getElementById("imagen").files[0];
+        if (imagen) formData.append("imagen", imagen);
+
+        formData.append("nombre_alimento", document.getElementById("nombre").value);
+
+        const elementos = [
+            { id: 1, valor: parseFloat(document.getElementById("proteina_cruda").value) || 0 },
+            { id: 2, valor: parseFloat(document.getElementById("fosforo").value) || 0 },
+            { id: 3, valor: parseFloat(document.getElementById("treonina").value) || 0 },
+            { id: 4, valor: parseFloat(document.getElementById("fibra_cruda").value) || 0 },
+            { id: 5, valor: parseFloat(document.getElementById("sodio").value) || 0 },
+            { id: 6, valor: parseFloat(document.getElementById("metionina").value) || 0 },
+            { id: 7, valor: parseFloat(document.getElementById("materia_seca").value) || 0 },
+            { id: 8, valor: parseFloat(document.getElementById("extracto_etereo").value) || 0 },
+            { id: 9, valor: parseFloat(document.getElementById("arginina").value) || 0 },
+            { id: 10, valor: parseFloat(document.getElementById("metionina_cisteina").value) || 0 },
+            { id: 11, valor: parseFloat(document.getElementById("energia_m").value) || 0 },
+            { id: 12, valor: parseFloat(document.getElementById("calcio").value) || 0 },
+            { id: 13, valor: parseFloat(document.getElementById("lisina").value) || 0 },
+            { id: 14, valor: parseFloat(document.getElementById("triptofano").value) || 0 }
+        ];
+
+        formData.append("elementos", JSON.stringify(elementos));
+
+        fetch(`${URL_BASE}/registrar_alimento/`, {
+            method: "POST",
+            body: formData
+        })
+        .then(async res => await res.json())
+        .then(res => {
+            if (res.mensaje) {
+                // Guardar mensaje de éxito en localStorage antes de recargar
+                localStorage.setItem("swal_mensaje", JSON.stringify({
+                    tipo: "success",
+                    texto: res.mensaje
+                }));
+                // Refrescar solo si se creó correctamente
+                window.location.reload();
+            } else if (res.error) {
+                // Mostrar errores inmediatamente sin recargar
+                Swal.fire({
+                    title: "Error",
+                    text: res.error,
+                    icon: "error",
+                    heightAuto: false
+                });
+            }
+        })
+        .catch(err => {
+            Swal.fire({
+                title: "Error",
+                text: "Ocurrió un problema al registrar el alimento.",
+                icon: "error",
+                heightAuto: false
+            });
+        });
+    });
+}
+
+function abrirModal(tipo, id) {
+    document.getElementById(`modal-${tipo}-${id}`).showModal();
+}
+function cerrarModal(tipo, id) {
+    document.getElementById(`modal-${tipo}-${id}`).close();
+}
+
+
+// -------------------------dietas----------------------
+// -------------------------------------------------------
+// -------------------------------------------------------
+
+function dietas() {
+    const alimentos_en_dieta = document.getElementById("alimentos_en_dieta");
+
+    fetch(`${URL_BASE}/alimentos_disponible`)
+        .then(res => {
+            if (!res.ok) throw new Error(`Error HTTP ${res.status}`);
+            return res.json();
+        })
+        .then(data => {
+            alimentos_en_dieta.innerHTML = "";
+
+            if (!data.mensaje || data.mensaje.length === 0) {
+                Swal.fire({
+                    icon: "info",
+                    title: "Sin alimentos disponibles",
+                    text: "Actualmente no hay alimentos registrados o activos.",
+                    confirmButtonColor: "#3085d6"
+                });
+                alimentos_en_dieta.innerHTML = `
+                    <p class="sin-alimentos">No hay alimentos disponibles actualmente.</p>
+                `;
+                return;
+            }
+
+            data.mensaje.forEach(element => {
+                console.log(element);
+
+                const mapa = {};
+                if (Array.isArray(element.elementos)) {
+                    element.elementos.forEach(n => {
+                        mapa[n.nombre] = n.valor;
+                    });
+                }
+
+                alimentos_en_dieta.innerHTML += `
+<dialog class="dialog-icon-eye modal-info" id="modal-eye-${element.id_alimento}">
+  <div class="title-dialog">
+    <h2>Información del Alimento</h2>
+    <hr>
+  </div>
+
+  <div class="modal-info-content">
+
+    <!-- Columna 1 -->
+    <section class="modal-column">
+      <p>Nombre del alimento</p>
+      <input value="${element.nombre}" readonly>
+
+      <p>Proteína cruda (%)</p>
+      <input value="${mapa.Proteina_cruda ?? ''}" readonly>
+
+      <p>Materia seca (%)</p>
+      <input value="${mapa.Materia_seca ?? ''}" readonly>
+
+      <p>Energía metabolizable (Kcal/kg)</p>
+      <input value="${mapa.Energia_metabo ?? ''}" readonly>
+    </section>
+
+    <!-- Columna 2 -->
+    <section class="modal-column">
+      <p>Fibra cruda (%)</p>
+      <input value="${mapa.Fibra_cruda ?? ''}" readonly>
+
+      <p>Extracto etéreo (%)</p>
+      <input value="${mapa.Extracto_etereo ?? ''}" readonly>
+
+      <p>Calcio (%)</p>
+      <input value="${mapa.Calcio ?? ''}" readonly>
+
+      <p>Fósforo (%)</p>
+      <input value="${mapa.Fosforo ?? ''}" readonly>
+    </section>
+
+    <!-- Columna 3 -->
+    <section class="modal-column">
+      <p>Sodio (%)</p>
+      <input value="${mapa.Sodio ?? ''}" readonly>
+
+      <p>Arginina (%)</p>
+      <input value="${mapa.Arginina ?? ''}" readonly>
+
+      <p>Lisina (%)</p>
+      <input value="${mapa.Lisina ?? ''}" readonly>
+
+      <p>Treonina (%)</p>
+      <input value="${mapa.Treonina ?? ''}" readonly>
+    </section>
+
+    <!-- Columna 4 -->
+    <section class="modal-column">
+      <p>Metionina (%)</p>
+      <input value="${mapa.Metionina ?? ''}" readonly>
+
+      <p>Metionina + Cisteína (%)</p>
+      <input value="${mapa.Metionina_Cisteina ?? ''}" readonly>
+
+      <p>Triptófano (%)</p>
+      <input value="${mapa.Triptofano ?? ''}" readonly>
+    </section>
+
+  </div>
+
+  <div class="modal-footer">
+    <button onclick="cerrarModal('eye', ${element.id_alimento})" class="btn">
+      Cerrar
+    </button>
+  </div>
+</dialog>
+
+<!-- Tarjeta del alimento -->
+<div class="alimentos_dietas">
+
+    <!-- CÍRCULO SUPERIOR IZQUIERDO -->
+    <div class="circulo-seleccion" onclick="toggleInput(${element.id_alimento})"></div>
+
+    <div class="imagen_alimento_dieta">
+        <img id="imagen_dietas" src="${URL_BASE}${element.imagen}" 
+             onclick="abrirModal('eye', ${element.id_alimento})"
+             onerror="this.onerror=null; this.src='/src/static/iconos/imagen no encontrada.svg'; this.classList.add('sin_imagen_alimento_dieta')"
+             alt="no hay imagen" style="cursor:pointer;">
+    </div>
+
+    <div class="descripcion_dietas">
+        <p><strong>Nombre:</strong> ${element.nombre}</p>
+        <p><strong>Cantidad (Kg):</strong></p>
+
+        <input type="number" min="0" class="input_dietas"
+               data-id="${element.id_alimento}"
+               id="cantidad-${element.id_alimento}"
+               placeholder="Cantidad"
+               disabled>
+    </div>
+</div>
+                `;
+            });
+        })
+        .catch(err => {
+            console.error(err);
+            Swal.fire({
+                icon: "error",
+                title: "Error al cargar los alimentos",
+                text: "Ocurrió un problema al obtener los alimentos disponibles.",
+                confirmButtonColor: "#d33"
+            });
+            alimentos_en_dieta.innerHTML = `<p>Error al cargar los alimentos.</p>`;
+        });
+}
+
+function toggleInput(id) {
+    const input = document.getElementById(`cantidad-${id}`);
+    const boton = event.target;
+
+    if (input.disabled) {
+        input.disabled = false;
+        boton.classList.add("activo");
+    } else {
+        input.disabled = true;
+        input.value = "";
+        boton.classList.remove("activo");
+    }
+}
+
+function verAlimentosSeleccionados() {
+    const checkbox = document.getElementById("check1");
+    const contenedor = document.getElementById("alimentos_en_dieta");
+    const mostrarSeleccionados = checkbox.checked;
+
+    const tarjetas = contenedor.querySelectorAll(".alimentos_dietas");
+    tarjetas.forEach(tarjeta => {
+        const circulo = tarjeta.querySelector(".circulo-seleccion");
+
+        if (mostrarSeleccionados) {
+            // Mostrar solo si el usuario activó el círculo
+            tarjeta.style.display = circulo.classList.contains("activo") ? "flex" : "none";
+        } else {
+            // Mostrar todas las tarjetas
+            tarjeta.style.display = "flex";
+        }
+    });
+}
+function rellenar_etapa_vida_en_dietas() {
+    fetch(`${URL_BASE}/etapa_vida`)
+        .then(res => res.json())
+        .then(data => {
+            const select = document.getElementById('select-etapas');
+
+            if (data.etapas && data.etapas.length > 0) {
+                data.etapas.forEach(etapa => {
+                    const option = document.createElement('option');
+                    option.value = etapa.id_etapa;      // valor del select = id de la etapa
+                    option.textContent = etapa.nombre;  // texto visible = nombre de la etapa
+                    select.appendChild(option);
+                });
+            }
+        })
+        .catch(err => console.error("Error al cargar las etapas:", err));
+    document.getElementById("select-etapas").addEventListener("change", function () {
+
+        const idEtapa = this.value;
+
+        fetch(`${URL_BASE}/etapa_vida`)
+            .then(res => res.json())
+            .then(data => {
+
+                const etapa = data.etapas.find(e => e.id_etapa == idEtapa);
+                if (!etapa) return;
+
+                const req = etapa.requerimientos || [];
+
+                // función para buscar el porcentaje
+                function getValor(nombre) {
+                    const item = req.find(r => r.nombre_elemento.toLowerCase() === nombre.toLowerCase());
+                    return item ? item.porcentaje : "0";
+                }
+
+                // Primera columna
+                document.getElementById("materia_seca").textContent = getValor("Materia_seca");
+                document.getElementById("energia_metabolizable").textContent =
+                    getValor("Energia_metabo"); // así viene del backend
+                document.getElementById("proteina_cruda").textContent = getValor("Proteina_cruda");
+                document.getElementById("fibra_cruda").textContent = getValor("Fibra_cruda");
+                document.getElementById("extracto_etereo").textContent = getValor("Extracto_etereo");
+                document.getElementById("calcio").textContent = getValor("Calcio");
+                document.getElementById("fosforo_disponible").textContent = getValor("Fosforo");
+
+                // Segunda columna
+                document.getElementById("sodio").textContent = getValor("Sodio");
+                document.getElementById("arginina").textContent = getValor("Arginina");
+                document.getElementById("lisina").textContent = getValor("Lisina");
+                document.getElementById("treonina").textContent = getValor("Treonina");
+                document.getElementById("metionina").textContent = getValor("Metionina");
+                document.getElementById("metionina_cistenina").textContent =
+                    getValor("Metionina_Cisteina"); // así viene en tu JSON
+                document.getElementById("triptofano").textContent = getValor("Triptofano");
+            })
+            .catch(err => console.error("Error:", err));
+    });
+
+}
+function ver_dietas(){
+    // Variables globales para paginación
+let dietasData = [];       // Aquí guardamos todas las dietas
+let currentPage = 1;       // Página actual
+const itemsPerPage = 3;    // Dietas por página
+
+// Función para consultar todas las dietas
+function consulta_dietas() {
+    fetch(`${URL_BASE}/dieta`, { method: "GET" })
+        .then(res => res.json())
+        .then(data => {
+            dietasData = data.mensaje; // Guardamos todas las dietas
+            mostrarPagina(1);          // Mostramos la primera página
+        })
+        .catch(err => {
+            console.error(err);
+            document.getElementById("contenido").innerHTML = `<tr><td colspan="7">Error al cargar las dietas</td></tr>`;
+        });
+}
+
+// Función para mostrar una página específica
+function mostrarPagina(page) {
+    const contenido = document.getElementById("contenido");
+    const Dietas_totales = document.getElementById("Dietas_totales");
+
+    const totalPages = Math.ceil(dietasData.length / itemsPerPage);
+
+    // Ajustar página si está fuera de rango
+    if (page < 1) page = 1;
+    if (page > totalPages) page = totalPages;
+    currentPage = page;
+
+        
+    // Calcular índices
+    const start = (page - 1) * itemsPerPage;
+    const end = start + itemsPerPage;
+    const dietasPagina = dietasData.slice(start, end);
+
+    contenido.innerHTML = "";
+
+ dietasPagina.forEach(dieta => {
+    contenido.innerHTML += `
+        <tr class="nuevo1">
+            <td class="nuevo td__border__l"><img class="svg__alimento" src="/src/static/iconos/ramen 1.svg"></td>
+            <td class="nuevo">${dieta.id_dieta}</td>
+            <td class="nuevo">${dieta.usuario}</td>
+            <td class="nuevo">${dieta.etapa_vida}</td>
+            <td class="nuevo">${dieta.fecha_creacion}</td>
+            <td class="nuevo">${dieta.estado}</td>
+            <td class="nuevo td__border__r">
+                <img src="/src/static/iconos/icon eye.svg" onclick="abrirVerDieta(${dieta.id_dieta})" class="icon-eye">
+                <img src="/src/static/iconos/edit icon.svg" onclick="abrirEditarDieta(${dieta.id_dieta})" class="icon-edit">
+
+                <!-- AQUI LLAMAS AL MODAL -->
+                <img src="/src/static/iconos/delete icon.svg" onclick="abrirModalEliminarDieta(${dieta.id_dieta})" class="icon-delete">
+            </td>
+        </tr>
+
+        <!-- MODAL ELIMINAR -->
+<dialog style="padding:10px;" class="dialog-icon-dele" id="modal-dele-dieta-${dieta.id_dieta}">
+
+    <!-- Botón X -->
+    <div class="container__btn__close">
+        <button 
+            type="button" 
+            class="btn__close" 
+            onclick="document.getElementById('modal-dele-dieta-${dieta.id_dieta}').close()"
+        >X</button>
+    </div>
+
+    <div class="title-dialog">
+        <h2>Eliminar dieta</h2>
+    </div>
+
+    <hr>
+
+    <p>
+        Si elimina esta dieta, también se eliminarán sus alimentos asociados.
+        eliminar una dieta si tiene trazabilidad puede generar problemas, lo mejor seria desactivarlo
+    </p>
+
+    <span>¿Está seguro que quiere eliminar esta dieta?</span>
+
+    <div class="container-button-dele">
+        <button class="btn" onclick="abrirModalconfirmacionEliminarDieta(${dieta.id_dieta})">Eliminar</button>
+        <!-- Botón Cancelar removido -->
+    </div>
+
+</dialog>
+<dialog id="modal-confirm-dele-dieta-${dieta.id_dieta}" class="dialog-icon-dele">
+    <div class="container__btn__close">
+        <button type="button" class="btn__close" 
+            onclick="document.getElementById('modal-confirm-dele-dieta-${dieta.id_dieta}').close()">X</button>
+    </div>
+
+    <form class="container__items__dialogs" id="form-delete-confirm-${dieta.id_dieta}">
+        <div class="title-dialog">
+            <h2>Confirmar la Eliminación de la Dieta</h2>
+            <hr>
+        </div>
+
+        <div id="delete-content-confirm-${dieta.id_dieta}" class="info-delete">
+            <p>Escriba el ID "${dieta.id_dieta}" de la dieta y presione eliminar si así lo desea: le recuerdo eliminar una dieta si tiene trazabilidad puede generar problemas, lo mejor seria desactivarlo</p>
+            <input id="input-eliminar-${dieta.id_dieta}" class="input__add__por" 
+                type="number" oninput="this.value = Math.abs(this.value)" 
+                placeholder="Ingrese el ID">
+        </div>
+
+        <div class="container-button-close">
+            <button type="submit" onclick="confirmar(${dieta.id_dieta})" class="button-guardar">
+                Eliminar
+            </button>
+        </div>
+    </form>
+</dialog>
+
+    `;
+});
+
+
+    // Actualizar contador
+    Dietas_totales.innerHTML = `Dietas Totales: ${dietasData.length}`;
+
+    // Actualizar info de paginación
+    document.getElementById("pageInfo").innerText = `Página ${currentPage} de ${totalPages}`;
+
+    // Bloquear botones si estamos en límites
+    document.getElementById("prevPage").style.opacity = (currentPage === 1) ? 0.5 : 1;
+    document.getElementById("nextPage").style.opacity = (currentPage === totalPages) ? 0.5 : 1;
+}
+
+// Funciones para botones de paginación
+document.getElementById("prevPage").addEventListener("click", () => {
+    if (currentPage > 1) mostrarPagina(currentPage - 1);
+});
+
+document.getElementById("nextPage").addEventListener("click", () => {
+    const totalPages = Math.ceil(dietasData.length / itemsPerPage);
+    if (currentPage < totalPages) mostrarPagina(currentPage + 1);
+});
+
+// Inicializar la consulta al cargar la página
+consulta_dietas();
+
+}
+function abrirVerDieta(id_dieta) {
+    localStorage.setItem("dieta_a_ver", id_dieta); // Guardamos el ID
+    window.location.href = "ver_dietas.html";    // Redirigimos a la página de solo lectura
+}
+function abrirEditarDieta(id_dieta) {
+    localStorage.setItem("dieta_a_modificar", id_dieta); // Guardamos el ID
+    window.location.href = "edit_dietas.html";    // Redirigimos a la página de solo lectura
+}
+
+function consulta_individual_dieta() {
+    const contenido = document.getElementById("contenido");
+    const Dietas_totales = document.getElementById("Dietas_totales");
+    const id = document.getElementById("input_id").value.trim();
+
+    // Validación 1: campo vacío
+    if (id === "") {
+        Swal.fire("Error", "Por favor ingrese un ID de dieta.", "warning");
+        return;
     }
 
-function timesleep(){
-   let tiempoInactividad;
-let tiempoCierre;
-let cuentaRegresiva = 30;
-let modalAbierto = false; // bandera para saber si el modal está abierto
+    fetch(`${URL_BASE}/dieta/${id}`, { method: "GET" })
+        .then(res => res.json())
+        .then(data => {
 
-function iniciarTemporizador() {
-  tiempoInactividad = setTimeout(() => {
-    mostrarAlerta();
-  }, 1200000); 
+            // Validación 2: dieta no encontrada
+            if (!data.mensaje) {
+                Swal.fire("No encontrado", "No existe una dieta con ese ID.", "error");
+                // NO modificar tabla
+                return;
+            }
+
+            // Si existe → render normal
+            const dieta = data.mensaje;
+
+            contenido.innerHTML = `
+ <tr class="nuevo1">
+            <td class="nuevo td__border__l"><img class="svg__alimento" src="/src/static/iconos/ramen 1.svg"></td>
+            <td class="nuevo">${dieta.id_dieta}</td>
+            <td class="nuevo">${dieta.usuario}</td>
+            <td class="nuevo">${dieta.etapa_vida}</td>
+            <td class="nuevo">${dieta.fecha_creacion}</td>
+            <td class="nuevo">${dieta.estado}</td>
+            <td class="nuevo td__border__r">
+                <img src="/src/static/iconos/icon eye.svg" onclick="abrirVerDieta(${dieta.id_dieta})" class="icon-eye">
+                <img src="/src/static/iconos/edit icon.svg" onclick="abrirModalDieta(${dieta.id_dieta})" class="icon-edit">
+
+                <!-- AQUI LLAMAS AL MODAL -->
+                <img src="/src/static/iconos/delete icon.svg" onclick="abrirModalEliminarDieta(${dieta.id_dieta})" class="icon-delete">
+            </td>
+        </tr>
+
+        <!-- MODAL ELIMINAR -->
+<dialog style="padding:10px;" class="dialog-icon-dele" id="modal-dele-dieta-${dieta.id_dieta}">
+
+    <!-- Botón X -->
+    <div class="container__btn__close">
+        <button 
+            type="button" 
+            class="btn__close" 
+            onclick="document.getElementById('modal-dele-dieta-${dieta.id_dieta}').close()"
+        >X</button>
+    </div>
+
+    <div class="title-dialog">
+        <h2>Eliminar dieta</h2>
+    </div>
+
+    <hr>
+
+    <p>
+        Si elimina esta dieta, también se eliminarán sus alimentos asociados.
+    </p>
+
+    <span>¿Está seguro que quiere eliminar esta dieta?</span>
+
+    <div class="container-button-dele">
+        <button class="btn" onclick="eliminarDieta(${dieta.id_dieta})">Eliminar</button>
+        <!-- Botón Cancelar removido -->
+    </div>
+
+</dialog>
+            `;
+
+            Dietas_totales.innerHTML = "";
+        })
+        .catch(err => {
+            console.error(err);
+            // Validación 3: fallo de servidor
+            Swal.fire("Error", "Hubo un problema al consultar la dieta.", "error");
+            // NO modificar tabla
+        });
 }
 
-function mostrarAlerta() {
-  modalAbierto = true; // modal abierto
-  cuentaRegresiva = 30;
+function guardarDieta() {
+    const id_usuario = 3; // reemplaza con el usuario logueado
+    const id_etapa_vida = document.getElementById("select-etapas").value;
 
-  Swal.fire({
-  title: 'mucho tiempo de inactividad, ¿sigues aquí?',
-  html: `<p>Tu sesión se cerrará en <b id="contador">${cuentaRegresiva}</b> segundos.</p>`,
-  imageUrl: '/src/static/iconos/cerdito.sueño.png',   
-  imageWidth: 200,                  
-  imageHeight: 200,                  
-  imageAlt: 'Cerdito con sueño 😴', 
-  showCancelButton: true,
-  confirmButtonText: 'Sí, continuar',
-  cancelButtonText: 'Cerrar sesión',
-    allowOutsideClick: false,
-    allowEscapeKey: false,
-    didOpen: () => {
-      const contadorElem = Swal.getHtmlContainer().querySelector('#contador');
+    function mostrarError(mensaje) {
+        Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: mensaje,
+            confirmButtonText: 'Aceptar',
+            position: 'center',
+            backdrop: 'rgba(0,0,0,0.8)' // más opaco
+        });
+    }
 
-      tiempoCierre = setInterval(() => {
-        cuentaRegresiva--;
-        contadorElem.textContent = cuentaRegresiva;
+    // Validar etapa de vida
+    if (!id_etapa_vida) {
+        mostrarError("Debes seleccionar la etapa de vida");
+        return;
+    }
 
-        if (cuentaRegresiva <= 0) {
-          clearInterval(tiempoCierre);
-          Swal.close();
-          modalAbierto = false;
-          cerrarSesion();
+    // Recopilar alimentos con cantidad
+    const alimentos = [];
+    document.querySelectorAll(".input_dietas").forEach(input => {
+        const cantidad = parseFloat(input.value);
+        if (!isNaN(cantidad) && cantidad > 0) {
+            alimentos.push({
+                id_alimento: parseInt(input.dataset.id),
+                cantidad: cantidad
+            });
         }
-      }, 1000);
+    });
 
-      // Eventos de los botones
-      const confirmButton = Swal.getConfirmButton();
-      const cancelButton = Swal.getCancelButton();
+    if (alimentos.length === 0) {
+        mostrarError("Debes ingresar al menos un alimento con cantidad");
+        return;
+    }
 
-      confirmButton.addEventListener('click', () => {
-        clearInterval(tiempoCierre);
-        Swal.close();
-        modalAbierto = false;
-        reiniciarInactividad();
-      });
+    // Enviar datos al backend
+    fetch(`${URL_BASE}/crear_dieta`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+            id_usuario,
+            id_etapa_vida,
+            descripcion: "",
+            alimentos
+        })
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.error) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: data.error,
+                confirmButtonText: 'Aceptar',
+                position: 'center',
+                backdrop: 'rgba(0,0,0,0.8)'
+            });
+        } else {
+            Swal.fire({
+                icon: 'success',
+                title: 'Éxito',
+                text: 'Dieta creada correctamente',
+                confirmButtonText: 'Aceptar',
+                position: 'center',
+                backdrop: 'rgba(0,0,0,0.8)'
+            }).then(() => {
+                // Redirigir al hacer click en Aceptar
+                window.location.href = 'gestionar_dietas.html';
+            });
 
-      cancelButton.addEventListener('click', () => {
-        clearInterval(tiempoCierre);
-        Swal.close();
-        modalAbierto = false;
-        cerrarSesion();
-      });
-    },
-  });
+            console.log("Mezcla nutricional:", data.mezcla_nutricional);
+        }
+    })
+    .catch(err => {
+        console.error(err);
+        Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: "No se pudo guardar la dieta",
+            confirmButtonText: 'Aceptar',
+            position: 'center',
+            backdrop: 'rgba(0,0,0,0.8)'
+        });
+    });
 }
 
-function cerrarSesion() {
-  Swal.fire({
-    icon: 'info',
-    title: 'Sesión cerrada',
-    text: 'Tu sesión fue cerrada por inactividad.',
-    timer: 2000,
-    showConfirmButton: false
-  }).then(() => {
-    window.location.href = '/src/templates/index.html';
-  });
+function eliminarDieta(id_dieta) {
+            fetch(`${URL_BASE}/eliminar_dieta/${id_dieta}`, {
+                method: "DELETE"
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.mensaje) {
+
+                    // Éxito
+                    Swal.fire({
+                        icon: "success",
+                        title: "Dieta eliminada correctamente",
+                        confirmButtonText: "Aceptar"
+                    });
+                    ver_dietas()
+                } else {
+                    // Error controlado del backend
+                    Swal.fire({
+                        icon: "error",
+                        title: "Error al eliminar",
+                        text: data.error || "No se pudo eliminar la dieta.",
+                    });
+                }
+            })
+            .catch(err => {
+                // Error de conexión
+                Swal.fire({
+                    icon: "error",
+                    title: "Error de conexión",
+                    text: "No se pudo comunicar con el servidor."
+                });
+                console.error("Error en la petición:", err);
+            });
+        
+    
 }
 
-function reiniciarInactividad() {
-  if (!modalAbierto) {
-    clearTimeout(tiempoInactividad);
-    iniciarTemporizador();
-  }
+function abrirModalEliminarDieta(id) {
+    const modal = document.getElementById(`modal-dele-dieta-${id}`);
+    if (modal) modal.showModal();
+}
+function abrirModalconfirmacionEliminarDieta(id) {
+    const modal = document.getElementById(`modal-confirm-dele-dieta-${id}`);
+    if (modal) modal.showModal();
 }
 
-window.onload = iniciarTemporizador;
-document.onmousemove = reiniciarInactividad;
-document.onkeydown = reiniciarInactividad;
-document.onclick = reiniciarInactividad;
+function cerrarModalDieta(id) {
+    const modal = document.getElementById(`modal-dele-dieta-${id}`);
+    if (modal) modal.close();
+}
+function cerrarModalconfirmacionDieta(id) {
+    const modal = document.getElementById(`modal-confirm-dele-dieta-${id}`);
+    if (modal) modal.close();
 }
 
+function confirmar(id_dieta) {
+    const dialog = document.getElementById(`modal-confirm-dele-dieta-${id_dieta}`);
+    const dialog2 = document.getElementById(`modal-dele-dieta-${id_dieta}`);
+    const input = document.getElementById(`input-eliminar-${id_dieta}`).value;
+
+    if (parseInt(input) === id_dieta) {
+        // Mostrar mensaje de éxito primero
+        Swal.fire({
+            icon: 'success',
+            title: 'Dieta eliminada',
+            text: `La dieta con ID ${id_dieta} fue eliminada correctamente.`,
+            timer: 2000,
+            showConfirmButton: false,
+            didOpen: () => {
+                // Eliminar dieta y cerrar modal mientras se muestra Swal
+                eliminarDieta(id_dieta);
+                dialog.close();
+            }
+        });
+    } else {
+        dialog.close();
+        dialog2.close();
+        // Mostrar mensaje de error primero
+        Swal.fire({
+            icon: 'error',
+            title: 'ID incorrecto',
+            text: 'El ID ingresado no coincide con la dieta.',
+        }).then(() => {
+            // Reabrir el modal para que el usuario intente otra vez
+            dialog.showModal();
+        });
+    }
+}
+
+
+
+
+
+
+// ----------------------------------funciones adicionales
+
+function iniciarComandosDeVoz() {
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    const recognition = new SpeechRecognition();
+
+    recognition.lang = "es-ES";
+    recognition.continuous = true;
+    recognition.interimResults = false;
+
+    // Sinónimos de acciones
+    const crearWords = ["crear", "agregar", "añadir", "registrar", "nuevo", "añade", "agrega"];
+    const verWords = ["ver", "consultar", "mostrar", "abrir", "listar", "enseñar", "consulten"];
+
+    function contieneCualquiera(texto, palabras) {
+        return palabras.some(p => texto.includes(p));
+    }
+
+    recognition.onresult = (event) => {
+        const transcript = event.results[event.results.length - 1][0].transcript.toLowerCase();
+        console.log("Escuchado:", transcript);
+
+        // --- Crear Dieta ---
+        if (contieneCualquiera(transcript, crearWords) && transcript.includes("dieta")) {
+            window.location.href = "/src/templates/add_dietas.html";
+        }
+
+        // --- Ver Alimentos ---
+        if (contieneCualquiera(transcript, verWords) && transcript.includes("alimentos")) {
+            window.location.href = "/src/templates/alimentos.html";
+        }
+
+        // --- Crear Alimento ---
+        if (contieneCualquiera(transcript, crearWords) && transcript.includes("alimentos")) {
+            window.location.href = "/src/templates/add_alimento.html";
+        }
+
+        // --- Ver Porcinos ---
+        if (contieneCualquiera(transcript, verWords) && transcript.includes("porcinos")) {
+            window.location.href = "/src/templates/porcinos.html";
+        }
+
+        // --- Crear Porcino ---
+        if (contieneCualquiera(transcript, crearWords) && transcript.includes("porcinos")) {
+            window.location.href = "/src/templates/add_porcinos.html";
+        }
+
+        // --- Ver Dietas ---
+        if (contieneCualquiera(transcript, verWords) && transcript.includes("dietas")) {
+            window.location.href = "/src/templates/gestionar_dietas.html";
+        }
+
+        // --- Ver Notificaciones ---
+        if (contieneCualquiera(transcript, verWords) && transcript.includes("notificaciones")) {
+            window.location.href = "/src/templates/notificaciones.html";
+        }
+
+        // --- Cerrar sesión ---
+        if (transcript.includes("cerrar sesión") || transcript.includes("cerrar sesion")) {
+            alert("Sesión cerrada");
+        }
+
+        // --- Ir al inicio ---
+        if (transcript.includes("inicio") || transcript.includes("home")) {
+            window.location.href = "/index.html";
+        }
+    };
+
+    recognition.onstart = () => {
+        console.log("🎤 Sistema listo para escuchar comandos...");
+    };
+
+    recognition.onerror = (event) => {
+        console.error("Error en voz:", event.error);
+    };
+
+    recognition.start();
+}
+
+function timesleep() {
+    let tiempoInactividad;
+    let tiempoCierre;
+    let cuentaRegresiva = 30;
+    let modalAbierto = false; // bandera para saber si el modal está abierto
+
+    function iniciarTemporizador() {
+        tiempoInactividad = setTimeout(() => {
+            mostrarAlerta();
+        }, 1200000);
+    }
+
+    function mostrarAlerta() {
+        modalAbierto = true; // modal abierto
+        cuentaRegresiva = 30;
+
+        Swal.fire({
+            title: 'mucho tiempo de inactividad, ¿sigues aquí?',
+            html: `<p>Tu sesión se cerrará en <b id="contador">${cuentaRegresiva}</b> segundos.</p>`,
+            imageUrl: '/src/static/iconos/cerdito.sueño.png',
+            imageWidth: 200,
+            imageHeight: 200,
+            imageAlt: 'Cerdito con sueño 😴',
+            showCancelButton: true,
+            confirmButtonText: 'Sí, continuar',
+            cancelButtonText: 'Cerrar sesión',
+            allowOutsideClick: false,
+            allowEscapeKey: false,
+            didOpen: () => {
+                const contadorElem = Swal.getHtmlContainer().querySelector('#contador');
+
+                tiempoCierre = setInterval(() => {
+                    cuentaRegresiva--;
+                    contadorElem.textContent = cuentaRegresiva;
+
+                    if (cuentaRegresiva <= 0) {
+                        clearInterval(tiempoCierre);
+                        Swal.close();
+                        modalAbierto = false;
+                        cerrarSesion();
+                    }
+                }, 1000);
+
+                // Eventos de los botones
+                const confirmButton = Swal.getConfirmButton();
+                const cancelButton = Swal.getCancelButton();
+
+                confirmButton.addEventListener('click', () => {
+                    clearInterval(tiempoCierre);
+                    Swal.close();
+                    modalAbierto = false;
+                    reiniciarInactividad();
+                });
+
+                cancelButton.addEventListener('click', () => {
+                    clearInterval(tiempoCierre);
+                    Swal.close();
+                    modalAbierto = false;
+                    cerrarSesion();
+                });
+            },
+        });
+    }
+
+    function cerrarSesion() {
+        Swal.fire({
+            icon: 'info',
+            title: 'Sesión cerrada',
+            text: 'Tu sesión fue cerrada por inactividad.',
+            timer: 2000,
+            showConfirmButton: false
+        }).then(() => {
+            window.location.href = '/src/templates/index.html';
+        });
+    }
+
+    function reiniciarInactividad() {
+        if (!modalAbierto) {
+            clearTimeout(tiempoInactividad);
+            iniciarTemporizador();
+        }
+    }
+
+    window.onload = iniciarTemporizador;
+    document.onmousemove = reiniciarInactividad;
+    document.onkeydown = reiniciarInactividad;
+    document.onclick = reiniciarInactividad;
+}
 const cerdo = document.getElementById("cerdo");
 const barralateral = document.querySelector(".barra-lateral");
-const spans = barralateral.querySelectorAll("span")
-const menu=document.querySelector(".menu")
+const spans = document.querySelectorAll("span");
+const menu = document.querySelector(".menu")
 
-menu.children[1].style.display="none"
-menu.addEventListener("click",()=>{
+menu.children[1].style.display = "none"
+menu.addEventListener("click", () => {
     barralateral.classList.toggle("max-barra-lateral")
-    if(barralateral.classList.contains("max-barra-lateral")){
-        menu.children[0].style.display="none"
-        menu.children[1].style.display="block"
+    if (barralateral.classList.contains("max-barra-lateral")) {
+        menu.children[0].style.display = "none"
+        menu.children[1].style.display = "block"
     }
-    else{
-        menu.children[0].style.display="block"
-        menu.children[1].style.display="none"
+    else {
+        menu.children[0].style.display = "block"
+        menu.children[1].style.display = "none"
     }
 })
 
@@ -3536,7 +4284,7 @@ document.addEventListener("click", (e) => {
     if (
         !barralateral.contains(e.target) &&
         !menu.contains(e.target)
-    ){
+    ) {
         if (barralateral.classList.contains("max-barra-lateral")) {
             barralateral.classList.remove("max-barra-lateral");
 
@@ -3553,6 +4301,52 @@ cerdo.addEventListener("click", () => {
         span.classList.toggle("oculto");
     });
 });
+
+function notificaciones_nuevo() {
+    const endpoint = `${URL_BASE}/ultima_notificacion/3`;
+    const url_notificaciones = "/src/templates/notificaciones.html"; 
+
+    if (Notification.permission !== "granted" && Notification.permission !== "denied") {
+        Notification.requestPermission();
+    }
+
+    let ultimaId = parseInt(localStorage.getItem('ultima_notificacion_id') || 0);
+
+    function mostrarNotificacion(titulo, mensaje, id) {
+        if (Notification.permission === "granted") {
+            const noti = new Notification(titulo, {
+                body: mensaje,
+                icon: "/src/static/iconos/logo_login.png"
+            });
+
+            noti.onclick = function () {
+                window.open(url_notificaciones, "_blank"); 
+                noti.close();
+            };
+        }
+        localStorage.setItem('ultima_notificacion_id', id);
+        ultimaId = id;
+    }
+
+    function revisarNotificaciones() {
+        fetch(endpoint)
+            .then(res => res.json())
+            .then(data => {
+                const noti = data.Notificacion;
+                if (noti) {
+                    const idActual = parseInt(noti.id_notificacion);
+                    if (idActual > ultimaId) {
+                        mostrarNotificacion(noti.titulo, noti.mensaje, idActual);
+                    }
+                }
+            })
+            .catch(err => console.error("Error al consultar notificaciones:", err));
+    }
+
+    revisarNotificaciones();
+    setInterval(revisarNotificaciones, 10000);
+}
+
 
 
 document.addEventListener("click", (e) => {
@@ -3658,6 +4452,17 @@ async function generar_pdf(tipo, id) {
     const a = document.createElement("a");
     a.href = url;
     a.download = `reporte_${tipo}.pdf`;
+    a.click();
+}
+async function generar_pdf_dieta_individual(id) {
+    const promesa = await fetch(`${URL_BASE}/PDF_dieta/${id}`);
+    const blob = await promesa.blob();
+
+    const url = URL.createObjectURL(blob);
+
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `reporte_dieta_${id}.pdf`;
     a.click();
 }
 

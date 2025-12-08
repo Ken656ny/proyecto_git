@@ -57,7 +57,6 @@ SECCION DE LOGIN
     background: url("/src/static/iconos/background_login.svg") center / cover no-repeat fixed;
     height: 100vh;
 }
-/*Creo el body2 para poder controlar con un flexbox el conetendor de mi inicio de sesion*/
 .body_overlay{
     background-color: #000000a1;
     display: flex;
@@ -362,13 +361,13 @@ BARRA LATERAL
     position: fixed;
     display: flex;
     flex-direction: column;
-    width: 250px;
+    width: 80px;
     height: 100vh;
     padding: 2rem 1rem;
     background-color: var(--color--prede);
     transition: width 0.3s ease, background-color 0.3s ease,left 0.3s ease;
     overflow: hidden;
-    z-index: 3;
+    z-index: 10;
     font-family: var(--fuente--contenido);
 }
 
@@ -416,6 +415,13 @@ BARRA LATERAL
     height: 100%;
     overflow-y: auto;
     overflow-x: hidden;
+}
+.navegacion{
+    overflow: auto;
+
+}
+.navegacion::-webkit-scrollbar{
+    display: none;
 }
 
 .barra-lateral .navegacion ul{
@@ -644,6 +650,9 @@ SECCION DE PORCINOS
     grid-template-columns: repeat(10,1fr);
     grid-template-rows: repeat(10,1fr);
     overflow-y: hidden;
+    overflow-x: hidden;
+    height: 100vh;
+    width: 100%;
 }
 
 .container__logo__user{
@@ -727,8 +736,8 @@ SECCION DE PORCINOS
 .alimentos_en_dieta{
     display: grid;
     grid-template-columns: repeat(3,1fr);
-    grid-template-rows: repeat(2,1fr);
-    gap: 10px; /* espacio entre tarjetas */
+    grid-template-rows: repeat(3,1fr);
+    gap: 10px; 
     padding: 10px;
     overflow-y: auto;
     overflow-x: hidden;
@@ -744,6 +753,19 @@ SECCION DE PORCINOS
     flex-direction: column;
     justify-content: left;
     align-items: start;
+    width: fit-content;
+    height: 225px;
+    border: 1px solid black;
+    padding: 10px;
+    background-color: #ECE6F0;
+    border-radius: 10px;
+}
+
+.alimentos_dietas_ver{
+    display: flex;
+    flex-direction: column;
+    justify-content: left;
+    align-items: start;
     width: 180px;
     height: 225px;
     border: 1px solid black;
@@ -752,17 +774,20 @@ SECCION DE PORCINOS
     border-radius: 10px;
 }
 
-.alimentos_dietas{
+.contenedor_actualizar{
     display: flex;
-    flex-direction: column;
-    justify-content: left;
-    align-items: start;
-    width: 180px;
-    height: fit-content;
-    border: 1px solid black;
+    flex-direction: row;
+    justify-content:space-around;
+    align-items: center;
+}
+
+.contenedor_actualizar_2{
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
     padding: 10px;
-    background-color: #ECE6F0;
-    border-radius: 10px;
+    gap: 2px;
 }
 .descripcion_dietas{
     text-align: left;
@@ -777,17 +802,19 @@ SECCION DE PORCINOS
 }
 .sin_imagen_alimento_dieta {
     border-radius: 5px;
-    width: 200px;   /* más grande */
+    width: 200px;   
     height: 210px;
     object-fit: contain;
         object-fit: over;
 }
 .imagen_alimento_dieta img,
 .sin_imagen_alimento_dieta {
-    width: 158px;       /* ancho fijo */
-    height: 104px;      /* alto fijo */
+    width: 158px;       
+    height: 104px;      
     border-radius: 5px;
 }
+
+
 
 /* CODIGO DE LA BARRA DE BUSQUEDA */
 
@@ -828,6 +855,9 @@ SECCION DE PORCINOS
     justify-content: center;
     align-items: center;
     gap: 10px;
+}
+label.contenedor{
+    order: +1;
 }
 .final_buttom{
     margin-right: 15px;
@@ -892,6 +922,25 @@ SECCION DE PORCINOS
     justify-content: center;
 }
 
+.container_dietas_ver{
+    grid-column: 1/5;
+    grid-row: 2/11;
+    border: 1px solid black;
+    border-radius: 14px;
+    gap: 2%;
+    width: 115%;
+    height: 92%;
+    margin: auto;
+    margin-top: 3%;
+    margin-left: 2%;
+    font-family: var(--fuente--contenido);
+    display: grid;
+    grid-template-rows: auto;
+    grid-template-columns: 100%;
+    justify-content: center;
+}
+
+
 .container_requerimientos_alimento{
     grid-column: 6/10;
     grid-row: 3/6;
@@ -905,8 +954,48 @@ SECCION DE PORCINOS
     margin-left: 2%;
     margin-bottom: 7%;
     font-family: var(--fuente--contenido);
-
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+    align-items: center;
 }
+
+.requisitos_nutricionales {
+    display: flex;
+    background-color: #ECE6F0;
+    border-radius: 10px;
+    color: #2C3D31;
+    border: 1px solid black;
+    width: 90%;
+    justify-content:space-around;
+    align-items: center;
+    margin-bottom: 2%;
+}
+.requisitos_nutricionales1 {
+    display: flex;
+    background-color: #ECE6F0;
+    border-radius: 10px;
+    color: #2C3D31;
+    border: 1px solid black;
+    width: 100%;
+    justify-content:space-around;
+    align-items: center;
+    margin-left: 2%;
+    gap: 5%;
+    padding: 20px 10px;
+}
+.requisitos_nutricionales1 h5 label,
+.columnas_nutricionales1 h5 label {
+    display: inline-block;
+    width: 20px;     
+    text-align: left;
+}
+
+
+.columnas_nutricionales p {
+    text-align: left !important; 
+}
+
 .container_requerimientos_etapa{
     grid-column: 6/10;
     grid-row: 6/11;
@@ -919,9 +1008,9 @@ SECCION DE PORCINOS
     margin-left: 2%;
     font-family: var(--fuente--contenido);
     display: flex;
-    justify-content: center;
     flex-direction: column;
     align-items: center;
+    text-align: left;
     
 }
 
@@ -935,6 +1024,16 @@ SECCION DE PORCINOS
     font-family: inherit;
     outline: none;
     order: 1;
+}
+
+
+.input_id_select{
+    width: 220px;
+    height: 40px;
+    border: 1px solid var(--color-bor-contain);
+    border-radius: 26px;
+    font-family: inherit;
+    outline: none;
 }
 
 .container__filtro{
@@ -955,6 +1054,15 @@ SECCION DE PORCINOS
     height: 40px;
     padding-left: 35px;
     border-radius: 10px;
+    color: #7C7A7A;
+    border: 1px solid var(--color-bor-contain);
+    outline: none;
+}
+.filter_dietas{
+    width: 500px;
+    height: 40px;
+    padding-left: 35px;
+    border-radius: 50px;
     color: #7C7A7A;
     border: 1px solid var(--color-bor-contain);
     outline: none;
@@ -1027,6 +1135,7 @@ SECCION DE PORCINOS
     justify-content: space-between;
     position: relative;
     font-family: var(--fuente--contenido);
+    gap: 5px;
 }
 
 .svg__add, .svg__btn{
@@ -1342,12 +1451,7 @@ th{
     align-items: center;
     gap: 0.5em;
 }
-container-button-dele1{
-    margin-top: 7em;
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-}
+
 
 .button-cerrar, .button-guardar, .button-eliminar{
     background-color: var(--color--btn--hover);
@@ -2087,7 +2191,7 @@ SI SALE MAL ES CULPA DE CRISTIAN
     width: 16px;
     height: 16px;
     border: 1px solid #000;
-    border-radius: 4px;
+    border-radius: 100px;
     background-color: #aee9c6; /* Verde claro */
 }
 
@@ -2175,8 +2279,13 @@ SI SALE MAL ES CULPA DE CRISTIAN
     }
 
 .input_add1:hover{
-    background-color: var(--color--btn--hover);
+    background-color: var(--color--btn--hover) !important;
     border: 1px solid var(--color-bor-btn-hover);
+}
+
+.input_add1:focus{
+background-color: var(--color--btn--hover) !important;
+    outline: 1px solid rgba(0, 0, 0, 0);
 }
 
 .seccion1{
@@ -2254,6 +2363,7 @@ DIETASSSSSSSS
   gap: 10px;
 }
 
+
 .modal-column p {
   font-weight: bold;
   color: #2f4932;
@@ -2329,7 +2439,7 @@ DIETASSSSSSSS
 }
 
 .titulo_requerimientos{
-    margin-top: 2%;
+    margin-top: 3px;
     display: flex;
     flex-direction: column;
     justify-content: left;
@@ -2339,8 +2449,18 @@ DIETASSSSSSSS
     border: 1px solid black;
     padding: 5px;
     background-color: #ECE6F0;
-    border-radius: 50px;
+    border-radius: 10px;
     color: #2C3D31;
+}
+
+.valor {
+    display: inline-block; /* Mantiene el valor en la misma línea */
+    width: 10px;           /* O el ancho que quieras fijo */
+}
+
+.requerimientos_alimentos_dietas{
+    display: flex;
+    flex-direction: row;
 }
 
 .requerimientos_etapa{
@@ -2356,6 +2476,8 @@ DIETASSSSSSSS
     border-radius: 50px;
     color: #2C3D31;
 }
+
+
 
 /* ---------------------
 RESPONSIVE BAR
@@ -2531,6 +2653,79 @@ RESPONSIVE BAR
     }
     
 }
+.alimentos_dietas {
+    position: relative; /* NECESARIO */
+    padding-top: 10px; /* para que el círculo no quede pegado si la imagen llena todo */
+}
+
+.circulo-seleccion {
+    position: absolute;
+    top: 8px;      /* ← esquina del contenedor */
+    left: 8px;     /* ← esquina del contenedor */
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: #d3d3d3;
+    border: 2px solid #999;
+    cursor: pointer;
+    transition: 0.2s ease;
+    z-index: 3;   /* por si la imagen usa z-index */
+}
+
+.circulo-seleccion.activo {
+    background: #28a745;
+    border-color: #1e7e34;
+}
+.input_dietas:disabled {
+    opacity: 0.4;        /* se ve más apagado */
+    background-color: #e0e0e0; /* opcional: color más gris */
+    cursor: not-allowed; /* muestra que no se puede usar */
+}
+.paginacion_alimentos {
+    position: sticky;  /* Mantener visible al hacer scroll */
+    bottom: 0;         /* Pegado al fondo de su contenedor */
+    background-color: #D9D9D9; /* Fondo para que no se vea detrás de filas */
+    padding: 0.5rem 2rem;
+    z-index: 0;  
+    color: #2C3D31;
+        font-family: var(--fuente--contenido);
+    font-size: 14px;
+    font-weight: bold;
+    color: var(--color-letra-predeter);
+        text-align: left;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+}
+.paginacion_alimentos p {
+    margin-left: 2%;
+}
+
+.ayuda {
+    position: fixed;
+    bottom: 1px;   
+    right: 2px;
+    color: #fff;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: transform 0.5s ease-in;
+}
+.voz {
+    position: fixed;
+    bottom: 50px;   
+    right: 4px;
+    color: #fff;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: transform 0.5s ease-in;
+}
+.ayuda:hover{
+    transform: scale(1.07);
+}
+.tour-modal-onbackground{
+    background-color: transparent;
+}
 
 /* -----------------------------------------------------
    📱 REGISTRO — Ajustes responsive para móviles y tablets
@@ -2639,4 +2834,16 @@ RESPONSIVE BAR
     .rancho {
         width: 28vw;
     }
+}
+.swal2-container {
+  position: fixed !important;
+  z-index: 999999 !important;
+  inset: 0 !important;
+
+}
+
+.swal2-popup {
+  z-index: 1000000 !important;
+  position: relative !important;
+  
 }

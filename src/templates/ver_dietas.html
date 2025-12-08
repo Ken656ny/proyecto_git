@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="/src/static/css/sytle.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11.17.2/dist/sweetalert2.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/driver.js@0.9.8/dist/driver.min.css">
+
+    <!-- Driver.js JS -->
+    <script src="https://cdn.jsdelivr.net/npm/driver.js@0.9.8/dist/driver.min.js"></script>
+    <title>Edupork</title>
+</head>
+
+<body class="body_dietas">
+    <section class="section-nav-bar">
+        <div class="container-user">
+            <div class="container__btn__perfil">
+                <img src="../static/iconos/icon user.svg" alt="" width="25" class="svg__user__2">
+                <button type="button" class="btn__perfil">Juan Tovar</button>
+            </div>
+            <div class="menu">
+                <img src="../static/iconos/menu_icon.svg" alt="" class="menu-icons">
+                <img src="../static/iconos/close_icon.svg" alt="" class="menu-icons">
+            </div>
+        </div>
+        <div class="barra-lateral">
+            <div>
+                <div class="logo-edupork">
+                    <img id="cerdo" class="nombre" src="../static/iconos/cerdo.png" width="20px" alt="">
+                    <span>Edupork</span>
+                </div>
+            </div>
+            <nav class="navegacion">
+                <ul class="ul-navegacion">
+                    <li>
+                        <a href="/src/templates/home.html" onclick="redirectWithDelay(event, 'home.html')">
+                            <!--dar estilo -->
+                            <img src="../static/iconos/home icon.svg" width="20px" alt="" class="icons-bar">
+                            <span>Home</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="/src/templates/notificaciones.html">
+                            <img src="../static/iconos/notificacions.svg" width="20px" alt="" class="icons-bar">
+                            <span>Notificaciones </span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="/src/templates/porcinos.html" onclick="redirectWithDelay(event, 'porcinos.html')">
+                            <img src="../static/iconos/icon pig.svg" width="20px" alt="" class="icons-bar">
+                            <span>Porcinos</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="/src/templates/alimentos.html" onclick="redirectWithDelay(event, 'alimentos.html')">
+                            <img src="../static/iconos/icon wheate.svg" title="alimentos" width="20px" alt=""
+                                class="icons-bar">
+                            <span>Alimentos</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="/src/templates/gestionar_dietas.html">
+                            <img src="../static/iconos/icon plate.svg" width="20px" alt="" class="icons-bar">
+                            <span>Dietas</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#">
+                            <img src="../static/iconos/icon page.svg" alt="" class="icons-bar">
+                            <span>Informes</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="/src/templates/perfil.html" onclick="redirectWithDelay(event, 'perfil.html')">
+                            <img src="../static/iconos/icon user.svg" width="20px" alt="" class="icons-bar">
+                            <span>Usuario</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="/src/templates/configuracion.html"
+                            onclick="redirectWithDelay(event, 'configuracion.html')">
+                            <img src="../static/iconos/icon setting.svg" width="20px" alt="" class="icons-bar">
+                            <span>Configuración</span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    </section>
+    <section class="contenido_dietas">
+                    <div class="container__back__logo">
+                <img onclick="window.location.href='/src/templates/gestionar_dietas.html'" src="/src/static/iconos/back icon.svg" alt="icon back" class="icon__back">
+            </div>
+        <header class="container container__title_dietas">
+            <h1 id="titulo_ver_dieta">Nombre dieta</h1>
+        </header>
+
+
+
+
+
+        <section id="contenedor_dietas" class="container container_dietas_ver">
+            <div class="alimentos_en_dieta" id="alimentos_en_dieta">
+            </div>
+        </section>
+
+
+
+        <section class="container buscador_etapa_dietas">
+            <form class="formulario_buscar">
+                <div class="container__filtro">
+                    <img src="/src/static/iconos/icon filter.svg" alt="" id="svg__filter">
+                    <select name="" id="select-etapas" class="filter_dietas">
+                        <option value="" disabled selected>Seleccione la Etapa de vida</option>
+                    </select>
+                </div>
+            </form>
+        </section>
+
+        <section class="container container_requerimientos_alimento">
+            <div class="requerimintos_nutricionales_alimentos">
+                <div class="requisitos_nutricionales1">
+                    <div class="columnas_nutricionales1">
+                        <h5>materia seca: <label id="materia_seca_label">(%)</label></h5>
+                        <h5>Energia M: <label id="energia_metabolizable_label">Kcal/K</label></h5>
+                        <h5>proteina cruda: <label id="proteina_cruda_label">(%)</label></h5>
+                        <h5>fibra cruda: <label id="fibra_cruda_label">(%)</label></h5>
+                        <h5>Extracto Etereo: <label id="extracto_etereo_label">(%)</label></h5>
+                        <h5>Calcio: <label id="calcio_label">(%)</label></h5>
+                        <h5>Fosforo Disponible: <label id="fosforo_disponible_label">(%)</label></h5>
+                    </div>
+
+                    <div class="columnas_nutricionales1">
+                        <h5>sodio: <label id="sodio_label">(%)</label></h5>
+                        <h5>Arginina: <label id="arginina_label">(%)</label></h5>
+                        <h5>Lisina: <label id="lisina_label">(%)</label></h5>
+                        <h5>Treonina: <label id="treonina_label">(%)</label></h5>
+                        <h5>Metionina: <label id="metionina_label">(%)</label></h5>
+                        <h5>Metionina+cistenina: <label id="metionina_cistenina_label">(%)</label></h5>
+                        <h5>Triptófano: <label id="triptofano_label">(%)</label></h5>
+                    </div>
+
+
+                </div>
+            </div>
+            <canvas id="graficoMezcla" width="50px" height="50px"></canvas>
+
+
+        </section>
+
+
+        <section class="container container_requerimientos_etapa">
+            <div class="titulo_requerimientos">
+                <h5>requerimientos nutricionales de la etapa</h5>
+            </div>
+            <div class="requisitos_nutricionales">
+                <div class="columnas_nutricionales">
+                    <p>materia seca: <span id="materia_seca" class="valor"> (%) </span></p>
+                    <p>Energia metabolizable: <span id="energia_metabolizable" class="valor">Kcal/k</span></p>
+                    <p>proteina cruda: <span id="proteina_cruda" class="valor">(%)</span></p>
+                    <p>fibra cruda: <span id="fibra_cruda" class="valor">(%)</span></p>
+                    <p>Extracto Etereo: <span id="extracto_etereo" class="valor">(%)</span></p>
+                    <p>Calcio: <span id="calcio" class="valor">(%)</span></p>
+                    <p>Fosforo Disponible: <span id="fosforo_disponible" class="valor">(%)</span></p>
+                </div>
+
+                <div class="columnas_nutricionales">
+                    <p>sodio: <span id="sodio" class="valor">(%)</span></p>
+                    <p>Arginina: <span id="arginina" class="valor">(%)</span></p>
+                    <p>Lisina: <span id="lisina" class="valor">(%)</span></p>
+                    <p>Treonina: <span id="treonina" class="valor">(%)</span></p>
+                    <p>Metionina: <span id="metionina" class="valor">(%)</span></p>
+                    <p>Metionina + cistenina: <span id="metionina_cistenina" class="valor">(%)</span></p>
+                    <p>Triptófano: <span id="triptofano" class="valor">(%)</span></p>
+                </div>
+            </div>
+
+
+
+        </section>
+
+    </section>
+    <div onclick="pdf_indi()" class="ayuda">
+                <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 26 26"><g fill="none"><defs><mask id="SVGrO71tccb"><path fill="#fff" d="M0 0h26v26H0z"/><path fill="#fff" d="M7.5 5a1 1 0 0 1 1-1h9a1 1 0 0 1 1 1v4.5h-11z"/><path fill="#000" d="M8 9.5H7V5.1c0-.866.612-1.6 1.417-1.6h9.166c.805 0 1.417.734 1.417 1.6v4.4h-1V5.1c0-.35-.209-.6-.417-.6H8.417c-.208 0-.417.25-.417.6z"/><path fill="#000" fill-rule="evenodd" d="M19 9H7a3 3 0 0 0-3 3v5a3 3 0 0 0 3 3h12a3 3 0 0 0 3-3v-5a3 3 0 0 0-3-3M5 12a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2z" clip-rule="evenodd"/><path fill="#fff" d="M18.5 20.531a1 1 0 0 1-1 1h-9a1 1 0 0 1-1-1V14.97h11z"/><path fill="#000" d="M18 14.969h1v5.25c0 .97-.588 1.812-1.417 1.812H8.417C7.588 22.031 7 21.19 7 20.22v-5.25h1v5.25c0 .479.233.812.417.812h9.166c.184 0 .417-.333.417-.812z"/><path fill="#000" d="M16.5 18.5a.5.5 0 0 1 0 1h-7a.5.5 0 0 1 0-1zm0-2a.5.5 0 0 1 0 1h-7a.5.5 0 0 1 0-1z"/></mask></defs><circle cx="13" cy="13" r="13" fill="#fff" mask="url(#SVGrO71tccb)"/></g></svg>
+
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+
+    <script src="/src/static/js/script.js"></script>
+    <script src="/src/static/js/driver.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script>
+window.addEventListener("DOMContentLoaded", () => {
+    const idDieta = parseInt(localStorage.getItem("dieta_a_ver"));
+    if (!idDieta) return Swal.fire("Error", "No se encontró la dieta", "error");
+    // Traer la dieta completa
+    fetch(`${URL_BASE}/dieta/${idDieta}`)
+        .then(res => res.json())
+        .then(data => {
+            const dieta = data.mensaje;
+            if (!dieta) throw new Error("La API no devolvió la dieta");
+
+            // Bloquear todos los inputs y botones
+            document.querySelectorAll("input, select, button").forEach(el => el.disabled = true);
+
+            // Llenar datos generales de la dieta
+            document.getElementById("select-etapas").value = dieta.etapa_vida || "";
+
+            // Llenar alimentos de la dieta
+            const contenedor = document.getElementById("alimentos_en_dieta");
+            contenedor.innerHTML = ""; // limpiar
+
+            dieta.alimentos.forEach(a => {
+                console.log(dieta)
+                titulo_ver_dieta.innerHTML=`Dieta ${dieta.id_dieta}`
+                const div = document.createElement("div");
+                div.classList.add("alimentos_dietas_ver");
+                div.innerHTML = `
+                    <div class="imagen_alimento_dieta">
+                        <img src="${URL_BASE}${a.imagen}" alt="${a.alimento}" width="50"
+                             onerror="this.onerror=null; this.src='/src/static/iconos/imagen no encontrada.svg'">
+                    </div>
+                    <div class="descripcion_dietas">
+                        <p style="font-size:15px"><strong>Nombre:</strong> ${a.alimento}</p>
+                        <p style="font-size:15px"><strong>Cantidad (Kg):</strong>  ${a.cantidad}</p>
+                    </div>
+                `;
+                contenedor.appendChild(div);
+            });
+
+            // Mostrar mezcla nutricional si existe
+            if (dieta.mezcla_nutricional) {
+                const m = dieta.mezcla_nutricional;
+                document.getElementById("materia_seca_label").innerText = m.MS ?? "-";
+                document.getElementById("energia_metabolizable_label").innerText = m["EM-C"] ?? "-";
+                document.getElementById("proteina_cruda_label").innerText = m.PC ?? "-";
+                document.getElementById("fibra_cruda_label").innerText = m.FC ?? "-";
+                document.getElementById("extracto_etereo_label").innerText = m.EE ?? "-";
+                document.getElementById("calcio_label").innerText = m.CAL ?? "-";
+                document.getElementById("fosforo_disponible_label").innerText = m["F.DIS"] ?? "-";
+                document.getElementById("sodio_label").innerText = m.SOD ?? "-";
+                document.getElementById("arginina_label").innerText = m.ARG ?? "-";
+                document.getElementById("lisina_label").innerText = m.LIS ?? "-";
+                document.getElementById("treonina_label").innerText = m.TREO ?? "-";
+                document.getElementById("metionina_label").innerText = m.MET ?? "-";
+                document.getElementById("metionina_cistenina_label").innerText = m["M+CIS"] ?? "-";
+                document.getElementById("triptofano_label").innerText = m.TRIP ?? "-";
+
+                // Actualizar gráfico con la mezcla
+                if (typeof actualizarGraficoMezcla === "function") actualizarGraficoMezcla(m);
+            }
+
+            // Llenar valores nutricionales según la etapa de vida
+            rellenar_etapa_vida_en_dietas(dieta.etapa_vida);
+
+        })
+        .catch(err => {
+            console.error(err);
+            Swal.fire("Error", "No se pudo cargar la dieta", "error");
+        });
+});
+    const idDieta2 = parseInt(localStorage.getItem("dieta_a_ver"));
+    
+function pdf_indi() {
+    generar_pdf_dieta_individual(idDieta2);
+}
+// Función para llenar valores de etapa de vida
+function rellenar_etapa_vida_en_dietas(etapaSeleccionada) {
+    fetch(`${URL_BASE}/etapa_vida`)
+        .then(res => res.json())
+        .then(data => {
+            const select = document.getElementById('select-etapas');
+            select.innerHTML = '<option value="" disabled>Seleccione la Etapa de vida</option>';
+
+            if (data.etapas && data.etapas.length > 0) {
+                data.etapas.forEach(etapa => {
+                    const option = document.createElement('option');
+                    option.value = etapa.id_etapa;
+                    option.textContent = etapa.nombre;
+                    if (etapa.nombre === etapaSeleccionada) option.selected = true;
+                    select.appendChild(option);
+                });
+            }
+
+            // Mostrar los requerimientos nutricionales de la etapa
+            const etapa = data.etapas.find(e => e.nombre === etapaSeleccionada);
+            if (!etapa || !etapa.requerimientos) return;
+
+            const req = etapa.requerimientos;
+            function getValor(nombre) {
+                const item = req.find(r => r.nombre_elemento.toLowerCase() === nombre.toLowerCase());
+                return item ? item.porcentaje : "0";
+            }
+
+            // Columna 1
+            document.getElementById("materia_seca").textContent = getValor("Materia_seca");
+            document.getElementById("energia_metabolizable").textContent = getValor("Energia_metabo");
+            document.getElementById("proteina_cruda").textContent = getValor("Proteina_cruda");
+            document.getElementById("fibra_cruda").textContent = getValor("Fibra_cruda");
+            document.getElementById("extracto_etereo").textContent = getValor("Extracto_etereo");
+            document.getElementById("calcio").textContent = getValor("Calcio");
+            document.getElementById("fosforo_disponible").textContent = getValor("Fosforo");
+
+            // Columna 2
+            document.getElementById("sodio").textContent = getValor("Sodio");
+            document.getElementById("arginina").textContent = getValor("Arginina");
+            document.getElementById("lisina").textContent = getValor("Lisina");
+            document.getElementById("treonina").textContent = getValor("Treonina");
+            document.getElementById("metionina").textContent = getValor("Metionina");
+            document.getElementById("metionina_cistenina").textContent = getValor("Metionina_Cisteina");
+            document.getElementById("triptofano").textContent = getValor("Triptofano");
+
+        })
+        .catch(err => console.error("Error al cargar las etapas:", err));
+}
+
+// Función para actualizar gráfico con Chart.js
+function inicializarGraficoVacio() {
+    const canvas = document.getElementById("graficoMezcla");
+    if (!canvas) return;
+
+    canvas.width = 200;
+    canvas.height = 200;
+    const ctx = canvas.getContext("2d");
+
+    window.graficoMezcla = new Chart(ctx, {
+        type: 'pie',
+        data: {
+            labels: ['Sin datos'],
+            datasets: [{
+                data: [1],
+                backgroundColor: ['#E0E0E0'] // gris claro
+            }]
+        },
+        options: {
+            responsive: false,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false },
+                tooltip: {
+                    enabled: true,
+                    callbacks: {
+                        label: function (context) {
+                            return context.label;
+                        }
+                    }
+                }
+            }
+        }
+    });
+}
+
+function actualizarGraficoMezcla(mezcla) {
+    if (!window.graficoMezcla) return;
+
+    const nutrientesFijos = Object.keys(mezcla); // dinámico, siempre 14
+
+    // Valores originales
+    const valoresOriginales = nutrientesFijos.map(n => Number(mezcla[n]) || 0);
+
+    // Escala mínima para que todo se vea
+    const VALOR_MINIMO = 1;
+    const valoresTransformados = valoresOriginales.map(v => Math.log10(v > 0 ? v : VALOR_MINIMO));
+
+    // Escala de verdes fija para 14 nutrientes
+    const escalaVerdes = [
+        "#004d00", "#006600", "#008000", "#009900",
+        "#00b300", "#00cc00", "#00e600", "#00ff00",
+        "#19ff19", "#33ff33", "#4dff4d", "#66ff66",
+        "#99ff99", "#ccffcc"
+    ];
+
+    window.graficoMezcla.data.labels = nutrientesFijos;
+    window.graficoMezcla.data.datasets[0].data = valoresTransformados;
+    window.graficoMezcla.data.datasets[0].backgroundColor = escalaVerdes.slice(0, nutrientesFijos.length);
+
+    // Tooltip limpio
+    window.graficoMezcla.options.plugins.tooltip.callbacks.label = function (context) {
+        const label = context.label;
+        const valorReal = valoresOriginales[context.dataIndex];
+        return `${label}: ${valorReal}`;
+    };
+
+    // Resaltar al pasar el mouse
+    window.graficoMezcla.options.interaction = {
+        mode: "nearest",
+        intersect: true
+    };
+
+    // Sin leyenda
+    window.graficoMezcla.options.plugins.legend = {
+        display: false
+    };
+
+    window.graficoMezcla.update();
+}
+
+// Inicializar gráfico vacío al cargar
+inicializarGraficoVacio();
+
+
+    </script>
+</body>
+
+</html>

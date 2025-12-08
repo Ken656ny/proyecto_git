@@ -6,7 +6,6 @@ from flask_cors import CORS
 
 #PARA DOCUMENTAR LAS RUTAS DEL CODIGO
 from flasgger import Swagger
-
 # IMPORTO EL DICCIONARIO CONFIG EN LA POSICION DEVELOPMENT PARA ACCEDER LA INFORMACION DE CONEXION DE LA
 # BASE DE DATOS, DENTRO DE ESA CLASE HAY UN CLASSMETHOD QUE RETORNA LA CONEXION CON LA BASE DE DATOS
 from config import config
@@ -20,10 +19,18 @@ from datetime import datetime ,date
 #IMPORTO PARA LA REALIZACION DE PDF
 from reportlab.lib.pagesizes import letter
 from reportlab.lib.pagesizes import landscape
-from reportlab.platypus import (SimpleDocTemplate, Table, TableStyle, Paragraph,Spacer, Image)
+from reportlab.platypus import (SimpleDocTemplate, Table, TableStyle, Paragraph,Spacer, Image,PageBreak)
 from reportlab.lib import colors
 from reportlab.lib.styles import getSampleStyleSheet
+
 import random
+
+
+# grafica en el pdf
+import matplotlib
+matplotlib.use('Agg')  # backend sin GUI, no abre ventanas
+import matplotlib.pyplot as plt
+
 
 app = Flask(__name__)
 app.secret_key = 'secretkey'
@@ -1974,11 +1981,48 @@ def consulta_notificaiones(id):
     return jsonify({'Mensaje': 'Error'})
 
 
+@app.route("/ultima_notificacion/<int:id>", methods=['GET'])
+def ultima_notificacion_usuario(id):
+    """
+    Obtiene la última notificación de un usuario
+    ---
+    tags:
+      - Notificaciones
+    responses:
+      200:
+        description: Última notificación de un usuario
+    """
+    try:
+        with config['development'].conn() as conn:
+            with conn.cursor() as cursor:
+                cursor.execute("""
+                    SELECT id_notificacion, titulo, mensaje, tipo, fecha_creacion
+                    FROM notificaciones 
+                    WHERE id_usuario_destinatario = %s
+                    ORDER BY fecha_creacion DESC
+                    LIMIT 1
+                """, (id,))  
+                info = cursor.fetchone()  
+
+        if info:
+            if hasattr(info['fecha_creacion'], 'strftime'):
+                info['fecha_creacion'] = info['fecha_creacion'].strftime('%Y-%m-%d %H:%M:%S')
+
+            return jsonify({
+                'Mensaje': 'Última notificación',
+                'Notificacion': info
+            })
+        else:
+            return jsonify({'Mensaje': 'No hay notificaciones'})
+
+    except Exception as err:
+        print("Error en /ultima_notificacion/<id>:", err)
+        return jsonify({'Mensaje': 'Error', 'Detalle': str(err)})
+
 # ----------------------------
 # SECCION GESTIONAR ALIMENTOS
 # ----------------------------
 
-# RUTA PARA CONSULTAR TODOS LOS ALIMENTOS
 @app.route("/alimentos", methods=["GET"])
 def consulta_alimento():
     """
@@ -2032,8 +2076,137 @@ def consulta_alimento():
     except Exception as e:
         return jsonify({"error": str(e)})
 
+@app.route("/PDF_alimentos")
+def reporte_alimentos():
+    try:
+        # ================================
+        #      CONSULTA BASE DE DATOS
+        # ================================
+        try:
+            with config['development'].conn() as conn:
+                with conn.cursor() as cur:
+                    cur.execute("""
+                        SELECT 
+                            id_alimento,
+                            nombre,
+                            estado
+                        FROM alimentos
+                        ORDER BY id_alimento ASC
+                    """)
+                    alimentos = cur.fetchall()
+        except Exception as err:
+            print(err)
+            return jsonify({'Error': 'Error al consultar los alimentos'})
 
-# RUTA PARA CONSULTAR UN ALIMENTO POR SU ID
+        if not alimentos:
+            return jsonify({"mensaje": "No encontrado"})
+
+        # ================================
+        #      CREAR PDF
+        # ================================
+        buffer = io.BytesIO()
+        pdf = SimpleDocTemplate(buffer, pagesize=landscape(letter))
+        elementos = []
+        styles = getSampleStyleSheet()
+        codigo = random.randint(0, 9999)
+
+        # ================================================
+        #               ENCABEZADO PERSONALIZADO
+        # ================================================
+        ruta_logo = os.path.join("src/static/iconos/", "Logo_edupork.png")
+        logo = Image(ruta_logo, width=140, height=60) if os.path.exists(ruta_logo) else Paragraph("LOGO", styles["Title"])
+        
+        titulo_central = [
+            Paragraph('<font color="#333333"><b>Edupork: Alimentación Porcina</b></font>', styles["Title"]),
+            Paragraph('<para align="center"><font color="#333333">Informe de Alimentos Registrados</font></para>', styles["Normal"])
+        ]
+
+        info_derecha = [
+            Paragraph(f'<font color="#333333"><b>CÓDIGO:</b> {codigo}</font>', styles["Normal"]),
+            Paragraph('<font color="#333333"><b>VERSIÓN:</b> 1</font>', styles["Normal"]),
+        ]
+
+        ruta_logo_sena = os.path.join("src/static/iconos/", "logo_sena.png")
+        logo_sena = Image(ruta_logo_sena, width=60, height=60) if os.path.exists(ruta_logo_sena) else Paragraph("LOGO_SENA", styles["Title"])
+
+        tabla_encabezado = Table(
+            [[logo, titulo_central, info_derecha, logo_sena]],
+            colWidths=[120, 300, 120, 80]  # Más ancho en el título y código
+        )
+        tabla_encabezado.setStyle(TableStyle([
+            ("BOX", (0, 0), (-1, -1), 1, "#333333"),
+            ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
+            ("ALIGN", (1, 0), (1, 0), "CENTER"),
+            ("LEFTPADDING", (1, 0), (1, 0), 10),
+            ("RIGHTPADDING", (2, 0), (2, 0), 10),
+        ]))
+
+        elementos.append(tabla_encabezado)
+        elementos.append(Spacer(1, 20))
+
+        # ================================================
+        #                TABLA DE ALIMENTOS
+        # ================================================
+        elementos.append(Paragraph('<font color="#333333"><b>Listado de Alimentos</b></font>', styles["Title"]))
+
+        encabezado = ["ID", "Nombre", "Estado"]
+        tabla_data = [encabezado]
+
+        for a in alimentos:
+            tabla_data.append([a["id_alimento"], a["nombre"], a["estado"]])
+
+        verde_header = colors.HexColor("#62804B")
+        verde_fila = colors.HexColor("#E7F6DD")
+
+        tabla = Table(tabla_data)
+
+        # ANCHO PROPORCIONAL DE COLUMNAS
+        tabla._argW = [60, 400, 120]  # ID más pequeño, Nombre más ancho, Estado intermedio
+
+        # ================================
+        #    ESTILOS BASE DE LA TABLA
+        # ================================
+        estilos_tabla = [
+            ("BACKGROUND", (0, 0), (-1, 0), verde_header),
+            ("TEXTCOLOR", (0, 0), (-1, 0), colors.white),
+            ("FONTNAME", (0, 0), (-1, 0), "Helvetica-Bold"),
+            ("FONTSIZE", (0, 0), (-1, 0), 12),
+
+            ("BOX", (0, 0), (-1, -1), 1, colors.HexColor("#9BC38A")),
+            ("GRID", (0, 0), (-1, -1), 0.5, colors.HexColor("#AACF96")),
+
+            ("ALIGN", (0, 0), (-1, -1), "CENTER"),
+            ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
+
+            ("FONTSIZE", (0, 1), (-1, -1), 10),
+        ]
+
+        # ALTERNAR FILAS
+        for i in range(1, len(tabla_data)):
+            if i % 2 == 1:
+                estilos_tabla.append(("BACKGROUND", (0, i), (-1, i), verde_fila))
+
+        tabla.setStyle(TableStyle(estilos_tabla))
+        elementos.append(tabla)
+
+        # ================================================
+        #                GENERAR PDF
+        # ================================================
+        pdf.build(elementos)
+
+        pdf_value = buffer.getvalue()
+        buffer.close()
+
+        response = make_response(pdf_value)
+        response.headers["Content-Type"] = "application/pdf"
+        response.headers["Content-Disposition"] = 'inline; filename="reporte_alimentos.pdf"'
+
+        return response
+
+    except Exception as err:
+        print(err)
+        return jsonify({'Mensaje': 'Error al generar el PDF'})
+
 @app.route("/consulta_indi_alimento/<nombre>", methods=["GET"])
 def consulta_individual_alimento(nombre):
   try:
@@ -2134,47 +2307,74 @@ def registrar_alimento():
         nombre = request.form.get("nombre_alimento")
         elementos = request.form.get("elementos")
         imagen_file = request.files.get("imagen")
+
         if not nombre:
             return jsonify({"error": "El nombre del alimento es obligatorio"}), 400
-        if imagen_file and imagen_file.filename != "":
-            filename = secure_filename(imagen_file.filename)
-            ruta = os.path.join(app.config["cargar_imagenes"], filename)
-            imagen_file.save(ruta)
-            imagen_web = f"/static/imagenes_base_de_datos/{filename}"
 
-        else:
-            imagen_web = None
+        # Guardar imagen si existe
+        imagen_web = None
+        if imagen_file and imagen_file.filename != "":
+            try:
+                filename = secure_filename(imagen_file.filename)
+                ruta = os.path.join(app.config["cargar_imagenes"], filename)
+                imagen_file.save(ruta)
+                imagen_web = f"/static/imagenes_base_de_datos/{filename}"
+            except Exception as e:
+                print("Error al guardar imagen:", e)
+                return jsonify({"error": "No se pudo guardar la imagen."}), 500
+
+        id_usuario = 3  # Cambiar según login real
+
         with config['development'].conn() as conn:
             with conn.cursor() as cur:
-                id_usuario = 3
-                cur.execute(
-                    """
-                    INSERT INTO alimentos (nombre, estado, imagen, id_usuario)
-                    VALUES (%s, %s, %s, %s)
-                    """,
-                    (nombre, "activo", imagen_web, id_usuario)
-                )
-                id_alimento = cur.lastrowid
-                if elementos:
-                    elementos = json.loads(elementos)
-                    for elem in elementos:
-                        cur.execute(
-                            """
-                            INSERT INTO alimento_tiene_elemento (id_alimento, id_elemento, valor)
-                            VALUES (%s, %s, %s)
-                            """,
-                            (id_alimento, elem["id"], elem["valor"])
-                        )
-                conn.commit()
+                try:
+                    # Insertar alimento
+                    cur.execute("""
+                        INSERT INTO alimentos(nombre, estado, imagen, id_usuario)
+                        VALUES (%s, %s, %s, %s)
+                    """, (nombre, "Activo", imagen_web, id_usuario))
+                    id_alimento = cur.lastrowid
 
+                    # Insertar elementos si existen
+                    if elementos:
+                        elementos = json.loads(elementos)
+                        for elem in elementos:
+                            cur.execute("""
+                                INSERT INTO alimento_tiene_elemento (id_alimento, id_elemento, valor)
+                                VALUES (%s, %s, %s)
+                            """, (id_alimento, elem["id"], elem["valor"]))
+
+                    # Crear notificaciones para todos los usuarios
+                    cur.execute("SELECT id_usuario FROM usuario")
+                    usuarios = cur.fetchall()
+                    for u in usuarios:
+                        cur.execute("""
+                            INSERT INTO notificaciones (id_usuario_destinatario, id_usuario_origen, titulo, mensaje, tipo)
+                            VALUES (%s, %s, %s, %s, %s)
+                        """, (u['id_usuario'], id_usuario, 'Nuevo alimento creado',
+                              f'Se registró el alimento "{nombre}" con ID {id_alimento}', 'Ingreso'))
+
+                    conn.commit()
+
+                except Exception as db_err:
+                    # Error de clave duplicada
+                    if hasattr(db_err, 'args') and db_err.args[0] == 1062:
+                        return jsonify({"error": f'El nombre "{nombre}" ya está registrado.'}), 400
+                    else:
+                        print("Error DB:", db_err)
+                        return jsonify({"error": "Error en el servidor, intente nuevamente."}), 500
+
+        # Respuesta final para JS
         return jsonify({
-            "mensaje": "Alimento creado correctamente",
+            "exito": True,
+            "mensaje": f'Alimento "{nombre}" creado correctamente',
             "id_alimento": id_alimento,
             "imagen": imagen_web
         })
 
     except Exception as e:
-        return jsonify({"error": str(e)}), 500
+        print("Error registrar_alimento:", e)
+        return jsonify({"error": "Error en el servidor, intente nuevamente."}), 500
 
 @app.route("/consulta_indi_alimento_disponible/<nombre>", methods=["GET"])
 def consulta_individual_alimento_disponible(nombre):
@@ -2227,21 +2427,23 @@ def consulta_individual_alimento_disponible(nombre):
 @app.route("/actualizar_alimento/<int:id_alimento>", methods=["PUT", "POST"])
 def actualizar_alimento(id_alimento):
     try:
+        # Detectar si es multipart/form-data o JSON
         if request.content_type.startswith("multipart/form-data"):
-            nombre = request.form.get("nombre")
-            estado = request.form.get("estado", "activo")
+            nombre_nuevo = request.form.get("nombre")
+            estado = request.form.get("estado", "Activo")
             elementos = json.loads(request.form.get("elementos", "[]"))
             imagen_file = request.files.get("imagen")
         else:
             data = request.get_json()
-            nombre = data.get("nombre")
-            estado = data.get("estado", "activo")
+            nombre_nuevo = data.get("nombre")
+            estado = data.get("estado", "Activo")
             elementos = data.get("elementos", [])
             imagen_file = None
 
-        if not nombre:
+        if not nombre_nuevo:
             return jsonify({"error": "El nombre del alimento es obligatorio."}), 400
 
+        # Guardar imagen si se envía
         imagen_web = None
         if imagen_file and imagen_file.filename != "":
             filename = secure_filename(imagen_file.filename)
@@ -2249,45 +2451,922 @@ def actualizar_alimento(id_alimento):
             imagen_file.save(ruta)
             imagen_web = f"/static/imagenes_base_de_datos/{filename}"
 
-
         with config['development'].conn() as conn:
             with conn.cursor() as cur:
+                # Obtener nombre y estado viejo
+                cur.execute("SELECT nombre, estado FROM alimentos WHERE id_alimento=%s", (id_alimento,))
+                fila = cur.fetchone()
+                if not fila:
+                    return jsonify({"error": "El alimento no existe."}), 404
+                nombre_viejo = fila["nombre"]
+                estado_viejo = fila["estado"]
 
+                # Verificar si el nombre nuevo ya existe en otro registro
+                cur.execute("SELECT id_alimento FROM alimentos WHERE nombre=%s AND id_alimento!=%s", 
+                            (nombre_nuevo, id_alimento))
+                if cur.fetchone():
+                    return jsonify({"error": f"El nombre '{nombre_nuevo}' ya está en uso."}), 400
+
+                # Actualizar alimento
                 if imagen_web:
                     cur.execute("""
                         UPDATE alimentos 
-                        SET nombre = %s, estado = %s, imagen = %s 
-                        WHERE id_alimento = %s
-                    """, (nombre, estado, imagen_web, id_alimento))
+                        SET nombre=%s, estado=%s, imagen=%s 
+                        WHERE id_alimento=%s
+                    """, (nombre_nuevo, estado, imagen_web, id_alimento))
                 else:
                     cur.execute("""
                         UPDATE alimentos 
-                        SET nombre = %s, estado = %s
-                        WHERE id_alimento = %s
-                    """, (nombre, estado, id_alimento))
+                        SET nombre=%s, estado=%s
+                        WHERE id_alimento=%s
+                    """, (nombre_nuevo, estado, id_alimento))
 
+                # Actualizar elementos
                 for elem in elementos:
                     cur.execute("""
                         INSERT INTO alimento_tiene_elemento (id_alimento, id_elemento, valor)
                         VALUES (%s, %s, %s)
-                        ON DUPLICATE KEY UPDATE valor = VALUES(valor)
+                        ON DUPLICATE KEY UPDATE valor=VALUES(valor)
                     """, (id_alimento, elem["id_elemento"], elem["valor"]))
+
+                # Crear mensaje según el cambio
+                if nombre_nuevo != nombre_viejo:
+                    mensaje = f'El alimento "{nombre_viejo}" fue actualizado y ahora se llama "{nombre_nuevo}".'
+                elif estado.lower() != estado_viejo.lower():
+                    if estado.lower() == "inactivo":
+                        mensaje = f'El alimento "{nombre_nuevo}" fue desactivado.'
+                    else:
+                        mensaje = f'El alimento "{nombre_nuevo}" fue activado.'
+                else:
+                    mensaje = f'El alimento "{nombre_nuevo}" fue actualizado correctamente.'
+
+                # Crear notificaciones para todos los usuarios
+                cur.execute("SELECT id_usuario FROM usuario")
+                usuarios = cur.fetchall()
+                for u in usuarios:
+                    cur.execute("""
+                        INSERT INTO notificaciones (id_usuario_destinatario, id_usuario_origen, titulo, mensaje, tipo)
+                        VALUES (%s, %s, %s, %s, %s)
+                    """, (
+                        u['id_usuario'],
+                        3,  # usuario que realizó la acción
+                        "Alimento actualizado",
+                        mensaje,
+                        "Actualización"
+                    ))
 
                 conn.commit()
 
         return jsonify({
             "mensaje": "Alimento actualizado correctamente",
-            "imagen": imagen_web  
+            "imagen": imagen_web
         }), 200
-
-    except IntegrityError as e:
-        if e.args[0] == 1062:
-            return jsonify({"error": f"Ya existe un alimento con el nombre '{nombre}'."}), 400
-        return jsonify({"error": "Error de integridad en la base de datos."}), 400
 
     except Exception as e:
         print("Error en actualización:", e)
+        return jsonify({"error": "Ocurrió un error en el servidor. Intente nuevamente."}), 500
+
+@app.route("/eliminar_alimento/<int:id>", methods=["DELETE"])
+def eliminar_alimento(id):
+    try:
+        with config['development'].conn() as conn:
+            with conn.cursor() as cur:
+                # Consultar si existe el alimento
+                cur.execute("SELECT nombre FROM alimentos WHERE id_alimento = %s", (id,))
+                alimento = cur.fetchone()
+                if not alimento:
+                    return jsonify({"error": "El alimento no existe."}), 404
+
+                nombre_alimento = alimento['nombre']
+
+                try:
+                    cur.execute("DELETE FROM alimento_tiene_elemento WHERE id_alimento = %s", (id,))
+                    cur.execute("DELETE FROM alimentos WHERE id_alimento = %s", (id,))
+                    
+                    cur.execute("SELECT id_usuario FROM usuario")
+                    usuarios = cur.fetchall()
+                    for u in usuarios:
+                        cur.execute("""
+                            INSERT INTO notificaciones 
+                            (id_usuario_destinatario, id_usuario_origen, titulo, mensaje, tipo)
+                            VALUES (%s, %s, %s, %s, %s)
+                        """, (u['id_usuario'], 3, 'Alimento eliminado',
+                              f'Se eliminó el alimento "{nombre_alimento}"', 'Eliminación'))
+
+                    conn.commit()
+
+                    return jsonify({"mensaje": f"Alimento '{nombre_alimento}' eliminado correctamente"})
+
+                except Exception as fk_err:
+                    # Error de integridad referencial
+                    if hasattr(fk_err, 'args') and fk_err.args[0] == 1451:
+                        return jsonify({
+                            "error": f"No se puede eliminar '{nombre_alimento}' porque está asociado a dietas. Puede desactivarlo en su lugar."
+                        }), 400
+                    else:
+                        return jsonify({"error": "Error en el servidor, intente nuevamente."}), 500
+
+    except Exception as e:
+        return jsonify({"error": "Error en el servidor, intente nuevamente."}), 500
+
+# -----------------------------------
+# DIETAS
+# ----------------------------------
+@app.route("/mezcla_nutricional", methods=["POST"])
+def mezcla_nutricional():
+    """
+    Calcula la mezcla nutricional de varios alimentos según sus kg
+    ---
+    tags:
+      - Mezcla Nutricional
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              alimentos:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id_alimento:
+                      type: integer
+                    kg:
+                      type: number
+    responses:
+      200:
+        description: Composición nutricional de la mezcla
+    """
+    try:
+        datos = request.get_json()
+        alimentos_input = datos.get("alimentos", [])
+
+        if not alimentos_input:
+            return jsonify({"error": "No se recibieron alimentos"}), 400
+
+        total_kg = sum(a["kg"] for a in alimentos_input)
+        if total_kg <= 0:
+            return jsonify({"error": "El total de kg debe ser mayor que 0"}), 400
+
+        nutrientes = ["MS","EM-C","PC","FC","EE","CAL","F.DIS","SOD","ARG","LIS","MET","M+CIS","TREO","TRIP"]
+
+        nombre_bd_a_clave = {
+            "proteina_cruda": "PC",
+            "fosforo": "F.DIS",
+            "treonina": "TREO",
+            "fibra_cruda": "FC",
+            "sodio": "SOD",
+            "metionina": "MET",
+            "materia_seca": "MS",
+            "extracto_etereo": "EE",
+            "arginina": "ARG",
+            "metionina_cisteina": "M+CIS",
+            "energia_metabo": "EM-C",
+            "calcio": "CAL",
+            "lisina": "LIS",
+            "triptofano": "TRIP"
+        }
+
+        mezcla = {nutriente: 0 for nutriente in nutrientes}
+        porcentajes = []
+
+        with config['development'].conn() as conn:
+            with conn.cursor() as cur:
+                for a in alimentos_input:
+                    cur.execute("""
+                        SELECT e.nombre AS nombre_elemento, ate.valor
+                        FROM alimento_tiene_elemento ate
+                        JOIN elementos e ON e.id_elemento = ate.id_elemento
+                        WHERE ate.id_alimento = %s
+                    """, (a["id_alimento"],))
+                    elementos = cur.fetchall()
+
+                    nutr_alimento = {}
+                    for n in elementos:
+                        nombre_lower = n["nombre_elemento"].lower()  # pasar a minúsculas
+                        clave = nombre_bd_a_clave.get(nombre_lower)
+                        if clave:
+                            nutr_alimento[clave] = float(n["valor"])
+
+                    for nutriente in nutrientes:
+                        mezcla[nutriente] += nutr_alimento.get(nutriente, 0) * a["kg"]
+
+                    porcentajes.append({
+                        "id_alimento": a["id_alimento"],
+                        "porcentaje": round(a["kg"] * 100 / total_kg, 2)
+                    })
+
+        for nutriente in mezcla:
+            mezcla[nutriente] = round(mezcla[nutriente] / total_kg, 2)
+
+        return jsonify({
+            "mezcla_nutricional": mezcla,
+            "porcentajes_alimentos": porcentajes
+        })
+
+    except Exception as e:
         return jsonify({"error": str(e)}), 500
+
+@app.route("/crear_dieta", methods=["POST"])
+def crear_dieta():
+    try:
+        data = request.get_json()
+        id_usuario = data.get("id_usuario")
+        id_etapa_vida = data.get("id_etapa_vida")
+        descripcion = data.get("descripcion")
+        alimentos = data.get("alimentos", [])  # [{id_alimento, cantidad}]
+
+        if not id_usuario or not id_etapa_vida:
+            return jsonify({"error": "Faltan datos obligatorios"}), 400
+
+        if not alimentos:
+            return jsonify({"error": "No hay alimentos para la dieta"}), 400
+
+        nutrientes = ["MS","EM-C","PC","FC","EE","CAL","F.DIS","SOD","ARG","LIS","MET","M+CIS","TREO","TRIP"]
+        nombre_bd_a_clave = {
+            "proteina_cruda": "PC",
+            "fosforo": "F.DIS",
+            "treonina": "TREO",
+            "fibra_cruda": "FC",
+            "sodio": "SOD",
+            "metionina": "MET",
+            "materia_seca": "MS",
+            "extracto_etereo": "EE",
+            "arginina": "ARG",
+            "metionina_cisteina": "M+CIS",
+            "energia_metabo": "EM-C",
+            "calcio": "CAL",
+            "lisina": "LIS",
+            "triptofano": "TRIP"
+        }
+
+        total_kg = sum(a["cantidad"] for a in alimentos)
+        if total_kg <= 0:
+            return jsonify({"error": "La cantidad total debe ser mayor a 0"}), 400
+
+        mezcla = {nutriente: 0 for nutriente in nutrientes}
+
+        with config['development'].conn() as conn:
+            with conn.cursor() as cur:
+                # Obtener nombre de la etapa de vida
+                cur.execute("""
+                    SELECT nombre
+                    FROM etapa_vida
+                    WHERE id_etapa = %s
+                """, (id_etapa_vida,))
+                etapa = cur.fetchone()
+                nombre_etapa = etapa["nombre"] if etapa else "Desconocida"
+
+                # Calcular mezcla nutricional
+                for a in alimentos:
+                    cur.execute("""
+                        SELECT e.nombre AS nombre_elemento, ate.valor
+                        FROM alimento_tiene_elemento ate
+                        JOIN elementos e ON e.id_elemento = ate.id_elemento
+                        WHERE ate.id_alimento = %s
+                    """, (a["id_alimento"],))
+                    elementos = cur.fetchall()
+
+                    nutr_alimento = {}
+                    for n in elementos:
+                        clave = nombre_bd_a_clave.get(n["nombre_elemento"].lower())
+                        if clave:
+                            nutr_alimento[clave] = float(n["valor"])
+
+                    for nutriente in nutrientes:
+                        mezcla[nutriente] += nutr_alimento.get(nutriente, 0) * a["cantidad"]
+
+                # calcular promedio según total_kg
+                for nutriente in mezcla:
+                    mezcla[nutriente] = round(mezcla[nutriente] / total_kg, 2)
+
+                # insertar dieta con mezcla nutricional
+                cur.execute("""
+                    INSERT INTO dietas (id_usuario, id_etapa_vida, fecha_creacion, descripcion, mezcla_nutricional)
+                    VALUES (%s, %s, CURDATE(), %s, %s)
+                """, (id_usuario, id_etapa_vida, descripcion, json.dumps(mezcla)))
+
+                id_dieta = cur.lastrowid
+
+                # insertar alimentos
+                for item in alimentos:
+                    cur.execute("""
+                        INSERT INTO dieta_tiene_alimentos (id_dieta, id_alimento, cantidad)
+                        VALUES (%s, %s, %s)
+                    """, (id_dieta, item["id_alimento"], item["cantidad"]))
+
+                # Crear notificación para todos los usuarios
+                cur.execute("SELECT id_usuario FROM usuario")
+                usuarios = cur.fetchall()
+                for u in usuarios:
+                    cur.execute("""
+                        INSERT INTO notificaciones (id_usuario_destinatario, id_usuario_origen, titulo, mensaje, tipo)
+                        VALUES (%s, %s, %s, %s, %s)
+                    """, (
+                        u["id_usuario"],
+                        id_usuario,
+                        "Nueva dieta creada",
+                        f'Se creó la dieta con ID {id_dieta} para la etapa "{nombre_etapa}"',
+                        "Ingreso"
+                    ))
+
+                conn.commit()
+
+        return jsonify({
+            "mensaje": "Dieta creada correctamente",
+            "id_dieta": id_dieta,
+            "nombre_etapa": nombre_etapa,
+            "mezcla_nutricional": mezcla
+        })
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@app.route("/dieta", methods=["GET"])
+def consultar_dietas():
+    try:
+        with config['development'].conn() as conn:
+            with conn.cursor() as cur:
+                # Obtener todas las dietas incluyendo la mezcla nutricional
+                cur.execute("""
+                    SELECT d.id_dieta,
+                           u.nombre AS usuario,
+                           d.id_etapa_vida,
+                           ev.nombre AS etapa_vida,
+                           d.fecha_creacion,
+                           d.estado,
+                           d.descripcion,
+                           d.mezcla_nutricional
+                    FROM dietas d
+                    JOIN usuario u ON u.id_usuario = d.id_usuario
+                    JOIN etapa_vida ev ON ev.id_etapa = d.id_etapa_vida
+                """)
+                dietas = cur.fetchall()
+
+                resultado = []
+
+                for d in dietas:
+                    # Obtener los alimentos de la dieta
+                    cur.execute("""
+                        SELECT a.id_alimento, a.nombre, da.cantidad
+                        FROM dieta_tiene_alimentos da
+                        JOIN alimentos a ON a.id_alimento = da.id_alimento
+                        WHERE da.id_dieta = %s
+                    """, (d["id_dieta"],))
+                    alimentos = cur.fetchall()
+
+                    # Calcular el total de kg de la dieta
+                    total_kg = sum(a["cantidad"] for a in alimentos) if alimentos else 0
+
+                    # Agregar el porcentaje de cada alimento
+                    alimentos_con_porcentaje = []
+                    for a in alimentos:
+                        porcentaje = round(a["cantidad"] * 100 / total_kg, 2) if total_kg > 0 else 0
+                        alimentos_con_porcentaje.append({
+                            "id_alimento": a["id_alimento"],
+                            "nombre": a["nombre"],
+                            "cantidad": a["cantidad"],
+                            "porcentaje": porcentaje
+                        })
+
+                    # Mezcla nutricional (convertir string JSON a dict si es necesario)
+                    mezcla_nutricional = {}
+                    if d.get("mezcla_nutricional"):
+                        try:
+                            import json
+                            mezcla_nutricional = json.loads(d["mezcla_nutricional"])
+                        except:
+                            mezcla_nutricional = d["mezcla_nutricional"]  # si ya viene como dict
+
+                    resultado.append({
+                        "id_dieta": d["id_dieta"],
+                        "usuario": d["usuario"],
+                        "id_etapa_vida": d["id_etapa_vida"],
+                        "etapa_vida": d["etapa_vida"],
+                        "fecha_creacion": str(d["fecha_creacion"]),
+                        "estado": d["estado"],
+                        "descripcion": d["descripcion"],
+                        "alimentos": alimentos_con_porcentaje,
+                        "mezcla_nutricional": mezcla_nutricional
+                    })
+
+        return jsonify({"mensaje": resultado})
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@app.route("/PDF_dietas")
+def reporte_dietas():
+    try:
+        # ================================
+        #      CONSULTA BASE DE DATOS
+        # ================================
+        try:
+            with config['development'].conn() as conn:
+                with conn.cursor() as cur:
+                    cur.execute("""
+                        SELECT 
+                            d.id_dieta,
+                            u.nombre AS usuario,
+                            ev.nombre AS etapa_vida,
+                            d.fecha_creacion,
+                            d.estado
+                        FROM dietas d
+                        JOIN usuario u ON u.id_usuario = d.id_usuario
+                        JOIN etapa_vida ev ON ev.id_etapa = d.id_etapa_vida
+                        ORDER BY d.id_dieta ASC
+                    """)
+                    dietas = cur.fetchall()
+        except Exception as err:
+            print(err)
+            return jsonify({'Error': 'Error al consultar las dietas'})
+
+        if not dietas:
+            return jsonify({"mensaje": "No encontrado"})
+
+        # ================================
+        #      CREAR PDF
+        # ================================
+        buffer = io.BytesIO()
+        pdf = SimpleDocTemplate(buffer, pagesize=landscape(letter))
+        elementos = []
+        styles = getSampleStyleSheet()
+        codigo = random.randint(0, 9999)
+
+        # ================================================
+        #               ENCABEZADO PERSONALIZADO
+        # ================================================
+        ruta_logo = os.path.join("src/static/iconos/", "Logo_edupork.png")
+        logo = Image(ruta_logo, width=140, height=60) if os.path.exists(ruta_logo) else Paragraph("LOGO", styles["Title"])
+        
+        titulo_central = [
+            Paragraph('<font color="#333333"><b>Edupork: Alimentacion porcina</b></font>', styles["Title"]),
+            Paragraph('<para align="center"><font color="#333333">Informe de Dietas Registradas</font></para>', styles["Normal"])
+        ]
+
+        info_derecha = [
+            Paragraph(f'<font color="#333333"><b>CÓDIGO:</b> {codigo}</font>', styles["Normal"]),
+            Paragraph('<font color="#333333"><b>VERSIÓN:</b> 1</font>', styles["Normal"]),
+        ]
+
+        ruta_logo_sena = os.path.join("src/static/iconos/", "logo_sena.png")
+        logo_sena = Image(ruta_logo_sena, width=60, height=60) if os.path.exists(ruta_logo_sena) else Paragraph("LOGO_SENA", styles["Title"])
+
+        tabla_encabezado = Table(
+            [[logo, titulo_central, info_derecha, logo_sena]],
+            colWidths=[120, 300, 120, 80]  # Más ancho en el título y código
+        )
+
+        tabla_encabezado.setStyle(TableStyle([
+            ("BOX", (0, 0), (-1, -1), 1, "#333333"),
+            ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
+            ("ALIGN", (1, 0), (1, 0), "CENTER"),
+            ("LEFTPADDING", (1, 0), (1, 0), 10),
+            ("RIGHTPADDING", (2, 0), (2, 0), 10),
+        ]))
+
+        elementos.append(tabla_encabezado)
+        elementos.append(Spacer(1, 20))
+
+        # ================================================
+        #                TABLA DE DIETAS
+        # ================================================
+        elementos.append(Paragraph('<font color="#333333"><b>Listado de Dietas</b></font>', styles["Title"]))
+
+        encabezado = ["ID", "Usuario Creador", "Etapa de Vida", "Fecha", "Estado"]
+        tabla_data = [encabezado]
+
+        for d in dietas:
+            tabla_data.append([
+                d["id_dieta"],
+                d["usuario"],
+                d["etapa_vida"],
+                str(d["fecha_creacion"]),
+                d["estado"]
+            ])
+
+        verde_header = colors.HexColor("#62804B")
+        verde_fila = colors.HexColor("#E7F6DD")
+
+        tabla = Table(tabla_data)
+        # ANCHO PROPORCIONAL COLUMNAS
+        tabla._argW = [60, 200, 200, 120, 100]  # Usuario y Etapa más anchos
+
+        estilos_tabla = [
+            ("BACKGROUND", (0, 0), (-1, 0), verde_header),
+            ("TEXTCOLOR", (0, 0), (-1, 0), colors.white),
+            ("FONTNAME", (0, 0), (-1, 0), "Helvetica-Bold"),
+            ("FONTSIZE", (0, 0), (-1, 0), 12),
+
+            ("BOX", (0, 0), (-1, -1), 1, colors.HexColor("#9BC38A")),
+            ("GRID", (0, 0), (-1, -1), 0.5, colors.HexColor("#AACF96")),
+
+            ("ALIGN", (0, 0), (-1, -1), "CENTER"),
+            ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
+
+            ("FONTSIZE", (0, 1), (-1, -1), 10),
+        ]
+
+        # Alternar fondo
+        for i in range(1, len(tabla_data)):
+            if i % 2 == 1:
+                estilos_tabla.append(("BACKGROUND", (0, i), (-1, i), verde_fila))
+
+        tabla.setStyle(TableStyle(estilos_tabla))
+        elementos.append(tabla)
+
+        # ================================================
+        #                GENERAR PDF
+        # ================================================
+        pdf.build(elementos)
+
+        pdf_value = buffer.getvalue()
+        buffer.close()
+
+        response = make_response(pdf_value)
+        response.headers["Content-Type"] = "application/pdf"
+        response.headers["Content-Disposition"] = 'inline; filename="reporte_dietas.pdf"'
+
+        return response
+
+    except Exception as err:
+        print(err)
+        return jsonify({'Mensaje': 'Error al generar el PDF'})
+
+@app.route("/dieta/<int:id_dieta>", methods=["GET"])
+def obtener_dieta(id_dieta):
+    try:
+        with config['development'].conn() as conn:
+            with conn.cursor() as cur:
+
+                # Datos generales de la dieta ----------------------------------
+                cur.execute("""
+                    SELECT 
+                        d.id_dieta,
+                        u.nombre AS usuario,
+                        d.fecha_creacion,
+                        d.estado,
+                        d.descripcion,
+                        d.mezcla_nutricional,
+                        ev.nombre AS etapa_vida
+                    FROM dietas d
+                    JOIN etapa_vida ev ON d.id_etapa_vida = ev.id_etapa
+                    JOIN usuario u ON d.id_usuario = u.id_usuario
+                    WHERE d.id_dieta = %s
+                """, (id_dieta,))
+                dieta = cur.fetchone()
+
+                if not dieta:
+                    return jsonify({"mensaje": None})
+
+                # Convertir fecha a formato "yy-mm-dd" --------------------------
+                dieta["fecha_creacion"] = dieta["fecha_creacion"].strftime("%Y-%m-%d")
+
+                # Alimentos asociados ------------------------------------------
+                cur.execute("""
+                    SELECT 
+                        a.id_alimento,
+                        a.nombre AS alimento,
+                        dta.cantidad,
+                        a.imagen
+                    FROM dieta_tiene_alimentos dta
+                    JOIN alimentos a ON dta.id_alimento = a.id_alimento
+                    WHERE dta.id_dieta = %s
+                """, (id_dieta,))
+                alimentos = cur.fetchall()
+                dieta["alimentos"] = alimentos
+
+                # Mezcla nutricional -------------------------------------------
+                mezcla_nutricional = {}
+                if dieta.get("mezcla_nutricional"):
+                    try:
+                        import json
+                        mezcla_nutricional = json.loads(dieta["mezcla_nutricional"])
+                    except:
+                        mezcla_nutricional = dieta["mezcla_nutricional"]
+
+                dieta["mezcla_nutricional"] = mezcla_nutricional
+
+        return jsonify({"mensaje": dieta})
+
+    except Exception as e:
+        return jsonify({"error": str(e)})
+
+@app.route("/PDF_dieta/<int:id_dieta>")
+def PDF_dieta(id_dieta):
+    try:
+        # ================================
+        #      OBTENER DATOS DE LA DIETA
+        # ================================
+        respuesta = obtener_dieta(id_dieta)
+        data = respuesta.get_json()["mensaje"]
+
+        if not data:
+            return jsonify({"mensaje": "Dieta no encontrada"})
+
+        # Datos generales
+        id_d = data["id_dieta"]
+        usuario = data["usuario"]
+        fecha = str(data["fecha_creacion"])
+        estado = data["estado"]
+        etapa = data["etapa_vida"]
+
+        # Alimentos
+        alimentos = data["alimentos"]
+
+        # Mezcla nutricional
+        mezcla = data["mezcla_nutricional"]
+
+        # ================================
+        #           CREAR PDF
+        # ================================
+        buffer = io.BytesIO()
+        pdf = SimpleDocTemplate(buffer, pagesize=landscape(letter))
+        elementos = []
+        styles = getSampleStyleSheet()
+        codigo = random.randint(0,9999)
+
+        # --- ENCABEZADO COMÚN ---
+        ruta_logo = os.path.join("src/static/iconos/", "Logo_edupork.png")
+        ruta_sena = os.path.join("src/static/iconos/", "logo_sena.png")
+        logo = Image(ruta_logo, width=140, height=60) if os.path.exists(ruta_logo) else Paragraph("LOGO", styles["Title"])
+        logo_sena = Image(ruta_sena, width=60, height=60) if os.path.exists(ruta_sena) else Paragraph("SENA", styles["Title"])
+
+        # ================================
+        # HOJA 1: INFORMACIÓN GENERAL Y ALIMENTOS
+        # ================================
+        titulo1 = [
+            Paragraph("<b>Edupork</b>", styles["Title"]),
+            Paragraph(f'<para align="center">Reporte Dieta ID {id_d}</para>', styles["Normal"])
+        ]
+        info1 = [
+            Paragraph(f"<b>CÓDIGO:</b> {codigo}", styles["Normal"]),
+            Paragraph("<b>VERSIÓN:</b> 1", styles["Normal"])
+        ]
+        tabla_head1 = Table([[logo, titulo1, info1, logo_sena]], colWidths=[120, 270, 100, 80])
+        tabla_head1.setStyle(TableStyle([
+            ("BOX", (0,0), (-1,-1), 1, "#333333"),
+            ("VALIGN", (0,0), (-1,-1), "MIDDLE"),
+            ("ALIGN", (1,0), (1,0), "CENTER")
+        ]))
+        elementos.append(tabla_head1)
+        elementos.append(Spacer(1, 20))
+
+        # Título de información general
+        elementos.append(Paragraph("<b>INFORMACIÓN GENERAL</b>", styles["Title"]))
+        elementos.append(Spacer(1, 10))
+
+        # Datos generales con estilo uniforme
+        tabla_info = [
+            ["ID Dieta", id_d],
+            ["Usuario Creador", usuario],
+            ["Etapa de Vida", etapa],
+            ["Fecha", fecha],
+            ["Estado", estado]
+        ]
+        tabla1 = Table(tabla_info, colWidths=[150, 300])
+        tabla1.setStyle(TableStyle([
+            ('BACKGROUND', (0,0), (-1,0), colors.HexColor("#62804B")),
+            ('TEXTCOLOR', (0,0), (-1,0), colors.white),
+            ('BACKGROUND', (0,1), (-1,-1), colors.HexColor("#E7F6DD")),
+            ('TEXTCOLOR', (0,1), (-1,-1), colors.black),
+            ('FONTNAME', (0,0), (-1,0), 'Helvetica-Bold'),
+            ('FONTNAME', (0,1), (-1,-1), 'Helvetica'),
+            ('FONTSIZE', (0,0), (-1,-1), 11),
+            ('ALIGN', (0,0), (-1,-1), 'LEFT'),
+            ('VALIGN', (0,0), (-1,-1), 'MIDDLE'),
+            ('BOX', (0,0), (-1,-1), 1, colors.HexColor("#62804B")),
+            ('INNERGRID', (0,0), (-1,-1), 0.5, colors.HexColor("#AACF96")),
+            ('LEFTPADDING', (0,0), (-1,-1), 8),
+            ('RIGHTPADDING', (0,0), (-1,-1), 8),
+            ('TOPPADDING', (0,0), (-1,-1), 4),
+            ('BOTTOMPADDING', (0,0), (-1,-1), 4),
+        ]))
+        elementos.append(tabla1)
+        elementos.append(Spacer(1, 20))
+
+        # Tabla de alimentos con totales
+        elementos.append(Paragraph("<b>Alimentos de la dieta</b>", styles["Title"]))
+        total_cant = sum(a["cantidad"] for a in alimentos)
+        tabla_alim = [["ID", "Alimento", "Cantidad(KG)", "Porcentaje"]]
+        for a in alimentos:
+            porcentaje = (a["cantidad"]/total_cant*100) if total_cant>0 else 0
+            tabla_alim.append([a["id_alimento"], a["alimento"], f"{a['cantidad']}", f"{porcentaje:.2f}%"])
+
+        # Fila total con suma de cantidad y 100% de porcentaje
+        tabla_alim.append(["", "TOTAL", f"{total_cant:.2f}", "100.00%"])
+
+        tabla2 = Table(tabla_alim, colWidths=[60,200,100,100])
+        tabla2.setStyle(TableStyle([
+            ('BACKGROUND', (0,0), (-1,0), colors.HexColor("#62804B")),
+            ('TEXTCOLOR', (0,0), (-1,0), colors.white),
+            ('FONTNAME', (0,0), (-1,0), 'Helvetica-Bold'),
+            ('BACKGROUND', (0,1), (-1,-2), colors.HexColor("#E7F6DD")),
+            ('BACKGROUND', (0,-1), (-1,-1), colors.HexColor("#C0E4B5")),  # color total
+            ('TEXTCOLOR', (0,1), (-1,-1), colors.black),
+            ('GRID', (0,0), (-1,-1), 0.5, colors.HexColor("#AACF96")),
+            ('ALIGN', (0,0), (-1,-1), 'CENTER'),
+            ('VALIGN', (0,0), (-1,-1), 'MIDDLE'),
+        ]))
+        elementos.append(tabla2)
+        elementos.append(PageBreak())  # Fin hoja 1
+
+        # ================================
+        # HOJA 2: MEZCLA NUTRICIONAL
+        # ================================
+        elementos.append(Paragraph("<b>COMPOSICIÓN NUTRICIONAL</b>", styles["Title"]))
+        if mezcla:
+            # Diccionario de traducción de abreviaturas a nombres completos
+            nombres_nutrientes = {
+                "ARG": "ARGININA",
+                "CAL": "CALCIO",
+                "EE": "EXT. ETEREO",
+                "EM-C": "E.M. CERDOS (kcal/kg)",
+                "F.DIS": "FOSF. DISP.",
+                "FC": "FIBRA CRUDA",
+                "LIS": "LISINA",
+                "M+CIS": "MET + CIS",
+                "MET": "METIONINA",
+                "MS": "MATERIA S.",
+                "PC": "PROTEÍNA C.",
+                "SOD": "SODIO",
+                "TREO": "TREONINA",
+                "TRIP": "TRIPTOFANO"
+            }
+
+            tabla_mezcla = [["Nutriente", "Valor"]]
+            for abrev, nombre in nombres_nutrientes.items():
+                valor = mezcla.get(abrev, "-")
+                # Para EM-C se muestra kcal/kg, resto %
+                if abrev != "EM-C" and valor != "-":
+                    valor = f"{valor}%" 
+                tabla_mezcla.append([nombre, str(valor)])
+
+            tabla3 = Table(tabla_mezcla, colWidths=[200,200])
+            tabla3.setStyle(TableStyle([
+                ('BACKGROUND', (0,0), (-1,0), colors.HexColor("#62804B")),
+                ('TEXTCOLOR', (0,0), (-1,0), colors.white),
+                ('FONTNAME', (0,0), (-1,0), 'Helvetica-Bold'),
+                ('BACKGROUND', (0,1), (-1,-1), colors.HexColor("#E7F6DD")),
+                ('TEXTCOLOR', (0,1), (-1,-1), colors.black),
+                ('GRID', (0,0), (-1,-1), 0.5, colors.HexColor("#AACF96")),
+                ('ALIGN', (0,0), (-1,-1), 'CENTER'),
+                ('VALIGN', (0,0), (-1,-1), 'MIDDLE'),
+            ]))
+            elementos.append(tabla3)
+        else:
+            elementos.append(Paragraph("No se registró mezcla nutricional.", styles["Normal"]))
+        elementos.append(PageBreak())  # Fin hoja 2
+
+        # ================================
+        # HOJA 3: GRÁFICA DE TORTA
+        # ================================
+        cantidades = [a["cantidad"] for a in alimentos]
+        labels = [a["alimento"] for a in alimentos]
+        if cantidades:
+            import matplotlib.pyplot as plt
+            fig, ax = plt.subplots()
+            colores = ["#62804B","#E7F6DD","#A1C181","#9BC995","#DDE7B6","#FFC857","#E9724C","#C5283D"]
+            ax.pie(cantidades, labels=labels, autopct="%1.1f%%", colors=colores[:len(cantidades)])
+            ax.set_title("Distribución de alimentos (%)")
+
+            img_buf = io.BytesIO()
+            plt.savefig(img_buf, format='png', dpi=100, bbox_inches='tight')
+            plt.close()
+            img_buf.seek(0)
+
+            elementos.append(Image(img_buf, width=450, height=450))
+
+        # --- GENERAR PDF ---
+        pdf.build(elementos)
+        pdf_value = buffer.getvalue()
+        buffer.close()
+
+        response = make_response(pdf_value)
+        response.headers["Content-Type"] = "application/pdf"
+        response.headers["Content-Disposition"] = f'inline; filename="Dieta_{id_d}.pdf"'
+        return response
+
+    except Exception as err:
+        print(err)
+        return jsonify({'Mensaje': 'Error al generar el PDF'})
+
+@app.route("/actualizar_dieta/<int:id_dieta>", methods=["PUT"])
+def actualizar_dieta(id_dieta):
+    try:
+        data = request.get_json()
+        if not data:
+            return jsonify({"error": "No se recibieron datos"}), 400
+
+        # Campos obligatorios
+        id_etapa_vida = data.get("id_etapa_vida")
+        descripcion = data.get("descripcion")
+        alimentos = data.get("alimentos", [])
+        estado = data.get("estado", "activo")  # por defecto activo
+
+        if estado not in ["Activo", "Inactivo"]:
+            return jsonify({"error": "Estado inválido"}), 400
+
+        if not id_etapa_vida or not descripcion:
+            return jsonify({"error": "Faltan datos obligatorios"}), 400
+
+        nutrientes = ["MS","EM-C","PC","FC","EE","CAL","F.DIS","SOD","ARG","LIS","MET","M+CIS","TREO","TRIP"]
+        nombre_bd_a_clave = {
+            "proteina_cruda": "PC",
+            "fosforo": "F.DIS",
+            "treonina": "TREO",
+            "fibra_cruda": "FC",
+            "sodio": "SOD",
+            "metionina": "MET",
+            "materia_seca": "MS",
+            "extracto_etereo": "EE",
+            "arginina": "ARG",
+            "metionina_cisteina": "M+CIS",
+            "energia_metabo": "EM-C",
+            "calcio": "CAL",
+            "lisina": "LIS",
+            "triptofano": "TRIP"
+        }
+
+        total_kg = sum(a["cantidad"] for a in alimentos)
+        if total_kg <= 0:
+            return jsonify({"error": "La cantidad total debe ser mayor a 0"}), 400
+
+        mezcla = {nutriente: 0 for nutriente in nutrientes}
+
+        with config['development'].conn() as conn:
+            with conn.cursor() as cur:
+                # Calcular mezcla nutricional
+                for a in alimentos:
+                    cur.execute("""
+                        SELECT e.nombre AS nombre_elemento, ate.valor
+                        FROM alimento_tiene_elemento ate
+                        JOIN elementos e ON e.id_elemento = ate.id_elemento
+                        WHERE ate.id_alimento = %s
+                    """, (a["id_alimento"],))
+                    elementos = cur.fetchall()
+
+                    nutr_alimento = {}
+                    for n in elementos:
+                        clave = nombre_bd_a_clave.get(n["nombre_elemento"].lower())
+                        if clave:
+                            nutr_alimento[clave] = float(n["valor"])
+
+                    for nutriente in nutrientes:
+                        mezcla[nutriente] += nutr_alimento.get(nutriente, 0) * a["cantidad"]
+
+                # calcular promedio según total_kg
+                for nutriente in mezcla:
+                    mezcla[nutriente] = round(mezcla[nutriente] / total_kg, 2)
+
+                # Actualizar dieta con mezcla nutricional y estado
+                cur.execute("""
+                    UPDATE dietas 
+                    SET id_etapa_vida = %s, descripcion = %s, mezcla_nutricional = %s, estado = %s
+                    WHERE id_dieta = %s
+                """, (id_etapa_vida, descripcion, json.dumps(mezcla), estado, id_dieta))
+
+                # Eliminar alimentos actuales
+                cur.execute("DELETE FROM dieta_tiene_alimentos WHERE id_dieta = %s", (id_dieta,))
+
+                # Insertar nuevos alimentos
+                for item in alimentos:
+                    id_alimento = item.get("id_alimento")
+                    cantidad = item.get("cantidad")
+                    if id_alimento is None or cantidad is None:
+                        continue
+                    cur.execute("""
+                        INSERT INTO dieta_tiene_alimentos (id_dieta, id_alimento, cantidad)
+                        VALUES (%s, %s, %s)
+                    """, (id_dieta, id_alimento, cantidad))
+
+            conn.commit()
+
+        return jsonify({
+            "mensaje": "Dieta actualizada correctamente",
+            "mezcla_nutricional": mezcla
+        })
+
+    except Exception as e:
+        if 'conn' in locals():
+            conn.rollback()
+        return jsonify({"error": str(e)}), 500
+
+@app.route("/eliminar_dieta/<int:id_dieta>", methods=["DELETE"])
+def eliminar_dieta(id_dieta):
+    try:
+        with config['development'].conn() as conn:
+            with conn.cursor() as cur:
+                cur.execute("DELETE FROM dieta_tiene_alimentos WHERE id_dieta = %s", (id_dieta,))
+                cur.execute("DELETE FROM dietas WHERE id_dieta = %s", (id_dieta,))
+                conn.commit()
+
+        return jsonify({"mensaje": "Dieta eliminada correctamente"})
+
+    except Exception as e:
+        return jsonify({"error": str(e)})
 
 
 if __name__ == '__main__':
