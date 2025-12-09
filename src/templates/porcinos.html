@@ -99,7 +99,14 @@
             </div>
             <div class="container__user__btn">
                 <img src="/src/static/iconos/icon user.svg" alt="" class="svg__user">
-                <button type="button" class="btn__perfil">Juan Tovar</button>
+                <button type="button" class="btn__perfil" id="btnPerfil">
+                    <span id="nombreUsuarioTexto"></span>
+                    <i class="fa fa-caret-down"></i>
+                </button>
+                <div class="usuario-menu" id="usuarioMenu">
+                    <a href="perfil.html">Mi perfil</a>
+                    <a href="#" id="cerrarSesionBtn">Cerrar sesión</a>
+                </div>
             </div>
         </section>
         <header class= "container container__title">
