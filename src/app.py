@@ -1189,8 +1189,8 @@ def registrar_porcinos():
       description: Registro agregado
   """
   try:
-    usuario = request.usuario   
-    id_usuario = usuario["id_auto"]
+    usuario = request.usuario
+    id_usuario = usuario['id_auto'] if 'id_auto' in usuario else usuario['id_usuario']
 
     porcino = request.get_json()
     id =      porcino['id_porcino']
@@ -1316,9 +1316,15 @@ def actualizar_porcino(id):
         cur.execute('UPDATE porcinos SET peso_inicial = %s, peso_final = %s, fecha_nacimiento = %s, sexo = %s, id_raza = %s, id_etapa = %s, estado = %s, descripcion = %s WHERE id_porcino = %s',
                   (p_ini,p_fin,fec_nac,sexo,id_ra,id_eta,estado,descripcion,id))
         cur.execute("""
-                      INSERT INTO notificaciones (id_usuario_destinatario, id_usuario_origen, titulo, mensaje, tipo)
-                      VALUES (%s, %s, %s, %s, %s)""", 
-                      (id_usuario,id_usuario,'Actualizacion de la información del Porcino',f'Se actualizo la información del porcino con ID {id}','Actualización'))
+                INSERT INTO notificaciones (id_usuario_destinatario, id_usuario_origen, titulo, mensaje, tipo)
+                VALUES (%s, %s, %s, %s, %s)
+            """, (
+                id_usuario,  
+                id_usuario, 
+                'Actualizacion de la información del Porcino',
+                f'Se actualizo la información del porcino con ID {id}',
+                'Actualización'
+            ))
         conn.commit()
     
     return jsonify({'Mensaje': f'Informacion del porcino con id {id} actualizada'}), 200
@@ -1348,16 +1354,21 @@ def eliminar_porcino(id):
   """
   try:
     usuario = request.usuario
-    id_usuario = usuario["id_auto"]
+    id_usuario = usuario['id_auto'] if 'id_auto' in usuario else usuario['id_usuario']
     
     with config['development'].conn() as conn:
       with conn.cursor() as cur:
         cur.execute('DELETE FROM porcinos WHERE id_porcino = %s', (id))
-        cur.execute(f"""
-                      INSERT INTO notificaciones (id_usuario_destinatario, id_usuario_origen, titulo, mensaje, tipo)
-                      VALUES ({id_usuario}, {id_usuario}, 'Eliminación de la información del Porcino',
-                      CONCAT('Se eliminó la información del porcino con ID {id}'),'Eliminación');
-                      """)
+        cur.execute("""
+                INSERT INTO notificaciones (id_usuario_destinatario, id_usuario_origen, titulo, mensaje, tipo)
+                VALUES (%s, %s, %s, %s, %s)
+            """, (
+                id_usuario,  
+                id_usuario, 
+                'Eliminacion de la información del Porcino',
+                f'Se elimino la información del porcino con ID {id}',
+                'Eliminación'
+            ))
         conn.commit()
     return jsonify({'Mensaje': f'El porcino con id {id} ha sido eliminado correctamente'})
     
@@ -1602,8 +1613,8 @@ def registrar_raza():
       description: Raza registada correctamente
   """
   try:
-    usuario = request.usuario   
-    id_usuario = usuario["id_auto"]
+    usuario = request.usuario
+    id_usuario = usuario['id_auto'] if 'id_auto' in usuario else usuario['id_usuario']
     
     data = request.get_json()
     nombre = data['nombre']
@@ -1613,11 +1624,16 @@ def registrar_raza():
         cur.execute('INSERT INTO raza VALUES (null,%s,%s)',
                 (nombre,desc))
         id_raza = cur.lastrowid
-        cur.execute(f"""
-                      INSERT INTO notificaciones (id_usuario_destinatario, id_usuario_origen, titulo, mensaje, tipo)
-                      VALUES ({id_usuario}, {id_usuario}, 'Registro de Raza',
-                      CONCAT('Se registró una nueva raza con ID {id_raza}'),'Ingreso');
-                      """)
+        cur.execute("""
+                INSERT INTO notificaciones (id_usuario_destinatario, id_usuario_origen, titulo, mensaje, tipo)
+                VALUES (%s, %s, %s, %s, %s)
+            """, (
+                id_usuario,  
+                id_usuario, 
+                'Registro de Raza',
+                f'Se registró una nuevo raza con ID {id_raza}',
+                'Ingreso'
+            ))
         conn.commit()
 
       return jsonify({'Mensaje': 'Raza registrada correctamente'})
@@ -1655,6 +1671,9 @@ def actualizar_raza(id):
       description: Raza actualizada correctamente
   """
   try:
+    usuario = request.usuario
+    id_usuario = usuario['id_auto'] if 'id_auto' in usuario else usuario['id_usuario']
+    
     data = request.get_json()
     nombre = data['nombre']
     desc = data['descripcion']
@@ -1663,11 +1682,16 @@ def actualizar_raza(id):
       with conn.cursor() as cur:
         cur.execute('UPDATE raza SET nombre = %s, descripcion = %s WHERE id_raza = %s',
                 (nombre,desc,id))
-        cur.execute(f"""
-                      INSERT INTO notificaciones (id_usuario_destinatario, id_usuario_origen, titulo, mensaje, tipo)
-                      VALUES (1, 1, 'Actualizacion de la información de la Raza',
-                      CONCAT('Se actualizo la información de la raza con ID {id}'),'Actualización');
-                      """)
+        cur.execute("""
+                INSERT INTO notificaciones (id_usuario_destinatario, id_usuario_origen, titulo, mensaje, tipo)
+                VALUES (%s, %s, %s, %s, %s)
+            """, (
+                id_usuario,  
+                id_usuario, 
+                'Actualizacion de la información de la Raza',
+                f'Se actualizo la información de la raza con ID {id}',
+                'Actualización'
+            ))
         conn.commit()
 
     return jsonify({'Mensaje': 'Raza actulizada correctamente'})
@@ -1701,8 +1725,8 @@ def eliminar_raza(id):
       
   """
   try:
-    usuario = request.usuario   
-    id_usuario = usuario["id_auto"]
+    usuario = request.usuario
+    id_usuario = usuario['id_auto'] if 'id_auto' in usuario else usuario['id_usuario']
     with config['development'].conn() as conn:
       with conn.cursor() as cur:
         cur.execute('DELETE FROM raza WHERE id_raza = %s',
@@ -1717,7 +1741,6 @@ def eliminar_raza(id):
                     f'Se eliminó la información de la raza con ID {id}',
                     'Eliminación'
                 ))
-
         conn.commit()
 
 
@@ -2044,6 +2067,9 @@ def registrar_etapa():
       description: Error en la base de datos
   """
   try:
+    usuario = request.usuario
+    id_usuario = usuario['id_auto'] if 'id_auto' in usuario else usuario['id_usuario']
+
     
     data = request.get_json()
     nombre_etapa = data['nombre']
@@ -2073,17 +2099,22 @@ def registrar_etapa():
                           VALUES (%s,%s,%s)
                           """, (id_etapa,id_elemento,porcentaje))
         
-        cur.execute(f"""
-                      INSERT INTO notificaciones (id_usuario_destinatario, id_usuario_origen, titulo, mensaje, tipo)
-                      VALUES (1, 1, 'Registro de Etapa de vida',
-                      CONCAT('Se registró una nueva etapa de vida con ID {id_etapa}'),'Ingreso');
-                      """)
+        cur.execute("""
+                INSERT INTO notificaciones (id_usuario_destinatario, id_usuario_origen, titulo, mensaje, tipo)
+                VALUES (%s, %s, %s, %s, %s)
+            """, (
+                id_usuario,  
+                id_usuario, 
+                'Registro de Etapa de Vida',
+                f'Se registró una nueva etapa de vida con ID {id_etapa}',
+                'Ingreso'
+            ))
         conn.commit()
 
     return jsonify({'Mensaje': 'Etapa de vida registrada correctamente'}), 201
   except Exception as err:
     print(err)
-    return jsonify({'Mesaje':'Error en la base de datos'})
+    return jsonify({'Mensaje':'Error en la base de datos'})
 
 
 # RUTA PARA ACTUALIZAR LA INFORMACION DE UNA ETAPA DE VIDA POR SU ID
@@ -2116,6 +2147,9 @@ def actualizar_etapa_vida(id):
       description: Etapa de vida actualizada correctamente
   """
   try:
+    usuario = request.usuario
+    id_usuario = usuario['id_auto'] if 'id_auto' in usuario else usuario['id_usuario']
+    
     data = request.get_json()
     nombre_etapa = data['nombre']
     peso_min = data['peso_min']
@@ -2147,11 +2181,16 @@ def actualizar_etapa_vida(id):
                           INSERT INTO requerimientos_nutricionales(id_etapa,id_elemento,porcentaje)
                           VALUES (%s,%s,%s)
                           """, (id,id_elemento,porcentaje))
-        cur.execute(f"""
-                      INSERT INTO notificaciones (id_usuario_destinatario, id_usuario_origen, titulo, mensaje, tipo)
-                      VALUES (1, 1, 'Actualizacion de la información de la Etapa de Vida',
-                      CONCAT('Se actualizo la información de la etapa de vida con ID {id}'),'Actualización');
-                      """)
+        cur.execute("""
+                INSERT INTO notificaciones (id_usuario_destinatario, id_usuario_origen, titulo, mensaje, tipo)
+                VALUES (%s, %s, %s, %s, %s)
+            """, (
+                id_usuario,  
+                id_usuario, 
+                'Actualizacion de la información de la Etapa de Vida',
+                f'Se actualizo la información de la etapa de vida con ID {id}',
+                'Actualización'
+            ))
         conn.commit()
 
     return jsonify({'Mensaje': 'Etapa de vida actulizada correctamente'})
@@ -2185,6 +2224,10 @@ def eliminar_etapa_vida(id):
       
   """
   try:
+    
+    usuario = request.usuario
+    id_usuario = usuario['id_auto'] if 'id_auto' in usuario else usuario['id_usuario']
+    
     with config['development'].conn() as conn:
       with conn.cursor() as cur:
         cur.execute("""
@@ -2196,11 +2239,16 @@ def eliminar_etapa_vida(id):
                     WHERE id_etapa = %s
                     """,
                     (id))
-        cur.execute(f"""
-                      INSERT INTO notificaciones (id_usuario_destinatario, id_usuario_origen, titulo, mensaje, tipo)
-                      VALUES (1, 1, 'Eliminación de la información de la Etapa de Vida',
-                      CONCAT('Se eliminó la información de la etapa de vida con ID {id}'),'Eliminación');
-                      """)
+        cur.execute("""
+                INSERT INTO notificaciones (id_usuario_destinatario, id_usuario_origen, titulo, mensaje, tipo)
+                VALUES (%s, %s, %s, %s, %s)
+            """, (
+                id_usuario,  
+                id_usuario, 
+                'Eliminacion de la información de la Etapa de Vida',
+                f'Se elimino la información de la etapa de vida con ID {id}',
+                'Eliminación'
+            ))
         conn.commit()
     return jsonify({'Mensaje': 'Etapa de vida eliminada correctamente'})
   except Exception as err:
@@ -2406,7 +2454,7 @@ def consulta_notificaciones(id):
                       SELECT id_notificacion,titulo, mensaje, tipo,fecha_creacion
                       FROM notificaciones 
                       WHERE id_usuario_destinatario = %s
-                      ORDER BY fecha_creacion ASC
+                      ORDER BY fecha_creacion DESC
                       """, (id,))
     info = cursor.fetchall()
     if info:
@@ -2757,6 +2805,9 @@ def consulta_alimento_disponible():
 @rol_requerido('Admin')
 def registrar_alimento():
     try:
+        usuario = request.usuario
+        id_usuario = usuario['id_auto'] if 'id_auto' in usuario else usuario['id_usuario']
+        
         nombre = request.form.get("nombre_alimento")
         elementos = request.form.get("elementos")
         imagen_file = request.files.get("imagen")
@@ -2775,8 +2826,6 @@ def registrar_alimento():
             except Exception as e:
                 print("Error al guardar imagen:", e)
                 return jsonify({"error": "No se pudo guardar la imagen."}), 500
-
-        id_usuario = 3  # Cambiar según login real
 
         with config['development'].conn() as conn:
             with conn.cursor() as cur:
@@ -2834,6 +2883,9 @@ def registrar_alimento():
 @rol_requerido('Admin')
 def actualizar_alimento(id_alimento):
     try:
+        usuario = request.usuario
+        id_usuario = usuario['id_auto'] if 'id_auto' in usuario else usuario['id_usuario']
+        
         # Detectar si es multipart/form-data o JSON
         if request.content_type.startswith("multipart/form-data"):
             nombre_nuevo = request.form.get("nombre")
@@ -2916,7 +2968,7 @@ def actualizar_alimento(id_alimento):
                         VALUES (%s, %s, %s, %s, %s)
                     """, (
                         u['id_usuario'],
-                        3,  # usuario que realizó la acción
+                        id_usuario,  # usuario que realizó la acción
                         "Alimento actualizado",
                         mensaje,
                         "Actualización"
@@ -2940,6 +2992,8 @@ def actualizar_alimento(id_alimento):
 @rol_requerido('Admin')
 def eliminar_alimento(id):
     try:
+        usuario = request.usuario
+        id_usuario = usuario['id_auto'] if 'id_auto' in usuario else usuario['id_usuario']
         with config['development'].conn() as conn:
             with conn.cursor() as cur:
                 # Consultar si existe el alimento
@@ -2961,7 +3015,7 @@ def eliminar_alimento(id):
                             INSERT INTO notificaciones 
                             (id_usuario_destinatario, id_usuario_origen, titulo, mensaje, tipo)
                             VALUES (%s, %s, %s, %s, %s)
-                        """, (u['id_usuario'], 3, 'Alimento eliminado',
+                        """, (u['id_usuario'], id_usuario, 'Alimento eliminado',
                               f'Se eliminó el alimento "{nombre_alimento}"', 'Eliminación'))
 
                     conn.commit()
@@ -3086,8 +3140,10 @@ def mezcla_nutricional():
 @token_requerido
 def crear_dieta():
     try:
+        usuario = request.usuario
+        id_usuario = usuario['id_auto'] if 'id_auto' in usuario else usuario['id_usuario']
+
         data = request.get_json()
-        id_usuario = data.get("id_usuario")
         id_etapa_vida = data.get("id_etapa_vida")
         descripcion = data.get("descripcion")
         alimentos = data.get("alimentos", [])  # [{id_alimento, cantidad}]
@@ -3788,7 +3844,6 @@ def eliminar_dieta(id_dieta):
 
     except Exception as e:
         return jsonify({"error": str(e)})
-
 
 if __name__ == '__main__':
     app.run(debug=True)

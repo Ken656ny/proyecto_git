@@ -1662,11 +1662,16 @@ function eliminar_porcino(id_porcino){
                     });
                 } else{
                     Swal.fire({
-                        title: "Mensaje",
-                        text: `${response.Mensaje}`,
-                        icon: "success"
-                    });
-                    location.reload()
+                    title: "Mensaje",
+                    text: `${response.Mensaje}`,
+                    icon: "success",
+                    confirmButton: "Ok"
+                    }).then((result) => {
+                        if (result.isConfirmed){
+                            location.reload()
+                        }
+                    })
+                    
                 }
             })
             .catch(error => {
@@ -2163,6 +2168,9 @@ async function eliminar_raza(id){
                 headers: getAuthHeaders()
             });
             const response = await promesa.json();
+            cerrarDialog(`modal-delete-confirm`);
+            cerrarDialog(`modal-delete`);
+            cerrarDialog(`dialog__ges__raz`);           
             if (response.Mensaje === `Error en la base de datos`) {
                 Swal.fire({
                     title: "Mensaje",
@@ -2171,9 +2179,6 @@ async function eliminar_raza(id){
                     confirmButton: "Ok",
                     })
             } else{
-                cerrarDialog(`modal-delete-confirm`);
-                cerrarDialog(`modal-delete`);
-                cerrarDialog(`dialog__ges__raz`);           
                 Swal.fire({
                     title: "Mensaje",
                     text: `${response.Mensaje}`,
@@ -2360,9 +2365,9 @@ async function registrar_etapas(){
             headers : getAuthHeaders()
         })
         const response = await promesa.json()
+        cerrarDialog('dialog-registrar-etapa');
+        cerrarDialog('dialog__ges__eta');
         if (response.Mensaje == "Etapa de vida registrada correctamente"){
-            cerrarDialog('dialog-registrar-etapa');
-            cerrarDialog('dialog__ges__eta');
             Swal.fire({
             title: "Mensaje",
             text: `${response.Mensaje}`,
@@ -4811,7 +4816,6 @@ function consulta_individual_dieta() {
 }
 
 function guardarDieta() {
-    const id_usuario = 3; // reemplaza con el usuario logueado
     const id_etapa_vida = document.getElementById("select-etapas").value;
 
     function mostrarError(mensaje) {
@@ -4854,7 +4858,7 @@ function guardarDieta() {
         method: "POST",
         headers: getAuthHeaders(),
         body: JSON.stringify({
-            id_usuario,
+            
             id_etapa_vida,
             descripcion: "",
             alimentos
@@ -4903,41 +4907,41 @@ function guardarDieta() {
 }
 
 function eliminarDieta(id_dieta) {
-            verifyToken().fetch(`${URL_BASE}/eliminar_dieta/${id_dieta}`, {
-                method: "DELETE",
-                headers: getAuthHeaders()
-            })
-            .then(res => res.json())
-            .then(data => {
-                if (data.mensaje) {
-
-                    // Éxito
-                    Swal.fire({
-                        icon: "success",
-                        title: "Dieta eliminada correctamente",
-                        confirmButtonText: "Aceptar"
-                    });
-                    ver_dietas()
-                } else {
-                    // Error controlado del backend
-                    Swal.fire({
-                        icon: "error",
-                        title: "Error al eliminar",
-                        text: data.error || "No se pudo eliminar la dieta.",
-                    });
-                }
-            })
-            .catch(err => {
-                // Error de conexión
-                Swal.fire({
-                    icon: "error",
-                    title: "Error de conexión",
-                    text: "No se pudo comunicar con el servidor."
-                });
-                console.error("Error en la petición:", err);
-            }).catch((error) => {
-                handleAuthError(error)
-            })
+    verifyToken()
+    fetch(`${URL_BASE}/eliminar_dieta/${id_dieta}`, {
+        method: "DELETE",
+        headers: getAuthHeaders()
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.mensaje) {
+            // Éxito
+            Swal.fire({
+                icon: "success",
+                title: "Dieta eliminada correctamente",
+                confirmButtonText: "Aceptar"
+            });
+            ver_dietas()
+        } else {
+            // Error controlado del backend
+            Swal.fire({
+                icon: "error",
+                title: "Error al eliminar",
+                text: data.error || "No se pudo eliminar la dieta.",
+            });
+        }
+    })
+    .catch(err => {
+        // Error de conexión
+        Swal.fire({
+            icon: "error",
+            title: "Error de conexión",
+            text: "No se pudo comunicar con el servidor."
+        });
+        console.error("Error en la petición:", err);
+    }).catch((error) => {
+        handleAuthError(error)
+    })
         
     
 }
@@ -4977,8 +4981,9 @@ function confirmar(id_dieta) {
             showConfirmButton: false,
             didOpen: () => {
                 // Eliminar dieta y cerrar modal mientras se muestra Swal
-                eliminarDieta(id_dieta);
                 dialog.close();
+                dialog2.close();
+                eliminarDieta(id_dieta);
             }
         });
     } else {
