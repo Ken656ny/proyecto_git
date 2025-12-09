@@ -13,7 +13,7 @@
 </head>
 
 <body class="body__porcinos">
-    <section class="section-nav-bar">
+    <section class="section-nav-bar" >
         <div class="container-user">
             <div class="container__btn__perfil">
                 <img src="../static/iconos/icon user.svg" alt="" width="25" class="svg__user__2">
@@ -24,17 +24,17 @@
                 <img src="../static/iconos/close_icon.svg" alt="" class="menu-icons">
             </div>
         </div>
-
         <div class="barra-lateral">
-            <div class="logo-edupork">
-                <img id="cerdo" class="nombre" src="../static/iconos/cerdo.png" width="20px" alt="">
-                <span>Edupork</span>
+            <div>
+                <div class="logo-edupork">
+                    <img id="cerdo" class="nombre" src="../static/iconos/cerdo.png" width="20px" alt="">
+                    <span>Edupork</span>
+                </div>
             </div>
-
             <nav class="navegacion">
                 <ul class="ul-navegacion">
                     <li>
-                        <a href="/src/templates/home.html" onclick="redirectWithDelay(event, 'home.html')">
+                        <a href="/src/templates/home.html" onclick="redirectWithDelay(event, 'home.html')" > <!--dar estilo -->
                             <img src="../static/iconos/home icon.svg" width="20px" alt="" class="icons-bar">
                             <span>Home</span>
                         </a>
@@ -42,11 +42,11 @@
                     <li>
                         <a href="/src/templates/notificaciones.html">
                             <img src="../static/iconos/notificacions.svg" width="20px" alt="" class="icons-bar">
-                            <span>Notificaciones</span>
+                            <span>Notificaciones </span>
                         </a>
                     </li>
                     <li>
-                        <a href="/src/templates/porcinos.html" onclick="manejarClickRol(event)">
+                        <a href="/src/templates/porcinos.html" onclick="redirectWithDelay(event, 'porcinos.html')">
                             <img src="../static/iconos/icon pig.svg" width="20px" alt="" class="icons-bar">
                             <span>Porcinos</span>
                         </a>
@@ -58,7 +58,7 @@
                         </a>
                     </li>
                     <li>
-                        <a href="#">
+                        <a href="/src/templates/gestionar_dietas.html">
                             <img src="../static/iconos/icon plate.svg" width="20px" alt="" class="icons-bar">
                             <span>Dietas</span>
                         </a>
@@ -72,7 +72,7 @@
                     <li>
                         <a href="/src/templates/perfil.html" onclick="redirectWithDelay(event, 'perfil.html')">
                             <img src="../static/iconos/icon user.svg" width="20px" alt="" class="icons-bar">
-                            <span>Perfil</span>
+                            <span>Usuario</span>
                         </a>
                     </li>
                     <li>
@@ -85,16 +85,14 @@
             </nav>
         </div>
     </section>
-
-    <section class="section__porcinos">
+    <section class="section__porcinos section-contenido" >
         <section class="container__logo__user">
-            <div class="container__back__logo">
+            <div class="container__back__logo" >
                 <img src="/src/static/iconos/back icon.svg" alt="icon back" class="icon__back">
                 <a href="/src/templates/home.html">
                     <img src="/src/static/iconos/Logo.svg" alt="Logo Edupork" class="logo">
                 </a>
             </div>
-
             <div class="container__user__btn">
                 <img src="/src/static/iconos/icon user.svg" alt="" class="svg__user">
                 <button type="button" class="btn__perfil" id="btnPerfil">

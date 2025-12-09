@@ -46,7 +46,7 @@
                         </a>
                     </li>
                     <li>
-                        <a href="/src/templates/porcinos.html" onclick="manejarClickRol(event)">
+                        <a href="/src/templates/porcinos.html" onclick="redirectWithDelay(event, 'porcinos.html')">
                             <img src="../static/iconos/icon pig.svg" width="20px" alt="" class="icons-bar">
                             <span>Porcinos</span>
                         </a>
@@ -58,7 +58,7 @@
                         </a>
                     </li>
                     <li>
-                        <a href="#">
+                        <a href="/src/templates/gestionar_dietas.html">
                             <img src="../static/iconos/icon plate.svg" width="20px" alt="" class="icons-bar">
                             <span>Dietas</span>
                         </a>
@@ -85,11 +85,11 @@
             </nav>
         </div>
     </section>
-    <section class="section__noti">
+    <section class="section__porcinos section-contenido" >
         <section class="container__logo__user">
             <div class="container__back__logo" >
                 <img src="/src/static/iconos/back icon.svg" alt="icon back" class="icon__back">
-                <a href="home.html">
+                <a href="/src/templates/home.html">
                     <img src="/src/static/iconos/Logo.svg" alt="Logo Edupork" class="logo">
                 </a>
             </div>
@@ -98,7 +98,7 @@
                 <button type="button" class="btn__perfil" id="btnPerfil">
                     <span id="nombreUsuarioTexto"></span>
                     <i class="fa fa-caret-down"></i>
-                </button>      
+                </button>
                 <div class="usuario-menu" id="usuarioMenu">
                     <a href="perfil.html">Mi perfil</a>
                     <a href="#" id="cerrarSesionBtn">Cerrar sesión</a>
