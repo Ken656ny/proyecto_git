@@ -1298,8 +1298,8 @@ def actualizar_porcino(id):
       description: Registro actualizado
   """
   try:
-    usuario = request.usuario   
-    id_usuario = usuario["id_auto"]
+    usuario = request.usuario
+    id_usuario = usuario['id_auto'] if 'id_auto' in usuario else usuario['id_usuario']
     
     porcino = request.get_json()
     p_ini =       porcino['peso_inicial']

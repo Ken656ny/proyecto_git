@@ -14,7 +14,6 @@ class DevelopmentConfig(Config):
     PASSWORD = config('PASSWORD')
     DATABASE = config('DATABASE')
     CURSOR_CLASS = pymysql.cursors.DictCursor
-    SQLALCHEMY_DATABASE_URI = config('SQLALCHEMY_DATABASE_URI')
 
     @classmethod
     def conn(self):
