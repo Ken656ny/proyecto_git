@@ -4236,6 +4236,18 @@ async function generar_pdf(tipo, id) {
     
 }
 
+async function generar_pdf_dieta_individual(id) {
+    const promesa = await fetch(`${URL_BASE}/PDF_dieta/${id}`);
+    const blob = await promesa.blob();
+
+    const url = URL.createObjectURL(blob);
+
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `reporte_dieta_${id}.pdf`;
+    a.click();
+}
+
 // GENERAR PDF POR PORCINO
 
 document.getElementById('form-consul-histo').addEventListener('submit', (e) =>{
