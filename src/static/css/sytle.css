@@ -619,16 +619,7 @@ SECCION DE PORCINOS
     background-attachment: fixed;
     min-height: 100vh;
 }
-.body_dietas{
-    display: grid;
-    grid-template-columns: 117px auto;
-    background-image: url(/src/static/iconos/pasto.svg);
-    background-repeat: no-repeat;
-    background-position: bottom;
-    background-size: 100%;
-    background-attachment: fixed;
-    
-}
+
 .body_dietas{
     display: grid;
     grid-template-columns: 117px auto;
