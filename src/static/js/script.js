@@ -2542,7 +2542,6 @@ async function consultar_notificaciones() {
 // GESTION DE ALIMENTOS
 // -------------------
 
-
 function ver_alimentos(){
     
 let currentPage = 1;       // página actual
@@ -2860,7 +2859,6 @@ nextPage.addEventListener('click', () => {
 
 consulta_alimentos()
 }
-
 function consulta_individual_alimento() {
     const nombre = document.getElementById("id_alimento").value;
     const contenido = document.getElementById("contenido");
@@ -3137,7 +3135,6 @@ function consulta_individual_alimento() {
             });
         });
 }
-
 async function guardarCambios(id_alimento) {
     const formData = new FormData();
 
@@ -3213,9 +3210,6 @@ if (response.ok) {
         }).then(() => abrirModal("edit", id_alimento));
     }
 }
-
-
-
 async function eliminar_alimento(id) {
     try {
         const response = await fetch(`${URL_BASE}/eliminar_alimento/${id}`, { method: "DELETE" });
@@ -3260,7 +3254,6 @@ async function eliminar_alimento(id) {
         });
     }
 }
-
 async function cargarAutocompletado() {
     try {
         const response = await fetch(`${URL_BASE}/alimentos`);
@@ -3283,70 +3276,6 @@ async function cargarAutocompletado() {
     } catch (error) {
         console.error("Error cargando autocompletado:", error);
     }
-}
-
-function consulta_individual_alimento_disponible() {
-    const nombre = document.getElementById("id_alimento").value.trim();
-    const alimentos_en_dieta = document.getElementById("alimentos_en_dieta");
-
-    if (!nombre) {
-        Swal.fire({
-            icon: "warning",
-            title: "Campo vacío",
-            text: "Por favor, escribe el nombre del alimento antes de consultar.",
-            confirmButtonColor: "#008cffff"
-        });
-        return;
-    }
-
-    fetch(`${URL_BASE}/consulta_indi_alimento_disponible/${nombre}`)
-        .then(res => {
-            if (!res.ok) throw new Error(`Error HTTP ${res.status}`);
-            return res.json();
-        })
-        .then(data => {
-            alimentos_en_dieta.innerHTML = "";
-
-            if (!data.mensaje) {
-                Swal.fire({
-                    icon: "info",
-                    title: "Alimento no encontrado",
-                    text: `No se encontró el alimento "${nombre}".`,
-                    confirmButtonColor: "#3085d6"
-                });
-                alimentos_en_dieta.innerHTML = `
-                    <p class="sin-alimentos">No se encontró el alimento "${nombre}".</p>
-                `;
-                return;
-            }
-
-            const element = data.mensaje;
-
-            alimentos_en_dieta.innerHTML = `
-                <div class="alimentos_dietas">
-                    <div class="imagen_alimento_dieta">
-                      <img src="${URL_BASE}${element.imagen}" 
-                             onerror="this.onerror=null; this.src='/src/static/iconos/imagen no encontrada.svg'; this.classList.add('sin_imagen_alimento_dieta')" 
-                             alt="no hay imagen">
-                    </div>
-                    <div class="descripcion_dietas">
-                        <p><strong>Nombre:</strong> ${element.nombre}</p>
-                        <p><strong>Cantidad (Kg):</strong></p>
-                        <input type="number" min="0" class="input_dietas" id="cantidad-${element.nombre}" placeholder="Cantidad">
-                    </div>
-                </div>
-            `;
-        })
-        .catch(err => {
-            console.error(err);
-            Swal.fire({
-                icon: "error",
-                title: "Error al consultar el alimento",
-                text: "Ocurrió un problema al realizar la consulta.",
-                confirmButtonColor: "#d33"
-            });
-            alimentos_en_dieta.innerHTML = `<p>Error al consultar el alimento.</p>`;
-        });
 }
 function crear_alimento() {
     document.getElementById("formRegistrar").addEventListener("submit", function (e) {
@@ -3426,7 +3355,6 @@ function crear_alimento() {
         });
     });
 }
-
 function abrirModal(tipo, id) {
     document.getElementById(`modal-${tipo}-${id}`).showModal();
 }
@@ -3465,7 +3393,7 @@ function dietas() {
 
             data.mensaje.forEach(element => {
                 console.log(element);
-
+                
                 const mapa = {};
                 if (Array.isArray(element.elementos)) {
                     element.elementos.forEach(n => {
@@ -3473,7 +3401,8 @@ function dietas() {
                     });
                 }
 
-                alimentos_en_dieta.innerHTML += `
+                alimentos_en_dieta.insertAdjacentHTML("beforeend", `
+
 <dialog class="dialog-icon-eye modal-info" id="modal-eye-${element.id_alimento}">
   <div class="title-dialog">
     <h2>Información del Alimento</h2>
@@ -3572,7 +3501,26 @@ function dietas() {
                disabled>
     </div>
 </div>
-                `;
+                `);
+const estado = estadoDietas[element.id_alimento];
+
+if (estado) {
+    requestAnimationFrame(() => {
+        const input = document.getElementById(`cantidad-${element.id_alimento}`);
+        const circulo = document.querySelector(`.circulo-seleccion[onclick="toggleInput(${element.id_alimento})"]`);
+
+        if (input && estado.activo) {
+            input.disabled = false;
+            input.value = estado.cantidad || "";
+        }
+
+        if (circulo && estado.activo) {
+            circulo.classList.add("activo");
+        }
+    });
+}
+
+
             });
         })
         .catch(err => {
@@ -3586,7 +3534,6 @@ function dietas() {
             alimentos_en_dieta.innerHTML = `<p>Error al cargar los alimentos.</p>`;
         });
 }
-
 function toggleInput(id) {
     const input = document.getElementById(`cantidad-${id}`);
     const boton = event.target;
@@ -3594,13 +3541,111 @@ function toggleInput(id) {
     if (input.disabled) {
         input.disabled = false;
         boton.classList.add("activo");
+
+        // SI NO EXISTE, CREAR EL ESTADO
+        if (!estadoDietas[id]) estadoDietas[id] = {};
+
+        estadoDietas[id].activo = true;
+        estadoDietas[id].cantidad = input.value || "";
     } else {
         input.disabled = true;
         input.value = "";
         boton.classList.remove("activo");
+
+        estadoDietas[id] = {
+            activo: false,
+            cantidad: ""
+        };
     }
 }
+function consulta_individual_alimento_disponible() {
+    const nombre = document.getElementById("id_alimento").value.trim();
+    const alimentos_en_dieta = document.getElementById("alimentos_en_dieta");
+    const seleccion_de_alimentos = document.getElementById("contenedor1")
 
+    if (!nombre) {
+        Swal.fire({
+            icon: "warning",
+            title: "Campo vacío",
+            text: "Por favor, escribe el nombre del alimento antes de consultar.",
+            confirmButtonColor: "#008cffff"
+        });
+        return;
+    }
+
+    fetch(`${URL_BASE}/consulta_indi_alimento_disponible/${nombre}`)
+        .then(res => {
+            if (!res.ok) throw new Error(`Error HTTP ${res.status}`);
+            return res.json();
+        })
+        .then(data => {
+
+            if (!data.mensaje) {
+                Swal.fire({
+                    icon: "info",
+                    title: "Alimento no encontrado",
+                    text: `No se encontró el alimento "${nombre}".`,
+                    confirmButtonColor: "#3085d6"
+                });
+                return;
+            }
+
+            const element = data.mensaje;
+                
+            alimentos_en_dieta.innerHTML = `
+                <div class="alimentos_dietas">
+
+    <!-- CÍRCULO SUPERIOR IZQUIERDO -->
+    <div class="circulo-seleccion" onclick="toggleInput(${element.id_alimento})"></div>
+
+    <div class="imagen_alimento_dieta">
+        <img id="imagen_dietas" src="${URL_BASE}${element.imagen}" 
+             onclick="abrirModal('eye', ${element.id_alimento})"
+             onerror="this.onerror=null; this.src='/src/static/iconos/imagen no encontrada.svg'; this.classList.add('sin_imagen_alimento_dieta')"
+             alt="no hay imagen" style="cursor:pointer;">
+    </div>
+
+    <div class="descripcion_dietas">
+        <p><strong>Nombre:</strong> ${element.nombre}</p>
+        <p><strong>Cantidad (Kg):</strong></p>
+
+        <input type="number" min="0" class="input_dietas"
+               data-id="${element.id_alimento}"
+               id="cantidad-${element.id_alimento}"
+               placeholder="Cantidad"
+               disabled>
+    </div>
+</div>
+            `;
+            const estado = estadoDietas[element.id_alimento];
+
+if (estado) {
+    requestAnimationFrame(() => {
+        const input = document.getElementById(`cantidad-${element.id_alimento}`);
+        const circulo = document.querySelector(`.circulo-seleccion[onclick="toggleInput(${element.id_alimento})"]`);
+
+        if (input && estado.activo) {
+            input.disabled = false;
+            input.value = estado.cantidad || "";
+        }
+
+        if (circulo && estado.activo) {
+            circulo.classList.add("activo");
+        }
+    });
+}
+        })
+        .catch(err => {
+            console.error(err);
+            Swal.fire({
+                icon: "error",
+                title: "Error al consultar el alimento",
+                text: "Ocurrió un problema al realizar la consulta.",
+                confirmButtonColor: "#d33"
+            });
+            alimentos_en_dieta.innerHTML = `<p>Error al consultar el alimento.</p>`;
+        });
+}
 function verAlimentosSeleccionados() {
     const checkbox = document.getElementById("check1");
     const contenedor = document.getElementById("alimentos_en_dieta");
@@ -3831,7 +3876,6 @@ function abrirEditarDieta(id_dieta) {
     localStorage.setItem("dieta_a_modificar", id_dieta); // Guardamos el ID
     window.location.href = "edit_dietas.html";    // Redirigimos a la página de solo lectura
 }
-
 function consulta_individual_dieta() {
     const contenido = document.getElementById("contenido");
     const Dietas_totales = document.getElementById("Dietas_totales");
@@ -3915,7 +3959,6 @@ function consulta_individual_dieta() {
             // NO modificar tabla
         });
 }
-
 function guardarDieta() {
     const id_usuario = 3; // reemplaza con el usuario logueado
     const id_etapa_vida = document.getElementById("select-etapas").value;
@@ -4004,7 +4047,6 @@ function guardarDieta() {
         });
     });
 }
-
 function eliminarDieta(id_dieta) {
             fetch(`${URL_BASE}/eliminar_dieta/${id_dieta}`, {
                 method: "DELETE"
@@ -4041,7 +4083,6 @@ function eliminarDieta(id_dieta) {
         
     
 }
-
 function abrirModalEliminarDieta(id) {
     const modal = document.getElementById(`modal-dele-dieta-${id}`);
     if (modal) modal.showModal();
@@ -4050,7 +4091,6 @@ function abrirModalconfirmacionEliminarDieta(id) {
     const modal = document.getElementById(`modal-confirm-dele-dieta-${id}`);
     if (modal) modal.showModal();
 }
-
 function cerrarModalDieta(id) {
     const modal = document.getElementById(`modal-dele-dieta-${id}`);
     if (modal) modal.close();
@@ -4059,7 +4099,6 @@ function cerrarModalconfirmacionDieta(id) {
     const modal = document.getElementById(`modal-confirm-dele-dieta-${id}`);
     if (modal) modal.close();
 }
-
 function confirmar(id_dieta) {
     const dialog = document.getElementById(`modal-confirm-dele-dieta-${id_dieta}`);
     const dialog2 = document.getElementById(`modal-dele-dieta-${id_dieta}`);
@@ -4093,11 +4132,17 @@ function confirmar(id_dieta) {
         });
     }
 }
+async function generar_pdf_dieta_individual(id) {
+    const promesa = await fetch(`${URL_BASE}/PDF_dieta/${id}`);
+    const blob = await promesa.blob();
 
+    const url = URL.createObjectURL(blob);
 
-
-
-
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `reporte_dieta_${id}.pdf`;
+    a.click();
+}
 
 // ----------------------------------funciones adicionales
 
@@ -4266,45 +4311,6 @@ function timesleep() {
     document.onkeydown = reiniciarInactividad;
     document.onclick = reiniciarInactividad;
 }
-const cerdo = document.getElementById("cerdo");
-const barralateral = document.querySelector(".barra-lateral");
-const spans = document.querySelectorAll("span");
-const menu = document.querySelector(".menu")
-
-menu.children[1].style.display = "none"
-menu.addEventListener("click", () => {
-    barralateral.classList.toggle("max-barra-lateral")
-    if (barralateral.classList.contains("max-barra-lateral")) {
-        menu.children[0].style.display = "none"
-        menu.children[1].style.display = "block"
-    }
-    else {
-        menu.children[0].style.display = "block"
-        menu.children[1].style.display = "none"
-    }
-})
-
-document.addEventListener("click", (e) => {
-    if (
-        !barralateral.contains(e.target) &&
-        !menu.contains(e.target)
-    ) {
-        if (barralateral.classList.contains("max-barra-lateral")) {
-            barralateral.classList.remove("max-barra-lateral");
-
-            // Actualiza íconos
-            menu.children[0].style.display = "block";
-            menu.children[1].style.display = "none";
-        }
-    }
-});
-
-cerdo.addEventListener("click", () => {
-    barralateral.classList.toggle("mini-barra-lateral");
-    spans.forEach((span) => {
-        span.classList.toggle("oculto");
-    });
-});
 
 function notificaciones_nuevo() {
     const endpoint = `${URL_BASE}/ultima_notificacion/3`;
@@ -4350,6 +4356,50 @@ function notificaciones_nuevo() {
     revisarNotificaciones();
     setInterval(revisarNotificaciones, 10000);
 }
+
+// --------------------------------------barra
+
+const cerdo = document.getElementById("cerdo");
+const barralateral = document.querySelector(".barra-lateral");
+const spans = document.querySelectorAll("span");
+const menu = document.querySelector(".menu")
+
+menu.children[1].style.display = "none"
+menu.addEventListener("click", () => {
+    barralateral.classList.toggle("max-barra-lateral")
+    if (barralateral.classList.contains("max-barra-lateral")) {
+        menu.children[0].style.display = "none"
+        menu.children[1].style.display = "block"
+    }
+    else {
+        menu.children[0].style.display = "block"
+        menu.children[1].style.display = "none"
+    }
+})
+
+document.addEventListener("click", (e) => {
+    if (
+        !barralateral.contains(e.target) &&
+        !menu.contains(e.target)
+    ) {
+        if (barralateral.classList.contains("max-barra-lateral")) {
+            barralateral.classList.remove("max-barra-lateral");
+
+            // Actualiza íconos
+            menu.children[0].style.display = "block";
+            menu.children[1].style.display = "none";
+        }
+    }
+});
+
+cerdo.addEventListener("click", () => {
+    barralateral.classList.toggle("mini-barra-lateral");
+    spans.forEach((span) => {
+        span.classList.toggle("oculto");
+    });
+});
+
+
 
 
 
@@ -4455,17 +4505,7 @@ async function generar_pdf(tipo, id) {
     a.download = `reporte_${tipo}.pdf`;
     a.click();
 }
-async function generar_pdf_dieta_individual(id) {
-    const promesa = await fetch(`${URL_BASE}/PDF_dieta/${id}`);
-    const blob = await promesa.blob();
 
-    const url = URL.createObjectURL(blob);
-
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `reporte_dieta_${id}.pdf`;
-    a.click();
-}
 
 // GENERAR PDF POR PORCINO
 
