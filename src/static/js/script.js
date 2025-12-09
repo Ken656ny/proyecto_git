@@ -1638,6 +1638,7 @@ async function actualizar_porcino(id_porcino) {
 }
 
 function eliminar_porcino(id_porcino){
+    
     verifyToken().then(() => {
         const input = document.getElementById(`input-eliminar-${id_porcino}`);
         const id_input = document.getElementById(`input-eliminar-${id_porcino}`).value;
@@ -2856,7 +2857,7 @@ async function guardarCambios(id_alimento) {
     if (imagen) formData.append("imagen", imagen);
 
     try {
-        verifyToken()
+        await verifyToken()
         const response = await fetch(`${URL_BASE}/actualizar_alimento/${id_alimento}`, {
             method: "POST",
             headers: getAuthHeadersFormData(),
@@ -2907,7 +2908,7 @@ async function guardarCambios(id_alimento) {
 
 async function eliminar_alimento(id) {
     try {
-        verifyToken()
+        await verifyToken()
         const response = await fetch(`${URL_BASE}/eliminar_alimento/${id}`, { method: "DELETE", headers: getAuthHeaders()});
         const data = await response.json();
 
@@ -2954,7 +2955,7 @@ async function eliminar_alimento(id) {
 
 async function cargarAutocompletado() {
     try {
-        verifyToken()
+        await verifyToken()
         const response = await fetch(`${URL_BASE}/alimentos`, {method: 'GET', headers:getAuthHeaders()});
         if (!response.ok) throw new Error("Error al obtener alimentos");
 
@@ -3265,7 +3266,7 @@ function consulta_individual_alimento() {
 function consulta_individual_alimento_disponible() {
     const nombre = document.getElementById("id_alimento").value.trim();
     const alimentos_en_dieta = document.getElementById("alimentos_en_dieta");
-
+    verifyToken()
     if (!nombre) {
         Swal.fire({
             icon: "warning",
@@ -3276,14 +3277,12 @@ function consulta_individual_alimento_disponible() {
         return;
     }
 
-    verifyToken()
-    .fetch(`${URL_BASE}/consulta_indi_alimento_disponible/${nombre}`, { method: 'GET', headers:getAuthHeaders() })
+    fetch(`${URL_BASE}/consulta_indi_alimento_disponible/${nombre}`,{ method: 'GET', headers: getAuthHeaders() })
         .then(res => {
             if (!res.ok) throw new Error(`Error HTTP ${res.status}`);
             return res.json();
         })
         .then(data => {
-            alimentos_en_dieta.innerHTML = "";
 
             if (!data.mensaje) {
                 Swal.fire({
@@ -3292,28 +3291,53 @@ function consulta_individual_alimento_disponible() {
                     text: `No se encontró el alimento "${nombre}".`,
                     confirmButtonColor: "#3085d6"
                 });
-                alimentos_en_dieta.innerHTML = `
-                    <p class="sin-alimentos">No se encontró el alimento "${nombre}".</p>
-                `;
                 return;
             }
 
             const element = data.mensaje;
-
+                
             alimentos_en_dieta.innerHTML = `
                 <div class="alimentos_dietas">
-                    <div class="imagen_alimento_dieta">
-                      <img src="${URL_BASE}${element.imagen}" 
-                             onerror="this.onerror=null; this.src='/src/static/iconos/imagen no encontrada.svg'; this.classList.add('sin_imagen_alimento_dieta')" 
-                             alt="no hay imagen">
-                    </div>
-                    <div class="descripcion_dietas">
-                        <p><strong>Nombre:</strong> ${element.nombre}</p>
-                        <p><strong>Cantidad (Kg):</strong></p>
-                        <input type="number" min="0" class="input_dietas" id="cantidad-${element.nombre}" placeholder="Cantidad">
-                    </div>
-                </div>
+
+    <!-- CÍRCULO SUPERIOR IZQUIERDO -->
+    <div class="circulo-seleccion" onclick="toggleInput(${element.id_alimento})"></div>
+
+    <div class="imagen_alimento_dieta">
+        <img id="imagen_dietas" src="${URL_BASE}${element.imagen}" 
+             onclick="abrirModal('eye', ${element.id_alimento})"
+             onerror="this.onerror=null; this.src='/src/static/iconos/imagen no encontrada.svg'; this.classList.add('sin_imagen_alimento_dieta')"
+             alt="no hay imagen" style="cursor:pointer;">
+    </div>
+
+    <div class="descripcion_dietas">
+        <p><strong>Nombre:</strong> ${element.nombre}</p>
+        <p><strong>Cantidad (Kg):</strong></p>
+
+        <input type="number" min="0" class="input_dietas"
+               data-id="${element.id_alimento}"
+               id="cantidad-${element.id_alimento}"
+               placeholder="Cantidad"
+               disabled>
+    </div>
+</div>
             `;
+            const estado = estadoDietas[element.id_alimento];
+
+if (estado) {
+    requestAnimationFrame(() => {
+        const input = document.getElementById(`cantidad-${element.id_alimento}`);
+        const circulo = document.querySelector(`.circulo-seleccion[onclick="toggleInput(${element.id_alimento})"]`);
+
+        if (input && estado.activo) {
+            input.disabled = false;
+            input.value = estado.cantidad || "";
+        }
+
+        if (circulo && estado.activo) {
+            circulo.classList.add("activo");
+        }
+    });
+}
         })
         .catch(err => {
             console.error(err);
@@ -3324,9 +3348,7 @@ function consulta_individual_alimento_disponible() {
                 confirmButtonColor: "#d33"
             });
             alimentos_en_dieta.innerHTML = `<p>Error al consultar el alimento.</p>`;
-        }).catch((error) => {
-            handleAuthError(error)
-        })
+        });
 }
 
 function crear_alimento() {
@@ -3409,12 +3431,731 @@ function crear_alimento() {
     });
 }
 
-
 function abrirModal(tipo, id) {
     document.getElementById(`modal-${tipo}-${id}`).showModal();
 }
 function cerrarModal(tipo, id) {
     document.getElementById(`modal-${tipo}-${id}`).close();
+}
+
+
+// =============================================
+// GESTIÓN DE DIETAS
+// =============================================
+
+function dietas() {
+    const alimentos_en_dieta = document.getElementById("alimentos_en_dieta");
+    verifyToken()
+    fetch(`${URL_BASE}/alimentos_disponible`,{ method: 'GET', headers: getAuthHeaders() })
+        .then(res => {
+            if (!res.ok) throw new Error(`Error HTTP ${res.status}`);
+            return res.json();
+        })
+        .then(data => {
+            alimentos_en_dieta.innerHTML = "";
+
+            if (!data.mensaje || data.mensaje.length === 0) {
+                Swal.fire({
+                    icon: "info",
+                    title: "Sin alimentos disponibles",
+                    text: "Actualmente no hay alimentos registrados o activos.",
+                    confirmButtonColor: "#3085d6"
+                });
+                alimentos_en_dieta.innerHTML = `
+                    <p class="sin-alimentos">No hay alimentos disponibles actualmente.</p>
+                `;
+                return;
+            }
+
+            data.mensaje.forEach(element => {
+                console.log(element);
+                
+                const mapa = {};
+                if (Array.isArray(element.elementos)) {
+                    element.elementos.forEach(n => {
+                        mapa[n.nombre] = n.valor;
+                    });
+                }
+
+                alimentos_en_dieta.insertAdjacentHTML("beforeend", `
+
+<dialog class="dialog-icon-eye modal-info" id="modal-eye-${element.id_alimento}">
+  <div class="title-dialog">
+    <h2>Información del Alimento</h2>
+    <hr>
+  </div>
+
+  <div class="modal-info-content">
+
+    <!-- Columna 1 -->
+    <section class="modal-column">
+      <p>Nombre del alimento</p>
+      <input value="${element.nombre}" readonly>
+
+      <p>Proteína cruda (%)</p>
+      <input value="${mapa.Proteina_cruda ?? ''}" readonly>
+
+      <p>Materia seca (%)</p>
+      <input value="${mapa.Materia_seca ?? ''}" readonly>
+
+      <p>Energía metabolizable (Kcal/kg)</p>
+      <input value="${mapa.Energia_metabo ?? ''}" readonly>
+    </section>
+
+    <!-- Columna 2 -->
+    <section class="modal-column">
+      <p>Fibra cruda (%)</p>
+      <input value="${mapa.Fibra_cruda ?? ''}" readonly>
+
+      <p>Extracto etéreo (%)</p>
+      <input value="${mapa.Extracto_etereo ?? ''}" readonly>
+
+      <p>Calcio (%)</p>
+      <input value="${mapa.Calcio ?? ''}" readonly>
+
+      <p>Fósforo (%)</p>
+      <input value="${mapa.Fosforo ?? ''}" readonly>
+    </section>
+
+    <!-- Columna 3 -->
+    <section class="modal-column">
+      <p>Sodio (%)</p>
+      <input value="${mapa.Sodio ?? ''}" readonly>
+
+      <p>Arginina (%)</p>
+      <input value="${mapa.Arginina ?? ''}" readonly>
+
+      <p>Lisina (%)</p>
+      <input value="${mapa.Lisina ?? ''}" readonly>
+
+      <p>Treonina (%)</p>
+      <input value="${mapa.Treonina ?? ''}" readonly>
+    </section>
+
+    <!-- Columna 4 -->
+    <section class="modal-column">
+      <p>Metionina (%)</p>
+      <input value="${mapa.Metionina ?? ''}" readonly>
+
+      <p>Metionina + Cisteína (%)</p>
+      <input value="${mapa.Metionina_Cisteina ?? ''}" readonly>
+
+      <p>Triptófano (%)</p>
+      <input value="${mapa.Triptofano ?? ''}" readonly>
+    </section>
+
+  </div>
+
+  <div class="modal-footer">
+    <button onclick="cerrarModal('eye', ${element.id_alimento})" class="btn">
+      Cerrar
+    </button>
+  </div>
+</dialog>
+
+<!-- Tarjeta del alimento -->
+<div class="alimentos_dietas">
+
+    <!-- CÍRCULO SUPERIOR IZQUIERDO -->
+    <div class="circulo-seleccion" onclick="toggleInput(${element.id_alimento})"></div>
+
+    <div class="imagen_alimento_dieta">
+        <img id="imagen_dietas" src="${URL_BASE}${element.imagen}" 
+             onclick="abrirModal('eye', ${element.id_alimento})"
+             onerror="this.onerror=null; this.src='/src/static/iconos/imagen no encontrada.svg'; this.classList.add('sin_imagen_alimento_dieta')"
+             alt="no hay imagen" style="cursor:pointer;">
+    </div>
+
+    <div class="descripcion_dietas">
+        <p><strong>Nombre:</strong> ${element.nombre}</p>
+        <p><strong>Cantidad (Kg):</strong></p>
+
+        <input type="number" min="0" class="input_dietas"
+               data-id="${element.id_alimento}"
+               id="cantidad-${element.id_alimento}"
+               placeholder="Cantidad"
+               disabled>
+    </div>
+</div>
+                `);
+const estado = estadoDietas[element.id_alimento];
+
+if (estado) {
+    requestAnimationFrame(() => {
+        const input = document.getElementById(`cantidad-${element.id_alimento}`);
+        const circulo = document.querySelector(`.circulo-seleccion[onclick="toggleInput(${element.id_alimento})"]`);
+
+        if (input && estado.activo) {
+            input.disabled = false;
+            input.value = estado.cantidad || "";
+        }
+
+        if (circulo && estado.activo) {
+            circulo.classList.add("activo");
+        }
+    });
+}
+
+
+            });
+        })
+        .catch(err => {
+            console.error(err);
+            Swal.fire({
+                icon: "error",
+                title: "Error al cargar los alimentos",
+                text: "Ocurrió un problema al obtener los alimentos disponibles.",
+                confirmButtonColor: "#d33"
+            });
+            alimentos_en_dieta.innerHTML = `<p>Error al cargar los alimentos.</p>`;
+        });
+}
+
+function toggleInput(id) {
+    const input = document.getElementById(`cantidad-${id}`);
+    const boton = event.target;
+
+    if (input.disabled) {
+        input.disabled = false;
+        boton.classList.add("activo");
+
+        // SI NO EXISTE, CREAR EL ESTADO
+        if (!estadoDietas[id]) estadoDietas[id] = {};
+
+        estadoDietas[id].activo = true;
+        estadoDietas[id].cantidad = input.value || "";
+    } else {
+        input.disabled = true;
+        input.value = "";
+        boton.classList.remove("activo");
+
+        estadoDietas[id] = {
+            activo: false,
+            cantidad: ""
+        };
+    }
+}
+
+function verAlimentosSeleccionados() {
+    const checkbox = document.getElementById("check1");
+    const contenedor = document.getElementById("alimentos_en_dieta");
+    const mostrarSeleccionados = checkbox.checked;
+
+    const tarjetas = contenedor.querySelectorAll(".alimentos_dietas");
+    tarjetas.forEach(tarjeta => {
+        const circulo = tarjeta.querySelector(".circulo-seleccion");
+
+        if (mostrarSeleccionados) {
+            // Mostrar solo si el usuario activó el círculo
+            tarjeta.style.display = circulo.classList.contains("activo") ? "flex" : "none";
+        } else {
+            // Mostrar todas las tarjetas
+            tarjeta.style.display = "flex";
+        }
+    });
+}
+
+function rellenar_etapa_vida_en_dietas() {
+    verifyToken()
+    fetch(`${URL_BASE}/etapa_vida`, {method:'GET', headers: getAuthHeaders()})
+        .then(res => res.json())
+        .then(data => {
+            const select = document.getElementById('select-etapas');
+
+            if (data.etapas && data.etapas.length > 0) {
+                data.etapas.forEach(etapa => {
+                    const option = document.createElement('option');
+                    option.value = etapa.id_etapa;      // valor del select = id de la etapa
+                    option.textContent = etapa.nombre;  // texto visible = nombre de la etapa
+                    select.appendChild(option);
+                });
+            }
+        })
+        .catch(err => console.error("Error al cargar las etapas:", err))
+        .catch((error) => {
+            handleAuthError(error)
+        })
+        document.getElementById("select-etapas").addEventListener("change", function () {
+
+        const idEtapa = this.value;
+        verifyToken()
+        fetch(`${URL_BASE}/etapa_vida`, {
+            method : 'GET',
+            headers : getAuthHeaders()
+        })
+            .then(res => res.json())
+            .then(data => {
+                const etapa = data.etapas.find(e => e.id_etapa == idEtapa);
+                if (!etapa) return;
+
+                const req = etapa.requerimientos || [];
+
+                // función para buscar el porcentaje
+                function getValor(nombre) {
+                    const item = req.find(r => r.nombre_elemento.toLowerCase() === nombre.toLowerCase());
+                    return item ? item.porcentaje : "0";
+                }
+
+                // Primera columna
+                document.getElementById("materia_seca").textContent = getValor("Materia_seca");
+                document.getElementById("energia_metabolizable").textContent =
+                    getValor("Energia_metabo"); // así viene del backend
+                document.getElementById("proteina_cruda").textContent = getValor("Proteina_cruda");
+                document.getElementById("fibra_cruda").textContent = getValor("Fibra_cruda");
+                document.getElementById("extracto_etereo").textContent = getValor("Extracto_etereo");
+                document.getElementById("calcio").textContent = getValor("Calcio");
+                document.getElementById("fosforo_disponible").textContent = getValor("Fosforo");
+
+                // Segunda columna
+                document.getElementById("sodio").textContent = getValor("Sodio");
+                document.getElementById("arginina").textContent = getValor("Arginina");
+                document.getElementById("lisina").textContent = getValor("Lisina");
+                document.getElementById("treonina").textContent = getValor("Treonina");
+                document.getElementById("metionina").textContent = getValor("Metionina");
+                document.getElementById("metionina_cistenina").textContent =
+                    getValor("Metionina_Cisteina"); // así viene en tu JSON
+                document.getElementById("triptofano").textContent = getValor("Triptofano");
+            })
+            .catch(err => console.error("Error:", err));
+    });
+
+}
+
+function ver_dietas(){
+    // Variables globales para paginación
+let dietasData = [];       // Aquí guardamos todas las dietas
+let currentPage = 1;       // Página actual
+const itemsPerPage = 3;    // Dietas por página
+
+// Función para consultar todas las dietas
+function consulta_dietas() {
+    verifyToken()
+    fetch(`${URL_BASE}/dieta`, { method: "GET", headers: getAuthHeaders() })
+        .then(res => res.json())
+        .then(data => {
+            dietasData = data.mensaje;
+            console.log(dietasData)
+            // Guardamos todas las dietas
+            mostrarPagina(1);          // Mostramos la primera página
+        })
+        .catch(err => {
+            console.error(err);
+            document.getElementById("contenido").innerHTML = `<tr><td colspan="7">Error al cargar las dietas</td></tr>`;
+        }).catch((error) => {
+            handleAuthError(error)
+        })
+}
+
+// Función para mostrar una página específica
+function mostrarPagina(page) {
+    const contenido = document.getElementById("contenido");
+    const Dietas_totales = document.getElementById("Dietas_totales");
+
+    const totalPages = Math.ceil(dietasData.length / itemsPerPage);
+
+    // Ajustar página si está fuera de rango
+    if (page < 1) page = 1;
+    if (page > totalPages) page = totalPages;
+    currentPage = page;
+
+        
+    // Calcular índices
+    const start = (page - 1) * itemsPerPage;
+    const end = start + itemsPerPage;
+    const dietasPagina = dietasData.slice(start, end);
+
+    contenido.innerHTML = "";
+
+    dietasPagina.forEach(dieta => {
+        contenido.innerHTML += `
+            <tr class="nuevo1">
+                <td class="nuevo td__border__l"><img class="svg__alimento" src="/src/static/iconos/ramen 1.svg"></td>
+                <td class="nuevo">${dieta.id_dieta}</td>
+                <td class="nuevo">${dieta.usuario}</td>
+                <td class="nuevo">${dieta.etapa_vida}</td>
+                <td class="nuevo">${dieta.fecha_creacion}</td>
+                <td class="nuevo">${dieta.estado}</td>
+                <td class="nuevo td__border__r">
+                    <img src="/src/static/iconos/icon eye.svg" onclick="abrirVerDieta(${dieta.id_dieta})" class="icon-eye">
+                    <img src="/src/static/iconos/edit icon.svg" onclick="abrirEditarDieta(${dieta.id_dieta})" class="icon-edit">
+
+                    <!-- AQUI LLAMAS AL MODAL -->
+                    <img src="/src/static/iconos/delete icon.svg" onclick="abrirModalEliminarDieta(${dieta.id_dieta})" class="icon-delete">
+                </td>
+            </tr>
+
+            <!-- MODAL ELIMINAR -->
+    <dialog style="padding:10px;" class="dialog-icon-dele" id="modal-dele-dieta-${dieta.id_dieta}">
+
+        <!-- Botón X -->
+        <div class="container__btn__close">
+            <button 
+                type="button" 
+                class="btn__close" 
+                onclick="document.getElementById('modal-dele-dieta-${dieta.id_dieta}').close()"
+            >X</button>
+        </div>
+
+        <div class="title-dialog">
+            <h2>Eliminar dieta</h2>
+        </div>
+
+        <hr>
+
+        <p>
+            Si elimina esta dieta, también se eliminarán sus alimentos asociados.
+            eliminar una dieta si tiene trazabilidad puede generar problemas, lo mejor seria desactivarlo
+        </p>
+
+        <span>¿Está seguro que quiere eliminar esta dieta?</span>
+
+        <div class="container-button-dele">
+            <button class="btn" onclick="abrirModalconfirmacionEliminarDieta(${dieta.id_dieta})">Eliminar</button>
+            <!-- Botón Cancelar removido -->
+        </div>
+
+    </dialog>
+    <dialog id="modal-confirm-dele-dieta-${dieta.id_dieta}" class="dialog-icon-dele">
+        <div class="container__btn__close">
+            <button type="button" class="btn__close" 
+                onclick="document.getElementById('modal-confirm-dele-dieta-${dieta.id_dieta}').close()">X</button>
+        </div>
+
+        <form class="container__items__dialogs" id="form-delete-confirm-${dieta.id_dieta}">
+            <div class="title-dialog">
+                <h2>Confirmar la Eliminación de la Dieta</h2>
+                <hr>
+            </div>
+
+            <div id="delete-content-confirm-${dieta.id_dieta}" class="info-delete">
+                <p>Escriba el ID "${dieta.id_dieta}" de la dieta y presione eliminar si así lo desea: le recuerdo eliminar una dieta si tiene trazabilidad puede generar problemas, lo mejor seria desactivarlo</p>
+                <input id="input-eliminar-${dieta.id_dieta}" class="input__add__por" 
+                    type="number" oninput="this.value = Math.abs(this.value)" 
+                    placeholder="Ingrese el ID">
+            </div>
+
+            <div class="container-button-close">
+                <button type="submit" onclick="confirmar(${dieta.id_dieta})" class="button-guardar">
+                    Eliminar
+                </button>
+            </div>
+        </form>
+    </dialog>
+
+        `;
+    });
+
+
+    // Actualizar contador
+    Dietas_totales.innerHTML = `Dietas Totales: ${dietasData.length}`;
+
+    // Actualizar info de paginación
+    document.getElementById("pageInfo").innerText = `Página ${currentPage} de ${totalPages}`;
+
+    // Bloquear botones si estamos en límites
+    document.getElementById("prevPage").style.opacity = (currentPage === 1) ? 0.5 : 1;
+    document.getElementById("nextPage").style.opacity = (currentPage === totalPages) ? 0.5 : 1;
+}
+
+// Funciones para botones de paginación
+document.getElementById("prevPage").addEventListener("click", () => {
+    if (currentPage > 1) mostrarPagina(currentPage - 1);
+});
+
+document.getElementById("nextPage").addEventListener("click", () => {
+    const totalPages = Math.ceil(dietasData.length / itemsPerPage);
+    if (currentPage < totalPages) mostrarPagina(currentPage + 1);
+});
+
+// Inicializar la consulta al cargar la página
+consulta_dietas();
+
+}
+
+function abrirVerDieta(id_dieta) {
+    localStorage.setItem("dieta_a_ver", id_dieta); // Guardamos el ID
+    window.location.href = "ver_dietas.html";    // Redirigimos a la página de solo lectura
+}
+
+function abrirEditarDieta(id_dieta) {
+    localStorage.setItem("dieta_a_modificar", id_dieta); // Guardamos el ID
+    window.location.href = "edit_dietas.html";    // Redirigimos a la página de solo lectura
+}
+
+function consulta_individual_dieta() {
+    const contenido = document.getElementById("contenido");
+    const Dietas_totales = document.getElementById("Dietas_totales");
+    const id = document.getElementById("input_id").value.trim();
+
+    // Validación 1: campo vacío
+    if (id === "") {
+        Swal.fire("Error", "Por favor ingrese un ID de dieta.", "warning");
+        return;
+    }
+
+    verifyToken()
+    fetch(`${URL_BASE}/dieta/${id}`, { 
+            method: "GET",
+            headers: getAuthHeaders() 
+        })
+        .then(res => res.json())
+        .then(data => {
+
+            // Validación 2: dieta no encontrada
+            if (!data.mensaje) {
+                Swal.fire("No encontrado", "No existe una dieta con ese ID.", "error");
+                // NO modificar tabla
+                return;
+            }
+
+            // Si existe → render normal
+            const dieta = data.mensaje;
+
+            contenido.innerHTML = `
+ <tr class="nuevo1">
+            <td class="nuevo td__border__l"><img class="svg__alimento" src="/src/static/iconos/ramen 1.svg"></td>
+            <td class="nuevo">${dieta.id_dieta}</td>
+            <td class="nuevo">${dieta.usuario}</td>
+            <td class="nuevo">${dieta.etapa_vida}</td>
+            <td class="nuevo">${dieta.fecha_creacion}</td>
+            <td class="nuevo">${dieta.estado}</td>
+            <td class="nuevo td__border__r">
+                <img src="/src/static/iconos/icon eye.svg" onclick="abrirVerDieta(${dieta.id_dieta})" class="icon-eye">
+                <img src="/src/static/iconos/edit icon.svg" onclick="abrirModalDieta(${dieta.id_dieta})" class="icon-edit">
+
+                <!-- AQUI LLAMAS AL MODAL -->
+                <img src="/src/static/iconos/delete icon.svg" onclick="abrirModalEliminarDieta(${dieta.id_dieta})" class="icon-delete">
+            </td>
+        </tr>
+
+        <!-- MODAL ELIMINAR -->
+<dialog style="padding:10px;" class="dialog-icon-dele" id="modal-dele-dieta-${dieta.id_dieta}">
+
+    <!-- Botón X -->
+    <div class="container__btn__close">
+        <button 
+            type="button" 
+            class="btn__close" 
+            onclick="document.getElementById('modal-dele-dieta-${dieta.id_dieta}').close()"
+        >X</button>
+    </div>
+
+    <div class="title-dialog">
+        <h2>Eliminar dieta</h2>
+    </div>
+
+    <hr>
+
+    <p>
+        Si elimina esta dieta, también se eliminarán sus alimentos asociados.
+    </p>
+
+    <span>¿Está seguro que quiere eliminar esta dieta?</span>
+
+    <div class="container-button-dele">
+        <button class="btn" onclick="eliminarDieta(${dieta.id_dieta})">Eliminar</button>
+        <!-- Botón Cancelar removido -->
+    </div>
+
+</dialog>
+            `;
+
+            Dietas_totales.innerHTML = "";
+        })
+        .catch(err => {
+            console.error(err);
+            // Validación 3: fallo de servidor
+            Swal.fire("Error", "Hubo un problema al consultar la dieta.", "error");
+            // NO modificar tabla
+        }).catch((error) => {
+            handleAuthError(error)
+        })
+}
+
+function guardarDieta() {
+    const id_etapa_vida = document.getElementById("select-etapas").value;
+
+    function mostrarError(mensaje) {
+        Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: mensaje,
+            confirmButtonText: 'Aceptar',
+            position: 'center',
+            backdrop: 'rgba(0,0,0,0.8)' // más opaco
+        });
+    }
+
+    // Validar etapa de vida
+    if (!id_etapa_vida) {
+        mostrarError("Debes seleccionar la etapa de vida");
+        return;
+    }
+
+    // Recopilar alimentos con cantidad
+    const alimentos = [];
+    document.querySelectorAll(".input_dietas").forEach(input => {
+        const cantidad = parseFloat(input.value);
+        if (!isNaN(cantidad) && cantidad > 0) {
+            alimentos.push({
+                id_alimento: parseInt(input.dataset.id),
+                cantidad: cantidad
+            });
+        }
+    });
+
+    if (alimentos.length === 0) {
+        mostrarError("Debes ingresar al menos un alimento con cantidad");
+        return;
+    }
+
+    // Enviar datos al backend
+    verifyToken()
+    fetch(`${URL_BASE}/crear_dieta`, {
+        method: "POST",
+        headers: getAuthHeaders(),
+        body: JSON.stringify({
+            
+            id_etapa_vida,
+            descripcion: "",
+            alimentos
+        })
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.error) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: data.error,
+                confirmButtonText: 'Aceptar',
+                position: 'center',
+                backdrop: 'rgba(0,0,0,0.8)'
+            });
+        } else {
+            Swal.fire({
+                icon: 'success',
+                title: 'Éxito',
+                text: 'Dieta creada correctamente',
+                confirmButtonText: 'Aceptar',
+                position: 'center',
+                backdrop: 'rgba(0,0,0,0.8)'
+            }).then(() => {
+                // Redirigir al hacer click en Aceptar
+                window.location.href = 'gestionar_dietas.html';
+            });
+
+            console.log("Mezcla nutricional:", data.mezcla_nutricional);
+        }
+    })
+    .catch(err => {
+        console.error(err);
+        Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: "No se pudo guardar la dieta",
+            confirmButtonText: 'Aceptar',
+            position: 'center',
+            backdrop: 'rgba(0,0,0,0.8)'
+        });
+    }).catch((error) => {
+        handleAuthError(error)
+    })
+}
+
+function eliminarDieta(id_dieta) {
+    verifyToken()
+    fetch(`${URL_BASE}/eliminar_dieta/${id_dieta}`, {
+        method: "DELETE",
+        headers: getAuthHeaders()
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.mensaje) {
+            // Éxito
+            Swal.fire({
+                icon: "success",
+                title: "Dieta eliminada correctamente",
+                confirmButtonText: "Aceptar"
+            });
+            ver_dietas()
+        } else {
+            // Error controlado del backend
+            Swal.fire({
+                icon: "error",
+                title: "Error al eliminar",
+                text: data.error || "No se pudo eliminar la dieta.",
+            });
+        }
+    })
+    .catch(err => {
+        // Error de conexión
+        Swal.fire({
+            icon: "error",
+            title: "Error de conexión",
+            text: "No se pudo comunicar con el servidor."
+        });
+        console.error("Error en la petición:", err);
+    }).catch((error) => {
+        handleAuthError(error)
+    })
+        
+    
+}
+
+function abrirModalEliminarDieta(id) {
+    const modal = document.getElementById(`modal-dele-dieta-${id}`);
+    if (modal) modal.showModal();
+}
+
+function abrirModalconfirmacionEliminarDieta(id) {
+    const modal = document.getElementById(`modal-confirm-dele-dieta-${id}`);
+    if (modal) modal.showModal();
+}
+
+function cerrarModalDieta(id) {
+    const modal = document.getElementById(`modal-dele-dieta-${id}`);
+    if (modal) modal.close();
+}
+
+function cerrarModalconfirmacionDieta(id) {
+    const modal = document.getElementById(`modal-confirm-dele-dieta-${id}`);
+    if (modal) modal.close();
+}
+
+function confirmar(id_dieta) {
+    const dialog = document.getElementById(`modal-confirm-dele-dieta-${id_dieta}`);
+    const dialog2 = document.getElementById(`modal-dele-dieta-${id_dieta}`);
+    const input = document.getElementById(`input-eliminar-${id_dieta}`).value;
+
+    if (parseInt(input) === id_dieta) {
+        // Mostrar mensaje de éxito primero
+        Swal.fire({
+            icon: 'success',
+            title: 'Dieta eliminada',
+            text: `La dieta con ID ${id_dieta} fue eliminada correctamente.`,
+            timer: 2000,
+            showConfirmButton: false,
+            didOpen: () => {
+                // Eliminar dieta y cerrar modal mientras se muestra Swal
+                dialog.close();
+                dialog2.close();
+                eliminarDieta(id_dieta);
+            }
+        });
+    } else {
+        dialog.close();
+        dialog2.close();
+        // Mostrar mensaje de error primero
+        Swal.fire({
+            icon: 'error',
+            title: 'ID incorrecto',
+            text: 'El ID ingresado no coincide con la dieta.',
+        }).then(() => {
+            // Reabrir el modal para que el usuario intente otra vez
+            dialog.showModal();
+        });
+    }
 }
 
 // =============================================
@@ -4025,6 +4766,7 @@ function manejarClickRol(event) {
         event.stopPropagation(); // Evita que otros eventos se ejecuten
         return false;
     }
+    return true;
 }
 
 function timesleep() {
@@ -4237,7 +4979,9 @@ async function generar_pdf(tipo, id) {
 }
 
 async function generar_pdf_dieta_individual(id) {
-    const promesa = await fetch(`${URL_BASE}/PDF_dieta/${id}`);
+    alert()
+    verifyToken()
+    const promesa = await fetch(`${URL_BASE}/PDF_dieta/${id}`,{ method: 'GET', headers: getAuthHeaders() });
     const blob = await promesa.blob();
 
     const url = URL.createObjectURL(blob);
@@ -4324,693 +5068,6 @@ function notificaciones_nuevo() {
 
     revisarNotificaciones();
     setInterval(revisarNotificaciones, 10000);
-}
-
-
-// -------------------------dietas----------------------
-// -------------------------------------------------------
-// -------------------------------------------------------
-
-function dietas() {
-    const alimentos_en_dieta = document.getElementById("alimentos_en_dieta");
-
-    verifyToken()
-    fetch(`${URL_BASE}/alimentos_disponible`, { method: 'GET', headers: getAuthHeaders() })
-        .then(res => {
-            if (!res.ok) throw new Error(`Error HTTP ${res.status}`);
-            return res.json();
-        })
-        .then(data => {
-            alimentos_en_dieta.innerHTML = "";
-
-            if (!data.mensaje || data.mensaje.length === 0) {
-                Swal.fire({
-                    icon: "info",
-                    title: "Sin alimentos disponibles",
-                    text: "Actualmente no hay alimentos registrados o activos.",
-                    confirmButtonColor: "#3085d6"
-                });
-                alimentos_en_dieta.innerHTML = `
-                    <p class="sin-alimentos">No hay alimentos disponibles actualmente.</p>
-                `;
-                return;
-            }
-
-            data.mensaje.forEach(element => {
-                const mapa = {};
-                if (Array.isArray(element.elementos)) {
-                    element.elementos.forEach(n => {
-                        mapa[n.nombre] = n.valor;
-                    });
-                }
-
-            alimentos_en_dieta.innerHTML += `
-                <dialog class="dialog-icon-eye modal-info" id="modal-eye-${element.id_alimento}">
-                <div class="title-dialog">
-                    <h2>Información del Alimento</h2>
-                    <hr>
-                </div>
-
-                <div class="modal-info-content">
-
-                    <!-- Columna 1 -->
-                    <section class="modal-column">
-                    <p>Nombre del alimento</p>
-                    <input value="${element.nombre}" readonly>
-
-                    <p>Proteína cruda (%)</p>
-                    <input value="${mapa.Proteina_cruda ?? ''}" readonly>
-
-                    <p>Materia seca (%)</p>
-                    <input value="${mapa.Materia_seca ?? ''}" readonly>
-
-                    <p>Energía metabolizable (Kcal/kg)</p>
-                    <input value="${mapa.Energia_metabo ?? ''}" readonly>
-                    </section>
-
-                    <!-- Columna 2 -->
-                    <section class="modal-column">
-                    <p>Fibra cruda (%)</p>
-                    <input value="${mapa.Fibra_cruda ?? ''}" readonly>
-
-                    <p>Extracto etéreo (%)</p>
-                    <input value="${mapa.Extracto_etereo ?? ''}" readonly>
-
-                    <p>Calcio (%)</p>
-                    <input value="${mapa.Calcio ?? ''}" readonly>
-
-                    <p>Fósforo (%)</p>
-                    <input value="${mapa.Fosforo ?? ''}" readonly>
-                    </section>
-
-                    <!-- Columna 3 -->
-                    <section class="modal-column">
-                    <p>Sodio (%)</p>
-                    <input value="${mapa.Sodio ?? ''}" readonly>
-
-                    <p>Arginina (%)</p>
-                    <input value="${mapa.Arginina ?? ''}" readonly>
-
-                    <p>Lisina (%)</p>
-                    <input value="${mapa.Lisina ?? ''}" readonly>
-
-                    <p>Treonina (%)</p>
-                    <input value="${mapa.Treonina ?? ''}" readonly>
-                    </section>
-
-                    <!-- Columna 4 -->
-                    <section class="modal-column">
-                    <p>Metionina (%)</p>
-                    <input value="${mapa.Metionina ?? ''}" readonly>
-
-                    <p>Metionina + Cisteína (%)</p>
-                    <input value="${mapa.Metionina_Cisteina ?? ''}" readonly>
-
-                    <p>Triptófano (%)</p>
-                    <input value="${mapa.Triptofano ?? ''}" readonly>
-                    </section>
-
-                </div>
-
-                <div class="modal-footer">
-                    <button onclick="cerrarModal('eye', ${element.id_alimento})" class="btn">
-                    Cerrar
-                    </button>
-                </div>
-                </dialog>
-
-                <!-- Tarjeta del alimento -->
-                <div class="alimentos_dietas">
-
-                    <!-- CÍRCULO SUPERIOR IZQUIERDO -->
-                    <div class="circulo-seleccion" onclick="toggleInput(${element.id_alimento})"></div>
-
-                    <div class="imagen_alimento_dieta">
-                        <img id="imagen_dietas" src="${URL_BASE}${element.imagen}" 
-                            onclick="abrirModal('eye', ${element.id_alimento})"
-                            onerror="this.onerror=null; this.src='/src/static/iconos/imagen no encontrada.svg'; this.classList.add('sin_imagen_alimento_dieta')"
-                            alt="no hay imagen" style="cursor:pointer;">
-                    </div>
-
-                    <div class="descripcion_dietas">
-                        <p><strong>Nombre:</strong> ${element.nombre}</p>
-                        <p><strong>Cantidad (Kg):</strong></p>
-
-                        <input type="number" min="0" class="input_dietas"
-                            data-id="${element.id_alimento}"
-                            id="cantidad-${element.id_alimento}"
-                            placeholder="Cantidad"
-                            disabled>
-                    </div>
-                </div>
-                `;
-            });
-        })
-        .catch(err => {
-            console.error(err);
-            Swal.fire({
-                icon: "error",
-                title: "Error al cargar los alimentos",
-                text: "Ocurrió un problema al obtener los alimentos disponibles.",
-                confirmButtonColor: "#d33"
-            });
-            alimentos_en_dieta.innerHTML = `<p>Error al cargar los alimentos.</p>`;
-        }).catch((error) => {
-            handleAuthError(error)
-        })
-}
-
-function toggleInput(id) {
-    const input = document.getElementById(`cantidad-${id}`);
-    const boton = event.target;
-
-    if (input.disabled) {
-        input.disabled = false;
-        boton.classList.add("activo");
-    } else {
-        input.disabled = true;
-        input.value = "";
-        boton.classList.remove("activo");
-    }
-}
-
-function verAlimentosSeleccionados() {
-    const checkbox = document.getElementById("check1");
-    const contenedor = document.getElementById("alimentos_en_dieta");
-    const mostrarSeleccionados = checkbox.checked;
-
-    const tarjetas = contenedor.querySelectorAll(".alimentos_dietas");
-    tarjetas.forEach(tarjeta => {
-        const circulo = tarjeta.querySelector(".circulo-seleccion");
-
-        if (mostrarSeleccionados) {
-            // Mostrar solo si el usuario activó el círculo
-            tarjeta.style.display = circulo.classList.contains("activo") ? "flex" : "none";
-        } else {
-            // Mostrar todas las tarjetas
-            tarjeta.style.display = "flex";
-        }
-    });
-}
-
-function rellenar_etapa_vida_en_dietas() {
-    verifyToken()
-    fetch(`${URL_BASE}/etapa_vida`, {method:'GET', headers: getAuthHeaders()})
-        .then(res => res.json())
-        .then(data => {
-            const select = document.getElementById('select-etapas');
-
-            if (data.etapas && data.etapas.length > 0) {
-                data.etapas.forEach(etapa => {
-                    const option = document.createElement('option');
-                    option.value = etapa.id_etapa;      // valor del select = id de la etapa
-                    option.textContent = etapa.nombre;  // texto visible = nombre de la etapa
-                    select.appendChild(option);
-                });
-            }
-        })
-        .catch(err => console.error("Error al cargar las etapas:", err))
-        .catch((error) => {
-            handleAuthError(error)
-        })
-        document.getElementById("select-etapas").addEventListener("change", function () {
-
-        const idEtapa = this.value;
-        verifyToken()
-        fetch(`${URL_BASE}/etapa_vida`, {
-            method : 'GET',
-            headers : getAuthHeaders()
-        })
-            .then(res => res.json())
-            .then(data => {
-                const etapa = data.etapas.find(e => e.id_etapa == idEtapa);
-                if (!etapa) return;
-
-                const req = etapa.requerimientos || [];
-
-                // función para buscar el porcentaje
-                function getValor(nombre) {
-                    const item = req.find(r => r.nombre_elemento.toLowerCase() === nombre.toLowerCase());
-                    return item ? item.porcentaje : "0";
-                }
-
-                // Primera columna
-                document.getElementById("materia_seca").textContent = getValor("Materia_seca");
-                document.getElementById("energia_metabolizable").textContent =
-                    getValor("Energia_metabo"); // así viene del backend
-                document.getElementById("proteina_cruda").textContent = getValor("Proteina_cruda");
-                document.getElementById("fibra_cruda").textContent = getValor("Fibra_cruda");
-                document.getElementById("extracto_etereo").textContent = getValor("Extracto_etereo");
-                document.getElementById("calcio").textContent = getValor("Calcio");
-                document.getElementById("fosforo_disponible").textContent = getValor("Fosforo");
-
-                // Segunda columna
-                document.getElementById("sodio").textContent = getValor("Sodio");
-                document.getElementById("arginina").textContent = getValor("Arginina");
-                document.getElementById("lisina").textContent = getValor("Lisina");
-                document.getElementById("treonina").textContent = getValor("Treonina");
-                document.getElementById("metionina").textContent = getValor("Metionina");
-                document.getElementById("metionina_cistenina").textContent =
-                    getValor("Metionina_Cisteina"); // así viene en tu JSON
-                document.getElementById("triptofano").textContent = getValor("Triptofano");
-            })
-            .catch(err => console.error("Error:", err));
-    });
-
-}
-function ver_dietas(){
-    // Variables globales para paginación
-let dietasData = [];       // Aquí guardamos todas las dietas
-let currentPage = 1;       // Página actual
-const itemsPerPage = 3;    // Dietas por página
-
-// Función para consultar todas las dietas
-function consulta_dietas() {
-    verifyToken()
-    fetch(`${URL_BASE}/dieta`, { method: "GET", headers: getAuthHeaders() })
-        .then(res => res.json())
-        .then(data => {
-            dietasData = data.mensaje;
-            console.log(dietasData)
-            // Guardamos todas las dietas
-            mostrarPagina(1);          // Mostramos la primera página
-        })
-        .catch(err => {
-            console.error(err);
-            document.getElementById("contenido").innerHTML = `<tr><td colspan="7">Error al cargar las dietas</td></tr>`;
-        }).catch((error) => {
-            handleAuthError(error)
-        })
-}
-
-// Función para mostrar una página específica
-function mostrarPagina(page) {
-    const contenido = document.getElementById("contenido");
-    const Dietas_totales = document.getElementById("Dietas_totales");
-
-    const totalPages = Math.ceil(dietasData.length / itemsPerPage);
-
-    // Ajustar página si está fuera de rango
-    if (page < 1) page = 1;
-    if (page > totalPages) page = totalPages;
-    currentPage = page;
-
-        
-    // Calcular índices
-    const start = (page - 1) * itemsPerPage;
-    const end = start + itemsPerPage;
-    const dietasPagina = dietasData.slice(start, end);
-
-    contenido.innerHTML = "";
-
-    dietasPagina.forEach(dieta => {
-        contenido.innerHTML += `
-            <tr class="nuevo1">
-                <td class="nuevo td__border__l"><img class="svg__alimento" src="/src/static/iconos/ramen 1.svg"></td>
-                <td class="nuevo">${dieta.id_dieta}</td>
-                <td class="nuevo">${dieta.usuario}</td>
-                <td class="nuevo">${dieta.etapa_vida}</td>
-                <td class="nuevo">${dieta.fecha_creacion}</td>
-                <td class="nuevo">${dieta.estado}</td>
-                <td class="nuevo td__border__r">
-                    <img src="/src/static/iconos/icon eye.svg" onclick="abrirVerDieta(${dieta.id_dieta})" class="icon-eye">
-                    <img src="/src/static/iconos/edit icon.svg" onclick="abrirEditarDieta(${dieta.id_dieta})" class="icon-edit">
-
-                    <!-- AQUI LLAMAS AL MODAL -->
-                    <img src="/src/static/iconos/delete icon.svg" onclick="abrirModalEliminarDieta(${dieta.id_dieta})" class="icon-delete">
-                </td>
-            </tr>
-
-            <!-- MODAL ELIMINAR -->
-    <dialog style="padding:10px;" class="dialog-icon-dele" id="modal-dele-dieta-${dieta.id_dieta}">
-
-        <!-- Botón X -->
-        <div class="container__btn__close">
-            <button 
-                type="button" 
-                class="btn__close" 
-                onclick="document.getElementById('modal-dele-dieta-${dieta.id_dieta}').close()"
-            >X</button>
-        </div>
-
-        <div class="title-dialog">
-            <h2>Eliminar dieta</h2>
-        </div>
-
-        <hr>
-
-        <p>
-            Si elimina esta dieta, también se eliminarán sus alimentos asociados.
-            eliminar una dieta si tiene trazabilidad puede generar problemas, lo mejor seria desactivarlo
-        </p>
-
-        <span>¿Está seguro que quiere eliminar esta dieta?</span>
-
-        <div class="container-button-dele">
-            <button class="btn" onclick="abrirModalconfirmacionEliminarDieta(${dieta.id_dieta})">Eliminar</button>
-            <!-- Botón Cancelar removido -->
-        </div>
-
-    </dialog>
-    <dialog id="modal-confirm-dele-dieta-${dieta.id_dieta}" class="dialog-icon-dele">
-        <div class="container__btn__close">
-            <button type="button" class="btn__close" 
-                onclick="document.getElementById('modal-confirm-dele-dieta-${dieta.id_dieta}').close()">X</button>
-        </div>
-
-        <form class="container__items__dialogs" id="form-delete-confirm-${dieta.id_dieta}">
-            <div class="title-dialog">
-                <h2>Confirmar la Eliminación de la Dieta</h2>
-                <hr>
-            </div>
-
-            <div id="delete-content-confirm-${dieta.id_dieta}" class="info-delete">
-                <p>Escriba el ID "${dieta.id_dieta}" de la dieta y presione eliminar si así lo desea: le recuerdo eliminar una dieta si tiene trazabilidad puede generar problemas, lo mejor seria desactivarlo</p>
-                <input id="input-eliminar-${dieta.id_dieta}" class="input__add__por" 
-                    type="number" oninput="this.value = Math.abs(this.value)" 
-                    placeholder="Ingrese el ID">
-            </div>
-
-            <div class="container-button-close">
-                <button type="submit" onclick="confirmar(${dieta.id_dieta})" class="button-guardar">
-                    Eliminar
-                </button>
-            </div>
-        </form>
-    </dialog>
-
-        `;
-    });
-
-
-    // Actualizar contador
-    Dietas_totales.innerHTML = `Dietas Totales: ${dietasData.length}`;
-
-    // Actualizar info de paginación
-    document.getElementById("pageInfo").innerText = `Página ${currentPage} de ${totalPages}`;
-
-    // Bloquear botones si estamos en límites
-    document.getElementById("prevPage").style.opacity = (currentPage === 1) ? 0.5 : 1;
-    document.getElementById("nextPage").style.opacity = (currentPage === totalPages) ? 0.5 : 1;
-}
-
-// Funciones para botones de paginación
-document.getElementById("prevPage").addEventListener("click", () => {
-    if (currentPage > 1) mostrarPagina(currentPage - 1);
-});
-
-document.getElementById("nextPage").addEventListener("click", () => {
-    const totalPages = Math.ceil(dietasData.length / itemsPerPage);
-    if (currentPage < totalPages) mostrarPagina(currentPage + 1);
-});
-
-// Inicializar la consulta al cargar la página
-consulta_dietas();
-
-}
-function abrirVerDieta(id_dieta) {
-    localStorage.setItem("dieta_a_ver", id_dieta); // Guardamos el ID
-    window.location.href = "ver_dietas.html";    // Redirigimos a la página de solo lectura
-}
-function abrirEditarDieta(id_dieta) {
-    localStorage.setItem("dieta_a_modificar", id_dieta); // Guardamos el ID
-    window.location.href = "edit_dietas.html";    // Redirigimos a la página de solo lectura
-}
-
-function consulta_individual_dieta() {
-    const contenido = document.getElementById("contenido");
-    const Dietas_totales = document.getElementById("Dietas_totales");
-    const id = document.getElementById("input_id").value.trim();
-
-    // Validación 1: campo vacío
-    if (id === "") {
-        Swal.fire("Error", "Por favor ingrese un ID de dieta.", "warning");
-        return;
-    }
-
-    verifyToken()
-    fetch(`${URL_BASE}/dieta/${id}`, { 
-            method: "GET",
-            headers: getAuthHeaders() 
-        })
-        .then(res => res.json())
-        .then(data => {
-
-            // Validación 2: dieta no encontrada
-            if (!data.mensaje) {
-                Swal.fire("No encontrado", "No existe una dieta con ese ID.", "error");
-                // NO modificar tabla
-                return;
-            }
-
-            // Si existe → render normal
-            const dieta = data.mensaje;
-
-            contenido.innerHTML = `
- <tr class="nuevo1">
-            <td class="nuevo td__border__l"><img class="svg__alimento" src="/src/static/iconos/ramen 1.svg"></td>
-            <td class="nuevo">${dieta.id_dieta}</td>
-            <td class="nuevo">${dieta.usuario}</td>
-            <td class="nuevo">${dieta.etapa_vida}</td>
-            <td class="nuevo">${dieta.fecha_creacion}</td>
-            <td class="nuevo">${dieta.estado}</td>
-            <td class="nuevo td__border__r">
-                <img src="/src/static/iconos/icon eye.svg" onclick="abrirVerDieta(${dieta.id_dieta})" class="icon-eye">
-                <img src="/src/static/iconos/edit icon.svg" onclick="abrirModalDieta(${dieta.id_dieta})" class="icon-edit">
-
-                <!-- AQUI LLAMAS AL MODAL -->
-                <img src="/src/static/iconos/delete icon.svg" onclick="abrirModalEliminarDieta(${dieta.id_dieta})" class="icon-delete">
-            </td>
-        </tr>
-
-        <!-- MODAL ELIMINAR -->
-<dialog style="padding:10px;" class="dialog-icon-dele" id="modal-dele-dieta-${dieta.id_dieta}">
-
-    <!-- Botón X -->
-    <div class="container__btn__close">
-        <button 
-            type="button" 
-            class="btn__close" 
-            onclick="document.getElementById('modal-dele-dieta-${dieta.id_dieta}').close()"
-        >X</button>
-    </div>
-
-    <div class="title-dialog">
-        <h2>Eliminar dieta</h2>
-    </div>
-
-    <hr>
-
-    <p>
-        Si elimina esta dieta, también se eliminarán sus alimentos asociados.
-    </p>
-
-    <span>¿Está seguro que quiere eliminar esta dieta?</span>
-
-    <div class="container-button-dele">
-        <button class="btn" onclick="eliminarDieta(${dieta.id_dieta})">Eliminar</button>
-        <!-- Botón Cancelar removido -->
-    </div>
-
-</dialog>
-            `;
-
-            Dietas_totales.innerHTML = "";
-        })
-        .catch(err => {
-            console.error(err);
-            // Validación 3: fallo de servidor
-            Swal.fire("Error", "Hubo un problema al consultar la dieta.", "error");
-            // NO modificar tabla
-        }).catch((error) => {
-            handleAuthError(error)
-        })
-}
-
-function guardarDieta() {
-    const id_etapa_vida = document.getElementById("select-etapas").value;
-
-    function mostrarError(mensaje) {
-        Swal.fire({
-            icon: 'error',
-            title: 'Error',
-            text: mensaje,
-            confirmButtonText: 'Aceptar',
-            position: 'center',
-            backdrop: 'rgba(0,0,0,0.8)' // más opaco
-        });
-    }
-
-    // Validar etapa de vida
-    if (!id_etapa_vida) {
-        mostrarError("Debes seleccionar la etapa de vida");
-        return;
-    }
-
-    // Recopilar alimentos con cantidad
-    const alimentos = [];
-    document.querySelectorAll(".input_dietas").forEach(input => {
-        const cantidad = parseFloat(input.value);
-        if (!isNaN(cantidad) && cantidad > 0) {
-            alimentos.push({
-                id_alimento: parseInt(input.dataset.id),
-                cantidad: cantidad
-            });
-        }
-    });
-
-    if (alimentos.length === 0) {
-        mostrarError("Debes ingresar al menos un alimento con cantidad");
-        return;
-    }
-
-    // Enviar datos al backend
-    verifyToken()
-    fetch(`${URL_BASE}/crear_dieta`, {
-        method: "POST",
-        headers: getAuthHeaders(),
-        body: JSON.stringify({
-            
-            id_etapa_vida,
-            descripcion: "",
-            alimentos
-        })
-    })
-    .then(res => res.json())
-    .then(data => {
-        if (data.error) {
-            Swal.fire({
-                icon: 'error',
-                title: 'Error',
-                text: data.error,
-                confirmButtonText: 'Aceptar',
-                position: 'center',
-                backdrop: 'rgba(0,0,0,0.8)'
-            });
-        } else {
-            Swal.fire({
-                icon: 'success',
-                title: 'Éxito',
-                text: 'Dieta creada correctamente',
-                confirmButtonText: 'Aceptar',
-                position: 'center',
-                backdrop: 'rgba(0,0,0,0.8)'
-            }).then(() => {
-                // Redirigir al hacer click en Aceptar
-                window.location.href = 'gestionar_dietas.html';
-            });
-
-            console.log("Mezcla nutricional:", data.mezcla_nutricional);
-        }
-    })
-    .catch(err => {
-        console.error(err);
-        Swal.fire({
-            icon: 'error',
-            title: 'Error',
-            text: "No se pudo guardar la dieta",
-            confirmButtonText: 'Aceptar',
-            position: 'center',
-            backdrop: 'rgba(0,0,0,0.8)'
-        });
-    }).catch((error) => {
-        handleAuthError(error)
-    })
-}
-
-function eliminarDieta(id_dieta) {
-    verifyToken()
-    fetch(`${URL_BASE}/eliminar_dieta/${id_dieta}`, {
-        method: "DELETE",
-        headers: getAuthHeaders()
-    })
-    .then(res => res.json())
-    .then(data => {
-        if (data.mensaje) {
-            // Éxito
-            Swal.fire({
-                icon: "success",
-                title: "Dieta eliminada correctamente",
-                confirmButtonText: "Aceptar"
-            });
-            ver_dietas()
-        } else {
-            // Error controlado del backend
-            Swal.fire({
-                icon: "error",
-                title: "Error al eliminar",
-                text: data.error || "No se pudo eliminar la dieta.",
-            });
-        }
-    })
-    .catch(err => {
-        // Error de conexión
-        Swal.fire({
-            icon: "error",
-            title: "Error de conexión",
-            text: "No se pudo comunicar con el servidor."
-        });
-        console.error("Error en la petición:", err);
-    }).catch((error) => {
-        handleAuthError(error)
-    })
-        
-    
-}
-
-function abrirModalEliminarDieta(id) {
-    const modal = document.getElementById(`modal-dele-dieta-${id}`);
-    if (modal) modal.showModal();
-}
-
-function abrirModalconfirmacionEliminarDieta(id) {
-    const modal = document.getElementById(`modal-confirm-dele-dieta-${id}`);
-    if (modal) modal.showModal();
-}
-
-function cerrarModalDieta(id) {
-    const modal = document.getElementById(`modal-dele-dieta-${id}`);
-    if (modal) modal.close();
-}
-
-function cerrarModalconfirmacionDieta(id) {
-    const modal = document.getElementById(`modal-confirm-dele-dieta-${id}`);
-    if (modal) modal.close();
-}
-
-function confirmar(id_dieta) {
-    const dialog = document.getElementById(`modal-confirm-dele-dieta-${id_dieta}`);
-    const dialog2 = document.getElementById(`modal-dele-dieta-${id_dieta}`);
-    const input = document.getElementById(`input-eliminar-${id_dieta}`).value;
-
-    if (parseInt(input) === id_dieta) {
-        // Mostrar mensaje de éxito primero
-        Swal.fire({
-            icon: 'success',
-            title: 'Dieta eliminada',
-            text: `La dieta con ID ${id_dieta} fue eliminada correctamente.`,
-            timer: 2000,
-            showConfirmButton: false,
-            didOpen: () => {
-                // Eliminar dieta y cerrar modal mientras se muestra Swal
-                dialog.close();
-                dialog2.close();
-                eliminarDieta(id_dieta);
-            }
-        });
-    } else {
-        dialog.close();
-        dialog2.close();
-        // Mostrar mensaje de error primero
-        Swal.fire({
-            icon: 'error',
-            title: 'ID incorrecto',
-            text: 'El ID ingresado no coincide con la dieta.',
-        }).then(() => {
-            // Reabrir el modal para que el usuario intente otra vez
-            dialog.showModal();
-        });
-    }
 }
 
 // ----------------------------------funciones adicionales

@@ -1892,8 +1892,7 @@ def reporte_razas():
 #RUTA PARA CONSULTAR TODAS LAS ETAPAS DE VIDA
 @app.route('/etapa_vida', methods = ['GET'])
 @token_requerido
-@rol_requerido('Admin')
-def consulta_gen_etapa(): 
+def consulta_gen_etapa():
   """
   Consulta de etapas de vida
   ---
@@ -2797,6 +2796,54 @@ def consulta_alimento_disponible():
         return jsonify({"error": str(e)})
 
 
+@app.route("/consulta_indi_alimento_disponible/<nombre>", methods=["GET"])
+@token_requerido
+def consulta_individual_alimento_disponible(nombre):
+    """
+    Consultar un alimento individual (si está activo o disponible)
+    """
+    try:
+        with config['development'].conn() as conn:
+            with conn.cursor() as cur:
+                cur.execute("""
+                    SELECT 
+                        a.id_alimento, 
+                        a.nombre AS nombre_alimento, 
+                        a.imagen AS imagen_alimento,
+                        e.nombre AS nombre_elemento,
+                        a.estado,
+                        ate.valor 
+                    FROM alimentos a
+                    JOIN alimento_tiene_elemento ate ON a.id_alimento = ate.id_alimento
+                    JOIN elementos e ON e.id_elemento = ate.id_elemento
+                    WHERE a.nombre = %s AND a.estado IN ('Activo', 'disponible')
+                """, (nombre,))
+                
+                filas = cur.fetchall()
+                
+                # Si no hay resultados
+                if not filas:
+                    return jsonify({"mensaje": None})
+                
+                # Estructurar respuesta
+                alimento = {
+                    "id_alimento": filas[0]["id_alimento"],
+                    "nombre": filas[0]["nombre_alimento"],
+                    "imagen": filas[0]["imagen_alimento"],
+                    "estado": filas[0]["estado"],  
+                    "elementos": []
+                }
+                
+                for fila in filas:
+                    alimento["elementos"].append({
+                        "nombre": fila["nombre_elemento"],
+                        "valor": float(fila["valor"])
+                    })
+                
+                return jsonify({"mensaje": alimento})
+                
+    except Exception as e:
+        return jsonify({"error": str(e)})
 
 
 # RUTA PARA REGISTRAR UN ALIMENTO
@@ -3529,7 +3576,7 @@ def obtener_dieta(id_dieta):
         return jsonify({"error": str(e)})
 
 @app.route("/PDF_dieta/<int:id_dieta>")
-@token_requerido
+
 def PDF_dieta(id_dieta):
     try:
         # ================================

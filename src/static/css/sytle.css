@@ -657,6 +657,7 @@ SECCION DE PORCINOS
 .container__user__btn{
     position: relative;
     display: flex;
+    flex-direction: row;
     align-items: center;
     margin-right: 2%;
 }
@@ -672,13 +673,15 @@ SECCION DE PORCINOS
 .btn__perfil{
     background-color: var(--color--letra);
     color: var(--color-white);
-    width: 150px;
+    width: fit-content;
     height: 45px;
-    padding-left: 40px;
+    padding: 1rem;
+    padding-left: 50px;
     font-size: 15PX;
     font-weight: 500;
     border-radius: 8px;
     border: none;
+
 }
 
 .usuario-menu {
@@ -687,7 +690,7 @@ SECCION DE PORCINOS
     right: 0;
     background-color: var(--color--letra);
     font-family: var(--fuente--contenido);
-    min-width: 150px;
+    min-width: fit-content;
     box-shadow: 0px 8px 16px rgba(0,0,0,0.2);
     border-radius: 6px;
     z-index: 100;
@@ -2592,7 +2595,6 @@ RESPONSIVE BAR
         position: relative;
         display: flex;
         align-items: center;
-        
     }
 
     .btn__perfil{

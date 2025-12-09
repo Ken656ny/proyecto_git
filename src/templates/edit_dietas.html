@@ -20,7 +20,7 @@
 </head>
 
 <body class="body_dietas">
-    <section class="section-nav-bar">
+    <section class="section-nav-bar" >
         <div class="container-user">
             <div class="container__btn__perfil">
                 <img src="../static/iconos/icon user.svg" alt="" width="25" class="svg__user__2">
@@ -41,8 +41,7 @@
             <nav class="navegacion">
                 <ul class="ul-navegacion">
                     <li>
-                        <a href="/src/templates/home.html" onclick="redirectWithDelay(event, 'home.html')">
-                            <!--dar estilo -->
+                        <a href="/src/templates/home.html"> <!--dar estilo -->
                             <img src="../static/iconos/home icon.svg" width="20px" alt="" class="icons-bar">
                             <span>Home</span>
                         </a>
@@ -54,15 +53,14 @@
                         </a>
                     </li>
                     <li>
-                        <a href="/src/templates/porcinos.html" onclick="redirectWithDelay(event, 'porcinos.html')">
+                        <a href="/src/templates/porcinos.html" onclick="manejarClickRol(event)">
                             <img src="../static/iconos/icon pig.svg" width="20px" alt="" class="icons-bar">
                             <span>Porcinos</span>
                         </a>
                     </li>
                     <li>
-                        <a href="/src/templates/alimentos.html" onclick="redirectWithDelay(event, 'alimentos.html')">
-                            <img src="../static/iconos/icon wheate.svg" title="alimentos" width="20px" alt=""
-                                class="icons-bar">
+                        <a href="/src/templates/alimentos.html"  onclick="manejarClickRol(event)">
+                            <img src="../static/iconos/icon wheate.svg" title="alimentos" width="20px" alt="" class="icons-bar">
                             <span>Alimentos</span>
                         </a>
                     </li>
@@ -73,20 +71,19 @@
                         </a>
                     </li>
                     <li>
-                        <a href="#">
+                        <a href="#" onclick="manejarClickRol(event)">
                             <img src="../static/iconos/icon page.svg" alt="" class="icons-bar">
                             <span>Informes</span>
                         </a>
                     </li>
                     <li>
-                        <a href="/src/templates/perfil.html" onclick="redirectWithDelay(event, 'perfil.html')">
+                        <a href="/src/templates/perfil.html">
                             <img src="../static/iconos/icon user.svg" width="20px" alt="" class="icons-bar">
                             <span>Usuario</span>
                         </a>
                     </li>
                     <li>
-                        <a href="/src/templates/configuracion.html"
-                            onclick="redirectWithDelay(event, 'configuracion.html')">
+                        <a href="/src/templates/configuracion.html">
                             <img src="../static/iconos/icon setting.svg" width="20px" alt="" class="icons-bar">
                             <span>Configuración</span>
                         </a>
@@ -497,7 +494,7 @@
 function guardarDieta() {
     const idDieta = parseInt(localStorage.getItem("dieta_a_modificar"));
     if (!idDieta) return Swal.fire("Error", "No se encontró la dieta", "error");
-
+    verifyToken()
     // Obtener la etapa de vida
     const selectEtapa = document.getElementById("select-etapas");
     const idEtapa = parseInt(selectEtapa.value);
@@ -532,7 +529,7 @@ function guardarDieta() {
     // Enviar datos al backend
     fetch(`${URL_BASE}/actualizar_dieta/${idDieta}`, {
         method: "PUT",
-        headers: { "Content-Type": "application/json" },
+        headers: getAuthHeaders(),
         body: JSON.stringify({
             id_etapa_vida: idEtapa,
             estado: estado,

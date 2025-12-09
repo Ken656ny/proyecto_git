@@ -41,7 +41,7 @@
             <nav class="navegacion">
                 <ul class="ul-navegacion">
                     <li>
-                        <a href="/src/templates/home.html" onclick="redirectWithDelay(event, 'home.html')" > <!--dar estilo -->
+                        <a href="/src/templates/home.html"> <!--dar estilo -->
                             <img src="../static/iconos/home icon.svg" width="20px" alt="" class="icons-bar">
                             <span>Home</span>
                         </a>
@@ -53,13 +53,13 @@
                         </a>
                     </li>
                     <li>
-                        <a href="/src/templates/porcinos.html" onclick="redirectWithDelay(event, 'porcinos.html')">
+                        <a href="/src/templates/porcinos.html" onclick="manejarClickRol(event)">
                             <img src="../static/iconos/icon pig.svg" width="20px" alt="" class="icons-bar">
                             <span>Porcinos</span>
                         </a>
                     </li>
                     <li>
-                        <a href="/src/templates/alimentos.html" onclick="redirectWithDelay(event, 'alimentos.html')">
+                        <a href="/src/templates/alimentos.html"  onclick="manejarClickRol(event)">
                             <img src="../static/iconos/icon wheate.svg" title="alimentos" width="20px" alt="" class="icons-bar">
                             <span>Alimentos</span>
                         </a>
@@ -71,19 +71,19 @@
                         </a>
                     </li>
                     <li>
-                        <a href="#">
+                        <a href="#" onclick="manejarClickRol(event)">
                             <img src="../static/iconos/icon page.svg" alt="" class="icons-bar">
                             <span>Informes</span>
                         </a>
                     </li>
                     <li>
-                        <a href="/src/templates/perfil.html" onclick="redirectWithDelay(event, 'perfil.html')">
+                        <a href="/src/templates/perfil.html">
                             <img src="../static/iconos/icon user.svg" width="20px" alt="" class="icons-bar">
                             <span>Usuario</span>
                         </a>
                     </li>
                     <li>
-                        <a href="/src/templates/configuracion.html" onclick="redirectWithDelay(event, 'configuracion.html')">
+                        <a href="/src/templates/configuracion.html">
                             <img src="../static/iconos/icon setting.svg" width="20px" alt="" class="icons-bar">
                             <span>Configuración</span>
                         </a>
@@ -92,32 +92,33 @@
             </nav>
         </div>
     </section>
-
     <section class="contenido_dietas">
-        <div class="container__back__logo">
-            <img onclick="window.location.href='/src/templates/gestionar_dietas.html'" src="/src/static/iconos/back icon.svg" alt="icon back" class="icon__back">
-        </div>
+            <div class="container__back__logo">
+                <img onclick="window.location.href='/src/templates/gestionar_dietas.html'" src="/src/static/iconos/back icon.svg" alt="icon back" class="icon__back">
+            </div>
+            
 
         <header class="container container__title_dietas">
             <h1>Crear Dietas</h1>
         </header>
 
+
         <section class="container container__search__bar_dietas">
             <div class="separador">
                 <img src="/src/static/iconos/icon lupa.svg" alt="">
                 <input type="text" class="input__id" id="id_alimento" placeholder="Nombre del alimento"
-                    list="lista_alimentos">
-                <datalist id="lista_alimentos"></datalist>
+                    list="lista_alimentos_disponibles">
+                <datalist id="lista_alimentos_disponibles"></datalist>
             </div>
             <div class="final_buttom">
-                <button type="button" class="btn" onclick="consulta_individual_alimento_disponible()">Consultar</button>
-            </div>
                 <button id="enviar_consulta" type="button" class="btn" onclick="dietas()">Consultar todo</button>
+            </div>
+            <button type="button" class="btn" onclick="consulta_individual_alimento_disponible()" >Consultar</button>
         </section>
 
 
         <section id="contenedor_dietas" class="container container_dietas">
-            <label class="contenedor1">
+            <label id="contenedor1" class="contenedor1">
                 <input type="checkbox" onclick="verAlimentosSeleccionados()" id="check1">
                 <span class="custom-checkbox"></span>
                 <p class="color_p">Ver alimentos seleccionados</p>
@@ -126,6 +127,7 @@
             </div>
             <button type="button" class="btn1" onclick="guardarDieta();">Guardar</button>
         </section>
+
 
 
         <section class="container buscador_etapa_dietas">
@@ -202,7 +204,7 @@
         </section>
 
     </section>
-    <div onclick="iniciarTourAgregarDietas()" class="opciones">
+    <div onclick="iniciarTourAgregarDietas()" class="ayuda">
         <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24">
             <g fill="none">
                 <path
@@ -212,14 +214,16 @@
             </g>
         </svg>
     </div>
-
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
 
     <script src="/src/static/js/script.js"></script>
     <script src="/src/static/js/driver.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <script>
+let estadoDietas = {};
+
         dietas();
         rellenar_etapa_vida_en_dietas();
         timesleep();
@@ -242,7 +246,7 @@
 
         function mostrarMezcla() {
             const alimentosSeleccionados = [];
-
+            verifyToken()
             document.querySelectorAll(".input_dietas").forEach(input => {
                 const cantidad = parseFloat(input.value || 0);
                 const id = parseInt(input.dataset.id);
@@ -258,8 +262,7 @@
                 });
                 return;
             }
-
-            verifyToken()
+            
             fetch(`${URL_BASE}/mezcla_nutricional`, {
                 method: "POST",
                 headers: getAuthHeaders(),
@@ -287,6 +290,16 @@
                 mostrarMezcla();
             }
         });
+        // Guardar automáticamente la cantidad cuando escribe
+document.addEventListener("input", (e) => {
+    if (e.target.classList.contains("input_dietas")) {
+        const id = parseInt(e.target.dataset.id);
+
+        if (!estadoDietas[id]) estadoDietas[id] = {};
+        estadoDietas[id].cantidad = e.target.value;
+    }
+});
+
 
 
         let graficoMezcla = null;
@@ -298,6 +311,7 @@
             canvas.width = 200;
             canvas.height = 200;
             const ctx = canvas.getContext("2d");
+
             graficoMezcla = new Chart(ctx, {
                 type: 'pie',
                 data: {
@@ -371,6 +385,127 @@
         }
 
         inicializarGraficoVacio();
+function cargarDatalistAlimentos() {
+    // Verificar token primero
+    if (!verifyToken()) {
+        redirectToLogin();
+        return;
+    }
+    
+    const datalista = document.getElementById("lista_alimentos_disponibles");
+    
+    // Mostrar loading si quieres
+    Swal.fire({
+        title: 'Cargando alimentos...',
+        text: 'Por favor espere',
+        allowOutsideClick: false,
+        didOpen: () => {
+            Swal.showLoading();
+        }
+    });
+
+    // Hacer la petición CON HEADERS DE AUTENTICACIÓN
+    fetch(`${URL_BASE}/alimentos_disponible`, {
+        method: 'GET',
+        headers: getAuthHeaders()  // <- Aquí agregas los headers
+    })
+    .then(response => {
+        // Cerrar loading
+        Swal.close();
+        
+        // Manejar error 401
+        if (response.status === 401) {
+            redirectToLogin();
+            throw new Error('Unauthorized');
+        }
+        
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        return response.json();
+    })
+    .then(data => {
+        console.log("Respuesta del backend:", data);
+
+        // Asegúrate de acceder a la propiedad correcta
+        // Dependiendo de cómo responde tu API:
+        const alimentos = data.mensaje || data.alimentos || data.data || [];
+        
+        if (!Array.isArray(alimentos)) {
+            console.error("La respuesta no contiene un array de alimentos:", alimentos);
+            Swal.fire('Error', 'Formato de datos incorrecto', 'error');
+            return;
+        }
+
+        if (alimentos.length === 0) {
+            console.warn("No hay alimentos disponibles");
+            datalista.innerHTML = '<option value="" disabled>No hay alimentos disponibles</option>';
+            return;
+        }
+
+        // Limpiar y llenar el datalist
+        datalista.innerHTML = "";
+        alimentos.forEach(alimento => {
+            const option = document.createElement("option");
+            // Asegúrate de que el campo se llama "nombre"
+            option.value = alimento.nombre || alimento.Nombre || alimento.nombre_alimento || "";
+            option.textContent = alimento.nombre || alimento.Nombre || alimento.nombre_alimento || "";
+            datalista.appendChild(option);
+        });
+        
+        console.log(`Cargados ${alimentos.length} alimentos en el datalist`);
+    })
+    .catch(err => {
+        Swal.close();
+        if (err.message !== 'Unauthorized') {
+            console.error("Error al cargar datalista de alimentos:", err);
+            Swal.fire({
+                title: 'Error',
+                text: 'No se pudieron cargar los alimentos',
+                icon: 'error',
+                confirmButtonText: 'OK'
+            });
+        }
+    });
+}
+
+// Versión alternativa más simple si prefieres:
+function cargarDatalistAlimentosSimple() {
+    if (!verifyToken()) return;
+    
+    const datalista = document.getElementById("lista_alimentos_disponibles");
+    
+    fetch(`${URL_BASE}/alimentos_disponible`, {
+        headers: getAuthHeaders()
+    })
+    .then(res => {
+        if (res.status === 401) {
+            redirectToLogin();
+            throw new Error('Unauthorized');
+        }
+        return res.json();
+    })
+    .then(data => {
+        const alimentos = data.mensaje || [];
+        
+        datalista.innerHTML = "";
+        alimentos.forEach(alimento => {
+            const option = document.createElement("option");
+            option.value = alimento.nombre;
+            datalista.appendChild(option);
+        });
+    })
+    .catch(err => {
+        if (err.message !== 'Unauthorized') {
+            console.error("Error:", err);
+        }
+    });
+}
+// Ejecutar al cargar la página
+cargarDatalistAlimentos();
+
+
     </script>
 </body>
 
