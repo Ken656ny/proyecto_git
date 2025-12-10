@@ -939,7 +939,7 @@ function crearDialogRegistrarEtapa() {
     const htmlStep2 = campos2.map(campo => `
         <div class="container__label__input">
             <label>${campo.label}</label>
-            <input type="${campo.type || 'text'}" id="${campo.id}" placeholder="${campo.placeholder} min="0"">
+            <input type="${campo.type || 'text'}" id="${campo.id}" placeholder="${campo.placeholder} min="0"" step="0.001">
         </div>
     `).join('');
 
