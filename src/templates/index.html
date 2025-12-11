@@ -9,8 +9,6 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet">
     <title>Edupork</title>
-
-    <script src="/src/static/js/script.js"></script>
     <script src="/src/static/js/driver.js"></script>
     <link rel="stylesheet" href="/src/static/css/sytle.css">
 </head>
@@ -47,5 +45,61 @@
 <img src="/src/static/iconos/logo_login.png" alt="LogoEdupork" class="LogoEdupork">
 <img src="/src/static/iconos/cologo.png" alt="dsa" class="logBot">
 <img src="/src/static/iconos/senlogo.png" alt="ads" class="logBot logobot2">
+<script src="/src/static/js/script.js"></script>
+<script>
+function bloquearSiEsMovil() {
+    const maxWidth = 768;
+
+    // Detectar celular por userAgent
+    const esMovilPorUserAgent = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i
+        .test(navigator.userAgent);
+
+    // Detectar celular por ancho de pantalla
+    const esMovilPorResolucion = window.innerWidth <= maxWidth;
+
+    // Si NO es celular → desbloquear
+    if (!esMovilPorUserAgent && !esMovilPorResolucion) {
+        const overlay = document.getElementById("overlay-bloqueo");
+        if (overlay) overlay.remove();
+        Swal.close();
+        return;
+    }
+
+    // Si es celular → crear overlay negro si no existe
+    if (!document.getElementById("overlay-bloqueo")) {
+        const overlay = document.createElement("div");
+        overlay.id = "overlay-bloqueo";
+        overlay.style.cssText = `
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: black;
+            z-index: 999998; /* menos que Swal */
+        `;
+        document.body.appendChild(overlay);
+    }
+
+    // Mostrar modal SweetAlert encima del overlay
+    Swal.fire({
+        title: "Acceso restringido",
+        text: "Este proyecto es muy complejo y completo por lo que se necesita un PC Por favor ingresa desde un computador.",
+        icon: "error",
+        allowOutsideClick: false,
+        allowEscapeKey: false,
+        allowEnterKey: false,
+        showConfirmButton: false,
+        customClass: {
+            popup: 'swal-popup-sobre-overlay'
+        }
+    });
+}
+// Ejecutar al cargar
+document.addEventListener("DOMContentLoaded", bloquearSiEsMovil);
+// Ejecutar al cambiar tamaño
+window.addEventListener("resize", bloquearSiEsMovil);
+
+</script>
 </body>
 </html>

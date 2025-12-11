@@ -2656,11 +2656,11 @@ def mezcla_nutricional():
 
                     porcentajes.append({
                         "id_alimento": a["id_alimento"],
-                        "porcentaje": round(a["kg"] * 100 / total_kg, 2)
+                        "porcentaje": round(a["kg"] * 100 / total_kg, 5)
                     })
 
         for nutriente in mezcla:
-            mezcla[nutriente] = round(mezcla[nutriente] / total_kg, 2)
+            mezcla[nutriente] = round(mezcla[nutriente] / total_kg, 5)
 
         return jsonify({
             "mezcla_nutricional": mezcla,
@@ -2741,7 +2741,7 @@ def crear_dieta():
 
                 # calcular promedio según total_kg
                 for nutriente in mezcla:
-                    mezcla[nutriente] = round(mezcla[nutriente] / total_kg, 2)
+                    mezcla[nutriente] = round(mezcla[nutriente] / total_kg, 5)
 
                 # insertar dieta con mezcla nutricional
                 cur.execute("""
@@ -2824,7 +2824,7 @@ def consultar_dietas():
                     # Agregar el porcentaje de cada alimento
                     alimentos_con_porcentaje = []
                     for a in alimentos:
-                        porcentaje = round(a["cantidad"] * 100 / total_kg, 2) if total_kg > 0 else 0
+                        porcentaje = round(a["cantidad"] * 100 / total_kg, 5) if total_kg > 0 else 0
                         alimentos_con_porcentaje.append({
                             "id_alimento": a["id_alimento"],
                             "nombre": a["nombre"],
@@ -3320,7 +3320,7 @@ def actualizar_dieta(id_dieta):
 
                 # calcular promedio según total_kg
                 for nutriente in mezcla:
-                    mezcla[nutriente] = round(mezcla[nutriente] / total_kg, 2)
+                    mezcla[nutriente] = round(mezcla[nutriente] / total_kg, 5)
 
                 # Actualizar dieta con mezcla nutricional y estado
                 cur.execute("""
