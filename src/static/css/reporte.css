@@ -1,0 +1,1865 @@
+
+/* -------------------
+SECCION DE Perfil
+------------------- */
+
+.title_perfil {
+  font-size: 42px;
+  color: #60836A;
+   background: #D9D9D9;
+   padding: 10px 30px;
+    border-radius: 18px;
+    text-align: center;
+    font-weight: bold;
+    border: 2px solid #808080;
+  min-width: 600px;
+   margin-top: 60px;
+  margin-bottom: -20px;
+ margin-left: auto;
+  margin-right: auto;
+
+}
+
+
+.perfil-wrapper {
+  display: flex;
+  justify-content: center;
+  
+
+}
+.content_perfil {
+    position: relative;
+    top: -50px; /* Sube título y menú juntos */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    
+}
+
+.perfil-section {
+    background: #e0e0e0;
+    padding: 30px;
+    border-radius: 41px;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+   width: 750px;
+   max-width: 1000px;
+    height: 400px;
+    border: 1px solid #1b1b1b;
+    position: relative;
+    margin-top: 60px; 
+
+  font-family: 'Inter', sans-serif;
+  font-size: 16px;
+  /* el resto de tus estilos permanece igual */
+
+    }
+
+.perfil-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  height: 100%;
+
+  padding-left: 10px; /* o 0 si quieres completamente al borde */
+ margin-left: 20px; 
+
+}
+
+
+
+.perfil-info p {
+  font-size: 16px;
+  line-height: 1.5 ;
+  
+}
+
+.perfil-texto {
+  font-size: 16px;
+  color: #2C3D31;
+  font-weight: normal;
+}
+.perfil-info p {
+  margin: 4px 0;
+  font-size: 16px;
+  line-height: 1.3;
+}
+
+.perfil-datos p {
+  font-family: 'Inter', sans-serif;
+  font-size: 1px;
+  font-weight: 400;
+  color: #2C3D31;
+  margin: 6px 0;
+}
+
+.perfil-datos p strong {
+  color: #2C3D31;
+   font-family: 'Inter', sans-serif;
+  font-size: 25px;
+  font-weight: 800;
+}
+
+.perfil-texto {
+  font-weight: 700;
+  color: #60836A; 
+   font-size: 23px;
+  font-weight: 200px ;
+   margin-left: 12px;/* o blanco si prefieres */
+  
+}
+
+
+.perfil-descripcion {
+     background: #bdbdbd;
+    color: #2C3D31;
+    font-size: 18px;
+    padding: 20px 20px;
+    border-radius: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 55px;
+    cursor: pointer;
+    transition: 0.3s;
+    font-weight: bold;
+    border: 1px solid #272727;
+    width: 650px;
+    height: 90px;
+    top: 470px;
+    box-sizing: border-box;
+      margin-bottom: 20px;
+  
+  margin: 20px 0; /* espacio vertical entre textos */
+  
+
+}
+
+.perfil-descripcion p {
+  margin: 0;
+  color: white;
+  font-size: 20px;
+  font-weight: 500;
+  line-height: 1.2;
+  font-family: 'Inter', sans-serif;
+}
+
+.perfil-descripcion p strong {
+  color: #2C3D31;
+  font-size: 25px;
+  font-weight: 700;
+  font-family: 'Inter', sans-serif;
+}
+.perfil-estadistica p {
+  font-family: 'Inter', sans-serif;
+  font-size: 25px;
+  font-weight: 500;
+  line-height: 1; /* 100% */
+  color: #2C3D31;
+  text-align: center;
+  margin-bottom: 5px;
+}
+.perfil-estadistica span {
+  font-family: 'Inter', sans-serif;
+  font-size: 20px; /* más pequeño que el título */
+  font-weight: 500;
+  color: white;
+  display: block;
+}
+
+.perfil-caja {
+  margin-top: 5px;
+  background-color: #aaa;
+  padding: 10px 15px;
+  border-radius: 6px;
+  font-size: 14px;
+  color: white;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.perfil-estadisticas {
+  background: #bdbdbd;
+  color: #2C3D31;
+  font-size: 20px;
+  padding: 20px;
+  border-radius: 15px;
+  display: flex;
+  justify-content: space-between; /* <-- distribuye el espacio entre los hijos */
+  align-items: center;
+  cursor: pointer;
+  transition: 0.3s;
+  font-weight: bold;
+  border: 1px solid #272727;
+  width: 650px;
+  height: 90px;
+  box-sizing: border-box;
+  font-family: 'Inter', sans-serif;
+}
+
+.perfil-estadistica {
+  flex: 1; /* cada estadística ocupa 50% del espacio */
+  text-align: center; /* centra el texto horizontalmente */
+  margin-top: 15px; /* separa de la descripción */
+}
+
+.perfil-estadistica p {
+  margin: 0;
+  color: #2C3D31;
+  font-weight: bold;
+  font-family: 'Inter', sans-serif; 
+}
+
+.perfil-estadistica span {
+  color: white;
+  font-weight: bold;
+  display: block;
+  margin-top: 5px;
+  font-family: 'Inter', sans-serif;
+}
+
+
+.perfil-item {
+  flex: 1;
+  background-color: #aaa;
+  padding: 15px 20px;
+  border-radius: 6px;
+  text-align: center;
+  color: white;
+}
+
+.perfil-item p:first-child {
+  font-weight: bold;
+  margin-bottom: 5px;
+}
+.perfil-header {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding-left: 20px;
+  padding-right: 0;
+  justify-content: flex-start;
+  
+}
+
+.perfil-datos {
+    font-family: 'Times New Roman', serif;
+    font-weight: 700;
+    font-size: 30px;
+    color: #3F5947;
+    margin-left: 30px; /* ESTE MUEVE EL TEXTO A LA DERECHA */
+}
+.perfil-photo {
+  width: 120px;
+  height: 120px;
+  background-color: #60836A;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden; /* Muy importante para recortar lo que sobresale */
+  margin-left:-130px; /* 👈 Asegúrate que esto no tenga -150px como antes */
+}
+
+.perfil-photo img {
+  width: 60%;
+  height: auto;
+  object-fit: contain;
+  display: block;
+
+  /* Puedes ajustar este valor a gusto */
+
+}
+
+
+
+
+
+
+
+
+.perfil-descripcion p {
+  color: #2C3D31; /* Solo el título en negro */
+}
+
+.perfil-descripcion p strong {
+  color:#2C3D31; /* Título "Descripción:" */
+}
+
+.perfil-descripcion p {
+  color: white;
+}
+
+.perfil-descripcion p strong {
+  color: #2C3D31;
+}
+
+.perfil-estadistica span {
+  color: white;
+}
+
+
+
+
+
+
+/* -------------------
+SECCION DE CUENTA
+------------------- */
+
+.content_cuenta {
+    display: flex;
+    flex-direction: column;
+    align-items: center;  /* ← Esto centra horizontalmente el contenido hijo */
+    justify-content: flex-start;
+    width: 100%;
+}
+
+
+.title_cuenta {
+    font-size: 30px;
+    color: #60836A;
+    background: #D9D9D9;
+    padding: 10px 40px;
+    border-radius: 18px;
+    text-align: center;
+    font-weight: bold;
+    border: 2px solid #808080;
+    min-width: 600px;
+    max-width: 00px;
+    margin-bottom: 10px;
+    
+}
+.title_cuenta {
+    position: relative;
+    top: -35px;
+}
+.card_perfil {
+  background-color: #AFAEAE;         /* ← color que tú quieres */
+  border-radius: 20px;
+  padding: 50px 50px;
+  max-width: 1000px;
+  width: 90%;
+  margin-top: 20px;
+  box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2); /* efecto que sobresale */
+  border: 2px solid #9e9e9e;
+}
+
+.envoltura_perfil {
+  background-color: #F0F0F0;
+  padding: 10px 10px 40px 5px;
+  border-radius: 40px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+  border: 1px solid #000000;   /* ← gris oscuro para el borde */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 850px;
+  max-width: 1100px;
+  margin: 40px auto;
+  margin-top:-15px;
+}
+
+.card_header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-top: -40px;     /* ← 🔼 Subimos el bloque */
+  margin-bottom: 15px;
+  padding: 0 10px;
+  font-weight: bold;
+  font-size: 15px;
+  color: #333;
+}
+
+.card_body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 60px; /* Espacio equilibrado entre foto e info */
+    margin-bottom: 25px;
+}
+
+
+
+.perfil_foto {
+  text-align: center;
+}
+
+.img_perfil {
+  width: fit-content;
+  height: fit-content;
+  border-radius: 50%;
+  object-fit: cover;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.15);
+  display: block;
+  margin: 0 auto;
+  transform: translateX(-20px); /* 🔄 mueve la imagen un poco a la izquierda */
+}
+
+.editar {
+  display: block;
+  margin-top: 8px;
+  color: #2e6035;
+  font-weight: bold;
+  cursor: pointer;
+  transform: translateX(-20px); /* mueve el texto a la misma posición */
+  text-align: center;
+}
+
+.perfil_info {
+    text-align: left;
+    font-size: 25px;
+    color: #2e4f35;
+    font-weight: 450;
+    font-family: Times New Roman;
+}
+
+.perfil_info p {
+    margin: 10px 0;
+}
+
+.card_footer {
+    text-align: center;
+}
+
+.btn_guardar {
+    background-color: #6e8876;
+    color: white;
+    border: none;
+    padding: 10px 25px;
+    font-size: 15px;
+    font-weight: bold;
+    border-radius: 20px;
+    cursor: pointer;
+    box-shadow: inset 0 -2px 0 #3d3d3d;
+    transition: background 0.3s;
+}
+
+.btn_guardar:hover {
+    background-color: #556b5e;
+
+}
+/* -------------------
+SECCION DE centro de ayuda
+------------------- */
+
+
+ .body_centro {
+  font-family: 'Times New Roman';
+  background-size: cover;
+  background-position: bottom; /* Esto hace que el fondo se "pegue" abajo */
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+  margin: 0;
+  display: flex;
+  height: 100vh;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+    
+}
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body {
+  height: 100vh;
+  overflow: hidden;
+}
+
+
+.content_centro {
+    position: relative;
+    top:40px; /* Sube título y menú juntos */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+   
+    
+}
+
+
+
+.title_centro {
+    font-size: 40px;
+    color: #60836A;
+    background: #D9D9D9;
+    padding: 5px 40px;
+    border-radius: 18px;
+    text-align: center;
+    font-weight: bold;
+    border: 3px solid #808080;
+    min-width: 600px;
+    max-width: 00px;
+    margin-bottom: 40px;
+    
+}
+.title_centro {
+    position: relative;
+    top: -20px;
+}/* Estilo para el cuadro del centro de ayuda */
+.menu_centro {
+    background: #e0e0e0;
+    padding: 30px;
+    border-radius: 30px;
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+    margin-top: -20px;
+    width: 850px;
+    border: 1px solid var(--color-bor-contain);
+    height: 853px; /* Deja que se ajuste al contenido */
+}
+
+/* Estilo para los botones */
+.menu-item_centro {
+    background: #bdbdbd;
+    color: #3F5947;
+    font-size: 25px;
+    font-family: var(--fuente--contenido);
+    padding: 12px;
+    border-radius: 15px;
+    text-align: center;
+    justify-content: center;
+    display: flex;
+    align-items: center;
+    font-weight: bold;
+    border: 1px solid var(--color-bor-contain);
+    cursor: pointer;
+    gap: 0; /* Elimina separación con el icono */
+    height: auto;
+}
+
+/* Ocultar las imágenes (iconos) dentro de los botones */
+.menu-item_centro img.icono_centro {
+    display: none;
+}
+
+
+
+
+.content_contacto {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+
+}
+
+.envoltura_contacto {
+    background-color: #D9D9D9;
+    padding: 50px 40px;
+    border-radius: 30px;
+    border: 1px solid #7C7A7A;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+    width: 800px;              /* ← más largo */
+    max-width: 95%;
+    text-align: left;
+}
+
+.card_contacto {
+    background-color: #AFAEAE;
+    border-radius: 25px;
+    padding: 40px;
+    border: 2px solid #9e9e9e;
+    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
+    font-family: 'Times New Roman', serif;
+    font-size: 22px;           /* ← letras y números más grandes */
+    color: #2e4f35;
+}
+
+.card_contacto p {
+    margin: 18px 0;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    font-weight: 500;
+    font-family: var(--fuente--contenido);
+}
+
+.icon_contacto {
+    width: 30px;               /* ← íconos más grandes */
+    height: 30px;
+}
+
+.horario {
+    font-weight: bold;
+    color: #2e4f35;
+    margin-top: 25px;
+    font-size: 20px;
+}
+
+.content_info {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+}
+
+.card_info {
+    background-color: #D3D3D3;
+    border-radius: 25px;
+    padding: 40px 20px;
+    border: 1px solid var(--color-bor-contain);
+    font-family: 'Times New Roman', serif;
+    color: #2e6035;
+    font-size: 20px;
+    width: 700px;
+    max-width: 95%;
+    text-align: center;
+}
+
+.card_info .version {
+    font-weight: bold;
+    font-size: 22px;
+    margin-bottom: 25px;
+}
+
+.logo_info {
+    width: 130px;
+    height: auto;
+    margin: 20px 0;
+}
+
+.nombre_app {
+    font-weight: bold;
+    font-size: 24px;
+    margin-bottom: 5px;
+}
+
+.licencia {
+    font-size: 18px;
+}
+  
+
+
+
+
+
+
+.content_terminos {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+}
+
+.title_terminos {
+    font-size: 30px;
+    color: #60836A;
+    background: var(--color);
+    padding: 10px 40px;
+    border-radius: 18px;
+    text-align: center;
+    font-weight: bold;
+    border: 1px solid #808080;
+    min-width: 600px;
+    margin-bottom: 20px;
+}
+
+/* Envoltura que crea el efecto del cuadro completo */
+.envoltura_cuadro {
+    background-color: #F0F0F0;
+    padding: 30px;
+    border-radius: 40px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+    border: 1px solid #000;
+    width: 850px;
+    max-width: 1000px;
+    display: flex;
+    justify-content: center;
+}
+
+/* Cuadro interior con scroll */
+.cuadro_terminos {
+    background-color: white;
+    padding: 20px;
+    border-radius: 25px;
+    width: 100%;
+    max-height: 300px;
+    overflow-y: auto;
+    font-family: "Times New Roman", serif;
+    font-weight: 700;
+    font-size: 24px;
+    line-height: 1;
+    letter-spacing: 0;
+    color: #3F5947;
+    box-shadow: 0 5px 10px rgba(0, 0, 0, 0.15) inset;
+    border: 2px solid #333;
+    
+
+}
+.cuadro_terminos::-webkit-scrollbar {
+  width: 14px;
+}
+
+.cuadro_terminos::-webkit-scrollbar-track {
+  background: transparent;
+  border-radius: 10px;
+}
+
+.cuadro_terminos::-webkit-scrollbar-thumb {
+  background: #a0a0a0;
+  border-radius: 10px;
+  height: 60px; /* esto se ignora, pero da una idea visual */
+  margin-top: 30px;
+  margin-bottom: 30px;
+  border: 3px solid transparent;
+  background-clip: padding-box;
+}
+  
+
+/* -------------------
+reportes
+------------------- */
+/* Contenedor de filtros */
+.container__filtros__reportes {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 40px;
+  margin: 30px 0;
+}
+
+/* Barra con icono */
+.barra__dropdown {
+  display: flex;
+  align-items: center;
+  background-color: #ddd;
+  border: 1px solid var(--color-bor-contain);
+  border-radius: 12px;
+  padding: 5px 10px;
+  width: 280px;
+  height: 45px;
+}
+
+.icon__barra {
+  width: 22px;
+  margin-right: 10px;
+}
+
+/* Botón desplegable */
+.dropdown {
+  position: relative;
+  flex: 1;
+}
+
+.dropdown__btn {
+  background-color: #f0e6f7;
+  color: #333;
+  border: none;
+  border-radius: 12px;
+  padding: 8px 12px;
+  width: 100%;
+  text-align: left;
+  cursor: pointer;
+  font-family: var(--fuente--contenido);
+  font-size: 14px;
+}
+
+/* Opciones del dropdown */
+.dropdown__content {
+  display: none;
+  position: absolute;
+  top: 110%;
+  left: 0;
+  width: 100%;
+  background-color: #4caf50;
+  border-radius: 12px;
+  overflow: hidden;
+  z-index: 10;
+}
+
+.dropdown__content a {
+  display: block;
+  padding: 10px;
+  text-decoration: none;
+  color: white;
+  font-family: var(--fuente--contenido);
+  border-bottom: 1px solid rgba(255,255,255,0.3);
+}
+
+.dropdown__content a:last-child {
+  border-bottom: none;
+}
+
+.dropdown__content a:hover {
+  background-color: #388e3c;
+}
+
+/* Mostrar menú al hover */
+.dropdown:hover .dropdown__content {
+  display: block;
+}
+
+/* Botón Generar */
+.container__btn__generar {
+  display: flex;
+  justify-content: center;
+}
+
+.btn__generar__reportes {
+  background-color: var(--color--btn--sin--hover);
+  color: white;
+  font-weight: bold;
+  border: none;
+  border-radius: 20px;
+  padding: 10px 30px;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.btn__generar__reportes:hover {
+  background-color: var(--color--btn--hover);
+}
+.container__search__bar {
+  display: flex;
+  justify-content: space-between; /* coloca izq y der en extremos */
+  align-items: center;
+  background-color: #ddd;
+  border: 1px solid var(--color-bor-contain);
+  border-radius: 12px;
+  padding: 10px 20px;
+  width: 90%;
+  max-width: 1000px;
+  margin: 20px auto;
+}
+
+/* grupo de la izquierda */
+.grupo__izquierda {
+  display: flex;
+  align-items: center;
+  gap: 10px; /* espacio entre icono e input */
+}
+
+/* grupo de la derecha */
+.grupo__derecha {
+  display: flex;
+  align-items: center;
+}
+
+.icono__reporte {
+  width: 28px;
+  height: 28px;
+}
+
+.input__id {
+  border: 1px solid var(--color-bor-contain);
+  border-radius: 12px;
+  padding: 8px 14px;
+  font-size: 14px;
+  background-color: #f0e6f7;
+  cursor: pointer;
+}
+.input__id {
+  border: 1px solid var(--color-bor-contain);
+  border-radius: 25px;       /* más redondo */
+  padding: 10px 18px;        /* más relleno */
+  font-size: 14px;
+  background-color: #f0e6f7; /* fondo suave */
+  cursor: pointer;
+  outline: none;
+  transition: 0.3s;
+}
+
+/* efecto al pasar el mouse */
+.input__id:hover {
+  background-color: #e2d6f0;
+}
+
+/* cuando se hace click */
+.input__id:focus {
+  border-color: var(--color--btn--hover);
+  box-shadow: 0 0 5px rgba(192, 191, 191, 0.6);
+}
+
+
+
+.title_gestionar_usuario {
+    font-size: 50px;
+    color: var(--color--letra);
+    background: #D9D9D9;
+    padding: 5px 0;
+    text-align: center;
+    font-weight: bold;
+    border: 1px solid #808080;
+    min-width: 750px;
+    margin: auto; 
+    margin-bottom: 20px;
+    border-radius: 14px;
+}
+
+/* -------------------
+reportes pesos
+------------------- */
+
+.content_reportes_pesos {
+    position: relative;
+    top:20px; /* Sube título y menú juntos */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.title_reportes_pesos {
+    font-size: 40px;
+    color: var(--color--letra);
+    background: #D9D9D9;
+    padding: 15px 15px 15px 15px;
+    text-align: center;
+    font-weight: bold;
+    border: 1px solid #808080;
+    min-width: 750px;
+    margin: auto; 
+    margin-bottom: 10px;
+    border-radius: 14px;
+}
+
+.container__reportes_pesos {
+    display: flex;
+    align-items: center;
+    justify-content: center; /* 🔥 CENTRADO REAL */
+    width: 1050px;
+    height: 60px;
+    margin: 4px auto 0 auto;
+    padding: 12px 20px;
+    background: #ddd;
+    border: 1px solid var(--color-bor-contain);
+    border-radius: 15px;
+    gap: 25px; /* separación equilibrada */
+    font-family: var(--fuente--contenido);
+}
+
+/* 🔹 agrupamos los de la izquierda en un contenedor */
+.filtros-izquierda {
+    display: flex;
+    align-items: center;
+    gap: 10px; /* espacio pequeño entre el filtro de peso y el otro */
+}
+.filtro-fecha {
+  margin-left: auto;  /* lo manda a la derecha */
+  margin-right: 0;    /* quita cualquier espacio */
+}
+
+
+/* 🔹 Ajusta SOLO el filtro de peso */
+.dropdown.filtro-peso {
+    position: relative;
+    margin-left: 10px; /* mueve un poquito más a la izquierda */
+}
+
+.dropdown.filtro-peso .input__id {
+    width: 250px;   /* tamaño ajustado */
+    height: 38px;
+    padding-left: 38px; /* espacio para el icono */
+    border-radius: 10px;
+    font-size: 14px;
+    border: 1px solid #ccc;
+}
+
+/* Icono dentro del input */
+.icon__filtro_dropdown {
+    position: absolute;
+    top: 50%;
+    left: 12px;
+    transform: translateY(-50%);
+    width: 18px;
+    height: 18px;
+    pointer-events: none;
+    opacity: 0.7;
+}
+
+/* -------------------
+tabla y contenedor
+------------------- */
+.container__Reportes_peso_ {
+    background-color: var(--color--fondos);
+    width: 90%;
+    max-width: 1200px;
+    height: 380px; /* Altura fija */
+    margin: 40px auto 0 auto;
+    border: 1px solid var(--color-bor-contain);
+    border-radius: 30px;
+    overflow-x: hidden;
+    padding: 10px 0;
+    box-sizing: border-box;
+}
+
+
+
+/* Título del encabezado de PORCINO (más grueso) */
+.table__peso thead th {
+    font-weight: 800 !important;   /* Puedes usar 700, 800 o 900 */
+    font-size: 17px;               /* Opcional, por si lo quieres más grande */
+}
+
+.table__peso tbody tr td {
+  border: none;
+  font-size: 15px;
+  padding: 12px 20px; 
+}
+
+
+
+/* Estilo bonito para la barra de desplazamiento */
+.container__Reportes_peso_::-webkit-scrollbar {
+    width: 10px;
+}
+
+.container__Reportes_peso_::-webkit-scrollbar-thumb {
+    background: #a0a0a0;
+    border-radius: 5px;
+}
+
+.container__Reportes_peso_::-webkit-scrollbar-thumb:hover {
+    background: #7a7a7a;
+}
+
+
+
+.container__Reportes_peso_::-webkit-scrollbar {
+    display: none;
+}
+
+
+/* Imprimir — texto solo, sin imagen */
+/* 🔹 Botón de imprimir con espacio separado */
+
+.table__peso {
+  width: 1150px;
+  margin: auto;
+  border-collapse: separate; /* permite separación entre filas */
+  border-spacing: 0 12px; /* separación vertical entre filas */
+  font-family: var(--fuente--contenido, Inter, sans-serif);
+  color: var(--color-letra-predeter, #333);
+  text-align: center;
+
+    table-layout: auto;  /* ✔ deja que las columnas crezcan */
+
+  
+}
+#tbody_pesos tr {
+    height: 60px;      /* AUMENTA LA ALTURA DE LA FILA */
+}
+
+#tbody_pesos td {
+    padding: 12px 8px; /* ESPACIO INTERNO */
+}
+
+/* TODO EL TEXTO DE LA TABLA EN NEGRITA */
+.table__peso tbody td {
+    font-weight: 500 !important; 
+}
+.container__Reportes_peso_ {
+    margin-bottom: 60px !important;  /* espacio exclusivo para el botón */
+}
+
+/* Aumentar tamaño de texto */
+.table__peso td, 
+.table__peso th {
+    padding: 20px 25px;
+}
+
+/* Aumentar el icono del cerdito */
+.table__peso img {
+    width: 100px !important;  /* antes 25px */
+    height: auto;
+}
+
+/* Ajustar columna izquierda */
+.table__peso td:first-child {
+    width: 70px;
+    text-align: center;
+}
+#tbody_pesos img {
+    width: 38px !important;
+    height: auto !important;
+    max-width: none !important;
+}
+
+/* Responsive mejorado */
+@media (max-width: 768px) {
+    .table__peso td, 
+    .table__peso th {
+        font-size: 16px;
+        padding: 12px;
+    }
+
+    .table__peso img {
+        width: 35px !important;
+    }
+
+    .table__peso tbody tr {
+        height: 550px;
+    }
+}
+
+
+/* Fila del cuerpo (toda la barra del cerdo) */
+.table__peso tbody tr {
+  background-color: #AFAEAE;
+  border-radius: 4px;
+  overflow: hidden;
+  margin-bottom: 120px; 
+  
+}
+
+
+
+/* Bordes redondeados aplicados a las esquinas de las filas */
+.table__peso tbody tr td:first-child {
+  border-top-left-radius: 20px;
+  border-bottom-left-radius: 20px;
+}
+
+.table__peso tbody tr td:last-child {
+  border-top-right-radius: 20px;
+  border-bottom-right-radius: 20px;
+}
+
+
+
+
+.table__peso th:nth-child(2),
+.table__peso td:nth-child(2) {
+  width: 22%;
+}
+
+.table__peso th:nth-child(3),
+.table__peso td:nth-child(3) {
+  width: 35%;
+}
+
+.table__peso th:nth-child(4),
+.table__peso td:nth-child(4) {
+  width: 30%;
+}
+
+/* (Opcional) efecto al pasar el mouse */
+.table__peso tbody tr:hover {
+  background-color: #a9a9a9;
+  transition: background-color 0.2s ease;
+}
+
+/* CONTENEDOR */
+
+
+
+
+
+
+/* ===============================
+   CONTENEDOR (mismo estilo pesos)
+   =============================== */
+.container__gestionar_usuario_ {
+    background-color: var(--color--fondos);
+    width: 95%;
+    max-width: 1200px;
+    height: 350px;
+    margin: -1px auto 0 auto;
+    border: 1px solid var(--color-bor-contain);
+    border-radius: 30px;
+    overflow-y: auto;          /* Se puede bajar */
+    overflow-x: hidden;
+    scrollbar-width: none;     /* Oculta en Firefox */
+    -ms-overflow-style: none;  /* Oculta en IE/Edge */
+    padding: 10px 0;
+    box-sizing: border-box;
+}
+
+.container__gestionar_usuario_::-webkit-scrollbar {
+    display: none;              /* Oculta en Chrome */
+}
+
+
+/* Scroll igual al de pesos */
+.container__gestionar_usuario_::-webkit-scrollbar {
+    width: 10px;
+}
+.container__gestionar_usuario_::-webkit-scrollbar-thumb {
+    background: #a0a0a0;
+    border-radius: 5px;
+}
+.container__gestionar_usuario_::-webkit-scrollbar-thumb:hover {
+    background: #7a7a7a;
+}
+
+/* ===============================
+   TABLA estilo “barra”
+   =============================== */
+.table__gestionar_usuario {
+    width: 95%;
+    margin: auto;
+    border-collapse: separate;
+    border-spacing: 0 12px;  /* separa filas igual que pesos */
+    font-family: var(--fuente--contenido);
+    text-align: center;
+    height: 30px;
+    gap: 10px;
+    margin-top:-20px ;
+}
+/* ================================
+   BOTÓN DE FILTRAR / REFRESH (icono)
+================================ */
+.btn-refresh {
+    width: 45px;
+    height: 45px;
+    padding: 10px;
+    background: #ffffff;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: .3s ease;
+    border: 2px solid #60836a;
+    box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.btn-refresh:hover {
+    background: #f0f6ff;
+    transform: rotate(20deg) scale(1.1);
+    box-shadow: 0px 4px 14px rgba(0, 123, 255, 0.35);
+}
+
+.btn-refresh:active {
+    transform: scale(0.95);
+}
+
+/* Encabezado */
+.table__gestionar_usuario thead tr {
+    background-color: #d9d9d9;
+    font-size: 17px;
+    font-weight: 1000px;
+    border-radius: 12px;
+    
+    font-family: var(--fuente--contenido, Inter, sans-serif) !important;
+    color: var(--color-letra-predeter, #333);
+}
+
+.table__gestionar_usuario thead th {
+    padding: 14px;
+}
+
+/* Filas estilo barra */
+.table__gestionar_usuario tbody tr {
+    background-color: #BFBFBF;
+    border-radius: 16px;
+}
+
+/* Bordes redondeados */
+.table__gestionar_usuario tbody tr td:first-child {
+    border-top-left-radius: 20px;
+    border-bottom-left-radius: 20px;
+}
+.table__gestionar_usuario tbody tr td:last-child {
+    border-top-right-radius: 20px;
+    border-bottom-right-radius: 20px;
+}
+
+/* Celdas */
+.table__gestionar_usuario tbody td {
+    padding: 20px 18px;
+    font-size: 17px;
+    font-weight: 400;
+}
+
+/* ===============================
+   IMAGEN DEL USUARIO (más grande)
+   =============================== */
+.img-usuario {
+    width: 30px;
+    height: auto;
+}
+.td-img-usuario {
+    width: 110px;
+    text-align: center;
+}
+
+/* ===============================
+   ICONOS DE ACCIONES (más grandes)
+   =============================== */
+.accion-grande {
+    width: 40px;
+    cursor: pointer;
+    margin: 0 6px;
+    transition: transform .2s ease-in-out;
+}
+.accion-grande:hover {
+    transform: scale(1.18);
+}
+
+/* ===============================
+   SWITCH ESTILO MODERNO
+   =============================== */
+.switch {
+    appearance: none;
+    width: 48px;
+    height: 24px;
+    background: #ccc;
+    border-radius: 20px;
+    position: relative;
+    cursor: pointer;
+}
+.switch:checked {
+    background: #5b6e53;
+}
+.switch::before {
+    content: "";
+    width: 22px;
+    height: 22px;
+    background: white;
+    border-radius: 50%;
+    position: absolute;
+    top: 1px;
+    left: 1px;
+    transition: .2s;
+}
+.switch:checked::before {
+    left: 25px;
+}
+
+/* Alineación de acciones */
+.acciones-usuarios {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+
+
+
+  /* Alimentos*/
+
+  
+
+
+.container__Reportes_alimento_ {
+    background-color: var(--color--fondos);
+    width: 90%;
+    max-width: 1200px;
+    height: 380px; /* Altura fija */
+    margin: 40px auto 0 auto;
+    border: 1px solid var(--color-bor-contain);
+    border-radius: 30px;
+    overflow-y: auto; /* Aparece barra solo cuando hay más de 4 */
+    overflow-x: hidden;
+    padding: 10px 0;
+    box-sizing: border-box;
+}
+
+
+/* Estilo bonito para la barra de desplazamiento */
+.container__Reportes_alimento_::-webkit-scrollbar {
+    width: 10px;
+}
+
+.container__Reportes_alimento_::-webkit-scrollbar-thumb {
+    background: #872f2f;
+    border-radius: 5px;
+}
+
+.container__Reportes_alimento_::-webkit-scrollbar-thumb:hover {
+    background: #7a7a7a;
+}
+
+
+
+.container__Reportes_alimento_::-webkit-scrollbar {
+    display: none;
+}
+
+.container__Reportes_alimento_ {
+    margin-bottom: 60px !important;  /* espacio exclusivo para el botón */
+}
+
+/* ================================
+      TABLA ALIMENTOS — ESTILO BARRA
+   ================================ */
+/* ================================
+      TABLA ALIMENTOS — IGUAL A PESOS
+   ================================ */
+
+.table__alimento {
+   width: 100%;                  /* se adapta al contenedor */
+    max-width: 1150px; 
+    margin: auto;
+    border-radius: 40px;
+    border-collapse: separate;
+    border-spacing: 0 15px; /* separación entre filas */
+    text-align: center;
+    font-family: var(--fuente--contenido, Inter, sans-serif);
+   
+
+
+
+  font-family: var(--fuente--contenido, Inter, sans-serif);
+  color: var(--color-letra-predeter, #333);
+
+}
+/* Donde va el scroll */
+.contenido__tabla {
+    max-height: 300px;
+    overflow-y: auto;
+    position: relative;      /* 🔥 OBLIGATORIO para que sticky funcione */
+    scrollbar-width: none; 
+      
+}
+
+
+.contenido__tabla::-webkit-scrollbar {
+    display: none;           /* Ocultar scroll chrome */
+}
+.table__alimento thead tr,
+.table__alimento thead th {
+    font-weight: 800 !important; /* texto normal como pesos */
+}
+
+/* Encabezado */
+.table__alimento thead tr {
+    background-color: #d9d9d9;
+    font-size: 17px;
+    height: 50px;
+    
+}
+.table__alimento th {
+    padding: 1px 30px;
+    
+}
+
+/* Filas estilo barra */
+.table__alimento tbody tr {
+    background-color: #AFAEAE;
+    height: 40px;   /* MISMO ALTO QUE PESOS */
+    border-radius: 20px;
+}
+
+/* Bordes redondos */
+.table__alimento tbody tr td:first-child {
+    border-top-left-radius: 20px;
+    border-bottom-left-radius: 20px;
+}
+.table__alimento tbody tr td:last-child {
+    border-top-right-radius: 20px;
+    border-bottom-right-radius: 20px;
+}
+/* TODO EL TEXTO DE LA TABLA EN NEGRITA */
+.table__alimento tbody td {
+    font-weight: 500 !important; 
+}
+
+.table__alimento td {
+    white-space: normal !important;
+    word-break: break-word;
+    text-align: center;
+    padding: 10px;
+    font-family: var(--fuente--contenido, Inter, sans-serif) !important;
+}
+
+
+/* Imagen alimento (misma lógica que cerdito en PESO) */
+.table__alimento img {
+    width: 45px !important;
+    height: auto;
+}
+
+/* Columna imagen */
+.table__alimento td:nth-child(1),
+.table__alimento th:nth-child(1) {
+    width: 30px;
+}
+
+/* Hover */
+.table__alimento tbody tr:hover {
+    background-color: #9f9f9f;
+    transition: .25s ease-in-out;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .table__alimento td, 
+    .table__alimento th {
+        font-size: 16px;
+        padding: 12px;
+    }
+    .table__alimento img {
+        width: 30px !important;
+    }
+    .table__alimento tbody tr {
+        height: 55px;
+    }
+}
+.table__alimento td {
+    white-space: normal !important;
+    word-break: break-word;
+    text-align: center;
+    padding: 10px;
+    font-family: var(--fuente--contenido, Inter, sans-serif) !important;
+}
+
+.icon__export {
+    width: 40px;      /* Auméntalo aquí (30px, 40px, 50px...) */
+    height: auto;
+    cursor: pointer;  /* Mano al pasar */
+    margin-left: 15px;
+    transition: transform 0.2s ease;
+}
+
+.icon__export:hover {
+    transform: scale(1.1);  /* animación suave */
+}
+/* ============================================
+   MODAL GENERAL – Estilo igual al de tus usuarios
+   ============================================ */
+
+/* Fondo oscuro */
+.modal-usuario {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.45);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 2000;
+    padding: 20px;
+}
+
+/* Caja del modal */
+.modal-contenido-usuario {
+    width: 750px;
+    max-width: 95%;
+    background: #E8EDEB;
+    padding: 25px 30px;
+    border-radius: 18px;
+    border: 1px solid rgba(0,0,0,0.25);
+    box-shadow: 0px 4px 25px rgba(0,0,0,0.35);
+    font-family: "Times New Roman", serif;
+    animation: aparecer .25s ease-out;
+}
+
+@keyframes aparecer {
+    from { transform: scale(0.85); opacity: 0; }
+    to   { transform: scale(1); opacity: 1; }
+}
+
+/* ------------------------------------
+   Header – Título y botón cerrar
+------------------------------------ */
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.modal-header h2 {
+    font-size: 40px;
+    font-weight: 700;
+    color: #486A50;
+    text-align: center;
+    width: 100%;
+    font-family: "Times New Roman", serif;
+}
+
+.btn-cerrar {
+    background: none;
+    border: none;
+    font-size: 28px;
+    cursor: pointer;
+    color: #444;
+    transition: 0.2s;
+}
+
+.btn-cerrar:hover {
+    color: #000;
+}
+
+/* ------------------------------------
+   Body – Grid de inputs
+------------------------------------ */
+.modal-body {
+    margin-top: 10px;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 22px;
+}
+
+.grupo-input label {
+    font-weight: 600;
+    font-size: 16px;
+    color: #486A50;
+    margin-bottom: 5px;
+}
+
+.grupo-input input,
+.grupo-input select,
+.grupo-input textarea {
+    background-color: #ECE6F0;
+    width: 100%;
+    height: 40px;
+    font-weight: 500;
+    border: 1px solid #737171;
+    border-radius: 18px;
+    outline: none;
+    padding: 10px 12px;
+    font-size: 15px;
+    color: #333;
+    box-sizing: border-box;
+    font-family: "Times New Roman", serif;
+}
+
+/* ------------------------------------
+   Switch ON/OFF
+------------------------------------ */
+.switch {
+    position: relative;
+    display: inline-block;
+    width: 45px;
+    height: 22px;
+}
+
+.switch input { display: none; }
+
+.slider {
+    position: absolute;
+    inset: 0;
+    background: #ccc;
+    border-radius: 30px;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.slider:before {
+    content: "";
+    width: 18px;
+    height: 18px;
+    background: white;
+    position: absolute;
+    top: 2px;
+    left: 3px;
+    border-radius: 50%;
+    transition: 0.3s;
+}
+
+input:checked + .slider {
+    background: #4F7D69;
+}
+
+input:checked + .slider:before {
+    transform: translateX(22px);
+}
+
+/* ------------------------------------
+   Footer – Botones
+------------------------------------ */
+.modal-footer {
+    text-align: center;
+    margin-top: 25px;
+}
+
+.btn-guardar {
+    background: #4F7D69;
+    padding: 10px 25px;
+    border-radius: 10px;
+    border: none;
+    color: white;
+    cursor: pointer;
+    font-size: 17px;
+    transition: 0.2s;
+}
+
+.btn-guardar:hover {
+    background: #3d6d59;
+}
+
+/* ------------------------------------
+   Botones para eliminar
+------------------------------------ */
+.texto-eliminar {
+    margin-top: 20px;
+    font-size: 20px;
+    text-align: center;
+    color: #333;
+}
+
+.btn-cancelar,
+.btn-eliminar {
+    padding: 10px 22px;
+    border-radius: 10px;
+    border: none;
+    cursor: pointer;
+    margin: 8px;
+    font-size: 17px;
+    font-family: "Times New Roman", serif;
+}
+
+.btn-cancelar {
+    background: #C3CBC7;
+}
+
+.btn-eliminar {
+    background: #D9534F;
+    color: white;
+}
+
+.btn-eliminar:hover {
+    background: #B73F3B;
+}
+#edit_estado_label {
+    width: 100%;
+    padding: 10px 15px;
+    border-radius: 20px;
+    border: 2px solid #60836a;
+    background: #e7e2ee;
+    font-size: 1rem;
+    font-family: "Times New Roman";
+    outline: none;
+}
+@media print {
+    body * {
+        visibility: hidden !important;
+    }
+
+    #reportePDF, #reportePDF * {
+        visibility: visible !important;
+    }
+
+    #reportePDF {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        padding: 20px;
+        background: white;
+    }
+}
+/* Fondo oscuro */
+.modal-usuario {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(17, 17, 17, 0.60);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9000;
+}
+
+/* Oculto */
+.oculto {
+    display: none !important;
+}
+
+/* Caja del modal */
+.modal-contenido {
+    background: #ffffff;
+    width: 420px;
+    padding: 30px 25px;
+    border-radius: 15px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.25);
+    text-align: center;
+    animation: aparecer 0.25s ease-out;
+}
+
+/* Icono de advertencia */
+.icon-warning {
+    width: 80px;
+    margin-bottom: 15px;
+}
+
+/* Título */
+.titulo-modal {
+    font-size: 25px;
+    font-weight: 700;
+    margin: 0 0 10px 0;
+    color: #2D2D2D;
+}
+
+/* Texto */
+.texto-modal {
+    font-size: 17px;
+    color: #444;
+    margin-bottom: 20px;
+    line-height: 1.4;
+}
+
+/* Botón centrado */
+.modal-botones-centro {
+    display: flex;
+    justify-content: center;
+}
+
+/* Botón */
+.btn-cerrar {
+    background-color: #E53935;
+    color: white;
+    border: none;
+    padding: 10px 25px;
+    border-radius: 10px;
+    font-size: 16px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: 0.2s;
+}
+
+.btn-cerrar:hover {
+    background-color: #c62828;
+}
+
+/* Animación */
+@keyframes aparecer {
+    from {
+        transform: scale(0.95);
+        opacity: 0;
+    }
+    to {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* ================================
+   BOTÓN CONSULTAR (Principal)
+================================ */
+.btn-consultar {
+  
+    background-color: var(--color--btn--sin--hover);
+    color: var(--color-white);
+    width: 130px;
+    height: 40px;
+    border: 1px solid var(--color-bor-btn);
+    font-family: inherit;
+    font-size: 15px;
+    font-weight: 600;
+    border-radius: 20px;
+    transition: background-color 0.5s 
+ease-in-out;
+    cursor: pointer;
+
+}
+
+.btn-consultar:hover {
+    
+    background-color: var(--color--btn--hover);
+    border: 1px solid var(--color-bor-btn-hover);
+
+}
+
