@@ -4979,7 +4979,6 @@ async function generar_pdf(tipo, id) {
 }
 
 async function generar_pdf_dieta_individual(id) {
-    alert()
     verifyToken()
     const promesa = await fetch(`${URL_BASE}/PDF_dieta/${id}`,{ method: 'GET', headers: getAuthHeaders() });
     const blob = await promesa.blob();

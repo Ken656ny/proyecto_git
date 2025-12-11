@@ -38,6 +38,10 @@ from reportlab.lib.styles import getSampleStyleSheet
 cargar_imagenes = os.path.join(os.path.dirname(__file__), "static", "imagenes_base_de_datos")
 os.makedirs(cargar_imagenes, exist_ok=True)
 
+import matplotlib
+matplotlib.use('Agg')
+import matplotlib.pyplot as plt
+
 app = Flask(__name__)
 app.secret_key = 'secretkey'
 CORS(app)
