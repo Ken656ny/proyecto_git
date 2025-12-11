@@ -372,6 +372,7 @@ BARRA LATERAL
     margin-left: 5px;
     font-size: 25px;
 }
+
 .barra-lateral .logo-edupork img{
     min-width: 50px;
     font-size: 40px;
@@ -1815,16 +1816,16 @@ SECCION DE configuracion
     display: flex;
     flex-direction: column;
     gap: 8px;
-    margin-top:-47px ;
     width: 800px; /* ← define un ancho fijo coherente */
     height: 530px; /* ← ahora sí se aplicará correctamente */
-    border: 1px solid #1b1b1b;
+    border: 1px solid var(--color-bor-contain);
 }
 
 .menu-item_configuracion {
     background: #bdbdbd;
     color:#3F5947;
     font-size: 21px;
+    font-family: var(--fuente--contenido);
     padding: 10px 15px;
     border-radius: 15px;
     display: flex;
@@ -1833,8 +1834,8 @@ SECCION DE configuracion
     gap: 65px;
     cursor: pointer;
     transition: 0.3s;
-    font-weight: bold;
-    border: 1px solid #272727;
+    font-weight: 600;
+    border: 1px solid var(--color-bor-contain);
     width: 100%;
     height: 62px;
     top: 100px;

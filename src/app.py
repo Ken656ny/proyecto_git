@@ -38,6 +38,10 @@ from reportlab.lib.styles import getSampleStyleSheet
 cargar_imagenes = os.path.join(os.path.dirname(__file__), "static", "imagenes_base_de_datos")
 os.makedirs(cargar_imagenes, exist_ok=True)
 
+import matplotlib
+matplotlib.use('Agg')
+import matplotlib.pyplot as plt
+
 app = Flask(__name__)
 app.secret_key = 'secretkey'
 CORS(app)
@@ -1132,14 +1136,14 @@ def actualizar_peso_porcinos():
       description: Registro agregado
   """
   try:
+    usuario = request.usuario
+    id_usuario = usuario['id_auto'] if 'id_auto' in usuario else usuario['id_usuario']
+    
     data = request.get_json()
     fec_pesa = data['fecha_pesaje']
     id_porcino = data['id_porcino']
     peso_final = data['peso_final']
-    id_usuario = data['id_usuario']
     descripcion = data['descripcion']
-    
-    print(data)
     
     with config['development'].conn() as conn:
       with conn.cursor() as cur :
@@ -2453,7 +2457,7 @@ def consulta_notificaciones(id):
                       SELECT id_notificacion,titulo, mensaje, tipo,fecha_creacion
                       FROM notificaciones 
                       WHERE id_usuario_destinatario = %s
-                      ORDER BY fecha_creacion DESC
+                      ORDER BY fecha_creacion ASC
                       """, (id,))
     info = cursor.fetchall()
     if info:

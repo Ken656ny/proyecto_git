@@ -1,16 +1,25 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="shortcut icon" href="../static/iconos/favicon.ico" type="image/x-icon">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <script src="https://accounts.google.com/gsi/client" async defer></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="static/css/sytle.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/src/static/css/sytle.css">
+    <link rel="stylesheet" href="/src/static/css/reporte.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11.17.2/dist/sweetalert2.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://code.iconify.design/iconify-icon/3.0.0/iconify-icon.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/driver.js@0.9.8/dist/driver.min.css">
+    <!-- Driver.js JS -->
+    <script src="https://cdn.jsdelivr.net/npm/driver.js@0.9.8/dist/driver.min.js"></script>
     <title>Edupork</title>
 </head>
-<body class="body__informes">
+
+<body class="body__porcinos">
     <section class="section-nav-bar" >
         <div class="container-user">
             <div class="container__btn__perfil">
@@ -83,11 +92,10 @@
             </nav>
         </div>
     </section>
-    <section class="section__porcinos section-contenido" >
+    <section class="section__home">
         <section class="container__logo__user">
-            <div class="container__back__logo" >
-                <img src="/src/static/iconos/back icon.svg" alt="icon back" class="icon__back">
-                <a href="/src/templates/home.html">
+            <div class="container__back__logo">
+                <a href="/src/templates/home.html" onclick="redirectWithDelay(event, 'index.html')">
                     <img src="/src/static/iconos/Logo.svg" alt="Logo Edupork" class="logo">
                 </a>
             </div>
@@ -103,44 +111,79 @@
                 </div>
             </div>
         </section>
-        </section>
 
-        <!-- Título -->
-        <header class="container__title">
-            <h1>Generar Informes</h1>
+        <header class="content_reportes_pesos">
+            <h2 class="title_reportes_pesos">Generar informes de los pesos mas altos y mas bajos</h2>
         </header>
+        <section class="container__reportes_pesos">
 
-        <!-- Barra de selección -->
-        <section class="container__filters">
-            <!-- Tipo de informe -->
-            <div class="filter__group">
-                <img src="/iconos/document_sgv.svg" alt="icon informe">
-                <select class="select__filter">
-                    <option selected disabled>Escoja el tipo de informe...</option>
-                    <option value="crecimiento">Crecimiento</option>
-                    <option value="alimentacion">Alimentación</option>
-                    <option value="salud">Salud</option>
-                </select>
+            <!-- Ícono documento -->
+            <img src="/src/static/iconos/Vector (6).svg" alt="icono informe" class="icon__informe">
+
+
+
+            <div class="dropdown filtro-informe">
+                <input type="text" class="input__id" id="input_tipo_informe" placeholder="Etapa de vida" readonly>
+                <div class="dropdown__content">
+                    <a href="#" onclick="seleccionarEtapa(1, 'Pre-inicial')">Pre-inicial</a>
+                    <a href="#" onclick="seleccionarEtapa(2, 'Inicial')">Inicial</a>
+                    <a href="#" onclick="seleccionarEtapa(3, 'Crecimiento')">Crecimiento</a>
+                    <a href="#" onclick="seleccionarEtapa(4, 'Desarrollo')">Desarrollo</a>
+                    <a href="#" onclick="seleccionarEtapa(5, 'Engorde')">Engorde</a>
+                    <a href="#" onclick="seleccionarEtapa(6, 'Finalizador')">Finalizador</a>
+
+                </div>
+            </div>
+            <div class="dropdown filtro-peso">
+                <img src="/src/static/iconos/icon filter.svg" alt="icon filtro" class="icon__filtro_dropdown">
+                <input type="text" class="input__id" id="input_filtro_peso" placeholder="Pesos" readonly>
+                <div class="dropdown__content">
+                    <a href="#" onclick="seleccionarTipoPeso('todos', 'Todos')">Todos</a>
+                    <a href="#" onclick="seleccionarTipoPeso('alto', 'Peso más alto')">Peso más alto</a>
+                    <a href="#" onclick="seleccionarTipoPeso('bajo', 'Peso más bajo')">Peso más bajo</a>
+
+                </div>
             </div>
 
-            <!-- Rango de fechas -->
-            <div class="filter__group">
-                <select class="select__filter">
-                    <option selected disabled>Escoja el rango de fecha...</option>
-                    <option value="semana">Última semana</option>
-                    <option value="mes">Último mes</option>
-                    <option value="anio">Último año</option>
-                </select>
-            </div>
 
-            <!-- Botón generar -->
-            <div class="filter__actions">
-                <button type="button" class="btn__generar">Generar</button>
-            </div>
+
+            <img src="/src/static/iconos/exportar_pdf.svg" class="icon__export" onclick="exportarPDFPesos()">
+
         </section>
-    </section>
 
-    <script src="/src/static/js/script.js"></script>
+        <section class="container__Reportes_peso_">
+            <div class="contenido__tabla">
+                <table class="table__peso" id="tabla_pesos">
+                    <thead>
+                        <tr>
+                            <th></th>
+                            <th>ID del porcino</th>
+                            <th>Rango de peso (KG)</th>
+                            <th>Peso Actual (KG)</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+
+
+
+
+
+                    <tbody id="tbody_pesos">
+                    </tbody>
+                </table>
+
+
+        </section>
+
+        <tbody id="contenidoReporte">
+            <!-- JS rellenará esto -->
+        </tbody>
+        </table>
+
+        </div>
+
+        <script src="/src/static/js/script.js "></script>
+        <script src="/src/static/js/exportar.js "></script>
 </body>
+
 </html>
-    
