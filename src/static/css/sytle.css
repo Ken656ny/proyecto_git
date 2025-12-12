@@ -351,6 +351,10 @@ BARRA LATERAL
     font-family: var(--fuente--contenido);
 }
 
+.barra-lateral .navegacion::-webkit-scrollbar{
+    display: none;
+}
+
 .mini-barra-lateral{
     width: 80px;
 } 
@@ -521,23 +525,23 @@ SECCION DE NOTIFICACIONES
     border: 1px solid var(--color-bor-contain);
     border-radius: 40px;
     display: flex;
-    flex-direction:  column;
+    flex-direction: column;
     gap: 1em;
-    overflow-y: scroll;
 }
 
-.section_hoy_noti, .section_anteriores_noti{
+.section_hoy_noti{
     display: flex;
     flex-direction: column;
     gap: 1em;
+    align-items: center;
+    overflow-y: scroll;
 }
 
 .titulo__noti{
     font-family: var(--fuente--contenido);
     color: var(--color--letra);
-    margin: 24px 53px auto;
+    margin: 24px 53px;
 }
-
 
 .menssage__noti{
     width: 925px;
@@ -550,6 +554,7 @@ SECCION DE NOTIFICACIONES
     border-radius: 15px;
     box-shadow: 0px 4px 4px 0px #00000040;
     font-family: var(--fuente--contenido);
+    
 }
 
 .menssage__noti__title__fecha{
@@ -1135,11 +1140,19 @@ label.contenedor{
     border: 1px solid var(--color-bor-btn-hover);
 }
 
-#btn_consultar{
+#valorFiltro{
+    width: 150px;
+}
+
+#btn_consultar,
+#btn_consultar_user,
+#valorFiltro
+{
     order: 4;
 }
 
 #btn_consultar_todo,
+#btn_consultar_todo_user,
 #btn_consultar_todo_raza,
 #btn_consultar_todo_etapa,
 #btn_consultar_todo_historial{
@@ -1244,7 +1257,8 @@ thead{
 #paginacion_porcino,
 #paginacion_raza,
 #paginacion_etapa,
-#paginacion_historial{
+#paginacion_historial,
+#paginacion_usuario{
     width: 100%;
     padding: 1rem 2rem;
     display: flex;
@@ -1256,7 +1270,8 @@ thead{
 #paginacion_porcino > .container_btn_paginacion,
 #paginacion_raza > .container_btn_paginacion,
 #paginacion_etapa > .container_btn_paginacion,
-#paginacion_historial > .container_btn_paginacion{
+#paginacion_historial > .container_btn_paginacion,
+#paginacion_usuario > .container_btn_paginacion{
     display: flex;
     flex-direction: row;
     gap: 1em;
@@ -1266,7 +1281,8 @@ thead{
 #paginacion_porcino > span, #paginacion_porcino > container > span,
 #paginacion_raza > span, #paginacion_raza > container > span,
 #paginacion_etapa > span, #paginacion_etapa > container > span,
-#paginacion_historial > span, #paginacion_historial > container > span{
+#paginacion_historial > span, #paginacion_historial > container > span,
+#paginacion_usuario > span, #paginacion_usuario > container > span{
     font-family: var(--fuente--contenido);
     font-size: 14px;
     font-weight: bold;
@@ -1314,7 +1330,8 @@ th{
     border-radius: 10px;
     margin-right: 0.5rem;
     cursor: pointer;
-    transition: transform 0.5s ease-in;
+    display: flex;
+    flex-direction: column;
 }
 
 .opciones2 {
@@ -1325,7 +1342,6 @@ th{
     border-radius: 10px;
     margin-right: 0.5rem;
     cursor: pointer;
-    transition: transform 0.5s ease-in;
 }
 
 
@@ -2494,7 +2510,7 @@ DIETASSSSSSSS
     cursor: pointer;
     transition: transform 0.5s ease-in;
 }
-.ayuda:hover, .opciones:hover{
+.ayuda:hover{
     transform: scale(1.07);
 }
 .tour-modal-onbackground{

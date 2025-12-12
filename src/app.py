@@ -72,6 +72,7 @@ def generar_token(usuario, es_google=False):
           "correo": usuario["correo"],
           "es_google": es_google,
           "rol": usuario.get("rol", "Aprendiz"),
+          "tipo": "Externo",
           "exp": datetime.now(timezone.utc) + timedelta(minutes=120)
       }
     else:
@@ -82,9 +83,9 @@ def generar_token(usuario, es_google=False):
           "correo": usuario["correo"],
           "es_google": es_google,
           "rol": usuario.get("rol", "Aprendiz"),
+          "tipo": "Interno",
           "exp": datetime.now(timezone.utc) + timedelta(minutes=120)
       }
-
     token = jwt.encode(payload, app.secret_key, algorithm="HS256")
     return token
 
@@ -309,33 +310,36 @@ def google_login():
         email = idinfo['email']
         name = idinfo.get('name', '')
         proveedor = 'Google'
-
+        
         with config['development'].conn() as conn:
             with conn.cursor() as cursor:
-                cursor.execute("SELECT id_usuario_externo, nombre, rol FROM usuario_externo WHERE correo = %s", (email,))
+                cursor.execute("SELECT id_usuario_externo, nombre, rol, estado, tipo FROM usuario_externo WHERE correo = %s", (email,))
                 user = cursor.fetchone()
-
                 if not user:
                     cursor.execute("""
-                        INSERT INTO usuario_externo (correo, nombre, proveedor, rol)
-                        VALUES (%s, %s, %s, 'Aprendiz')
+                        INSERT INTO usuario_externo (correo, nombre, proveedor, rol,estado,tipo)
+                        VALUES (%s, %s, %s, 'Aprendiz','Activo','Externo')
                     """, (email, name, proveedor))
                     id_usuario_externo = cursor.lastrowid
                     conn.commit()
                     rol = 'Aprendiz'
+                    estado = 'Activo'
+                    tipo = 'Externo'
                 else:
                     id_usuario_externo = user["id_usuario_externo"]
                     name = user["nombre"]
                     rol = user["rol"]
-
+                    estado = user['estado']
+                    tipo = user['tipo']
         usuario = {
             "numero_identificacion": id_usuario_externo,
             "nombre": name,
             "correo": email,
-            'rol': rol
+            'rol': rol,
+            'estado': estado,
+            'tipo': tipo
         }
         token = generar_token(usuario, es_google=True)
-
         return jsonify({
             "status": "success",
             "correo": email,
@@ -411,9 +415,9 @@ def registro_usuarios():
                   return jsonify({'Mensaje': 'El número de identificación está en uso'}), 409
                 
                 cur.execute('''
-                    INSERT INTO usuario (nombre, numero_identificacion, correo, contrasena, estado, rol, id_tipo_identificacion)
-                    VALUES (%s, %s, %s, %s, %s, %s, %s)
-                ''', (nom, num_identi, correo, contra_hash, estado, "Aprendiz", id_tipo_iden))
+                    INSERT INTO usuario (nombre, numero_identificacion, correo, contrasena, estado, rol, id_tipo_identificacion,tipo)
+                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+                ''', (nom, num_identi, correo, contra_hash, estado, "Aprendiz", id_tipo_iden,"Interno"))
                 conn.commit()
 
         return jsonify({'Mensaje': 'Usuario registrado exitosamente'}), 201
@@ -1195,6 +1199,8 @@ def registrar_porcinos():
   try:
     usuario = request.usuario
     id_usuario = usuario['id_auto'] if 'id_auto' in usuario else usuario['id_usuario']
+
+    print(usuario)
 
     porcino = request.get_json()
     id =      porcino['id_porcino']
@@ -2457,7 +2463,7 @@ def consulta_notificaciones(id):
                       SELECT id_notificacion,titulo, mensaje, tipo,fecha_creacion
                       FROM notificaciones 
                       WHERE id_usuario_destinatario = %s
-                      ORDER BY fecha_creacion ASC
+                      ORDER BY fecha_creacion DESC
                       """, (id,))
     info = cursor.fetchall()
     if info:
@@ -3895,6 +3901,271 @@ def eliminar_dieta(id_dieta):
 
     except Exception as e:
         return jsonify({"error": str(e)})
+
+@app.route('/usuario', methods=['GET'])
+@token_requerido
+@rol_requerido('Admin')
+def consultar_usuarios():
+  try:
+    with config['development'].conn() as conn:
+      with conn.cursor() as cur:
+        cur.execute("""
+                    SELECT 
+                      id_usuario,
+                      nombre,
+                      numero_identificacion,
+                      correo,
+                      estado,
+                      rol,
+                      tipo
+                    FROM 
+                      usuario
+                    """)
+        usuarios_internos = cur.fetchall()
+        cur.execute("""
+                    SELECT
+                      id_usuario_externo,
+                      nombre,
+                      correo,
+                      estado,
+                      rol,
+                      tipo
+                    FROM
+                    usuario_externo
+                    """)
+        usuarios_externos = cur.fetchall()
+    usuarios = []
+    usuarios = usuarios_internos + usuarios_externos
+    if len(usuarios) > 0:
+      return jsonify({
+          'Mensaje': 'Listado de usuarios de la base de datos',
+          'usuarios': usuarios
+      })
+    else:
+      return jsonify({'Mensaje': 'No hay Usuarios registrados'})
+  
+  
+  except Exception as err:
+    print(err)
+    return jsonify({'Mensaje' : 'Error en la base de datos'})
+
+@app.route('/usuario/<tipo_usuario>/<int:id_usuario>', methods=['GET'])
+@token_requerido
+@rol_requerido('Admin')
+def consultar_usuario_individual(tipo_usuario, id_usuario):
+    try:
+        with config['development'].conn() as conn:
+            with conn.cursor() as cur:
+
+                if tipo_usuario == "Interno":
+                    cur.execute("""
+                        SELECT 
+                            id_usuario AS id,
+                            nombre,
+                            numero_identificacion,
+                            correo,
+                            estado,
+                            rol,
+                            tipo,
+                            'Interno' AS tipo_usuario
+                        FROM usuario
+                        WHERE id_usuario = %s
+                    """, (id_usuario,))
+                
+                elif tipo_usuario == "Externo":
+                    cur.execute("""
+                        SELECT 
+                            id_usuario_externo AS id,
+                            nombre,
+                            correo,
+                            estado,
+                            rol,
+                            tipo,
+                            'Externo' AS tipo_usuario
+                        FROM usuario_externo
+                        WHERE id_usuario_externo = %s
+                    """, (id_usuario,))
+                
+                usuario = cur.fetchone()
+
+                if usuario:
+                    return jsonify({"success": True, "usuario": usuario})
+
+                return jsonify({
+                    "success": False,
+                    "Mensaje": "Usuario no encontrado"
+                }), 404
+
+    except Exception as err:
+        print(err)
+        return jsonify({
+            "success": False,
+            "Mensaje": "Error en el servidor"
+        }), 500
+
+@app.route('/usuario/filtros', methods=['POST'])
+@token_requerido
+@rol_requerido('Admin')
+def usuario_filtros():
+    """
+    Consulta por filtro de usuarios registrados
+    ---
+    tags:
+      - Usuarios
+    parameters:
+      - name: body
+        in: body
+        required: true
+        schema:
+          type: object
+          properties:
+            filtro:
+              type: string
+            valor:
+              type: string
+    responses:
+      200:
+        description: Lista filtrada de usuarios
+    """
+    try:
+        data = request.get_json()
+        filtro = data.get('filtro')
+        valor = data.get('valor')
+
+        print(data)
+        if not filtro or not valor:
+            return jsonify({'Mensaje': 'Debe enviar filtro y valor'}), 400
+
+        params = []
+
+        # Si el filtro es el tipo, seleccionamos la tabla
+        if filtro == 'tipo':
+            if valor == 'Interno':
+                tabla = 'usuario'
+                id_campo = 'id_usuario'
+            elif valor == 'Externo':
+                tabla = 'usuario_externo'
+                id_campo = 'id_usuario_externo'
+            else:
+                return jsonify({'Mensaje': 'Tipo inválido'}), 400
+
+            query = f"""
+                SELECT {id_campo}, nombre, correo, estado, rol, tipo
+                FROM {tabla}
+            """
+
+        # Si el filtro NO ES tipo, buscamos en ambas tablas
+        else:
+            query = """
+                SELECT id_usuario , nombre, correo, estado, rol, tipo
+                FROM usuario
+                WHERE 1=1
+            """
+            union_externo = """
+                UNION
+                SELECT id_usuario_externo, nombre, correo, estado, rol, tipo
+                FROM usuario_externo
+                WHERE 1=1
+            """
+
+            # Agregar el filtro
+            if filtro == 'estado':
+                query += " AND estado = %s"
+                union_externo += " AND estado = %s"
+                params.extend([valor, valor])
+
+            elif filtro == 'rol':
+                query += " AND rol = %s"
+                union_externo += " AND rol = %s"
+                params.extend([valor, valor])
+
+            else:
+                return jsonify({'Mensaje': 'Filtro no válido'}), 400
+
+            # Unimos ambas tablas
+            query = query + " " + union_externo
+
+        # Ejecutamos la consulta
+        with config['development'].conn() as conn:
+            with conn.cursor() as cur:
+                cur.execute(query, params)
+                informacion = cur.fetchall()
+                if not informacion:
+                    return jsonify({'Mensaje': 'No hay usuarios registrados con los filtros ingresados'})
+
+                return jsonify({'usuarios': informacion, "Mensaje": 'Lista de usuarios'})
+
+    except Exception as err:
+        print(err)
+        return jsonify({'Mensaje': 'Error en la base de datos'}), 500
+
+
+@app.route('/usuario', methods=['PUT'])
+@token_requerido
+@rol_requerido('Admin')
+def actualizar_usuario():
+    data = request.get_json()
+    print(data)
+    # Validar datos mínimos
+    if not data or 'tipo' not in data or 'id_usuario' not in data or 'estado' not in data or 'rol' not in data:
+        return jsonify({
+            "success": False,
+            "Mensaje": "Debe enviar tipo_usuario, id_usuario, estado y rol."
+        }), 400
+
+    tipo_usuario = data['tipo']
+    id_usuario = data['id_usuario']
+    estado = data['estado']
+    rol = data['rol']
+
+    # Validación de estado
+    if estado not in ['Activo', 'Inactivo']:
+        return jsonify({"success": False, "Mensaje": "Estado inválido."}), 400
+
+    # Validación de rol
+    if rol not in ['Admin', 'Aprendiz']:
+        return jsonify({"success": False, "Mensaje": "Rol inválido."}), 400
+
+    try:
+        with config['development'].conn() as conn:
+            with conn.cursor() as cur:
+
+                # Usuario interno
+                if tipo_usuario == 'Interno':
+                    cur.execute("""
+                        UPDATE usuario
+                        SET estado = %s, tipo = %s, rol = %s
+                        WHERE id_usuario = %s
+                    """, (estado, 'Interno', rol, id_usuario))
+
+                # Usuario externo
+                elif tipo_usuario == 'Externo':
+                    cur.execute("""
+                        UPDATE usuario_externo
+                        SET estado = %s, tipo = %s, rol = %s
+                        WHERE id_usuario_externo = %s
+                    """, (estado, 'Externo', rol, id_usuario))
+
+                else:
+                    return jsonify({
+                        "success": False,
+                        "Mensaje": "tipo_usuario debe ser 'Interno' o 'Externo'."
+                    }), 400
+
+                conn.commit()
+
+
+                return jsonify({
+                    "success": True,
+                    "Mensaje": "Usuario actualizado correctamente."
+                })
+
+    except Exception as e:
+        print(e)
+        return jsonify({
+            "success": False,
+            "Mensaje": str(e)
+        }), 500
 
 if __name__ == '__main__':
     app.run(debug=True)

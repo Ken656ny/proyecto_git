@@ -103,7 +103,7 @@
             <div class="container__user__btn">
                 <img src="/src/static/iconos/icon user.svg" alt="" class="svg__user">
                 <button type="button" class="btn__perfil" id="btnPerfil">
-                    <span id="nombreUsuarioTexto"></span>
+                    <toco id="nombreUsuarioTexto"></toco>
                     <i class="fa fa-caret-down"></i>
                 </button>
                 <div class="usuario-menu" id="usuarioMenu">
@@ -111,19 +111,13 @@
                     <a href="#" id="cerrarSesionBtn">Cerrar sesión</a>
                 </div>
             </div>
-        
         </section>
-        
         <header class= "container container__title">
             <h1>Configuración</h1>
         </header>
         
         <section class="content_configuracion">
             <div class="menu_configuracion">
-                <div class="menu-item_configuracion" onclick="window.location.href='cuenta.html'">
-                <img src="/src/static/iconos/cuenta.svg" alt="Cuenta" class="icono_configuracion">
-                <p>Cuenta</p>
-                </div>
     
                 <div class="menu-item_configuracion" onclick="window.location.href='centro_de_ayuda.html'">
                 <img src="/src/static/iconos/signo_interrogacion.svg" alt="Ayuda" class="icono_configuracion"> 
@@ -134,7 +128,7 @@
                 <img src="/src/static/iconos/incono_exclamacion.svg" alt="Términos" class="icono_configuracion">
                 <p>Terminos y condiciones</p>
                 </div>
-                <div class="menu-item_configuracion" onclick="location.href='gestionar_usuario.html'">
+                <div class="menu-item_configuracion" onclick="manejarClickRol(event) && redireccion()">
                     <img src="/src/static/iconos/user_admin.svg" alt="Términos" class="icono_configuracion">
                     <p>Gestion de Usuarios</p>
                 </div>
@@ -147,5 +141,10 @@
     </section>
     <!-- al final de tu HTML -->
     <script src="/src/static/js/script.js"></script>
+    <script>
+        function redireccion(){
+            location.href='gestionar_usuario.html'
+        }
+    </script>
 </body>
 </html>

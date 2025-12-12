@@ -228,7 +228,7 @@ function resetModalSteps(modalId, mainButtonId) {
     }
 }
 
-async function openModalEdit(type, id, funct) {
+async function openModalEdit(type, id, funct, user_type = null) {
     const modal = document.getElementById("modal-edit");
     const content = document.getElementById('edit-content');
     const title = document.getElementById("modal-edit-title");
@@ -283,6 +283,14 @@ async function openModalEdit(type, id, funct) {
         activarSteps('modal-edit', '.button-guardar', "edit");
     }
 
+    if (type === "user"){
+        title.textContent = "Actualizar datos de la Etapa de Vida";
+        content.classList.add("info-porcino");
+        button.style.display = "inline-block";
+        button.type = "submit";
+        button.textContent = "Guardar";
+        await cargarInfoUserEdit(id,content,user_type)
+    }
     modal.showModal();
 }
 
@@ -855,6 +863,61 @@ async function cargarInfoEtapaEdit(id, container) {
     </div>
     
     `;
+}
+
+async function cargarInfoUserEdit(id, container, user_type){
+    const user = await consulta_individual_usuario(id,user_type, false)
+    const u = user.usuario;
+    container.innerHTML = `
+        <div class="container__label__input">
+        <label>ID</label>
+            <div class="container-inputs">
+            <input type="text" id="id_usuario_g" value="${u.id}" disabled>
+            </div>
+        </div>
+
+        <div class="container__label__input">
+            <label>Nombre</label>
+            <div class="container-inputs">
+            <input id="peso-ini-actu-${id}" type="text" value="${u.nombre}">
+            </div>
+        </div>
+            
+        <div class="container__label__input">
+            <label>Correo</label>
+            <div class="container-inputs">
+            <input id="peso-final-actu-${id}" type="text" value="${u.correo}">
+            </div>
+        </div>
+
+        <div class="container__label__input">
+            <label>Tipo</label>
+            <div class="container-inputs">
+                <input type="text" id="tipo_usuario" value="${user_type}" disabled>
+            </div>
+        </div>
+            
+        <div class="container__label__input">
+            <label>Rol</label>
+            <div class="container-inputs">
+                <select id="rol_usuario">
+                    <option value="Admin" ${u.rol === "Admin" ? "selected" : ""}>Admin</option>
+                    <option value="Aprendiz" ${u.rol === "Aprendiz" ? "selected" : ""}>Aprendiz</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="container__label__input">
+            <label>Estado</label>
+            <div class="container-inputs">
+                <select id="estado_usuario">
+                    <option value="Activo" ${u.estado === "Activo" ? "selected" : ""}>Activo</option>
+                    <option value="Inactivo" ${u.estado === "Inactivo" ? "selected" : ""}>Inactivo</option>
+                </select>
+            </div>
+        </div>
+    `
+
 }
 
 // FUNCION PARA CARGAR LA INFOMACION DEL MODAL DELETE
@@ -1488,6 +1551,7 @@ async function consulta_filtros() {
 
 async function consulta_general_porcinos() {
     try {
+        console.log(localStorage.getItem('token'))
         await verifyToken();
         const response = await fetch(`${URL_BASE}/porcino`, {
             headers: getAuthHeaders()
@@ -4158,9 +4222,6 @@ function confirmar(id_dieta) {
     }
 }
 
-// =============================================
-// GESTIÓN DE NOTIFICACIONES
-// =============================================
 
 function mostrar_notificaciones(notificaciones){
     const info = notificaciones.Notificaciones.map(item => crear_fila_notificaciones(item)).join('');
@@ -4170,26 +4231,222 @@ function mostrar_notificaciones(notificaciones){
 function crear_fila_notificaciones(item){
     let fechaBD = item.fecha_creacion;
     let fecha = new Date(fechaBD);
-
+    
     const opciones = {
         weekday: "long",   // día de la semana
         year: "numeric",
         month: "2-digit",
         day: "2-digit"
     };
-
+    
     // Fecha bonita con día en español
     const fecha_bonita = fecha.toLocaleDateString("es-CO", opciones);
     return `
-        <div class="menssage__noti">
+    <div class="menssage__noti">
             <div class="menssage__noti__title__fecha">
                 <h3>${item.titulo} - ${item.tipo}</h3>
                 <h3>${fecha_bonita}</h3>
             </div>
             <p>${item.mensaje}</p>
-        </div>
+    </div>
     `
 }
+
+
+// =============================================
+// GESTION DE USUARIOS
+// =============================================
+
+function paginacion_usuarios(usuarios){
+    const registros_por_pagina = 3;
+    let pagina_actual = 1;
+    const total_paginas = Math.ceil(usuarios.usuarios.length / registros_por_pagina);
+
+    // LIMPIAR LISTENERS ANTERIORES
+    const contenedor = document.getElementById("paginacion_usuario");
+    contenedor.replaceWith(contenedor.cloneNode(true));
+
+    // OBTENER LOS REGISTROS DE UNA PAGINA  
+    function obtener_pagina(pagina){
+        const registro_inicial = (pagina - 1) * registros_por_pagina;
+        const registro_final = registro_inicial + registros_por_pagina;
+        return usuarios.usuarios.slice(registro_inicial,registro_final)
+    }
+
+    function mostrar_usuarios() {
+        const info = obtener_pagina(pagina_actual).map(item => crearFilaUsuario(item)).join('');
+        document.getElementById('info_user').innerHTML = info;
+    }
+
+    function crearFilaUsuario(item) {
+        try {
+            const uniqueId = item.id_usuario || item.id_usuario_externo;
+            return `
+                <tr class="registro">
+                    <td class="td__border__l">
+                        <img src="/src/static/iconos/user_admin.svg" alt="" width="45"> 
+                    </td>
+                    <td>${uniqueId}</td>
+                    <td>${item.nombre}</td>
+                    <td>${item.correo}</td>
+                    <td>${item.estado}</td>
+                    <td class="td__border__r">
+                        <button class="icon-edit" data-id="${uniqueId}" data-type="user" data-user-type="${item.tipo}"><img src="/src/static/iconos/edit icon.svg" alt="editar informacion"></button>
+                    </td>
+                </tr>`;
+        } catch (error) {
+            console.error(error)
+        }
+    }
+
+    function render_paginacion(){
+        const cont = document.getElementById('paginacion_usuario');
+        cont.innerHTML = `
+
+        <span>Usuarios Totales: ${usuarios.usuarios.length}</span>
+
+        <container class="container_btn_paginacion">
+        <iconify-icon icon="bxs:left-arrow" width="24" height="24"  style="color: #2C3D31" ${pagina_actual === 1 ? "disabled" : ""} data-page="${pagina_actual - 1}"></iconify-icon>
+        <span>Pagina ${pagina_actual} de ${total_paginas}</span>
+        <iconify-icon icon="bxs:right-arrow" width="24" height="24"  style="color: #2C3D31" ${pagina_actual === total_paginas ? "disabled" : ""} data-page="${pagina_actual + 1}"></iconify-icon>
+        </container>
+        `
+    }
+
+    document.getElementById("paginacion_usuario").addEventListener("click", (e) => {
+        if (!e.target.dataset.page) return;
+        const nueva = Number(e.target.dataset.page);
+        if (nueva >= 1 && nueva <= total_paginas){
+            pagina_actual = nueva;
+            mostrar_usuarios();
+            render_paginacion();
+        }
+    });
+
+    mostrar_usuarios()
+    render_paginacion()
+}
+async function consultar_usuarios() {
+    try {
+        await verifyToken()
+        const promesa = await fetch(`${URL_BASE}/usuario`, 
+            {
+                method : 'GET',
+                headers: getAuthHeaders()
+            }
+        )
+        if (!promesa.ok) throw new Error(`Error: ${promesa.status}`);
+        const response = await promesa.json();
+        paginacion_usuarios(response)
+        
+        return response
+    } catch (error) {
+        console.error(error)
+        handleAuthError(error)
+    }
+}
+
+async function consulta_individual_usuario(id, tipo, mostrar = false) {
+    await verifyToken()
+    const promesa = await fetch(`${URL_BASE}/usuario/${tipo}/${id}`, {
+        method: 'GET',
+        headers: getAuthHeaders()
+    });
+    const response = await promesa.json();
+    if (response.Mensaje === 'Usuario no encontrado') {
+            Swal.fire({
+                title: "Mensaje",
+                text: response.Mensaje,
+                icon: "error"
+            });
+            return null;
+        }
+    if (mostrar){
+        paginacion_usuarios(response)
+    }
+    return response
+}
+
+async function actualizar_usuario() {
+    try {
+        await verifyToken()
+        const tipo = document.getElementById('tipo_usuario').value;
+        const id_usuario = document.getElementById('id_usuario_g').value;
+        const estado = document.getElementById('estado_usuario').value;
+        const rol = document.getElementById('rol_usuario').value;
+
+        const data = {
+            "tipo": tipo,
+            "id_usuario": id_usuario,
+            "estado": estado,
+            "rol": rol
+        }
+
+
+        const promesa = await fetch(`${URL_BASE}/usuario` ,
+            {
+                method: 'PUT',
+                body: JSON.stringify(data),
+                headers: getAuthHeaders(),
+            }
+        )
+        const response = await promesa.json()
+        cerrarDialog(`modal-edit`);
+        if (!promesa.ok){
+            Swal.fire({
+                title: "Mensaje",
+                text: `${response.Mensaje}`,
+                icon: "error"
+            });
+            
+        } else{
+            Swal.fire({
+                title: "Mensaje",
+                text: `${response.Mensaje}`,
+                icon: "success"
+            });
+        }
+        return response
+    } catch (error) {
+        console.error(error)
+        handleAuthError(error)
+    }
+}
+
+async function filtrarUsuarios() {
+    await verifyToken()
+    const filtro = document.getElementById("filtroUsuario").value;
+    const valor = document.getElementById("valorFiltro").value;
+
+    if (!filtro || !valor) {
+        Swal.fire("Error", "Debe seleccionar filtro y valor", "error");
+        return;
+    }
+    
+    const info = {
+        "filtro" : filtro,
+        "valor" : valor
+    }
+    try {
+        const resp = await fetch(`${URL_BASE}/usuario/filtros`, {
+            method: "POST",
+            body: JSON.stringify(info),
+            headers: getAuthHeaders()
+        });
+
+        const data = await resp.json();
+
+        paginacion_usuarios(data)
+        return data
+    } catch (error) {
+        Swal.fire("Error", "No se pudo conectar con el servidor", "error");
+    }
+}
+
+
+// =============================================
+// GESTIÓN DE NOTIFICACIONES
+// =============================================
 
 async function consultar_notificaciones() {
     try {
@@ -4197,7 +4454,7 @@ async function consultar_notificaciones() {
         const usuario = JSON.parse(localStorage.getItem("usuario"));
         console.log(usuario)
         const idUsuario = usuario.id_usuario;
-
+        
         const promesa = await fetch(`${URL_BASE}/notificaciones/${idUsuario}`,
             {
                 method : 'GET',
@@ -4387,7 +4644,8 @@ async function login() {
                 nombre: data.nombre,
                 numero_identificacion: data.numero_identificacion,
                 correo: data.correo,
-                rol: data.rol
+                rol: data.rol,
+                tipo: data.tipo
             }));
             
             Swal.fire({
@@ -4541,7 +4799,8 @@ function handleCredentialResponse(response) {
             nombre: data.nombre,
             numero_identificacion: data.numero_identificacion,
             correo: data.correo,
-            rol: data.rol
+            rol: data.rol,
+            tipo: data.tipo
         }));
 
         Swal.fire({
@@ -4868,6 +5127,7 @@ document.addEventListener("click", (e) => {
     
     const id = icon.dataset.id;
     const type = icon.dataset.type;
+    const user_type = icon.dataset.userType
 
     if (icon.classList.contains("icon-eye")) {
         openModalEye(type, id);
@@ -4880,6 +5140,8 @@ document.addEventListener("click", (e) => {
         }
         else if (type === "porcino") {
             openModalEdit(type, id, actualizar_porcino);
+        } else if (type === "user"){
+            openModalEdit(type,id, actualizar_usuario, user_type)
         }
     } else if (icon.classList.contains("icon-delete")) {
         if (type === "raza") {
@@ -4906,8 +5168,39 @@ document.addEventListener("click", (e) => {
     }
 });
 
+function cambioOpcionesFiltro(){
+    document.getElementById("filtroUsuario").addEventListener("change", () => {
+        const select = document.getElementById("filtroUsuario");
+        const valor = document.getElementById("valorFiltro");
+    
+        valor.innerHTML = "";
+        valor.style.display = "block";
+    
+        if (select.value === "tipo") {
+            valor.innerHTML = `
+                <option value="Interno">Interno</option>
+                <option value="Externo">Externo</option>
+            `;
+        }
+    
+        if (select.value === "rol") {
+            valor.innerHTML = `
+                <option value="Admin">Admin</option>
+                <option value="Aprendiz">Aprendiz</option>
+            `;
+        }
+    
+        if (select.value === "estado") {
+            valor.innerHTML = `
+                <option value="Activo">Activo</option>
+                <option value="Inactivo">Inactivo</option>
+            `;
+        }
+    });
+}
 document.getElementById("modal-eye").addEventListener("close", () => resetModalSteps('modal-eye', 'button-eye'));
 document.getElementById("modal-edit").addEventListener("close", () => resetModalSteps('modal-edit', 'button-edit'));
+
 
 document.getElementById('btn_consultar_todo').addEventListener('click', () =>{
     const input_id = document.getElementById('input_id');
@@ -5011,13 +5304,6 @@ document.getElementById('form-consul-histo').addEventListener('submit', (e) =>{
 document.getElementById('impresora_searchbar').addEventListener('click', function () {
     const id = this.dataset.id;
     generar_pdf('transacciones', id);
-});
-
-
-document.addEventListener('DOMContentLoaded', function() {
-    crearDialogRegistrarRaza();
-    crearDialogRegistrarEtapa();
-    crearDialogActualizarPesoHistorial();
 });
 
 
@@ -5128,7 +5414,7 @@ function iniciarComandosDeVoz() {
 
         // --- Cerrar sesión ---
         if (transcript.includes("cerrar sesión") || transcript.includes("cerrar sesion")) {
-            alert("Sesión cerrada");
+            cerrarSesion()
         }
 
         // --- Ir al inicio ---
@@ -5147,3 +5433,65 @@ function iniciarComandosDeVoz() {
 
     recognition.start();
 }
+
+
+function bloquearSiEsMovil() {
+    const maxWidth = 768;
+
+    // Detectar celular por userAgent
+    const esMovilPorUserAgent = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i
+        .test(navigator.userAgent);
+
+    // Detectar celular por ancho de pantalla
+    const esMovilPorResolucion = window.innerWidth <= maxWidth;
+
+    // Si NO es celular → desbloquear
+    if (!esMovilPorUserAgent && !esMovilPorResolucion) {
+        const overlay = document.getElementById("overlay-bloqueo");
+        if (overlay) overlay.remove();
+        Swal.close();
+        return;
+    }
+
+    // Si es celular → crear overlay negro si no existe
+    if (!document.getElementById("overlay-bloqueo")) {
+        const overlay = document.createElement("div");
+        overlay.id = "overlay-bloqueo";
+        overlay.style.cssText = `
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: black;
+            z-index: 999998; /* menos que Swal */
+        `;
+        document.body.appendChild(overlay);
+    }
+
+    // Mostrar modal SweetAlert encima del overlay
+    Swal.fire({
+        title: "Acceso restringido",
+        text: "Este proyecto es muy complejo y completo por lo que se necesita un PC Por favor ingresa desde un computador.",
+        icon: "error",
+        allowOutsideClick: false,
+        allowEscapeKey: false,
+        allowEnterKey: false,
+        showConfirmButton: false,
+        customClass: {
+            popup: 'swal-popup-sobre-overlay'
+        }
+    });
+}
+
+// Ejecutar al cargar
+document.addEventListener('DOMContentLoaded', function() {
+    crearDialogRegistrarRaza();
+    crearDialogRegistrarEtapa();
+    crearDialogActualizarPesoHistorial();
+    bloquearSiEsMovil();
+});
+
+
+// Ejecutar al cambiar tamaño
+window.addEventListener("resize", bloquearSiEsMovil);
