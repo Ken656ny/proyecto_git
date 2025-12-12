@@ -5147,3 +5147,57 @@ function iniciarComandosDeVoz() {
 
     recognition.start();
 }
+
+async function consultaReporteAlimentos() {
+  await verifyToken();
+  const filtro = document.getElementById("filtroAlimentos")?.value || "todos";
+  const nombre = document.getElementById("buscar_alimento")?.value || "";
+
+  let url = `${URL_BASE}/alimentos/reporte?filtro=${filtro}`;
+  if (nombre.trim() !== "") {
+    url += `&nombre=${encodeURIComponent(nombre.trim())}`;
+  }
+
+  try {
+    const res = await fetch(url, {
+      headers: getAuthHeaders()
+    });
+    const data = await res.json();
+
+    const tbody = document.getElementById("contenido");
+    tbody.innerHTML = "";
+
+    if (!data.mensaje || data.mensaje.length === 0) {
+      tbody.innerHTML = "<tr><td colspan='4'>No se encontraron datos</td></tr>";
+      return;
+    }
+
+    data.mensaje.forEach(a => {
+      const tr = document.createElement("tr");
+      tr.className="registro"
+      tr.innerHTML = `
+        <td class="td__border__l">${a.id_alimento}</td>
+        <td>${a.nombre}</td>
+        <td>${a.total_usado}</td>
+        <td class="td__border__l">${a.promedio_usado.toFixed(2)}</td>
+      `;
+      tbody.appendChild(tr);
+    });
+  } catch (err) {
+    console.error("Error al consultar reporte:", err);
+  }
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+  // Primera carga
+  consultaReporteAlimentos();
+
+  // Cada vez que cambias el select → nueva consulta
+  document.getElementById("filtroAlimentos").addEventListener("change", consultaReporteAlimentos);
+
+  // Cada vez que escribes en el buscador → nueva consulta
+  document.getElementById("buscar_alimento").addEventListener("input", () => {
+    consultaReporteAlimentos();
+  });
+});
+

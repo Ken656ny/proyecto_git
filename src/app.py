@@ -3897,5 +3897,57 @@ def eliminar_dieta(id_dieta):
         return jsonify({"error": str(e)})
       
 
+# ------------------------------
+# SECCION DE GENERAR REPORTES
+# ------------------------------
+
+@app.route("/alimentos/reporte", methods=["GET"])
+@token_requerido
+@rol_requerido('Admin')
+def informe_alimentos():
+    filtro = request.args.get("filtro", "todos")   # todos | mayor | menor
+    nombre = request.args.get("nombre", "").strip()
+
+    with config['development'].conn() as conn:
+        with conn.cursor() as cur:
+            query = """
+                SELECT 
+                    a.id_alimento,
+                    a.nombre AS nombre_alimento,
+                    SUM(dta.cantidad) AS total_usado,
+                    AVG(dta.cantidad) AS promedio_usado
+                FROM alimentos a
+                JOIN dieta_tiene_alimentos dta ON a.id_alimento = dta.id_alimento
+            """
+            params = []
+
+            if nombre:
+                query += " WHERE a.nombre LIKE %s"
+                params.append(f"%{nombre}%")
+
+            query += " GROUP BY a.id_alimento, a.nombre"
+
+            if filtro == "mayor":
+                query += " ORDER BY total_usado DESC LIMIT 1"
+            elif filtro == "menor":
+                query += " ORDER BY total_usado ASC LIMIT 1"
+            else:
+                query += " ORDER BY total_usado DESC"
+
+            cur.execute(query, params)
+            filas = cur.fetchall()
+
+    resultado = [
+        {
+            "id_alimento": fila["id_alimento"],
+            "nombre": fila["nombre_alimento"],
+            "total_usado": float(fila["total_usado"]),
+            "promedio_usado": float(fila["promedio_usado"])
+        }
+        for fila in filas
+    ]
+
+    return jsonify({"mensaje": resultado})
+
 if __name__ == '__main__':
     app.run(debug=True)

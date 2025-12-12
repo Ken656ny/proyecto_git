@@ -1139,6 +1139,16 @@ label.contenedor{
     order: 4;
 }
 
+#generar_informe,
+#btn_generar_alimentos{
+    order: 6;
+    font-size: 15px;
+}
+
+.generar_info{
+    margin: 2% auto;
+}
+
 #btn_consultar_todo,
 #btn_consultar_todo_raza,
 #btn_consultar_todo_etapa,
