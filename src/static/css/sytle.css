@@ -2517,7 +2517,9 @@ DIETASSSSSSSS
     background-color: transparent;
 }
 
-
+.t_g{
+    margin-top: 3%
+}
 
 /* ===== RESPONSIVE ===== */
 @media (max-width: 768px) {
