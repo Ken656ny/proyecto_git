@@ -72,7 +72,7 @@ def generar_token(usuario, es_google=False):
           "correo": usuario["correo"],
           "es_google": es_google,
           "rol": usuario.get("rol", "Aprendiz"),
-          "exp": datetime.now(timezone.utc) + timedelta(minutes=120)
+          "exp": datetime.now(timezone.utc) + timedelta(hours=3)
       }
     else:
       payload = {
@@ -3895,6 +3895,7 @@ def eliminar_dieta(id_dieta):
 
     except Exception as e:
         return jsonify({"error": str(e)})
+      
 
 if __name__ == '__main__':
     app.run(debug=True)
