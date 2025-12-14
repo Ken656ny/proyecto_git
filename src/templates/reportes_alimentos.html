@@ -9,7 +9,6 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/src/static/css/sytle.css">
-    <link rel="stylesheet" href="/src/static/css/reporte.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11.17.2/dist/sweetalert2.min.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://code.iconify.design/iconify-icon/3.0.0/iconify-icon.min.js"></script>
@@ -121,24 +120,25 @@
         <form class="container container__search__bar" id="container__search__bar" >
 
             <img src="/src/static/iconos/icon lupa.svg" alt="">
-            <input class="input_id" type="text" id="buscar_alimento" placeholder="Nombre del alimento..." aria-label="Buscar alimento por nombre">
+
             <div class="container__filtro">
                 <img src="/src/static/iconos/icon filter.svg" alt="" id="svg__filter">
-                <select name="filteralimento" id="filtroAlimentos" class="filter rm_filter" >
+                <select name="filteralimento" id="filtroAlimentos" class="filter rm_filter fil" >
                     <option value="" disabled selected >Filtrar por...</option>
                     <option value="todos">Todos</option>
-                    <option value="mayor">Más usados</option>
-                    <option value="menor">Menos usados</option>
+                    <option value="mayor">Alimento Más usado</option>
+                    <option value="menor">Alimento Menos usado</option>
                 </select>
             </div>
 
-            <button type="button" id="btn_generar_alimentos" class="btn">Generar</button>
+            <button type="button" id="btn_generar_alimentos" class="btn" onclick="consultaReporteAlimentos()">Generar</button>
         </form>
 
         <section class="container container__registros t_g">
             <table class="table__registros">
                 <thead>
                     <tr>
+                        <th></th>
                         <th>ID</th>
                         <th>Nombre de alimento</th>
                         <th>Total usado (KG)</th>
@@ -150,7 +150,7 @@
 
         </section>
         <div class="opciones">
-            <div id="impresora" class="impresora" onclick="generar_pdf('')" title="Generar PDF">
+            <div id="impresora" class="impresora" onclick="generar_informe()" title="Generar PDF">
                 <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 26 26" id="impresora_por"><g fill="none"><defs><mask id="SVGrO71tccb"><path fill="#fff" d="M0 0h26v26H0z"/><path fill="#fff" d="M7.5 5a1 1 0 0 1 1-1h9a1 1 0 0 1 1 1v4.5h-11z"/><path fill="#000" d="M8 9.5H7V5.1c0-.866.612-1.6 1.417-1.6h9.166c.805 0 1.417.734 1.417 1.6v4.4h-1V5.1c0-.35-.209-.6-.417-.6H8.417c-.208 0-.417.25-.417.6z"/><path fill="#000" fill-rule="evenodd" d="M19 9H7a3 3 0 0 0-3 3v5a3 3 0 0 0 3 3h12a3 3 0 0 0 3-3v-5a3 3 0 0 0-3-3M5 12a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2z" clip-rule="evenodd"/><path fill="#fff" d="M18.5 20.531a1 1 0 0 1-1 1h-9a1 1 0 0 1-1-1V14.97h11z"/><path fill="#000" d="M18 14.969h1v5.25c0 .97-.588 1.812-1.417 1.812H8.417C7.588 22.031 7 21.19 7 20.22v-5.25h1v5.25c0 .479.233.812.417.812h9.166c.184 0 .417-.333.417-.812z"/><path fill="#000" d="M16.5 18.5a.5.5 0 0 1 0 1h-7a.5.5 0 0 1 0-1zm0-2a.5.5 0 0 1 0 1h-7a.5.5 0 0 1 0-1z"/></mask></defs><circle cx="13" cy="13" r="13" fill="#fff" mask="url(#SVGrO71tccb)"/></g></svg>
             </div>
             <div onclick="iniciarTour()" class="" title="Ayuda">
@@ -160,5 +160,4 @@
     </section>
 </body>
     <script src="/src/static/js/script.js"></script>
-    <script>consultaReporteAlimentos()</script>
 </html>
