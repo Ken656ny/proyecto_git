@@ -236,7 +236,6 @@ async function openModalEdit(type, id, funct, user_type = null) {
     const button = document.getElementById("button-edit");
 
     form.onsubmit = function(event) {
-        console.log(funct(id))
         event.preventDefault();
         funct(id)
     }
@@ -611,7 +610,7 @@ async function cargarInfoHistorial(id, container) {
         
         <div class="container__label__input">
             <label>Usuario</label>
-            <input type="text" value="${h.nombre}" readonly>
+            <input type="text" value="${h.nombre_usuario}" readonly>
         </div>
         
         <textarea id="textare_eye_historial" readonly>
@@ -1148,7 +1147,7 @@ function alertaSobreDialogs(pesoIngresado, pesoActual) {
         `,
         icon: "warning",
         confirmButtonText: "Entendido",
-        confirmButtonColor: "#facc15",
+        
     }).then(() => {
         if (estaba_abierto_mgh) modal_gestionar_historial.showModal() ;
         if (estaba_abierto_map) modal_actualizar_peso.showModal();
@@ -1159,11 +1158,12 @@ async function crearDialogActualizarPesoHistorial(){
     const nm = await conteoNumeroConsecutivo();
     const porcinos = await consultar_porcinos_cache();
     const usuario = JSON.parse(localStorage.getItem("usuario"));
+    console.log(usuario)
     const campos = [
         { label: 'Fecha de pesaje', id: 'fecha-pesaje-actu', type: 'date', required: true },
         { label: 'ID porcino', id: 'id-porcino-actu', type: 'select', options: porcinos.Porcinos.map(por => por.id_porcino), required: true, placeholder: "Seleccione el ID del porcino" },
         { label: 'Peso final', id: 'peso-final-actu', type: 'number', required: true, placeholder: "Digite el peso en Kg" },
-        { label: 'Usuario', id: 'id-usuario-actu', type: 'text', required: true, placeholder: usuario.nombre, value: 1 },
+        { label: 'Usuario', id: 'id-usuario-actu', type: 'text', required: true, placeholder: usuario.nombre, value: usuario.id_usuario },
     ];
 
     const camposHTML = campos.map(campo => {
@@ -3829,7 +3829,7 @@ function mostrarPagina(page) {
     const dietasPagina = dietasData.slice(start, end);
 
     contenido.innerHTML = "";
-
+    console.log(dietasPagina)
     dietasPagina.forEach(dieta => {
         contenido.innerHTML += `
             <tr class="nuevo1">
@@ -4451,21 +4451,19 @@ async function filtrarUsuarios() {
 async function consultar_notificaciones() {
     try {
         await verifyToken()
-        const usuario = JSON.parse(localStorage.getItem("usuario"));
-        console.log(usuario)
-        const idUsuario = usuario.id_usuario;
-        
-        const promesa = await fetch(`${URL_BASE}/notificaciones/${idUsuario}`,
+        const promesa = await fetch(`${URL_BASE}/notificaciones`,
             {
                 method : 'GET',
                 headers : getAuthHeaders()
             }
         )
         const response = await promesa.json()
+        console.log(response)
         mostrar_notificaciones(response)
         return response 
     } catch (error) {
         console.error(error)
+        handleAuthError(error)
     }
 }
 

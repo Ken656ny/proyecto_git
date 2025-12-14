@@ -7,6 +7,7 @@ from flask_cors import CORS
 #PARA DOCUMENTAR LAS RUTAS DEL CODIGO
 from flasgger import Swagger
 
+from helpers import crear_notificacion, obtener_info_usuario
 # IMPORTO EL DICCIONARIO CONFIG EN LA POSICION DEVELOPMENT PARA ACCEDER LA INFORMACION DE CONEXION DE LA
 # BASE DE DATOS, DENTRO DE ESA CLASE HAY UN CLASSMETHOD QUE RETORNA LA CONEXION CON LA BASE DE DATOS
 from config import config
@@ -691,10 +692,21 @@ def historial_pesos():
     with config['development'].conn() as conn:
       with conn.cursor() as cur:
         cur.execute("""
-                    SELECT tp.id_documento,tp.fecha_documento,tp.fecha_pesaje,tp.id_porcino,tp.peso_final,u.nombre,tp.descripcion
+                    SELECT
+                        tp.id_documento,
+                        tp.fecha_documento,
+                        tp.fecha_pesaje,
+                        tp.id_porcino,
+                        tp.peso_final,
+                        COALESCE(ui.nombre, ue.nombre) AS nombre_usuario,
+                        tp.descripcion
                     FROM transaccion_peso tp
-                    JOIN usuario u
-                    ON tp.id_usuario = u.id_usuario
+                    LEFT JOIN usuario ui
+                        ON tp.usuario_tipo = 'Interno'
+                      AND tp.usuario_id = ui.id_usuario
+                    LEFT JOIN usuario_externo ue
+                        ON tp.usuario_tipo = 'Externo'
+                    AND tp.usuario_id = ue.id_usuario_externo;
                     """)
         historial = cur.fetchall()
         if historial:
@@ -722,10 +734,21 @@ def consulta_indi_transaccion(id):
     with config['development'].conn() as conn:
       with conn.cursor() as cur:
         cur.execute("""
-                    SELECT tp.id_documento,tp.fecha_documento,tp.fecha_pesaje,tp.id_porcino,tp.peso_final,u.nombre,tp.descripcion
+                    SELECT 
+                      tp.id_documento,
+                      tp.fecha_documento,
+                      tp.fecha_pesaje,
+                      tp.id_porcino,
+                      tp.peso_final,
+                      COALESCE(ui.nombre, ue.nombre) AS nombre_usuario,
+                      tp.descripcion
                     FROM transaccion_peso tp
-                    JOIN usuario u
-                    ON tp.id_usuario = u.id_usuario
+                    LEFT JOIN usuario ui
+                        ON tp.usuario_tipo = 'Interno'
+                      AND tp.usuario_id = ui.id_usuario
+                    LEFT JOIN usuario_externo ue
+                        ON tp.usuario_tipo = 'Externo'
+                      AND tp.usuario_id = ue.id_usuario_externo
                     WHERE tp.id_documento = %s
                     ORDER BY fecha_documento DESC
                     """, (id))
@@ -1141,8 +1164,8 @@ def actualizar_peso_porcinos():
   """
   try:
     usuario = request.usuario
-    id_usuario = usuario['id_auto'] if 'id_auto' in usuario else usuario['id_usuario']
-    
+    id_usuario, tipo_usuario = obtener_info_usuario(usuario)
+
     data = request.get_json()
     fec_pesa = data['fecha_pesaje']
     id_porcino = data['id_porcino']
@@ -1151,11 +1174,29 @@ def actualizar_peso_porcinos():
     
     with config['development'].conn() as conn:
       with conn.cursor() as cur :
-        cur.execute("CALL sp_actualizar_peso_historial(%s,%s,%s,%s,%s)",(fec_pesa,id_porcino,peso_final,id_usuario,descripcion))
+        cur.callproc(
+            'sp_actualizar_peso_historial',
+            (
+                fec_pesa,
+                id_porcino,
+                peso_final,
+                id_usuario,
+                tipo_usuario,
+                descripcion
+            )
+        )
         conn.commit()
-        return jsonify({"Mensaje": f'El Peso Final del porcino con id {id_porcino} actualizado'}), 200
+        
+    crear_notificacion(
+      usuario_dest=usuario,
+      usuario_origen=usuario, 
+      titulo='Actualizacion de la información de Usuario',
+      mensaje=f'Se actualizo la información del Usuario con ID {id_usuario}',
+      tipo='Actualización'
+    )
+    return jsonify({"Mensaje": f'El Peso Final del porcino con id {id_porcino} actualizado'}), 200
   except Exception as err:
-    print(err)
+    print('error en transacciones',err)
     return jsonify({'Mensaje': 'Error'}), 500
 
 
@@ -1198,9 +1239,6 @@ def registrar_porcinos():
   """
   try:
     usuario = request.usuario
-    id_usuario = usuario['id_auto'] if 'id_auto' in usuario else usuario['id_usuario']
-
-    print(usuario)
 
     porcino = request.get_json()
     id =      porcino['id_porcino']
@@ -1246,19 +1284,16 @@ def registrar_porcinos():
                       values (%s,%s,%s,%s,%s,%s,%s,%s,%s)""",
                       (p_ini,p_fin,fec_nac,sexo,id_ra,id_eta,estado,descripcion,id))
           id_porcino = cur.lastrowid
-          cur.execute("""
-                INSERT INTO notificaciones (id_usuario_destinatario, id_usuario_origen, titulo, mensaje, tipo)
-                VALUES (%s, %s, %s, %s, %s)
-            """, (
-                id_usuario,  
-                id_usuario, 
-                'Registro de Porcino',
-                f'Se registró un nuevo porcino con ID {id_porcino}',
-                'Ingreso'
-            ))
           conn.commit()
-
-    return jsonify({'Mensaje': f'Porcino con id {id} registrado'})
+    
+    crear_notificacion(
+      usuario_dest=usuario, 
+      usuario_origen=usuario, 
+      titulo='Registro de Porcino',
+      mensaje=f'Se registró un nuevo porcino con ID {id_porcino}',
+      tipo='Ingreso'
+    )
+    return jsonify({'Mensaje': f'Porcino con id {id_porcino} registrado'})
   
   except Exception as err:
     print(err)
@@ -1309,7 +1344,6 @@ def actualizar_porcino(id):
   """
   try:
     usuario = request.usuario
-    id_usuario = usuario['id_auto'] if 'id_auto' in usuario else usuario['id_usuario']
     
     porcino = request.get_json()
     p_ini =       porcino['peso_inicial']
@@ -1325,18 +1359,15 @@ def actualizar_porcino(id):
       with conn.cursor() as cur:
         cur.execute('UPDATE porcinos SET peso_inicial = %s, peso_final = %s, fecha_nacimiento = %s, sexo = %s, id_raza = %s, id_etapa = %s, estado = %s, descripcion = %s WHERE id_porcino = %s',
                   (p_ini,p_fin,fec_nac,sexo,id_ra,id_eta,estado,descripcion,id))
-        cur.execute("""
-                INSERT INTO notificaciones (id_usuario_destinatario, id_usuario_origen, titulo, mensaje, tipo)
-                VALUES (%s, %s, %s, %s, %s)
-            """, (
-                id_usuario,  
-                id_usuario, 
-                'Actualizacion de la información del Porcino',
-                f'Se actualizo la información del porcino con ID {id}',
-                'Actualización'
-            ))
         conn.commit()
-    
+    if usuario:
+      crear_notificacion(
+        usuario_dest=usuario, 
+        usuario_origen=usuario, 
+        titulo='Actualizacion de la información del Porcino',
+        mensaje=f'Se actualizo la información del porcino con ID {id}',
+        tipo='Actualización'
+      )
     return jsonify({'Mensaje': f'Informacion del porcino con id {id} actualizada'}), 200
   except Exception as err:
     print(err)
@@ -1364,22 +1395,19 @@ def eliminar_porcino(id):
   """
   try:
     usuario = request.usuario
-    id_usuario = usuario['id_auto'] if 'id_auto' in usuario else usuario['id_usuario']
     
     with config['development'].conn() as conn:
       with conn.cursor() as cur:
         cur.execute('DELETE FROM porcinos WHERE id_porcino = %s', (id))
-        cur.execute("""
-                INSERT INTO notificaciones (id_usuario_destinatario, id_usuario_origen, titulo, mensaje, tipo)
-                VALUES (%s, %s, %s, %s, %s)
-            """, (
-                id_usuario,  
-                id_usuario, 
-                'Eliminacion de la información del Porcino',
-                f'Se elimino la información del porcino con ID {id}',
-                'Eliminación'
-            ))
         conn.commit()
+        
+    crear_notificacion(
+      usuario_dest=usuario, 
+      usuario_origen=usuario, 
+      titulo='Eliminacion de la información del Porcino',
+      mensaje=f'Se elimino la información del porcino con ID {id}',
+      tipo='Eliminación'
+    )
     return jsonify({'Mensaje': f'El porcino con id {id} ha sido eliminado correctamente'})
     
   except Exception as err:
@@ -1624,7 +1652,6 @@ def registrar_raza():
   """
   try:
     usuario = request.usuario
-    id_usuario = usuario['id_auto'] if 'id_auto' in usuario else usuario['id_usuario']
     
     data = request.get_json()
     nombre = data['nombre']
@@ -1634,18 +1661,14 @@ def registrar_raza():
         cur.execute('INSERT INTO raza VALUES (null,%s,%s)',
                 (nombre,desc))
         id_raza = cur.lastrowid
-        cur.execute("""
-                INSERT INTO notificaciones (id_usuario_destinatario, id_usuario_origen, titulo, mensaje, tipo)
-                VALUES (%s, %s, %s, %s, %s)
-            """, (
-                id_usuario,  
-                id_usuario, 
-                'Registro de Raza',
-                f'Se registró una nuevo raza con ID {id_raza}',
-                'Ingreso'
-            ))
         conn.commit()
-
+      crear_notificacion(
+        usuario_dest=usuario, 
+        usuario_origen=usuario, 
+        titulo='Registro de Raza',
+        mensaje=f'Se registró una nueva raza con ID {id_raza}',
+        tipo='Ingreso'
+      )
       return jsonify({'Mensaje': 'Raza registrada correctamente'})
   except Exception as err:
     print(err)
@@ -1682,7 +1705,6 @@ def actualizar_raza(id):
   """
   try:
     usuario = request.usuario
-    id_usuario = usuario['id_auto'] if 'id_auto' in usuario else usuario['id_usuario']
     
     data = request.get_json()
     nombre = data['nombre']
@@ -1692,18 +1714,16 @@ def actualizar_raza(id):
       with conn.cursor() as cur:
         cur.execute('UPDATE raza SET nombre = %s, descripcion = %s WHERE id_raza = %s',
                 (nombre,desc,id))
-        cur.execute("""
-                INSERT INTO notificaciones (id_usuario_destinatario, id_usuario_origen, titulo, mensaje, tipo)
-                VALUES (%s, %s, %s, %s, %s)
-            """, (
-                id_usuario,  
-                id_usuario, 
-                'Actualizacion de la información de la Raza',
-                f'Se actualizo la información de la raza con ID {id}',
-                'Actualización'
-            ))
         conn.commit()
-
+        
+    if usuario:
+      crear_notificacion(
+        usuario_dest=usuario, 
+        usuario_origen=usuario, 
+        titulo='Actualizacion de la información de la Raza',
+        mensaje=f'Se actualizo la información de la raza con ID {id}',
+        tipo='Actualización'
+      )
     return jsonify({'Mensaje': 'Raza actulizada correctamente'})
   except Exception as err:
     print(err)
@@ -1736,24 +1756,19 @@ def eliminar_raza(id):
   """
   try:
     usuario = request.usuario
-    id_usuario = usuario['id_auto'] if 'id_auto' in usuario else usuario['id_usuario']
     with config['development'].conn() as conn:
       with conn.cursor() as cur:
         cur.execute('DELETE FROM raza WHERE id_raza = %s',
                 (id))
-        cur.execute("""
-                    INSERT INTO notificaciones (id_usuario_destinatario, id_usuario_origen, titulo, mensaje, tipo)
-                    VALUES (%s, %s, %s, %s, %s)
-                """, (
-                    id_usuario,   
-                    id_usuario,  
-                    'Eliminación de la información de la Raza',
-                    f'Se eliminó la información de la raza con ID {id}',
-                    'Eliminación'
-                ))
         conn.commit()
 
-
+    crear_notificacion(
+      usuario_dest=usuario, 
+      usuario_origen=usuario, 
+      titulo='Eliminacion de la información de la Raza',
+      mensaje=f'Se elimino la información de la raza con ID {id}',
+      tipo='Eliminación'
+    )
     return jsonify({'Mensaje': 'Raza eliminada correctamente'})
   except Exception as err:
     print(err)
@@ -2077,8 +2092,6 @@ def registrar_etapa():
   """
   try:
     usuario = request.usuario
-    id_usuario = usuario['id_auto'] if 'id_auto' in usuario else usuario['id_usuario']
-
     
     data = request.get_json()
     nombre_etapa = data['nombre']
@@ -2107,19 +2120,15 @@ def registrar_etapa():
                           INSERT INTO requerimientos_nutricionales(id_etapa,id_elemento,porcentaje)
                           VALUES (%s,%s,%s)
                           """, (id_etapa,id_elemento,porcentaje))
-        
-        cur.execute("""
-                INSERT INTO notificaciones (id_usuario_destinatario, id_usuario_origen, titulo, mensaje, tipo)
-                VALUES (%s, %s, %s, %s, %s)
-            """, (
-                id_usuario,  
-                id_usuario, 
-                'Registro de Etapa de Vida',
-                f'Se registró una nueva etapa de vida con ID {id_etapa}',
-                'Ingreso'
-            ))
         conn.commit()
-
+        
+    crear_notificacion(
+        usuario_dest=usuario, 
+        usuario_origen=usuario, 
+        titulo='Registro de Etapa de Vida',
+        mensaje=f'Se registró una nueva etapa de vida con ID {id_etapa}',
+        tipo='Ingreso'
+      )
     return jsonify({'Mensaje': 'Etapa de vida registrada correctamente'}), 201
   except Exception as err:
     print(err)
@@ -2157,7 +2166,6 @@ def actualizar_etapa_vida(id):
   """
   try:
     usuario = request.usuario
-    id_usuario = usuario['id_auto'] if 'id_auto' in usuario else usuario['id_usuario']
     
     data = request.get_json()
     nombre_etapa = data['nombre']
@@ -2190,18 +2198,17 @@ def actualizar_etapa_vida(id):
                           INSERT INTO requerimientos_nutricionales(id_etapa,id_elemento,porcentaje)
                           VALUES (%s,%s,%s)
                           """, (id,id_elemento,porcentaje))
-        cur.execute("""
-                INSERT INTO notificaciones (id_usuario_destinatario, id_usuario_origen, titulo, mensaje, tipo)
-                VALUES (%s, %s, %s, %s, %s)
-            """, (
-                id_usuario,  
-                id_usuario, 
-                'Actualizacion de la información de la Etapa de Vida',
-                f'Se actualizo la información de la etapa de vida con ID {id}',
-                'Actualización'
-            ))
         conn.commit()
 
+    if usuario:
+      crear_notificacion(
+        usuario_dest=usuario, 
+        usuario_origen=usuario, 
+        titulo='Actualizacion de la información de la Etapa de Vida',
+        mensaje=f'Se actualizo la información de la Etapa de Vida con ID {id}',
+        tipo='Actualización'
+      )
+    
     return jsonify({'Mensaje': 'Etapa de vida actulizada correctamente'})
   except Exception as err:
     print(err)
@@ -2248,17 +2255,14 @@ def eliminar_etapa_vida(id):
                     WHERE id_etapa = %s
                     """,
                     (id))
-        cur.execute("""
-                INSERT INTO notificaciones (id_usuario_destinatario, id_usuario_origen, titulo, mensaje, tipo)
-                VALUES (%s, %s, %s, %s, %s)
-            """, (
-                id_usuario,  
-                id_usuario, 
-                'Eliminacion de la información de la Etapa de Vida',
-                f'Se elimino la información de la etapa de vida con ID {id}',
-                'Eliminación'
-            ))
         conn.commit()
+    crear_notificacion(
+      usuario_dest=usuario, 
+      usuario_origen=usuario, 
+      titulo='Eliminacion de la información de la Etapa de Vida',
+      mensaje=f'Se elimino la información de la etapa de vida con ID {id}',
+      tipo='Eliminación'
+    )
     return jsonify({'Mensaje': 'Etapa de vida eliminada correctamente'})
   except Exception as err:
     print(err)
@@ -2444,9 +2448,9 @@ def reporte_etapas():
         return jsonify({"Mensaje": "Error al generar PDF"})
 
 #RUTA PARA CONSULTAR LAS NOTIFICAIONES DEL USUARIO
-@app.route("/notificaciones/<int:id>", methods = ['GET'])
+@app.route("/notificaciones", methods = ['GET'])
 @token_requerido
-def consulta_notificaciones(id):
+def consulta_notificaciones():
   """
   Consulta de notificaiones de un usuario
   ---
@@ -2457,14 +2461,17 @@ def consulta_notificaciones(id):
       description: Lista de notificaiones de un usuario
   """
   try:
+    usuario = request.usuario
+    usuario_id, usuario_tipo = obtener_info_usuario(usuario)
+    
     with config['development'].conn() as conn:
       with conn.cursor() as cursor:
         cursor.execute("""
                       SELECT id_notificacion,titulo, mensaje, tipo,fecha_creacion
                       FROM notificaciones 
-                      WHERE id_usuario_destinatario = %s
+                      WHERE destinatario_id = %s AND destinatario_tipo = %s
                       ORDER BY fecha_creacion DESC
-                      """, (id,))
+                      """, (usuario_id,usuario_tipo))
     info = cursor.fetchall()
     if info:
       return jsonify({'Mensaje' : 'Lista de notificaciones', 'Notificaciones' : info})
@@ -2855,7 +2862,6 @@ def consulta_individual_alimento_disponible(nombre):
     except Exception as e:
         return jsonify({"error": str(e)})
 
-
 # RUTA PARA REGISTRAR UN ALIMENTO
 @app.route("/registrar_alimento/", methods=["POST"])
 @token_requerido
@@ -2863,7 +2869,7 @@ def consulta_individual_alimento_disponible(nombre):
 def registrar_alimento():
     try:
         usuario = request.usuario
-        id_usuario = usuario['id_auto'] if 'id_auto' in usuario else usuario['id_usuario']
+        id_usuario, tipo_usuario = obtener_info_usuario(usuario)
         
         nombre = request.form.get("nombre_alimento")
         elementos = request.form.get("elementos")
@@ -2889,9 +2895,9 @@ def registrar_alimento():
                 try:
                     # Insertar alimento
                     cur.execute("""
-                        INSERT INTO alimentos(nombre, estado, imagen, id_usuario)
-                        VALUES (%s, %s, %s, %s)
-                    """, (nombre, "Activo", imagen_web, id_usuario))
+                        INSERT INTO alimentos(nombre, estado, imagen, usuario_id,usuario_tipo)
+                        VALUES (%s, %s, %s, %s, %s)
+                    """, (nombre, "Activo", imagen_web,id_usuario,tipo_usuario))
                     id_alimento = cur.lastrowid
 
                     # Insertar elementos si existen
@@ -2904,14 +2910,45 @@ def registrar_alimento():
                             """, (id_alimento, elem["id"], elem["valor"]))
 
                     # Crear notificaciones para todos los usuarios
-                    cur.execute("SELECT id_usuario FROM usuario")
-                    usuarios = cur.fetchall()
-                    for u in usuarios:
-                        cur.execute("""
-                            INSERT INTO notificaciones (id_usuario_destinatario, id_usuario_origen, titulo, mensaje, tipo)
-                            VALUES (%s, %s, %s, %s, %s)
-                        """, (u['id_usuario'], id_usuario, 'Nuevo alimento creado',
-                              f'Se registró el alimento "{nombre}" con ID {id_alimento}', 'Ingreso'))
+                    cur.execute("""
+                        SELECT id_usuario
+                        FROM usuario
+                    """)
+                    usuarios_int = cur.fetchall()
+
+                    for u in usuarios_int:
+                      usuario_dest = {
+                          'es_google': False,
+                          'id_auto': u['id_usuario']
+                      }
+
+                      crear_notificacion(
+                          usuario_dest=usuario_dest,
+                          usuario_origen=usuario,  # el usuario que ejecuta la acción
+                          titulo='Registro de Alimento',
+                          mensaje=f'Se registró el alimento "{nombre}" con ID {id_alimento}',
+                          tipo='Ingreso'
+                      )
+
+                    cur.execute("""
+                        SELECT id_usuario_externo
+                        FROM usuario_externo
+                    """)
+                    
+                    usuarios_ext = cur.fetchall()
+                    for u in usuarios_ext:
+                      usuario_dest = {
+                          'es_google': True,
+                          'id_usuario': u['id_usuario_externo']
+                      }
+
+                      crear_notificacion(
+                          usuario_dest=usuario_dest,
+                          usuario_origen=usuario,
+                          titulo='Registro de Alimento',
+                          mensaje=f'Se registró el alimento "{nombre}" con ID {id_alimento}',
+                          tipo='Ingreso'
+                      )
 
                     conn.commit()
 
@@ -2941,7 +2978,6 @@ def registrar_alimento():
 def actualizar_alimento(id_alimento):
     try:
         usuario = request.usuario
-        id_usuario = usuario['id_auto'] if 'id_auto' in usuario else usuario['id_usuario']
         
         # Detectar si es multipart/form-data o JSON
         if request.content_type.startswith("multipart/form-data"):
@@ -3017,21 +3053,49 @@ def actualizar_alimento(id_alimento):
                     mensaje = f'El alimento "{nombre_nuevo}" fue actualizado correctamente.'
 
                 # Crear notificaciones para todos los usuarios
-                cur.execute("SELECT id_usuario FROM usuario")
-                usuarios = cur.fetchall()
-                for u in usuarios:
-                    cur.execute("""
-                        INSERT INTO notificaciones (id_usuario_destinatario, id_usuario_origen, titulo, mensaje, tipo)
-                        VALUES (%s, %s, %s, %s, %s)
-                    """, (
-                        u['id_usuario'],
-                        id_usuario,  # usuario que realizó la acción
-                        "Alimento actualizado",
-                        mensaje,
-                        "Actualización"
-                    ))
+                cur.execute("""
+                    SELECT id_usuario
+                    FROM usuario
+                """)
+                usuarios_int = cur.fetchall()
+
+                for u in usuarios_int:
+                  usuario_dest = {
+                      'es_google': False,
+                      'id_auto': u['id_usuario']
+                  }
+
+                  crear_notificacion(
+                      usuario_dest=usuario_dest,
+                      usuario_origen=usuario,  # el usuario que ejecuta la acción
+                      titulo='Actualización de la información del Alimento',
+                      mensaje=mensaje,
+                      tipo='Actualización'
+                  )
+
+                cur.execute("""
+                    SELECT id_usuario_externo
+                    FROM usuario_externo
+                """)
+                usuarios_ext = cur.fetchall()
+              
+                for u in usuarios_ext:
+                  usuario_dest = {
+                      'es_google': True,
+                      'id_usuario': u['id_usuario_externo']
+                  }
+
+                  crear_notificacion(
+                      usuario_dest=usuario_dest,
+                      usuario_origen=usuario,
+                      titulo='Actualización de la información del Alimento',
+                      mensaje=mensaje,
+                      tipo='Actualización'
+                  )
 
                 conn.commit()
+
+
 
         return jsonify({
             "mensaje": "Alimento actualizado correctamente",
@@ -3065,18 +3129,48 @@ def eliminar_alimento(id):
                     cur.execute("DELETE FROM alimento_tiene_elemento WHERE id_alimento = %s", (id,))
                     cur.execute("DELETE FROM alimentos WHERE id_alimento = %s", (id,))
                     
-                    cur.execute("SELECT id_usuario FROM usuario")
-                    usuarios = cur.fetchall()
-                    for u in usuarios:
-                        cur.execute("""
-                            INSERT INTO notificaciones 
-                            (id_usuario_destinatario, id_usuario_origen, titulo, mensaje, tipo)
-                            VALUES (%s, %s, %s, %s, %s)
-                        """, (u['id_usuario'], id_usuario, 'Alimento eliminado',
-                              f'Se eliminó el alimento "{nombre_alimento}"', 'Eliminación'))
+                    # Crear notificaciones para todos los usuarios
+                    cur.execute("""
+                        SELECT id_usuario
+                        FROM usuario
+                    """)
+                    usuarios_int = cur.fetchall()
 
+                    for u in usuarios_int:
+                      usuario_dest = {
+                          'es_google': False,
+                          'id_auto': u['id_usuario']
+                      }
+
+                      crear_notificacion(
+                          usuario_dest=usuario_dest,
+                          usuario_origen=usuario,  # el usuario que ejecuta la acción
+                          titulo='Eliminacion de la informacion del Alimento',
+                          mensaje=f'Se eliminó el alimento "{nombre_alimento}"',
+                          tipo='Eliminación'
+                      )
+
+                    cur.execute("""
+                        SELECT id_usuario_externo
+                        FROM usuario_externo
+                    """)
+                    
+                    usuarios_ext = cur.fetchall()
+                    for u in usuarios_ext:
+                      usuario_dest = {
+                          'es_google': True,
+                          'id_usuario': u['id_usuario_externo']
+                      }
+
+                      crear_notificacion(
+                          usuario_dest=usuario_dest,
+                          usuario_origen=usuario,
+                          titulo='Eliminacion de la informacion del Alimento',
+                          mensaje=f'Se eliminó el alimento "{nombre_alimento}"',
+                          tipo='Eliminación'
+                      )
                     conn.commit()
-
+                  
                     return jsonify({"mensaje": f"Alimento '{nombre_alimento}' eliminado correctamente"})
 
                 except Exception as fk_err:
@@ -3198,8 +3292,9 @@ def mezcla_nutricional():
 def crear_dieta():
     try:
         usuario = request.usuario
-        id_usuario = usuario['id_auto'] if 'id_auto' in usuario else usuario['id_usuario']
-
+        
+        id_usuario, usuario_tipo = obtener_info_usuario(usuario)
+        
         data = request.get_json()
         id_etapa_vida = data.get("id_etapa_vida")
         descripcion = data.get("descripcion")
@@ -3271,9 +3366,9 @@ def crear_dieta():
 
                 # insertar dieta con mezcla nutricional
                 cur.execute("""
-                    INSERT INTO dietas (id_usuario, id_etapa_vida, fecha_creacion, descripcion, mezcla_nutricional)
-                    VALUES (%s, %s, CURDATE(), %s, %s)
-                """, (id_usuario, id_etapa_vida, descripcion, json.dumps(mezcla)))
+                    INSERT INTO dietas (usuario_id, usuario_tipo,id_etapa_vida, fecha_creacion, descripcion, mezcla_nutricional)
+                    VALUES (%s, %s,%s, CURDATE(), %s, %s)
+                """, (id_usuario, usuario_tipo,id_etapa_vida, descripcion, json.dumps(mezcla)))
 
                 id_dieta = cur.lastrowid
 
@@ -3284,23 +3379,59 @@ def crear_dieta():
                         VALUES (%s, %s, %s)
                     """, (id_dieta, item["id_alimento"], item["cantidad"]))
 
-                # Crear notificación para todos los usuarios
-                cur.execute("SELECT id_usuario FROM usuario")
-                usuarios = cur.fetchall()
-                for u in usuarios:
-                    cur.execute("""
-                        INSERT INTO notificaciones (id_usuario_destinatario, id_usuario_origen, titulo, mensaje, tipo)
-                        VALUES (%s, %s, %s, %s, %s)
-                    """, (
-                        u["id_usuario"],
-                        id_usuario,
-                        "Nueva dieta creada",
-                        f'Se creó la dieta con ID {id_dieta} para la etapa "{nombre_etapa}"',
-                        "Ingreso"
-                    ))
+                # Crear notificaciones para todos los usuarios
+                cur.execute("""
+                    SELECT id_usuario, rol
+                    FROM usuario
+                """)
+                usuarios_int = cur.fetchall()
+                
+                for u in usuarios_int:
+                  if (u['rol'] == 'Admin'):
+                    usuario_dest = {
+                        'es_google': False,
+                        'id_auto': u['id_usuario']
+                    }
 
+                    crear_notificacion(
+                        usuario_dest=usuario_dest,
+                        usuario_origen=usuario,  # el usuario que ejecuta la acción
+                        titulo='Registro de Alimento',
+                        mensaje=f'Se registró una nueva dieta con ID {id_dieta}, por el usuario {usuario['nombre']}',
+                        tipo='Ingreso'
+                    )
+
+                cur.execute("""
+                    SELECT id_usuario_externo, rol
+                    FROM usuario_externo
+                """)
+                
+                usuarios_ext = cur.fetchall()
+                for u in usuarios_ext:
+                  if (u['rol'] == 'Admin'):
+                    usuario_dest = {
+                        'es_google': True,
+                        'id_usuario': u['id_usuario_externo']
+                    }
+
+                    crear_notificacion(
+                        usuario_dest=usuario_dest,
+                        usuario_origen=usuario,
+                        titulo='Registro de Dieta',
+                        mensaje=f'Se registró una nueva dieta con ID {id_dieta}, por el usuario {usuario['nombre']}',
+                        tipo='Ingreso'
+                    )
+            
                 conn.commit()
-
+        
+        if usuario['rol'] == 'Aprendiz':
+          crear_notificacion(
+              usuario_dest=usuario,
+              usuario_origen=usuario,
+              titulo='Registro de Dieta',
+              mensaje=f'Se registró una nueva dieta con ID {id_dieta}',
+              tipo='Ingreso'
+          )
         return jsonify({
             "mensaje": "Dieta creada correctamente",
             "id_dieta": id_dieta,
@@ -3315,22 +3446,41 @@ def crear_dieta():
 @token_requerido
 def consultar_dietas():
     try:
+        usuario = request.usuario
+        id_usuario, tipo_usuario = obtener_info_usuario(usuario)
+        
+        sql = """
+              SELECT 
+                  d.id_dieta,
+                  CASE
+                      WHEN d.usuario_tipo = 'Interno' THEN ui.nombre
+                      ELSE ue.nombre
+                  END AS usuario,
+                  d.id_etapa_vida,
+                  ev.nombre AS etapa_vida,
+                  d.fecha_creacion,
+                  d.estado,
+                  d.descripcion,
+                  d.mezcla_nutricional
+              FROM dietas d
+              JOIN etapa_vida ev 
+                  ON ev.id_etapa = d.id_etapa_vida
+              LEFT JOIN usuario ui 
+                  ON d.usuario_tipo = 'Interno'
+                AND ui.id_usuario = d.usuario_id
+              LEFT JOIN usuario_externo ue 
+                  ON d.usuario_tipo = 'Externo'
+                AND ue.id_usuario_externo = d.usuario_id
+        """
+        params = ()
+        if usuario['rol'] != 'Admin':
+          sql += 'WHERE d.usuario_tipo = %s AND d.usuario_id = %s'
+          params = (tipo_usuario, id_usuario)
+        
         with config['development'].conn() as conn:
             with conn.cursor() as cur:
                 # Obtener todas las dietas incluyendo la mezcla nutricional
-                cur.execute("""
-                    SELECT d.id_dieta,
-                           u.nombre AS usuario,
-                           d.id_etapa_vida,
-                           ev.nombre AS etapa_vida,
-                           d.fecha_creacion,
-                           d.estado,
-                           d.descripcion,
-                           d.mezcla_nutricional
-                    FROM dietas d
-                    JOIN usuario u ON u.id_usuario = d.id_usuario
-                    JOIN etapa_vida ev ON ev.id_etapa = d.id_etapa_vida
-                """)
+                cur.execute(sql,params)
                 dietas = cur.fetchall()
 
                 resultado = []
@@ -3532,19 +3682,28 @@ def obtener_dieta(id_dieta):
         with config['development'].conn() as conn:
             with conn.cursor() as cur:
 
-                # Datos generales de la dieta ----------------------------------
+                # -------- DATOS GENERALES DE LA DIETA --------
                 cur.execute("""
                     SELECT 
                         d.id_dieta,
-                        u.nombre AS usuario,
+                        CASE
+                            WHEN d.usuario_tipo = 'Interno' THEN ui.nombre
+                            ELSE ue.nombre
+                        END AS usuario,
                         d.fecha_creacion,
                         d.estado,
                         d.descripcion,
                         d.mezcla_nutricional,
                         ev.nombre AS etapa_vida
                     FROM dietas d
-                    JOIN etapa_vida ev ON d.id_etapa_vida = ev.id_etapa
-                    JOIN usuario u ON d.id_usuario = u.id_usuario
+                    JOIN etapa_vida ev 
+                        ON d.id_etapa_vida = ev.id_etapa
+                    LEFT JOIN usuario ui 
+                        ON d.usuario_tipo = 'Interno'
+                       AND ui.id_usuario = d.usuario_id
+                    LEFT JOIN usuario_externo ue 
+                        ON d.usuario_tipo = 'Externo'
+                       AND ue.id_usuario_externo = d.usuario_id
                     WHERE d.id_dieta = %s
                 """, (id_dieta,))
                 dieta = cur.fetchone()
@@ -3552,10 +3711,10 @@ def obtener_dieta(id_dieta):
                 if not dieta:
                     return jsonify({"mensaje": None})
 
-                # Convertir fecha a formato "yy-mm-dd" --------------------------
+                # -------- FORMATEAR FECHA --------
                 dieta["fecha_creacion"] = dieta["fecha_creacion"].strftime("%Y-%m-%d")
 
-                # Alimentos asociados ------------------------------------------
+                # -------- ALIMENTOS ASOCIADOS --------
                 cur.execute("""
                     SELECT 
                         a.id_alimento,
@@ -3563,27 +3722,25 @@ def obtener_dieta(id_dieta):
                         dta.cantidad,
                         a.imagen
                     FROM dieta_tiene_alimentos dta
-                    JOIN alimentos a ON dta.id_alimento = a.id_alimento
+                    JOIN alimentos a 
+                        ON dta.id_alimento = a.id_alimento
                     WHERE dta.id_dieta = %s
                 """, (id_dieta,))
-                alimentos = cur.fetchall()
-                dieta["alimentos"] = alimentos
+                dieta["alimentos"] = cur.fetchall()
 
-                # Mezcla nutricional -------------------------------------------
-                mezcla_nutricional = {}
+                # -------- MEZCLA NUTRICIONAL --------
                 if dieta.get("mezcla_nutricional"):
                     try:
                         import json
-                        mezcla_nutricional = json.loads(dieta["mezcla_nutricional"])
+                        dieta["mezcla_nutricional"] = json.loads(dieta["mezcla_nutricional"])
                     except:
-                        mezcla_nutricional = dieta["mezcla_nutricional"]
-
-                dieta["mezcla_nutricional"] = mezcla_nutricional
+                        pass
 
         return jsonify({"mensaje": dieta})
 
     except Exception as e:
-        return jsonify({"error": str(e)})
+        return jsonify({"error": str(e)}), 500
+
 
 @app.route("/PDF_dieta/<int:id_dieta>")
 
@@ -3789,6 +3946,7 @@ def PDF_dieta(id_dieta):
 @token_requerido
 def actualizar_dieta(id_dieta):
     try:
+        usuario = request.usuario
         data = request.get_json()
         if not data:
             return jsonify({"error": "No se recibieron datos"}), 400
@@ -3839,7 +3997,6 @@ def actualizar_dieta(id_dieta):
                         WHERE ate.id_alimento = %s
                     """, (a["id_alimento"],))
                     elementos = cur.fetchall()
-                    print(elementos)
                     nutr_alimento = {}
                     for n in elementos:
                         clave = nombre_bd_a_clave.get(n["nombre_elemento"].lower())
@@ -3874,8 +4031,17 @@ def actualizar_dieta(id_dieta):
                         VALUES (%s, %s, %s)
                     """, (id_dieta, id_alimento, cantidad))
 
+            
             conn.commit()
-
+            
+        if usuario:
+          crear_notificacion(
+            usuario_dest=usuario, 
+            usuario_origen=usuario, 
+            titulo='Actualizacion de la Composicion de la Dieta',
+            mensaje=f'Se actualizo la información de la Composicion de la Dieta con ID {id_dieta}',
+            tipo='Actualización'
+          )
         return jsonify({
             "mensaje": "Dieta actualizada correctamente",
             "mezcla_nutricional": mezcla
@@ -3891,12 +4057,20 @@ def actualizar_dieta(id_dieta):
 @token_requerido
 def eliminar_dieta(id_dieta):
     try:
+        usuario = request.usuario
+        
         with config['development'].conn() as conn:
             with conn.cursor() as cur:
                 cur.execute("DELETE FROM dieta_tiene_alimentos WHERE id_dieta = %s", (id_dieta,))
                 cur.execute("DELETE FROM dietas WHERE id_dieta = %s", (id_dieta,))
                 conn.commit()
-
+        crear_notificacion(
+          usuario_dest=usuario, 
+          usuario_origen=usuario, 
+          titulo='Eliminación de la Composicion de la Dieta',
+          mensaje=f'Se eliminó la información de la Composicion de la Dieta con ID {id_dieta}',
+          tipo='Eliminación'
+        )
         return jsonify({"mensaje": "Dieta eliminada correctamente"})
 
     except Exception as e:
@@ -4104,6 +4278,7 @@ def usuario_filtros():
 @token_requerido
 @rol_requerido('Admin')
 def actualizar_usuario():
+    usuario = request.usuario
     data = request.get_json()
     print(data)
     # Validar datos mínimos
@@ -4154,11 +4329,18 @@ def actualizar_usuario():
 
                 conn.commit()
 
-
-                return jsonify({
-                    "success": True,
-                    "Mensaje": "Usuario actualizado correctamente."
-                })
+        
+        crear_notificacion(
+            usuario_dest=usuario, 
+            usuario_origen=usuario, 
+            titulo='Actualizacion de la información de Usuario',
+            mensaje=f'Se actualizo la información del Usuario con ID {id_usuario}',
+            tipo='Actualización'
+          )
+        return jsonify({
+            "success": True,
+            "Mensaje": "Usuario actualizado correctamente."
+        })
 
     except Exception as e:
         print(e)
