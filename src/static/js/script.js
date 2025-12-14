@@ -4605,6 +4605,8 @@ async function cargarDatosPerfil() {
             document.getElementById('identificacionUsuario').textContent = datos.numero_identificacion;
         }
 
+        document.getElementById('dietasUsuario').textContent = datos.dietas_creadas;
+
     } catch (error) {
         console.error("Error en la petición:", error);
         Swal.fire({

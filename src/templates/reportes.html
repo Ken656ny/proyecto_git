@@ -94,7 +94,9 @@
 
         <section class="container__logo__user">
             <div class="container__back__logo" >
+                <a href="/src/templates/home.html">
                 <img src="/src/static/iconos/back icon.svg" alt="icon back" class="icon__back">
+                </a>
                 <a href="/src/templates/home.html">
                     <img src="/src/static/iconos/Logo.svg" alt="Logo Edupork" class="logo">
                 </a>
@@ -116,13 +118,13 @@
             <h2>Generar informes</h2>
         </header>
 
-        <form class="container container__search__bar" id="container__search__bar" >
+        <form class="container container__search__bar2" id="container__search__bar" >
 
             <img src="/src/static/iconos/icon lupa.svg" alt="">
-            <input class="input_id" type="text" id="buscar_alimento" placeholder="Nombre del " aria-label="Buscar alimento por nombre">
+
             <div class="container__filtro">
                 <img src="/src/static/iconos/icon filter.svg" alt="" id="svg__filter">
-                <select name="filteralimento" id="filtroAlimentos" class="filter rm_filter" >
+                <select name="filterReporte" id="filtroReporte" class="filter rm_filter fil" >
                     <option value="" disabled selected >Filtrar por...</option>
                     <option value="ali">Generar informes de alimentos</option>
                     <option value="pes">Generar informes de pesos</option>
@@ -143,29 +145,27 @@
     <script src="/src/static/js/script.js"></script>
     <script>
         document.addEventListener("DOMContentLoaded", () => {
-  const select = document.getElementById("filtroAlimentos");
-  const btn = document.getElementById("generar_informe");
+        const select = document.getElementById("filtroReporte");
+        const btn = document.getElementById("generar_informe");
 
-  btn.addEventListener("click", () => {
-    const valor = select.value;
+            btn.addEventListener("click", () => {
+            const valor = select.value;
 
-    if (valor === "ali") {
+                if (valor === "ali") {
+                window.location.href = "/src/templates/reportes_alimentos.html";
+                } else if (valor === "pes") {
 
-      window.location.href = "/src/templates/reportes_alimentos.html";
-    } else if (valor === "pes") {
-
-      window.location.href = "/src/templates/reportes_pesos.html";
-    } else {
-        Swal.fire({
-            icon: 'error',
-            title: 'Advertencia',
-            text: 'Por favor selecciona un tipo de informe.',
-            timer: 2000,
-            showConfirmButton: false
-        })
-    }
-  });
-});
-
+                window.location.href = "/src/templates/reportes_pesos.html";
+                } else {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Advertencia',
+                    text: 'Por favor selecciona un tipo de informe.',
+                    timer: 2000,
+                    showConfirmButton: false
+                    })
+                }
+            });
+        });
     </script>
 </html>

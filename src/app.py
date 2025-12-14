@@ -65,28 +65,18 @@ def ruta_principal():
 #GENARADOR DE TOKEN
 def generar_token(usuario, es_google=False):
     convertidor_ni = int(usuario["numero_identificacion"])
-    if (es_google):
-      payload = {
-          "id_usuario": convertidor_ni, # numero de indentificacion
-          "nombre": usuario["nombre"],
-          "correo": usuario["correo"],
-          "es_google": es_google,
-          "rol": usuario.get("rol", "Aprendiz"),
-          "exp": datetime.now(timezone.utc) + timedelta(hours=3)
-      }
-    else:
-      payload = {
-          "id_auto": usuario['id_usuario'], # id incrementable
-          "id_usuario": convertidor_ni, # numero de indentificacion
-          "nombre": usuario["nombre"],
-          "correo": usuario["correo"],
-          "es_google": es_google,
-          "rol": usuario.get("rol", "Aprendiz"),
-          "exp": datetime.now(timezone.utc) + timedelta(minutes=120)
-      }
-
+    payload = {
+        "id_auto": None if es_google else usuario['id_usuario'],  
+        "id_usuario": convertidor_ni,
+        "nombre": usuario["nombre"],
+        "correo": usuario["correo"],
+        "es_google": es_google,
+        "rol": usuario.get("rol", "Aprendiz"),
+        "exp": datetime.now(timezone.utc) + timedelta(hours=3)
+    }
     token = jwt.encode(payload, app.secret_key, algorithm="HS256")
     return token
+
 
 #DECORADORES DE EDUPORK
 def token_requerido(f):
@@ -476,13 +466,16 @@ def perfil():
     try:
         usuario_token = request.usuario
         user_id = usuario_token["id_usuario"] 
+        id_usuario = usuario_token["id_auto"] 
         es_google = usuario_token.get("es_google", False)
-        
+
         datos_usuario_db = None
         numero_identificacion = None
+        nombre = correo = rol = None
+        dietas_creadas = 0
+
         with config['development'].conn() as conn:
             with conn.cursor() as cur:
-                
                 if not es_google:
                     cur.execute("""
                         SELECT nombre, correo, rol, numero_identificacion 
@@ -490,12 +483,16 @@ def perfil():
                         WHERE numero_identificacion = %s
                     """, (user_id,))
                     datos_usuario_db = cur.fetchone()
-                    
+
                     if datos_usuario_db:
                         nombre = datos_usuario_db['nombre']
                         correo = datos_usuario_db['correo']
                         rol = datos_usuario_db['rol']
-                        numero_identificacion = datos_usuario_db['numero_identificacion'] 
+                        numero_identificacion = datos_usuario_db['numero_identificacion']
+
+                        cur.execute("SELECT COUNT(*) AS total_dietas FROM dietas WHERE id_usuario = %s", (id_usuario,))
+                        dietas_creadas = cur.fetchone()["total_dietas"]
+
                 else:
                     cur.execute("""
                         SELECT nombre, correo, rol 
@@ -503,7 +500,7 @@ def perfil():
                         WHERE id_usuario_externo = %s
                     """, (user_id,))
                     datos_usuario_db = cur.fetchone()
-                    
+
                     if datos_usuario_db:
                         nombre = datos_usuario_db['nombre']
                         correo = datos_usuario_db['correo']
@@ -512,12 +509,12 @@ def perfil():
                 if not datos_usuario_db:
                     return jsonify({"Mensaje": "Usuario no encontrado"}), 404
 
-
         perfil_data = {
             "nombre": nombre,
             "correo": correo,
             "rol": rol,
             "es_google": es_google,
+            "dietas_creadas": dietas_creadas,
         }
 
         if numero_identificacion is not None and not es_google:
@@ -3905,7 +3902,7 @@ def eliminar_dieta(id_dieta):
 @token_requerido
 @rol_requerido('Admin')
 def informe_alimentos():
-    filtro = request.args.get("filtro", "todos")   # todos | mayor | menor
+    filtro = request.args.get("filtro", "todos")   
     nombre = request.args.get("nombre", "").strip()
 
     with config['development'].conn() as conn:
