@@ -126,7 +126,6 @@
                 <select name="filterReporte" id="filtroReporte" class="filter rm_filter fil" >
                     <option value="" disabled selected >Filtrar por...</option>
                     <option value="ali">Generar informes de alimentos</option>
-                    <option value="pes">Generar informes de pesos</option>
                 </select>
             </div>
         </form>
@@ -152,9 +151,6 @@
 
                 if (valor === "ali") {
                 window.location.href = "/src/templates/reportes_alimentos.html";
-                } else if (valor === "pes") {
-
-                window.location.href = "/src/templates/reportes_pesos.html";
                 } else {
                 Swal.fire({
                     icon: 'error',
