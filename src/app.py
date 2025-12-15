@@ -953,7 +953,8 @@ def reporte_transacciones():
     return jsonify({'Mensaje': 'Error al generar el pdf'})
 
 @app.route("/PDF_transacciones/<int:id>")
-
+@token_requerido
+@rol_requerido('Admin')
 def reporte_transacciones_por_porcino(id):
     try:
         with config['development'].conn() as conn:
