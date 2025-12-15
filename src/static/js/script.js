@@ -185,6 +185,13 @@ async function openModalEye(type, id) {
         await cargarInfoHistorial(id, content);
     }
 
+    if (type == 'grafica'){
+        title.textContent = "Grafica de Evolución de Peso"
+        content.classList.add("info_raza_etapa");
+        button.textContent = 'Cerrar'
+        await cargarGraficaPorcino(id,content)
+    }
+
     modal.showModal();
 
 }
@@ -618,6 +625,16 @@ async function cargarInfoHistorial(id, container) {
         </textarea>
     </div>
     `;
+}
+
+async function cargarGraficaPorcino(id,container) {
+    const data = await historico_peso_porcino(id)
+    container.innerHTML = `
+    <canvas id="graficaPeso">
+    
+    </canvas>
+    `
+    renderGraficaPeso('graficaPeso', data.datos)
 }
 
 // FUNCIONES PARA CARGAR LA INFORMACION DEL MODAL EDIT
@@ -1158,7 +1175,6 @@ async function crearDialogActualizarPesoHistorial(){
     const nm = await conteoNumeroConsecutivo();
     const porcinos = await consultar_porcinos_cache();
     const usuario = JSON.parse(localStorage.getItem("usuario"));
-    console.log(usuario)
     const campos = [
         { label: 'Fecha de pesaje', id: 'fecha-pesaje-actu', type: 'date', required: true },
         { label: 'ID porcino', id: 'id-porcino-actu', type: 'select', options: porcinos.Porcinos.map(por => por.id_porcino), required: true, placeholder: "Seleccione el ID del porcino" },
@@ -1363,6 +1379,7 @@ function paginacion_porcinos(porcinos){
             <button class="icon-eye" data-id="${id}" data-type="porcino"><img src="/src/static/iconos/icono eye.svg" alt="ver informacion"></button>
             <button class="icon-edit" data-id="${id}" data-type="porcino"><img src="/src/static/iconos/edit icon.svg" alt="editar informacion"></button>
             <button class="icon-delete" data-id="${id}" data-type="porcino"><img src="/src/static/iconos/delete icon.svg" alt="eliminar informacion"></button>
+            <button class="icon-chart" data-id="${id}" data-type="grafica"><img src="/src/static/iconos/icon chart.svg" alt="Grafica de evolución"></button>
         `;
     }
 
@@ -1938,6 +1955,116 @@ async function consulta_porcino_historial(id_porcino,mostrar = false){
         console.error(error)
     }
 }
+
+async function historico_peso_porcino(id) {
+    try {
+        await verifyToken()
+        const promesa = await fetch(`${URL_BASE}/reportes/historico-peso/${id}`, 
+            {
+                method : 'GET',
+                headers : getAuthHeaders()
+            })
+        const response = await promesa.json();
+        if (!(await promesa).ok){
+            Swal.fire({
+                title: "Mensaje",
+                text: response.Mensaje,
+                icon: "error"
+            });
+        }
+        return response
+    } catch (error) {
+        console.error(error)
+        handleAuthError(error)
+    }
+}
+
+function formatearFechaCorta(fecha) {
+    const f = new Date(fecha);
+    return `${f.getDate().toString().padStart(2, '0')}/${(f.getMonth() + 1)
+        .toString()
+        .padStart(2, '0')}`;
+}
+
+function renderGraficaPeso(canvasId, datos) {
+
+    const canvas = document.getElementById(canvasId);
+    if (!canvas) {
+        Swal.fire({
+            title: "Mensaje",
+            text: "Canvas no encontrado",
+            icon: "error"
+        });
+        return;
+    }
+
+    const ctx = canvas.getContext('2d');
+
+    // Evitar duplicar gráficas
+    if (canvas.chart) {
+        canvas.chart.destroy();
+    }
+
+    canvas.chart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            // Fecha corta SOLO para el eje X
+            labels: datos.map(d => formatearFechaCorta(d.fecha_pesaje)),
+            datasets: [
+                {
+                    label: 'Peso del porcino (kg)',
+                    data: datos.map(d => d.peso_final),
+                    tension: 0.3
+                },
+                {
+                    label: 'Peso mínimo etapa',
+                    data: datos.map(d => d.peso_min),
+                    borderDash: [5, 5]
+                },
+                {
+                    label: 'Peso máximo etapa',
+                    data: datos.map(d => d.peso_max),
+                    borderDash: [5, 5]
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    position: 'top'
+                },
+                tooltip: {
+                    callbacks: {
+                        // Fecha completa en el tooltip
+                        title: function (tooltipItems) {
+                            const index = tooltipItems[0].dataIndex;
+                            return `Fecha de pesaje: ${datos[index].fecha_pesaje}`;
+                        }
+                    }
+                }
+            },
+            scales: {
+                y: {
+                    title: {
+                        display: true,
+                        text: 'Peso (kg)'
+                    }
+                },
+                x: {
+                    title: {
+                        display: true,
+                        text: 'Fecha de pesaje'
+                    }
+                }
+            }
+        }
+    });
+}
+
+
+
+
 
 async function conteoNumeroConsecutivo() {
     try {
@@ -5120,7 +5247,8 @@ function timesleep() {
 // =============================================
 
 document.addEventListener("click", (e) => {
-    const icon = e.target.closest(".icon-eye, .icon-edit, .icon-delete, #button-delete");
+    const icon = e.target.closest(".icon-eye, .icon-edit, .icon-delete, #button-delete, .icon-chart");
+    console.log(icon)
     if (!icon) return;
     
     const id = icon.dataset.id;
@@ -5163,6 +5291,10 @@ document.addEventListener("click", (e) => {
         else if (type === 'porcino'){
             openModalDeleteConfirm(type,id, eliminar_porcino)
         }
+    }
+
+    if (icon.classList.contains("icon-chart")) {
+        openModalEye(type, id)
     }
 });
 
@@ -5433,54 +5565,54 @@ function iniciarComandosDeVoz() {
 }
 
 
-function bloquearSiEsMovil() {
-    const maxWidth = 768;
+// function bloquearSiEsMovil() {
+//     const maxWidth = 768;
 
-    // Detectar celular por userAgent
-    const esMovilPorUserAgent = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i
-        .test(navigator.userAgent);
+//     // Detectar celular por userAgent
+//     const esMovilPorUserAgent = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i
+//         .test(navigator.userAgent);
 
-    // Detectar celular por ancho de pantalla
-    const esMovilPorResolucion = window.innerWidth <= maxWidth;
+//     // Detectar celular por ancho de pantalla
+//     const esMovilPorResolucion = window.innerWidth <= maxWidth;
 
-    // Si NO es celular → desbloquear
-    if (!esMovilPorUserAgent && !esMovilPorResolucion) {
-        const overlay = document.getElementById("overlay-bloqueo");
-        if (overlay) overlay.remove();
-        Swal.close();
-        return;
-    }
+//     // Si NO es celular → desbloquear
+//     if (!esMovilPorUserAgent && !esMovilPorResolucion) {
+//         const overlay = document.getElementById("overlay-bloqueo");
+//         if (overlay) overlay.remove();
+//         Swal.close();
+//         return;
+//     }
 
-    // Si es celular → crear overlay negro si no existe
-    if (!document.getElementById("overlay-bloqueo")) {
-        const overlay = document.createElement("div");
-        overlay.id = "overlay-bloqueo";
-        overlay.style.cssText = `
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: black;
-            z-index: 999998; /* menos que Swal */
-        `;
-        document.body.appendChild(overlay);
-    }
+//     // Si es celular → crear overlay negro si no existe
+//     if (!document.getElementById("overlay-bloqueo")) {
+//         const overlay = document.createElement("div");
+//         overlay.id = "overlay-bloqueo";
+//         overlay.style.cssText = `
+//             position: fixed;
+//             top: 0;
+//             left: 0;
+//             width: 100%;
+//             height: 100%;
+//             background-color: black;
+//             z-index: 999998; /* menos que Swal */
+//         `;
+//         document.body.appendChild(overlay);
+//     }
 
-    // Mostrar modal SweetAlert encima del overlay
-    Swal.fire({
-        title: "Acceso restringido",
-        text: "Este proyecto es muy complejo y completo por lo que se necesita un PC Por favor ingresa desde un computador.",
-        icon: "error",
-        allowOutsideClick: false,
-        allowEscapeKey: false,
-        allowEnterKey: false,
-        showConfirmButton: false,
-        customClass: {
-            popup: 'swal-popup-sobre-overlay'
-        }
-    });
-}
+//     // Mostrar modal SweetAlert encima del overlay
+//     Swal.fire({
+//         title: "Acceso restringido",
+//         text: "Este proyecto es muy complejo y completo por lo que se necesita un PC Por favor ingresa desde un computador.",
+//         icon: "error",
+//         allowOutsideClick: false,
+//         allowEscapeKey: false,
+//         allowEnterKey: false,
+//         showConfirmButton: false,
+//         customClass: {
+//             popup: 'swal-popup-sobre-overlay'
+//         }
+//     });
+// }
 
 // Ejecutar al cargar
 document.addEventListener('DOMContentLoaded', function() {

@@ -7,7 +7,7 @@ from flask_cors import CORS
 #PARA DOCUMENTAR LAS RUTAS DEL CODIGO
 from flasgger import Swagger
 
-from helpers import crear_notificacion, obtener_info_usuario
+from helpers import crear_notificacion, obtener_info_usuario, generar_grafica_peso_etapa
 # IMPORTO EL DICCIONARIO CONFIG EN LA POSICION DEVELOPMENT PARA ACCEDER LA INFORMACION DE CONEXION DE LA
 # BASE DE DATOS, DENTRO DE ESA CLASE HAY UN CLASSMETHOD QUE RETORNA LA CONEXION CON LA BASE DE DATOS
 from config import config
@@ -761,6 +761,48 @@ def consulta_indi_transaccion(id):
     print(err)
     return jsonify({'Mensaje': 'Error'}), 500
 
+@app.route('/reportes/historico-peso/<int:id_porcino>', methods=['GET'])
+@token_requerido
+@rol_requerido('Admin')
+def historico_peso_porcino(id_porcino):
+    try:
+        query = """
+            SELECT
+                tp.fecha_pesaje,
+                tp.peso_final,
+                e.nombre AS etapa,
+                e.peso_min,
+                e.peso_max
+            FROM transaccion_peso tp
+            JOIN porcinos p ON tp.id_porcino = p.id_porcino
+            JOIN etapa_vida e ON p.id_etapa = e.id_etapa
+            WHERE tp.id_porcino = %s
+            ORDER BY tp.fecha_pesaje
+        """
+        with config['development'].conn() as conn:
+          with conn.cursor() as cur:
+            
+            cur.execute(query, (id_porcino,))
+            data = cur.fetchall()
+
+        if not data:
+            return {
+                "mensaje": "No hay registros de peso para este porcino",
+                "datos": []
+            }, 200
+
+        return {
+            "id_porcino": id_porcino,
+            "total_registros": len(data),
+            "datos": data
+        }, 200
+
+    except Exception as e:
+        return {
+            "error": str(e)
+        }, 500
+
+
 @app.route("/PDF_transacciones")
 @token_requerido
 @rol_requerido('Admin')
@@ -910,155 +952,193 @@ def reporte_transacciones():
     print(err)
     return jsonify({'Mensaje': 'Error al generar el pdf'})
 
-
 @app.route("/PDF_transacciones/<int:id>")
-@token_requerido
-@rol_requerido('Admin')
+
 def reporte_transacciones_por_porcino(id):
-  try:
     try:
-      with config['development'].conn() as conn:
-        with conn.cursor() as cur:
-          cur.execute("""
-                    SELECT tp.id_documento,tp.fecha_documento,tp.fecha_pesaje,tp.id_porcino,tp.peso_final,u.nombre,tp.descripcion
+        with config['development'].conn() as conn:
+            with conn.cursor() as cur:
+
+                # ====================================
+                # SELECT 1 → TRANSACCIONES
+                # ====================================
+                cur.execute("""
+                    SELECT 
+                        tp.id_documento,
+                        tp.fecha_documento,
+                        tp.fecha_pesaje,
+                        tp.id_porcino,
+                        tp.peso_final,
+                        CASE
+                            WHEN tp.usuario_tipo = 'Interno' THEN ui.nombre
+                            ELSE ue.nombre
+                        END AS usuario,
+                        tp.descripcion
                     FROM transaccion_peso tp
-                    JOIN usuario u
-                    ON tp.id_usuario = u.id_usuario
-                    WHERE id_porcino = %s
-                    ORDER BY fecha_documento DESC
-                    """, (id,))
-        historial = cur.fetchall()
+                    LEFT JOIN usuario ui
+                        ON tp.usuario_tipo = 'Interno'
+                       AND ui.id_usuario = tp.usuario_id
+                    LEFT JOIN usuario_externo ue
+                        ON tp.usuario_tipo = 'Externo'
+                       AND ue.id_usuario_externo = tp.usuario_id
+                    WHERE tp.id_porcino = %s
+                    ORDER BY tp.fecha_pesaje ASC
+                """, (id,))
+                transacciones = cur.fetchall()
+
+                # ====================================
+                # SELECT 2 → PESO / ETAPA
+                # ====================================
+                cur.execute("""
+                    SELECT
+                        tp.fecha_pesaje,
+                        tp.peso_final,
+                        e.nombre AS etapa,
+                        e.peso_min,
+                        e.peso_max
+                    FROM transaccion_peso tp
+                    JOIN porcinos p ON tp.id_porcino = p.id_porcino
+                    JOIN etapa_vida e ON p.id_etapa = e.id_etapa
+                    WHERE tp.id_porcino = %s
+                    ORDER BY tp.fecha_pesaje
+                """, (id,))
+                historial_etapa = cur.fetchall()
+
+        # ============================================
+        # PDF BASE
+        # ============================================
+        buffer = io.BytesIO()
+        pdf = SimpleDocTemplate(buffer, pagesize=landscape(letter))
+        elementos = []
+
+        styles = getSampleStyleSheet()
+        style_normal = styles["Normal"]
+        style_normal.fontSize = 9
+        style_normal.leading = 11
+
+        # ============================================
+        # ENCABEZADO PERSONALIZADO (RESTAURADO)
+        # ============================================
+        codigo = random.randint(1000, 9999)
+
+        ruta_logo = "src/static/iconos/Logo_edupork.png"
+        ruta_logo_sena = "src/static/iconos/logo_sena.png"
+
+        logo = Image(ruta_logo, 140, 60) if os.path.exists(ruta_logo) else Paragraph("LOGO", styles["Title"])
+        logo_sena = Image(ruta_logo_sena, 60, 60) if os.path.exists(ruta_logo_sena) else Paragraph("LOGO SENA", styles["Title"])
+
+        titulo_central = [
+            Paragraph("<b>Edupork – Gestión de Alimentación Porcina</b>", styles["Title"]),
+            Paragraph("Informe de transacciones de peso", styles["Normal"])
+        ]
+
+        info_derecha = [
+            Paragraph(f"<b>CÓDIGO:</b> {codigo}", styles["Normal"]),
+            Paragraph("<b>VERSIÓN:</b> 1", styles["Normal"])
+        ]
+
+        tabla_encabezado = Table(
+            [[logo, titulo_central, info_derecha, logo_sena]],
+            colWidths=[120, 270, 120, 80]
+        )
+
+        tabla_encabezado.setStyle(TableStyle([
+            ("BOX", (0,0), (-1,-1), 1, colors.HexColor("#333333")),
+            ("VALIGN", (0,0), (-1,-1), "MIDDLE"),
+            ("ALIGN", (1,0), (1,0), "CENTER"),
+            ("LEFTPADDING", (1,0), (1,0), 10),
+            ("RIGHTPADDING", (2,0), (2,0), 10),
+        ]))
+
+        elementos.append(tabla_encabezado)
+        elementos.append(Spacer(1, 20))
+
+        # ============================================
+        # TABLA 1 → TRANSACCIONES
+        # ============================================
+        elementos.append(Paragraph("<b>Transacciones de peso</b>", styles["Heading2"]))
+
+        tabla1_data = [[
+            "ID",
+            "Fecha doc.",
+            "Fecha pesaje",
+            "Peso (kg)",
+            "Usuario",
+            "Descripción"
+        ]]
+
+        for t in transacciones:
+            tabla1_data.append([
+                t["id_documento"],
+                t["fecha_documento"],
+                t["fecha_pesaje"],
+                t["peso_final"],
+                t["usuario"],
+                Paragraph(" ".join(str(t["descripcion"]).split()), style_normal)
+            ])
+
+        tabla1 = Table(tabla1_data, colWidths=[40, 110, 110, 80, 160, 220])
+        tabla1.setStyle(TableStyle([
+            ("BACKGROUND", (0,0), (-1,0), colors.HexColor("#62804B")),
+            ("TEXTCOLOR", (0,0), (-1,0), colors.white),
+            ("GRID", (0,0), (-1,-1), 0.5, colors.HexColor("#AACF96")),
+            ("ALIGN", (0,0), (-1,-1), "CENTER"),
+        ]))
+
+        elementos.append(tabla1)
+        elementos.append(Spacer(1, 30))
+
+        # ============================================
+        # TABLA 2 → PESO / ETAPA
+        # ============================================
+        elementos.append(Paragraph("<b>Relación peso vs etapa</b>", styles["Heading2"]))
+
+        tabla2_data = [["Fecha Pesaje", "Peso", "Etapa", "Peso mín.", "Peso máx."]]
+
+        for h in historial_etapa:
+            tabla2_data.append([
+                h["fecha_pesaje"],
+                h["peso_final"],
+                h["etapa"],
+                h["peso_min"],
+                h["peso_max"]
+            ])
+
+        tabla2 = Table(tabla2_data, colWidths=[140, 120, 220, 120, 120])
+        tabla2.setStyle(TableStyle([
+            ("BACKGROUND", (0,0), (-1,0), colors.HexColor("#62804B")),
+            ("TEXTCOLOR", (0,0), (-1,0), colors.white),
+            ("GRID", (0,0), (-1,-1), 0.5, colors.HexColor("#AACF96")),
+            ("ALIGN", (0,0), (-1,-1), "CENTER"),
+        ]))
+
+        elementos.append(tabla2)
+        elementos.append(Spacer(1, 40))
+
+        # ============================================
+        # GRÁFICA FINAL
+        # ============================================
+        if historial_etapa:
+            elementos.append(Paragraph("<b>Gráfica histórica de peso</b>", styles["Heading2"]))
+            elementos.append(Spacer(1, 10))
+            elementos.append(
+                Image(generar_grafica_peso_etapa(historial_etapa), width=650, height=250)
+            )
+
+        # ============================================
+        # GENERAR PDF
+        # ============================================
+        pdf.build(elementos)
+
+        response = make_response(buffer.getvalue())
+        response.headers["Content-Type"] = "application/pdf"
+        response.headers["Content-Disposition"] = "inline; filename=reporte_porcino.pdf"
+        return response
+
     except Exception as err:
-      print(err)
-      return jsonify({'Error al Consultar los Porcinos'})
+        print(err)
+        return jsonify({"mensaje": "Error al generar el PDF"})
 
-    buffer = io.BytesIO()
-    pdf = SimpleDocTemplate(buffer, pagesize=landscape(letter))
-    elementos = []
-    codigo = random.randint(0,9999)
-    styles = getSampleStyleSheet()
-    style_normal = styles["Normal"]
-    style_normal.fontSize = 9  # si quieres ajustar tamaño
-    style_normal.leading = 11  # espacio entre líneas
-    # ================================================
-    #               ENCABEZADO PERSONALIZADO
-    # ================================================
-    ruta_logo = os.path.join("src/static/iconos/", "Logo_edupork.png")
-
-    if os.path.exists(ruta_logo):
-        logo = Image(ruta_logo, width=140, height=60)
-    else:
-        logo = Paragraph("LOGO", styles["Title"])
-    
-    titulo_central = [
-        Paragraph('<font color="#333333"><b>Edupork: Gestion de Alimentacion Porcina</b></font>', styles["Title"]),
-        Paragraph('<para align="center"><font color="#333333">Informe de Transacciones de peso</font></para>',styles["Normal"])
-    ]
-
-    info_derecha = [
-        Paragraph(f'<font color="#333333"><b>CÓDIGO:</b> {codigo}</font>', styles["Normal"]),
-        Paragraph('<font color="#333333"><b>VERSIÓN:</b> 1</font>', styles["Normal"]),
-    ]
-
-    ruta_logo_sena = os.path.join("src/static/iconos/", "logo_sena.png")
-
-    if os.path.exists(ruta_logo_sena):
-        logo_sena = Image(ruta_logo_sena, width=60, height=60)
-    else:
-        logo_sena = Paragraph("LOGO_SENA", styles["Title"])
-    
-    tabla_encabezado = Table(
-        [
-            [logo, titulo_central, info_derecha, logo_sena]
-        ],
-        colWidths=[120, 270, 100, 80]
-    )
-
-    tabla_encabezado.setStyle(TableStyle([
-        ("BOX", (0, 0), (-1, -1), 1, "#333333"),
-        ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
-        ("ALIGN", (1, 0), (1, 0), "CENTER"),
-        ("LEFTPADDING", (1, 0), (1, 0), 10),
-        ("RIGHTPADDING", (2, 0), (2, 0), 10),
-    ]))
-
-    elementos.append(tabla_encabezado)
-    elementos.append(Spacer(1, 20))
-
-    # ================================================
-    #                TABLA DE PORCINOS
-    # ================================================
-    elementos.append(Paragraph(f'<font color="#333333"><b>Listado de Transacciones de peso del porcino {id}</b></font>', styles["Title"]))
-    
-    encabezado = ["ID Documento", "Fecha Documento", "Fecha Pesaje", "ID Porcino", "Peso Final", "Nombre Usuario", "Descripcion"]
-    tabla_data = [encabezado]
-
-    for h in historial:
-      descripcion_limpia = " ".join(str(h["descripcion"]).split())
-
-      tabla_data.append([
-          h["id_documento"],
-          h["fecha_documento"],
-          h["fecha_pesaje"],
-          h["id_porcino"],
-          h["peso_final"],
-          h["nombre"],
-          Paragraph(descripcion_limpia, style_normal),
-      ])
-
-
-
-    verde_header = colors.HexColor("#62804B")
-    verde_fila = colors.HexColor("#E7F6DD")
-
-    tabla = Table(tabla_data, colWidths=[80, 110, 90, 70, 70, 100, 200])
-
-    # ================================
-    #    ESTILOS BASE DE LA TABLA
-    # ================================
-    estilos_tabla = [
-        ("BACKGROUND", (0, 0), (-1, 0), verde_header),
-        ("TEXTCOLOR", (0, 0), (-1, 0), colors.HexColor('#ffffff')),
-        ("FONTNAME", (0, 0), (-1, 0), "Helvetica-Bold"),
-        ("FONTSIZE", (0, 0), (-1, 0), 12),
-
-        ("BOX", (0, 0), (-1, -1), 1, colors.HexColor("#9BC38A")),
-        ("GRID", (0, 0), (-1, -1), 0.5, colors.HexColor("#AACF96")),
-
-        ("ALIGN", (0, 0), (-1, -1), "CENTER"),
-        ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
-
-        ("FONTSIZE", (0, 1), (-1, -1), 10),
-    ]
-
-    # ======================================
-    #      ALTERNAR TODAS LAS FILAS
-    # ======================================
-    for i in range(1, len(tabla_data)):
-        if i % 2 == 1:
-            estilos_tabla.append(("BACKGROUND", (0, i), (-1, i), verde_fila))
-
-    tabla.setStyle(TableStyle(estilos_tabla))
-
-    elementos.append(tabla)
-
-    # ================================================
-    #                GENERAR PDF
-    # ================================================
-    pdf.build(elementos)
-
-    pdf_value = buffer.getvalue()
-    buffer.close()
-
-    response = make_response(pdf_value)
-    response.headers["Content-Type"] = "application/pdf"
-    response.headers["Content-Disposition"] = 'inline; filename="reporte_transacciones.pdf"'
-
-    return response
-
-  except Exception as err:
-    print(err)
-    return jsonify({'Mensaje': 'Error al generar el pdf'})
 
 @app.route('/porcino/historial_pesos/conteo_transacciones', methods=['GET'])
 @token_requerido
@@ -1111,12 +1191,26 @@ def consulta_porcino_historial(id):
     with config['development'].conn() as conn:
       with conn.cursor() as cur:
         cur.execute("""
-                    SELECT tp.id_documento,tp.fecha_documento,tp.fecha_pesaje,tp.id_porcino,tp.peso_final,u.nombre,tp.descripcion
+                    SELECT 
+                        tp.id_documento,
+                        tp.fecha_documento,
+                        tp.fecha_pesaje,
+                        tp.id_porcino,
+                        tp.peso_final,
+                        CASE
+                            WHEN tp.usuario_tipo = 'Interno' THEN ui.nombre
+                            ELSE ue.nombre
+                        END AS usuario,
+                        tp.descripcion
                     FROM transaccion_peso tp
-                    JOIN usuario u
-                    ON tp.id_usuario = u.id_usuario
-                    WHERE id_porcino = %s
-                    ORDER BY fecha_documento DESC
+                    LEFT JOIN usuario ui
+                        ON tp.usuario_tipo = 'Interno'
+                      AND ui.id_usuario = tp.usuario_id
+                    LEFT JOIN usuario_externo ue
+                        ON tp.usuario_tipo = 'Externo'
+                      AND ue.id_usuario_externo = tp.usuario_id
+                    WHERE tp.id_porcino = %s
+                    ORDER BY tp.fecha_documento DESC
                     """, (id,))
         historial = cur.fetchall()
         if historial:
@@ -2242,7 +2336,6 @@ def eliminar_etapa_vida(id):
   try:
     
     usuario = request.usuario
-    id_usuario = usuario['id_auto'] if 'id_auto' in usuario else usuario['id_usuario']
     
     with config['development'].conn() as conn:
       with conn.cursor() as cur:
@@ -2267,6 +2360,7 @@ def eliminar_etapa_vida(id):
   except Exception as err:
     print(err)
     return jsonify({'Mensaje':'Error en la base de datos'})
+
 
 #Ruta para generar PDF del listado de etapas
 @app.route("/PDF_etapas")

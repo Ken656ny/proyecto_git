@@ -1304,10 +1304,6 @@ iconify-icon{
     top: 2px;
 }
 
-.icon-edit{
-    margin: 0 15px;
-}
-
 .td__border__l{
     border-top-left-radius: 25px;
     border-bottom-left-radius: 25px;
@@ -1353,13 +1349,13 @@ th{
     background-color: #000b;
 }
 
-.icon-eye , .icon-edit, .icon-delete{
+.icon-eye , .icon-edit, .icon-delete, .icon-chart{
     cursor: pointer;
     transition: scale 0.5s;
     
 }
 
-.icon-eye:hover, .icon-edit:hover, .icon-delete:hover{
+.icon-eye:hover, .icon-edit:hover, .icon-delete:hover, .icon-chart:hover{
     scale: 1.1;
 }
 
