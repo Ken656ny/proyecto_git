@@ -1,3 +1,9 @@
+# CARGAR FUNCIONES DEL ARCHIVO .ENV
+from dotenv import load_dotenv
+import os
+
+load_dotenv()
+
 #ACCEDER A LAS FUNCIONES DE FLASK
 from flask import Flask, jsonify, request, make_response
 
@@ -36,7 +42,13 @@ from reportlab.platypus import (SimpleDocTemplate, Table, TableStyle, Paragraph,
 from reportlab.lib import colors
 from reportlab.lib.styles import getSampleStyleSheet
 
-cargar_imagenes = os.path.join(os.path.dirname(__file__), "static", "imagenes_base_de_datos")
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
+cargar_imagenes = os.path.join(
+    BASE_DIR,
+    "static",
+    "imagenes_base_de_datos"
+)
 os.makedirs(cargar_imagenes, exist_ok=True)
 
 import matplotlib
@@ -47,13 +59,18 @@ app = Flask(__name__)
 app.secret_key = 'secretkey'
 CORS(app)
 Swagger(app)
-app.config['MAIL_SERVER'] = 'smtp.gmail.com'
-app.config['MAIL_PORT'] = 587
-app.config['MAIL_USE_TLS'] = True
-app.config['MAIL_USERNAME'] = 'eduporkcontact@gmail.com'   
-app.config['MAIL_PASSWORD'] = 'wddg sbke jvfh lqui'     
-app.config['MAIL_DEFAULT_SENDER'] = ('Edupork', 'eduporkcontact@gmail.com')
+app.config['MAIL_SERVER'] = os.getenv('MAIL_SERVER')
+app.config['MAIL_PORT'] = int(os.getenv('MAIL_PORT'))
+app.config['MAIL_USE_TLS'] = os.getenv('MAIL_USE_TLS') == 'True'
+app.config['MAIL_USERNAME'] = os.getenv('MAIL_USERNAME')
+app.config['MAIL_PASSWORD'] = os.getenv('MAIL_PASSWORD')
+app.config['MAIL_DEFAULT_SENDER'] = (
+    os.getenv('MAIL_DEFAULT_SENDER_NAME'),
+    os.getenv('MAIL_DEFAULT_SENDER_EMAIL')
+)
+
 app.config["cargar_imagenes"] = cargar_imagenes
+
 mail = Mail(app)
 
 
@@ -475,72 +492,97 @@ def validar_codigo():
     return jsonify({"error": "Código incorrecto"}), 400
 
 
-#RUTA DE PERFIL
+# RUTA DE PERFIL
 @app.route('/perfil', methods=['GET'])
 @token_requerido
 def perfil():
     try:
         usuario_token = request.usuario
-        user_id = usuario_token["id_usuario"] 
-        id_usuario = usuario_token["id_auto"] 
-        es_google = usuario_token.get("es_google", False)
 
-        datos_usuario_db = None
-        numero_identificacion = None
+        # Usamos la lógica centralizada
+        id_usuario, tipo_usuario = obtener_info_usuario(usuario_token)
+
         nombre = correo = rol = None
+        numero_identificacion = None
         dietas_creadas = 0
 
         with config['development'].conn() as conn:
             with conn.cursor() as cur:
-                if not es_google:
+
+                # ---------------- USUARIO INTERNO ----------------
+                if tipo_usuario == 'Interno':
                     cur.execute("""
-                        SELECT nombre, correo, rol, numero_identificacion 
-                        FROM usuario 
-                        WHERE numero_identificacion = %s
-                    """, (user_id,))
-                    datos_usuario_db = cur.fetchone()
+                        SELECT nombre, correo, rol, numero_identificacion
+                        FROM usuario
+                        WHERE id_usuario = %s
+                    """, (id_usuario,))
+                    datos = cur.fetchone()
 
-                    if datos_usuario_db:
-                        nombre = datos_usuario_db['nombre']
-                        correo = datos_usuario_db['correo']
-                        rol = datos_usuario_db['rol']
-                        numero_identificacion = datos_usuario_db['numero_identificacion']
+                    if datos:
+                        nombre = datos['nombre']
+                        correo = datos['correo']
+                        rol = datos['rol']
+                        es_google = False
+                        numero_identificacion = datos['numero_identificacion']
 
-                        cur.execute("SELECT COUNT(*) AS total_dietas FROM dietas WHERE id_usuario = %s", (id_usuario,))
-                        dietas_creadas = cur.fetchone()["total_dietas"]
+                        # Dietas creadas por usuario interno
+                        cur.execute("""
+                            SELECT COUNT(*) AS total
+                            FROM dietas
+                            WHERE usuario_id = %s
+                              AND usuario_tipo = 'Interno'
+                        """, (id_usuario,))
+                        dietas_creadas = cur.fetchone()['total']
+
+                # ---------------- USUARIO EXTERNO ----------------
+                elif tipo_usuario == 'Externo':
+                    cur.execute("""
+                        SELECT nombre, correo, rol
+                        FROM usuario_externo
+                        WHERE id_usuario_externo = %s
+                    """, (id_usuario,))
+                    datos = cur.fetchone()
+
+                    if datos:
+                        nombre = datos['nombre']
+                        correo = datos['correo']
+                        rol = datos['rol']
+                        es_google = True
+
+                        # Dietas creadas por usuario externo
+                        cur.execute("""
+                            SELECT COUNT(*) AS total
+                            FROM dietas
+                            WHERE usuario_id = %s
+                              AND usuario_tipo = 'Externo'
+                        """, (id_usuario,))
+                        dietas_creadas = cur.fetchone()['total']
 
                 else:
-                    cur.execute("""
-                        SELECT nombre, correo, rol 
-                        FROM usuario_externo 
-                        WHERE id_usuario_externo = %s
-                    """, (user_id,))
-                    datos_usuario_db = cur.fetchone()
+                    return jsonify({"Mensaje": "Tipo de usuario inválido"}), 400
 
-                    if datos_usuario_db:
-                        nombre = datos_usuario_db['nombre']
-                        correo = datos_usuario_db['correo']
-                        rol = datos_usuario_db['rol']
-
-                if not datos_usuario_db:
+                if not nombre:
                     return jsonify({"Mensaje": "Usuario no encontrado"}), 404
 
+        # ---------------- RESPUESTA ----------------
         perfil_data = {
             "nombre": nombre,
             "correo": correo,
             "rol": rol,
+            "usuario_tipo": tipo_usuario,
             "es_google": es_google,
-            "dietas_creadas": dietas_creadas,
+            "dietas_creadas": dietas_creadas
         }
 
-        if numero_identificacion is not None and not es_google:
+        if tipo_usuario == 'Interno' and numero_identificacion:
             perfil_data["numero_identificacion"] = numero_identificacion
 
-        return jsonify(perfil_data)
+        return jsonify(perfil_data), 200
 
     except Exception as e:
         print(f"Error en perfil: {str(e)}")
         return jsonify({"Mensaje": "Error interno del servidor"}), 500
+
 
 # ------------------------------
 # SECCION DE GESTIONAR PORCINOS
@@ -821,11 +863,25 @@ def reporte_transacciones():
       with config['development'].conn() as conn:
         with conn.cursor() as cur:
           cur.execute("""
-              SELECT tp.id_documento,tp.fecha_documento,tp.fecha_pesaje,tp.id_porcino,tp.peso_final,u.nombre,tp.descripcion
+              SELECT 
+                  tp.id_documento,
+                  tp.fecha_documento,
+                  tp.fecha_pesaje,
+                  tp.id_porcino,
+                  tp.peso_final,
+                  CASE
+                      WHEN tp.usuario_tipo = 'Interno' THEN ui.nombre
+                      ELSE ue.nombre
+                  END AS usuario,
+                  tp.descripcion
               FROM transaccion_peso tp
-              JOIN usuario u
-              ON tp.id_usuario = u.id_usuario
-              ORDER BY fecha_documento DESC
+              LEFT JOIN usuario ui
+                  ON tp.usuario_tipo = 'Interno'
+                AND ui.id_usuario = tp.usuario_id
+              LEFT JOIN usuario_externo ue
+                  ON tp.usuario_tipo = 'Externo'
+                AND ue.id_usuario_externo = tp.usuario_id
+              ORDER BY tp.fecha_documento DESC;
               """)
         historial = cur.fetchall()
     except Exception as err:
@@ -890,7 +946,7 @@ def reporte_transacciones():
     # ================================================
     elementos.append(Paragraph('<font color="#333333"><b>Listado de Transacciones de peso</b></font>', styles["Title"]))
     
-    encabezado = ["ID Documento", "Fecha Documento", "Fecha Pesaje", "ID Porcino", "Peso Final", "Nombre Usuario", "Descripcion"]
+    encabezado = ["ID Doc", "Fecha Documento", "Fecha Pesaje", "ID Porcino", "Peso Final", "Nombre Usuario", "Descripcion"]
     tabla_data = [encabezado]
 
     for h in historial:
@@ -902,7 +958,7 @@ def reporte_transacciones():
           h["fecha_pesaje"],
           h["id_porcino"],
           h["peso_final"],
-          h["nombre"],
+          h["usuario"],
           Paragraph(descripcion_limpia, style_normal),
       ])
 
@@ -911,7 +967,7 @@ def reporte_transacciones():
     verde_header = colors.HexColor("#62804B")
     verde_fila = colors.HexColor("#E7F6DD")
 
-    tabla = Table(tabla_data, colWidths=[80, 110, 90, 70, 70, 100, 200])
+    tabla = Table(tabla_data, colWidths=[40, 110, 90, 70, 70, 160, 200])
 
     # ================================
     #    ESTILOS BASE DE LA TABLA
@@ -2585,9 +2641,9 @@ def consulta_notificaciones():
     return jsonify({'Mensaje': 'Error'})
 
 
-@app.route("/ultima_notificacion/<int:id>", methods=['GET'])
+@app.route("/ultima_notificacion", methods=['GET'])
 @token_requerido
-def ultima_notificacion_usuario(id):
+def ultima_notificacion_usuario():
     """
     Obtiene la última notificación de un usuario
     ---
@@ -2597,16 +2653,24 @@ def ultima_notificacion_usuario(id):
       200:
         description: Última notificación de un usuario
     """
+    usuario = request.usuario
+    id_usuario, tipo_usuario = obtener_info_usuario(usuario)
     try:
         with config['development'].conn() as conn:
             with conn.cursor() as cursor:
                 cursor.execute("""
-                    SELECT id_notificacion, titulo, mensaje, tipo, fecha_creacion
-                    FROM notificaciones 
-                    WHERE id_usuario_destinatario = %s
-                    ORDER BY fecha_creacion DESC
-                    LIMIT 1
-                """, (id,))  
+                    SELECT 
+                      id_notificacion,
+                      titulo,
+                      mensaje,
+                      tipo,
+                      fecha_creacion
+                  FROM notificaciones
+                  WHERE destinatario_id = %s
+                    AND destinatario_tipo = %s
+                  ORDER BY fecha_creacion DESC
+                  LIMIT 1
+                """, (id_usuario, tipo_usuario))  
                 info = cursor.fetchone()  
 
         if info:
@@ -4284,93 +4348,74 @@ def consultar_usuario_individual(tipo_usuario, id_usuario):
 @token_requerido
 @rol_requerido('Admin')
 def usuario_filtros():
-    """
-    Consulta por filtro de usuarios registrados
-    ---
-    tags:
-      - Usuarios
-    parameters:
-      - name: body
-        in: body
-        required: true
-        schema:
-          type: object
-          properties:
-            filtro:
-              type: string
-            valor:
-              type: string
-    responses:
-      200:
-        description: Lista filtrada de usuarios
-    """
     try:
         data = request.get_json()
         filtro = data.get('filtro')
         valor = data.get('valor')
 
-        print(data)
         if not filtro or not valor:
             return jsonify({'Mensaje': 'Debe enviar filtro y valor'}), 400
 
+        FILTROS_VALIDOS = ['tipo', 'estado', 'rol']
+        if filtro not in FILTROS_VALIDOS:
+            return jsonify({'Mensaje': 'Filtro no válido'}), 400
+
         params = []
 
-        # Si el filtro es el tipo, seleccionamos la tabla
+        # ---------------- FILTRO POR TIPO ----------------
         if filtro == 'tipo':
             if valor == 'Interno':
-                tabla = 'usuario'
-                id_campo = 'id_usuario'
+                query = """
+                    SELECT id_usuario AS usuario_id,
+                           'Interno' AS usuario_tipo,
+                           nombre, correo, estado, rol
+                    FROM usuario
+                """
             elif valor == 'Externo':
-                tabla = 'usuario_externo'
-                id_campo = 'id_usuario_externo'
+                query = """
+                    SELECT id_usuario_externo AS usuario_id,
+                           'Externo' AS usuario_tipo,
+                           nombre, correo, estado, rol
+                    FROM usuario_externo
+                """
             else:
                 return jsonify({'Mensaje': 'Tipo inválido'}), 400
 
-            query = f"""
-                SELECT {id_campo}, nombre, correo, estado, rol, tipo
-                FROM {tabla}
-            """
-
-        # Si el filtro NO ES tipo, buscamos en ambas tablas
+        # ---------------- OTROS FILTROS ----------------
         else:
             query = """
-                SELECT id_usuario , nombre, correo, estado, rol, tipo
+                SELECT id_usuario AS usuario_id,
+                       'Interno' AS usuario_tipo,
+                       nombre, correo, estado, rol
                 FROM usuario
-                WHERE 1=1
-            """
-            union_externo = """
-                UNION
-                SELECT id_usuario_externo, nombre, correo, estado, rol, tipo
+                WHERE {campo} = %s
+
+                UNION ALL
+
+                SELECT id_usuario_externo AS usuario_id,
+                       'Externo' AS usuario_tipo,
+                       nombre, correo, estado, rol
                 FROM usuario_externo
-                WHERE 1=1
-            """
+                WHERE {campo} = %s
+            """.format(campo=filtro)
 
-            # Agregar el filtro
-            if filtro == 'estado':
-                query += " AND estado = %s"
-                union_externo += " AND estado = %s"
-                params.extend([valor, valor])
+            params = [valor, valor]
 
-            elif filtro == 'rol':
-                query += " AND rol = %s"
-                union_externo += " AND rol = %s"
-                params.extend([valor, valor])
-
-            else:
-                return jsonify({'Mensaje': 'Filtro no válido'}), 400
-
-            # Unimos ambas tablas
-            query = query + " " + union_externo
-
-        # Ejecutamos la consulta
+        # ---------------- EJECUCIÓN ----------------
         with config['development'].conn() as conn:
             with conn.cursor() as cur:
                 cur.execute(query, params)
                 informacion = cur.fetchall()
-                if not informacion:
-                    return jsonify({'Mensaje': 'No hay usuarios registrados con los filtros ingresados'})
 
-                return jsonify({'usuarios': informacion, "Mensaje": 'Lista de usuarios'})
+                if not informacion:
+                    return jsonify({
+                        'Mensaje': 'No hay usuarios registrados con los filtros ingresados'
+                    }), 200
+
+                return jsonify({
+                    'usuarios': informacion,
+                    'Mensaje': 'Lista de usuarios'
+                }), 200
 
     except Exception as err:
         print(err)
@@ -4451,221 +4496,6 @@ def actualizar_usuario():
             "success": False,
             "Mensaje": str(e)
         }), 500
-
-# ------------------------------
-# SECCION DE GENERAR REPORTES
-# ------------------------------
-
-@app.route("/alimentos/reporte", methods=["GET"])
-@token_requerido
-@rol_requerido('Admin')
-def informe_alimentos():
-    filtro = request.args.get("filtro", "todos")   
-    nombre = request.args.get("nombre", "").strip()
-
-    with config['development'].conn() as conn:
-      with conn.cursor() as cur:
-        query = """
-            SELECT 
-                a.id_alimento,
-                a.nombre AS nombre_alimento,
-                SUM(dta.cantidad) AS total_usado,
-                AVG(dta.cantidad) AS promedio_usado
-            FROM alimentos a
-            JOIN dieta_tiene_alimentos dta ON a.id_alimento = dta.id_alimento
-        """
-        params = []
-
-        if nombre:
-            query += " WHERE a.nombre LIKE %s"
-            params.append(f"%{nombre}%")
-
-        query += " GROUP BY a.id_alimento, a.nombre"
-
-        if filtro == "mayor":
-            query += " ORDER BY total_usado DESC LIMIT 1"
-        elif filtro == "menor":
-            query += " ORDER BY total_usado ASC LIMIT 1"
-        else:
-            query += " ORDER BY total_usado DESC"
-
-        cur.execute(query, params)
-        filas = cur.fetchall()
-
-    resultado = [
-        {
-            "id_alimento": fila["id_alimento"],
-            "nombre": fila["nombre_alimento"],
-            "total_usado": float(fila["total_usado"] or 0),
-            "promedio_usado": float(fila["promedio_usado"] or 0)
-        }
-        for fila in filas
-    ]
-
-    return jsonify({"mensaje": resultado})
-
-@app.route("/alimentos/reporte/pdf", methods=["GET"])
-@token_requerido
-@rol_requerido('Admin')
-def reporte_alimentos_pdf():
-    try:
-        with config['development'].conn() as conn:
-          with conn.cursor() as cur:
-            query = """
-                SELECT 
-                    a.id_alimento,
-                    a.nombre AS nombre_alimento,
-                    SUM(dta.cantidad) AS total_usado,
-                    AVG(dta.cantidad) AS promedio_usado
-                FROM alimentos a
-                JOIN dieta_tiene_alimentos dta ON a.id_alimento = dta.id_alimento
-                GROUP BY a.id_alimento, a.nombre
-                ORDER BY total_usado DESC
-            """
-            cur.execute(query)
-            filas = cur.fetchall()
-
-        if not filas:
-            return jsonify({"mensaje": "No se encontraron alimentos"})
-        mayor = max(filas, key=lambda f: f["total_usado"])
-        menor = min(filas, key=lambda f: f["total_usado"])
-
-        # ================================
-        # CREAR PDF
-        # ================================
-        buffer = io.BytesIO()
-        pdf = SimpleDocTemplate(buffer, pagesize=landscape(letter))
-        elementos = []
-        codigo = random.randint(0,9999)
-        styles = getSampleStyleSheet()
-
-        # ================================================
-        #               ENCABEZADO PERSONALIZADO
-        # ================================================
-        ruta_logo = os.path.join("src/static/iconos/", "Logo_edupork.png")
-
-        if os.path.exists(ruta_logo):
-            logo = Image(ruta_logo, width=140, height=60)
-        else:
-            logo = Paragraph("LOGO", styles["Title"])
-
-        titulo_central = [
-            Paragraph('<font color="#333333"><b>Edupork: Gestion de Alimentacion Porcina</b></font>', styles["Title"]),
-            Paragraph('<para align="center"><font color="#333333">Informe de alimentos más usados y menos usados</font></para>',styles["Normal"])
-        ]
-
-        info_derecha = [
-            Paragraph(f'<font color="#333333"><b>CÓDIGO:</b> {codigo}</font>', styles["Normal"]),
-            Paragraph('<font color="#333333"><b>VERSIÓN:</b> 1</font>', styles["Normal"]),
-        ]
-
-        ruta_logo_sena = os.path.join("src/static/iconos/", "logo_sena.png")
-
-        if os.path.exists(ruta_logo_sena):
-            logo_sena = Image(ruta_logo_sena, width=60, height=60)
-        else:
-            logo_sena = Paragraph("LOGO_SENA", styles["Title"])
-
-        tabla_encabezado = Table(
-            [
-                [logo, titulo_central, info_derecha, logo_sena]
-            ],
-            colWidths=[120, 270, 100, 80]
-        )
-
-        tabla_encabezado.setStyle(TableStyle([
-            ("BOX", (0, 0), (-1, -1), 1, "#333333"),
-            ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
-            ("ALIGN", (1, 0), (1, 0), "CENTER"),
-            ("LEFTPADDING", (1, 0), (1, 0), 10),
-            ("RIGHTPADDING", (2, 0), (2, 0), 10),
-        ]))
-
-        elementos.append(tabla_encabezado)
-        elementos.append(Spacer(1, 20))
-
-        # ================================
-        # TABLA DE ALIMENTOS
-        # ================================
-        elementos.append(Paragraph('<font color="#333333"><b>Listado de Alimentos más usados y menos usados</b></font>', styles["Title"]))
-        tabla_data = [["ID", "Alimento", "Total usado (KG)", "Promedio usado (KG)"]]
-        for f in filas:
-            tabla_data.append([
-                f["id_alimento"],
-                f["nombre_alimento"],
-                f"{float(f['total_usado'] or 0):.2f}",
-                f"{float(f['promedio_usado'] or 0):.2f}"
-            ])
-
-        tabla = Table(tabla_data, colWidths=[60,200,120,120])
-        tabla.setStyle(TableStyle([
-            ('BACKGROUND', (0,0), (-1,0), colors.HexColor("#62804B")),
-            ('TEXTCOLOR', (0,0), (-1,0), colors.white),
-            ('FONTNAME', (0,0), (-1,0), 'Helvetica-Bold'),
-            ('GRID', (0,0), (-1,-1), 0.5, colors.HexColor("#AACF96")),
-            ('ALIGN', (0,0), (-1,-1), 'CENTER'),
-        ]))
-        elementos.append(tabla)
-        elementos.append(PageBreak())
-        
-        # ================================
-        # TABLA RESUMEN MAYOR Y MENOR
-        # ================================
-        elementos.append(Paragraph('<font color="#333333"><b>Resumen de consumo</b></font>', styles["Title"]))
-        tabla_resumen = [
-            ["Categoría", "Alimento", "Total usado (KG)"],
-            ["Más consumido", mayor["nombre_alimento"], f"{float(mayor['total_usado'] or 0):.2f}"],
-            ["Menos consumido", menor["nombre_alimento"], f"{float(menor['total_usado'] or 0):.2f}"]
-        ]
-
-        tabla_mym = Table(tabla_resumen, colWidths=[150, 250, 150])
-        tabla_mym.setStyle(TableStyle([
-            ('BACKGROUND', (0,0), (-1,0), colors.HexColor("#62804B")),
-            ('TEXTCOLOR', (0,0), (-1,0), colors.white),
-            ('FONTNAME', (0,0), (-1,0), 'Helvetica-Bold'),
-            ('BACKGROUND', (0,1), (-1,-1), colors.HexColor("#E7F6DD")),
-            ('TEXTCOLOR', (0,1), (-1,-1), colors.black),
-            ('GRID', (0,0), (-1,-1), 0.5, colors.HexColor("#AACF96")),
-            ('ALIGN', (0,0), (-1,-1), 'CENTER'),
-            ('VALIGN', (0,0), (-1,-1), 'MIDDLE'),
-        ]))
-        elementos.append(tabla_mym)
-        elementos.append(Spacer(1, 20))
-
-
-        # ================================
-        # GRÁFICA DE BARRAS
-        # ================================
-        cantidades = [float(f["total_usado"] or 0) for f in filas]
-        labels = [f["nombre_alimento"] for f in filas]
-
-        if cantidades:
-            fig, ax = plt.subplots(figsize=(8,5))
-            ax.bar(labels, cantidades, color="skyblue")
-            ax.set_title("Consumo de alimentos (KG)")
-            ax.set_ylabel("Total usado (KG)")
-            plt.xticks(rotation=45, ha="right")
-
-            img_buf = io.BytesIO()
-            plt.savefig(img_buf, format='png', dpi=100, bbox_inches='tight')
-            plt.close()
-            img_buf.seek(0)
-
-            elementos.append(Paragraph("<b>Gráfica de consumo</b>", styles["Title"]))
-            elementos.append(Image(img_buf, width=500, height=300))
-
-        # --- GENERAR PDF ---
-        pdf.build(elementos)
-        pdf_value = buffer.getvalue()
-        buffer.close()
-
-        response = make_response(pdf_value)
-        response.headers["Content-Type"] = "application/pdf"
-        response.headers["Content-Disposition"] = 'inline; filename="Reporte_AlimentosMyM.pdf"'
-        return response
-
-    except Exception as e:
-        return jsonify({"error": str(e)})
 
 # ------------------------------
 # SECCION DE GENERAR REPORTES

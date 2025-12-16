@@ -1,4 +1,4 @@
-create database if not exists Edupork;
+create database if not exists edupork;
 
 use edupork;
 
@@ -24,6 +24,9 @@ rol ENUM('Admin','Aprendiz') not NULL,
 id_tipo_identificacion int not null,
 intentos_fallidos int default 0,
 bloqueado_hasta datetime null ,
+reset_token VARCHAR(255) NULL,
+reset_token_expira DATETIME NULL,
+tipo enum('Interno'),
 foreign key (id_tipo_identificacion) references tipo_identificacion(id_tipo_identificacion)
 );
 
@@ -35,8 +38,9 @@ CREATE TABLE IF NOT EXISTS usuario_externo (
    correo VARCHAR(80) UNIQUE NOT NULL,
    nombre VARCHAR(200),
    proveedor ENUM('Google'),
-   estado enum('Activo','Inactivo') not null,
-   rol enum("Admin","Aprendiz") not null
+   rol enum("Admin","Aprendiz") not null,
+   estado enum('Activo','Inactivo'),
+   tipo enum('Externo')
 );
 
 -- ========================================
@@ -62,46 +66,24 @@ descripcion varchar(100) not null
 );
 
 -- ========================================
+-- TABLA: elementos
+-- ========================================
+create table if not exists elementos(
+	id_elemento int auto_increment primary key,
+	nombre varchar(20) not null
+);
+
+-- ========================================
 -- TABLA: requerimientos_nutricionales
 -- ========================================
 CREATE TABLE requerimientos_nutricionales (
     id_requerimiento INT AUTO_INCREMENT PRIMARY KEY,
     id_etapa INT NOT NULL,
     id_elemento INT NOT NULL,
-    porcentaje DECIMAL(5,2) NOT NULL,
+    porcentaje DECIMAL(10,2) NOT NULL,
     FOREIGN KEY (id_etapa) REFERENCES etapa_vida(id_etapa),
     FOREIGN KEY (id_elemento) REFERENCES elementos(id_elemento)
 );
-
-insert into requerimientos_nutricionales(id_etapa, id_elemento,porcentaje) 
-values
-(2,1,21), 
-(2,2,22),
-(2,3,23),
-(2,4,24)
-;
-
-
--- JOIN PARA LA TABLA DE REQUERIMIENTOS NUTRICIONALES
-select  ev.nombre as etapa_vida,e.nombre_elemento,rn.porcentaje
-from requerimientos_nutricionales rn
-JOIN etapa_vida ev ON rn.id_etapa = ev.id_etapa
-JOIN elementos e ON rn.id_elemento = e.id_elemento
-WHERE rn.id_etapa = 1;
-
-SELECT 
-    ev.id_etapa, 
-    ev.nombre AS nombre_etapa, 
-    ev.peso_min, 
-    ev.peso_max, 
-    ev.duracion_dias,
-    ev.duracion_semanas,
-    e.id_elemento,
-    e.nombre_elemento,
-    rn.porcentaje
-FROM etapa_vida ev
-LEFT JOIN requerimientos_nutricionales rn ON ev.id_etapa = rn.id_etapa
-LEFT JOIN elementos e ON rn.id_elemento = e.id_elemento;
 
 
 -- ========================================
@@ -135,9 +117,9 @@ peso_final INT NOT NULL,
 id_usuario INT NOT NULL,
 descripcion VARCHAR(400) NULL,
 
-FOREIGN KEY (id_porcino) REFERENCES porcinos(id_porcino),
-FOREIGN KEY (id_usuario) REFERENCES usuario(id_usuario)
+FOREIGN KEY (id_porcino) REFERENCES porcinos(id_porcino)
 );
+
 
 -- ========================================
 -- TABLA: alimentos
@@ -147,16 +129,8 @@ CREATE TABLE IF NOT EXISTS alimentos (
     nombre VARCHAR(30) NOT NULL,
     estado ENUM('Activo','Inactivo') NOT NULL,
     imagen VARCHAR(150),
-    id_usuario INT NOT NULL,
-    FOREIGN KEY (id_usuario) REFERENCES usuario(id_usuario)
-);
-
--- ========================================
--- TABLA: elementos
--- ========================================
-create table if not exists elementos(
-	id_elemento int auto_increment primary key,
-	nombre varchar(20) not null
+    usuario_id INT NOT NULL,
+    usuario_tipo enum('Interno','Externo') not null
 );
 
 -- ========================================
@@ -176,12 +150,14 @@ CREATE TABLE IF NOT EXISTS alimento_tiene_elemento (
 -- ========================================
 CREATE TABLE IF NOT EXISTS dietas (
     id_dieta INT AUTO_INCREMENT PRIMARY KEY,
-    id_usuario INT NOT NULL,
+    usuario_id INT NOT NULL,
+    usuario_tipo enum('Interno','Externo') not null,
     fecha_creacion DATE NOT NULL,
-    etapa_vida VARCHAR(50),
+    id_etapa_vida int not null,
     estado ENUM('Activo','Inactivo') NOT NULL,
     descripcion VARCHAR(200),
-    FOREIGN KEY (id_usuario) REFERENCES usuario(id_usuario)
+    mezcla_nutricional json,
+    foreign key (id_etapa_vida) references etapa_vida(id_etapa)
 );
 
 -- ========================================
@@ -196,95 +172,149 @@ CREATE TABLE IF NOT EXISTS dieta_tiene_alimentos (
     FOREIGN KEY (id_alimento) REFERENCES alimentos(id_alimento)
 );
 
-
 -- ========================================
 -- TABLA: notificaciones
 -- ========================================
 CREATE TABLE notificaciones (
-    id_notificacion INT AUTO_INCREMENT PRIMARY KEY,
-    id_usuario_destinatario INT NOT NULL,
-    id_usuario_origen INT NULL,
-    titulo VARCHAR(100) NOT NULL,
-    mensaje TEXT NOT NULL,
-    tipo enum('General','Pesaje','Ingreso','Actualización','Eliminación') DEFAULT 'General',  -- ejemplo: 'pesaje', 'sistema', 'alerta'
-    url_referencia VARCHAR(255) NULL,   -- opcional, para redirigir al hacer clic
-    leida BOOLEAN DEFAULT FALSE,
-    fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (id_usuario_destinatario) REFERENCES usuario(id_usuario),
-    FOREIGN KEY (id_usuario_origen) REFERENCES usuario(id_usuario)
+  id_notificacion INT AUTO_INCREMENT PRIMARY KEY,
+
+  destinatario_id INT NOT NULL,
+  destinatario_tipo ENUM('interno','externo') NOT NULL,
+
+  origen_id INT NOT NULL,
+  origen_tipo ENUM('Interno','Externo') NOT NULL,
+
+  titulo VARCHAR(100) NOT NULL,
+  mensaje TEXT NOT NULL,
+  tipo ENUM('General','Pesaje','Ingreso','Actualización','Eliminación'),
+  url_referencia VARCHAR(255),
+  leida TINYINT(1) DEFAULT 0,
+  fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+  INDEX idx_destinatario (destinatario_tipo, destinatario_id),
+  INDEX idx_origen (origen_tipo, origen_id),
+  INDEX idx_leida (leida)
 );
 
 -- ==========================================
 -- Procedimientos: Actualizar_peso_historial
 -- ==========================================
-DELIMITER //
-create procedure sp_actualizar_peso_historial(
-    in p_fecha_pesaje date,
-    in p_id_porcino int,
-    in p_peso_final float,
-    in p_id_usuario int,
-    in p_descripcion varchar(500)
+DELIMITER $$
+CREATE PROCEDURE sp_actualizar_peso_historial(
+    IN p_fecha_pesaje DATE,
+    IN p_id_porcino INT,
+    IN p_peso_final FLOAT,
+    IN p_id_usuario INT,
+    IN p_usuario_tipo ENUM('Interno','Externo'),
+    IN p_descripcion VARCHAR(500)
 )
 BEGIN
-	-- Insertar transaccion 
-	INSERT INTO transaccion_peso(fecha_pesaje,id_porcino,peso_final,id_usuario,descripcion)
-    VALUES(p_fecha_pesaje,p_id_porcino,p_peso_final,p_id_usuario,p_descripcion);
-    
-    -- Actualizar el peso final de porcino
-    UPDATE porcinos SET peso_final = p_peso_final WHERE id_porcino = p_id_porcino;
-    
-    -- Crear notificación para el usuario (o administrador)
-    INSERT INTO notificaciones (id_usuario_destinatario, id_usuario_origen, titulo, mensaje, tipo)
-    VALUES (p_id_usuario, p_id_usuario, 'Actualizacion de peso final',
-            CONCAT('Se registró un nuevo peso de ', p_peso_final, ' kg para el porcino con ID ', p_id_porcino),
-            'Pesaje');
-END//
-DElimiter ;
-CALL sp_actualizar_peso_historial('2025-10-18',1,250,3,'Actualizacion del peso');
+    DECLARE v_etapa_actual INT;
+    DECLARE v_etapa_nueva INT;
 
--- ==========================================
--- MAnejo de informacion de la base de datos
--- ==========================================
+    -- Etapa actual
+    SELECT id_etapa
+    INTO v_etapa_actual
+    FROM porcinos
+    WHERE id_porcino = p_id_porcino;
 
--- ==========================================
--- Selects
--- ==========================================
-select * from raza;
-select * from etapa_vida;
-select * from usuario;
-select * from usuario_externo;
-select * from porcinos;
-select * from transaccion_peso;
-select * from tipo_identificacion;
-SELECT * FROM alimentos;
-SELECT * FROM elementos;
-SELECT * FROM alimento_tiene_elemento;
-SELECT * FROM notificaciones;
+    -- Registrar transacción de peso
+    INSERT INTO transaccion_peso (
+        fecha_pesaje,
+        id_porcino,
+        peso_final,
+        usuario_id,
+        usuario_tipo,
+        descripcion
+    )
+    VALUES (
+        p_fecha_pesaje,
+        p_id_porcino,
+        p_peso_final,
+        p_id_usuario,
+        p_usuario_tipo,
+        p_descripcion
+    );
 
--- ==========================================
--- Describe
--- ==========================================
+    -- Actualizar peso
+    UPDATE porcinos
+    SET peso_final = p_peso_final
+    WHERE id_porcino = p_id_porcino;
 
-describe usuario;
-DESCRIBE transaccion_peso;
-DESCRIBE raza;
-DESCRIBE etapa_vida;
-Describe usuario_externo;
+    -- Nueva etapa
+    SELECT id_etapa
+    INTO v_etapa_nueva
+    FROM etapa_vida
+    WHERE p_peso_final BETWEEN peso_min AND peso_max
+    LIMIT 1;
 
--- ==========================================
--- Inserts
--- ==========================================
-insert into raza (id_raza,nombre,descripcion) VALUES (1,'Landrace',''),(2,'Duroc',''),(3,'Pietrain',''),(4,'Large White','');
-insert into etapa_vida (id_etapa,nombre,descripcion) values (1,'Pre-inicial',''),(2,'Inicial',''),(3,'Crecimiento',''),(4,'Desarrollador',''),(5,'Engorde',''),(6,'Finalizador','');
-insert into porcinos (id_porcino,peso_inicial,peso_final,fecha_nacimiento,sexo,id_raza,id_etapa,estado,descripcion) values (3,20,56,'2025-05-10','Macho',1,2,'Activo','prueba');
+    -- Cambio de etapa
+    IF v_etapa_nueva IS NOT NULL
+       AND v_etapa_nueva <> v_etapa_actual THEN
+
+        UPDATE porcinos
+        SET id_etapa = v_etapa_nueva
+        WHERE id_porcino = p_id_porcino;
+
+        INSERT INTO notificaciones (
+            destinatario_id,
+            destinatario_tipo,
+            origen_id,
+            origen_tipo,
+            titulo,
+            mensaje,
+            tipo
+        )
+        VALUES (
+            p_id_usuario,
+            p_usuario_tipo,
+            p_id_usuario,
+            p_usuario_tipo,
+            'Cambio de etapa del porcino',
+            CONCAT(
+                'El porcino con ID ', p_id_porcino,
+                ' cambió de etapa automáticamente al registrar el peso de ',
+                p_peso_final, ' kg.'
+            ),
+            'Actualización'
+        );
+    END IF;
+    -- Notificación general
+    INSERT INTO notificaciones (
+        destinatario_id,
+        destinatario_tipo,
+        origen_id,
+        origen_tipo,
+        titulo,
+        mensaje,
+        tipo
+    )
+    VALUES (
+        p_id_usuario,
+        p_usuario_tipo,
+        p_id_usuario,
+        p_usuario_tipo,
+        'Actualización de peso final',
+        CONCAT(
+            'Se registró un nuevo peso de ',
+            p_peso_final,
+            ' kg para el porcino con ID ',
+            p_id_porcino
+        ),
+        'Pesaje'
+    );
+END $$
+DELIMITER ;
 
 insert into tipo_identificacion(descripcion) values ('Cedula de Cuidania');
 insert into tipo_identificacion(descripcion) VALUES ('Tarjeta de identidad');
 
-INSERT INTO elementos (nombre_elemento) VALUES 
+insert into raza (id_raza,nombre,descripcion) VALUES (1,'Landrace',''),(2,'Duroc',''),(3,'Pietrain',''),(4,'Large White','');
+
+INSERT INTO elementos (nombre) VALUES
 ('Proteina_cruda'),
 ('Fosforo'),
-('Treitona'),
+('Treonina'),
 ('Fibra_cruda'),
 ('Sodio'),
 ('Metionina'),
@@ -296,15 +326,3 @@ INSERT INTO elementos (nombre_elemento) VALUES
 ('Calcio'),
 ('Lisina'),
 ('Triptofano');
-
-
--- Colocar el auto_increment en 1
-
--- ALTER TABLE usuario AUTO_INCREMENT = 1;
-
--- Eliminar el valor unique
--- SHOW INDEX FROM usuario;
-
--- truncate
--- TRUNCATE TABLE usuario;
--- DELETE FROM usuario;

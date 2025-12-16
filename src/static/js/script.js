@@ -159,12 +159,14 @@ async function openModalEye(type, id) {
     if (type === "porcino") {
         title.textContent = "Información del Porcino";
         content.classList.add("info-porcino");
+        button.textContent = 'Cerrar'
         await cargarInfoPorcino(id, content);
     }
 
     if (type === "raza") {
         title.textContent = "Información de la Raza";
         content.classList.add("info_raza_etapa");
+        button.textContent = 'Cerrar'
         await cargarInfoRaza(id, content);
     }
 
@@ -182,6 +184,7 @@ async function openModalEye(type, id) {
     if(type === 'tran_peso'){
         title.textContent = "Información de la Trasacción";
         content.classList.add("info_raza_etapa");
+        button.textContent = 'Cerrar'
         await cargarInfoHistorial(id, content);
     }
 
@@ -665,8 +668,7 @@ async function cargarInfoPorcinoEdit(id, container) {
             <label>Peso Inicial (Kg)</label>
             <div class="container-inputs">
             
-            <input id="peso-ini-actu-${id}" type="text" value="${p.peso_inicial}">
-            ${crearIconoEdit()}
+            <input id="peso-ini-actu-${id}" type="text" value="${p.peso_inicial}" disabled>
             </div>
         </div>
             
@@ -2061,10 +2063,6 @@ function renderGraficaPeso(canvasId, datos) {
         }
     });
 }
-
-
-
-
 
 async function conteoNumeroConsecutivo() {
     try {
@@ -4563,7 +4561,15 @@ async function filtrarUsuarios() {
 
         const data = await resp.json();
 
-        paginacion_usuarios(data)
+        if (Object.keys(data).length != 1){
+                paginacion_usuarios(data)
+            } else{
+                Swal.fire({
+                title: "Mensaje",
+                text: `${data.Mensaje}`,
+                icon: "error",
+            });
+        }
         return data
     } catch (error) {
         Swal.fire("Error", "No se pudo conectar con el servidor", "error");
@@ -5250,7 +5256,6 @@ function timesleep() {
 
 document.addEventListener("click", (e) => {
     const icon = e.target.closest(".icon-eye, .icon-edit, .icon-delete, #button-delete, .icon-chart");
-    console.log(icon)
     if (!icon) return;
     
     const id = icon.dataset.id;
@@ -5440,7 +5445,9 @@ document.getElementById('impresora_searchbar').addEventListener('click', functio
 
 
 function notificaciones_nuevo() {
-    const endpoint = `${URL_BASE}/ultima_notificacion/3`;
+    verifyToken()
+
+    const endpoint = `${URL_BASE}/ultima_notificacion`;
     const url_notificaciones = "/src/templates/notificaciones.html"; 
 
     if (Notification.permission !== "granted" && Notification.permission !== "denied") {
@@ -5601,12 +5608,12 @@ async function consultaReporteAlimentos() {
         tr.className="registro";
         tr.innerHTML = `
             <td class="td__border__l">
-            <img src="/src/static/iconos/informe.svg" alt="" class="svg__informe">
+            <img src="/src/static/iconos/logo alimentospng.png" alt="" class="svg__informe">
             </td>
             <td>${a.id_alimento}</td>
             <td>${a.nombre}</td>
             <td>${a.total_usado}</td>
-            <td>${a.promedio_usado.toFixed(2)}</td>
+            <td class="td__border__r">${a.promedio_usado.toFixed(2)}</td>
             `;
         tbody.appendChild(tr);
         });

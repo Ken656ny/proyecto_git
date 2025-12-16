@@ -122,10 +122,10 @@
                 <img src="/src/static/iconos/icon lupa.svg" alt="buscador ">
             <input type="number" class="input__id" id="input_id"  placeholder="Ingrese el ID de la dieta" min="0"
                 oninput="this.value = Math.abs(this.value)">
-                 <button type="button" class="btn" id="btn_consultar_todo_historial" onclick="ver_dietas()">Consultar Todo</button>
+                <button id="enviar_consulta" type="button" class="btn" onclick="consulta_individual_dieta()">Consultar</button>
             </div>
             <div class="final_buttom">
-                <button id="enviar_consulta" type="button" class="btn" onclick="consulta_individual_dieta()">Consultar</button>
+                <button type="button" class="btn" id="btn_consultar_todo_historial" onclick="ver_dietas()">Consultar Todo</button>
             </div>
         </section>
 

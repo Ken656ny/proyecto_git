@@ -1183,7 +1183,8 @@ label.contenedor{
 #btn_consultar_todo_user,
 #btn_consultar_todo_raza,
 #btn_consultar_todo_etapa,
-#btn_consultar_todo_historial{
+#btn_consultar_todo_historial,
+#enviar_consulta{
     order: 5;
     font-size: 12px;
 }
@@ -1208,7 +1209,7 @@ label.contenedor{
 .svg__add, .svg__btn{
     position: absolute;
     top: 11px;
-    left: 15px;
+    left: 10px;
 }
 
 .svg--gesti{
