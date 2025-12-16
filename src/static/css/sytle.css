@@ -838,6 +838,19 @@ SECCION DE PORCINOS
     font-family: var(--fuente--contenido);
 }
 
+.container__search__bar2{
+    border: 1px solid var(--color-bor-contain);
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    width: 900px;
+    height: 60px;
+    margin: auto;
+    padding: 0 2rem;
+    gap: 2rem;
+    font-family: var(--fuente--contenido);
+}
+
 #filter__options__2{
     width: 150px;
     border-radius: 10px;
@@ -1086,6 +1099,11 @@ label.contenedor{
     border: 1px solid var(--color-bor-contain);
     outline: none;
 }
+
+.fil{
+    width: 45vw;
+}  
+
 .filter_dietas{
     width: 500px;
     height: 40px;
@@ -1149,6 +1167,16 @@ label.contenedor{
 #valorFiltro
 {
     order: 4;
+}
+
+#generar_informe,
+#btn_generar_alimentos{
+    order: 6;
+    font-size: 15px;
+}
+
+.generar_info{
+    margin: 2% auto;
 }
 
 #btn_consultar_todo,
@@ -1294,6 +1322,12 @@ iconify-icon{
 }
 
 .svg__pig{
+    position: relative;
+    top: 2px;
+    z-index: 1;
+}
+
+.svg__informe{
     position: relative;
     top: 5px;
     z-index: 1;

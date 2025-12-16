@@ -4989,6 +4989,8 @@ async function cargarDatosPerfil() {
             document.getElementById('identificacionUsuario').textContent = datos.numero_identificacion;
         }
 
+        document.getElementById('dietasUsuario').textContent = datos.dietas_creadas;
+
     } catch (error) {
         console.error("Error en la petición:", error);
         Swal.fire({
@@ -5562,6 +5564,84 @@ function iniciarComandosDeVoz() {
     };
 
     recognition.start();
+}
+
+async function consultaReporteAlimentos() {
+    await verifyToken();
+    const filtro = document.getElementById("filtroAlimentos")?.value;
+    const nombre = document.getElementById("buscar_alimento")?.value || "";
+
+    if (!filtro) {
+        Swal.fire({
+            icon: 'warning',
+            text: 'Selecciona un filtro antes de generar el reporte',
+    })
+    return;
+    }
+
+    let url = `${URL_BASE}/alimentos/reporte?filtro=${filtro}`;
+    if (nombre.trim() !== "") {
+        url += `&nombre=${encodeURIComponent(nombre.trim())}`;
+    }
+
+    try {
+        const res = await fetch(url, { headers: getAuthHeaders() });
+        const data = await res.json();
+
+        const tbody = document.getElementById("contenido");
+        tbody.innerHTML = "";
+
+        if (!data.mensaje || data.mensaje.length === 0) {
+            tbody.innerHTML = "<tr><td colspan='4'>No se encontraron datos</td></tr>";
+        return;
+        }
+
+    data.mensaje.forEach(a => {
+        const tr = document.createElement("tr");
+        tr.className="registro";
+        tr.innerHTML = `
+            <td class="td__border__l">
+            <img src="/src/static/iconos/informe.svg" alt="" class="svg__informe">
+            </td>
+            <td>${a.id_alimento}</td>
+            <td>${a.nombre}</td>
+            <td>${a.total_usado}</td>
+            <td>${a.promedio_usado.toFixed(2)}</td>
+            `;
+        tbody.appendChild(tr);
+        });
+
+    } catch (err) {
+        console.error("Error al consultar reporte:", err);
+    }
+}
+
+async function generar_informe() {
+  try {
+    await verifyToken();
+
+    const filtro = document.getElementById("filtroAlimentos")?.value || "todos";
+    const nombre = document.getElementById("buscar_alimento")?.value || "";
+
+    let url = `${URL_BASE}/alimentos/reporte/pdf?filtro=${filtro}`;
+    if (nombre.trim() !== "") {
+      url += `&nombre=${encodeURIComponent(nombre.trim())}`;
+    }
+
+    const res = await fetch(url, { headers: getAuthHeaders() });
+    if (!res.ok) throw new Error("Error de autenticación");
+
+    const blob = await res.blob();
+    const pdfUrl = URL.createObjectURL(blob);
+
+    const a = document.createElement("a");
+    a.href = pdfUrl;
+    a.download = `reporte_alimentos_${filtro}.pdf`;
+    a.click();
+  } catch (err) {
+    console.error("Error al generar PDF:", err);
+    Swal.fire("Error", "No tienes permisos para generar el PDF", "error");
+  }
 }
 
 

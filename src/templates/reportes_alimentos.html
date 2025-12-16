@@ -9,7 +9,6 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/src/static/css/sytle.css">
-    <link rel="stylesheet" href="/src/static/css/reporte.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11.17.2/dist/sweetalert2.min.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://code.iconify.design/iconify-icon/3.0.0/iconify-icon.min.js"></script>
@@ -69,7 +68,7 @@
                         </a>
                     </li>
                     <li>
-                        <a href="#" onclick="manejarClickRol(event)">
+                        <a href="/src/templates/reportes.html" onclick="manejarClickRol(event)">
                             <img src="../static/iconos/icon page.svg" alt="" class="icons-bar">
                             <span>Informes</span>
                         </a>
@@ -94,7 +93,9 @@
 
         <section class="container__logo__user">
             <div class="container__back__logo" >
+                <a href="/src/templates/reportes.html">
                 <img src="/src/static/iconos/back icon.svg" alt="icon back" class="icon__back">
+                </a>
                 <a href="/src/templates/home.html">
                     <img src="/src/static/iconos/Logo.svg" alt="Logo Edupork" class="logo">
                 </a>
@@ -119,50 +120,44 @@
         <form class="container container__search__bar" id="container__search__bar" >
 
             <img src="/src/static/iconos/icon lupa.svg" alt="">
-            <input class="input_id" type="text" id="buscar_alimento" placeholder="Nombre del alimento..." aria-label="Buscar alimento por nombre">
+
             <div class="container__filtro">
                 <img src="/src/static/iconos/icon filter.svg" alt="" id="svg__filter">
-                <select name="filteralimento" id="filter_alimentos" class="filter rm_filter" >
+                <select name="filteralimento" id="filtroAlimentos" class="filter rm_filter fil" >
                     <option value="" disabled selected >Filtrar por...</option>
                     <option value="todos">Todos</option>
-                    <option value="mayor">Mayor consumido</option>
-                    <option value="menor">Menor consumido</option>
+                    <option value="mayor">Alimento Más usado</option>
+                    <option value="menor">Alimento Menos usado</option>
                 </select>
             </div>
 
-            <button type="button" id="btn_consultar_todo" class="btn">Generar</button>
+            <button type="button" id="btn_generar_alimentos" class="btn" onclick="consultaReporteAlimentos()">Generar</button>
         </form>
 
         <section class="container container__registros t_g">
             <table class="table__registros">
                 <thead>
                     <tr>
-                        <th scope="col">ID</th>
-                        <th scope="col">Nombre de alimento</th>
-                        <th scope="col">Mayor consumido se usó en</th>
-                        <th scope="col">Menor consumido se usó</th>
-                        <th scope="col">Promedio de cantidad usada (KG)</th>
-                        <th scope="col"></th>
+                        <th></th>
+                        <th>ID</th>
+                        <th>Nombre de alimento</th>
+                        <th>Total usado (KG)</th>
+                        <th>Promedio usado (KG)</th>
                     </tr>
                 </thead>
-                <tbody class="registros" id="contenido"></tbody>
+                <tbody id="contenido" class="registros"></tbody>
             </table>
 
         </section>
         <div class="opciones">
-            <div id="impresora" class="impresora" onclick="generar_pdf('porcinos')" title="Generar PDF">
+            <div id="impresora" class="impresora" onclick="generar_informe()" title="Generar PDF">
                 <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 26 26" id="impresora_por"><g fill="none"><defs><mask id="SVGrO71tccb"><path fill="#fff" d="M0 0h26v26H0z"/><path fill="#fff" d="M7.5 5a1 1 0 0 1 1-1h9a1 1 0 0 1 1 1v4.5h-11z"/><path fill="#000" d="M8 9.5H7V5.1c0-.866.612-1.6 1.417-1.6h9.166c.805 0 1.417.734 1.417 1.6v4.4h-1V5.1c0-.35-.209-.6-.417-.6H8.417c-.208 0-.417.25-.417.6z"/><path fill="#000" fill-rule="evenodd" d="M19 9H7a3 3 0 0 0-3 3v5a3 3 0 0 0 3 3h12a3 3 0 0 0 3-3v-5a3 3 0 0 0-3-3M5 12a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2z" clip-rule="evenodd"/><path fill="#fff" d="M18.5 20.531a1 1 0 0 1-1 1h-9a1 1 0 0 1-1-1V14.97h11z"/><path fill="#000" d="M18 14.969h1v5.25c0 .97-.588 1.812-1.417 1.812H8.417C7.588 22.031 7 21.19 7 20.22v-5.25h1v5.25c0 .479.233.812.417.812h9.166c.184 0 .417-.333.417-.812z"/><path fill="#000" d="M16.5 18.5a.5.5 0 0 1 0 1h-7a.5.5 0 0 1 0-1zm0-2a.5.5 0 0 1 0 1h-7a.5.5 0 0 1 0-1z"/></mask></defs><circle cx="13" cy="13" r="13" fill="#fff" mask="url(#SVGrO71tccb)"/></g></svg>
             </div>
-            <div onclick="iniciarTourPorcinos()" class="" title="Ayuda">
+            <div onclick="iniciarTour()" class="" title="Ayuda">
                 <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24"><g fill="none"><path d="m12.593 23.258l-.011.002l-.071.035l-.02.004l-.014-.004l-.071-.035q-.016-.005-.024.005l-.004.01l-.017.428l.005.02l.01.013l.104.074l.015.004l.012-.004l.104-.074l.012-.016l.004-.017l-.017-.427q-.004-.016-.017-.018m.265-.113l-.013.002l-.185.093l-.01.01l-.003.011l.018.43l.005.012l.008.007l.201.093q.019.005.029-.008l.004-.014l-.034-.614q-.005-.018-.02-.022m-.715.002a.02.02 0 0 0-.027.006l-.006.014l-.034.614q.001.018.017.024l.015-.002l.201-.093l.01-.008l.004-.011l.017-.43l-.003-.012l-.01-.01z"/><path fill="#fff" d="M12 2c5.523 0 10 4.477 10 10s-4.477 10-10 10S2 17.523 2 12S6.477 2 12 2m0 14a1 1 0 1 0 0 2a1 1 0 0 0 0-2m0-9.5a3.625 3.625 0 0 0-3.625 3.625a1 1 0 1 0 2 0a1.625 1.625 0 1 1 2.23 1.51c-.676.27-1.605.962-1.605 2.115V14a1 1 0 1 0 2 0c0-.244.05-.366.261-.47l.087-.04A3.626 3.626 0 0 0 12 6.5"/></g></svg>
             </div>
         </div>
     </section>
 </body>
     <script src="/src/static/js/script.js"></script>
-    <script src="/src/static/js/exportar.js"></script>
-    <script>
-            consultaReporteAlimentos();
-    </script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </html>

@@ -90,6 +90,7 @@ def generar_token(usuario, es_google=False):
     token = jwt.encode(payload, app.secret_key, algorithm="HS256")
     return token
 
+
 #DECORADORES DE EDUPORK
 def token_requerido(f):
     @wraps(f)
@@ -481,13 +482,16 @@ def perfil():
     try:
         usuario_token = request.usuario
         user_id = usuario_token["id_usuario"] 
+        id_usuario = usuario_token["id_auto"] 
         es_google = usuario_token.get("es_google", False)
-        
+
         datos_usuario_db = None
         numero_identificacion = None
+        nombre = correo = rol = None
+        dietas_creadas = 0
+
         with config['development'].conn() as conn:
             with conn.cursor() as cur:
-                
                 if not es_google:
                     cur.execute("""
                         SELECT nombre, correo, rol, numero_identificacion 
@@ -495,12 +499,16 @@ def perfil():
                         WHERE numero_identificacion = %s
                     """, (user_id,))
                     datos_usuario_db = cur.fetchone()
-                    
+
                     if datos_usuario_db:
                         nombre = datos_usuario_db['nombre']
                         correo = datos_usuario_db['correo']
                         rol = datos_usuario_db['rol']
-                        numero_identificacion = datos_usuario_db['numero_identificacion'] 
+                        numero_identificacion = datos_usuario_db['numero_identificacion']
+
+                        cur.execute("SELECT COUNT(*) AS total_dietas FROM dietas WHERE id_usuario = %s", (id_usuario,))
+                        dietas_creadas = cur.fetchone()["total_dietas"]
+
                 else:
                     cur.execute("""
                         SELECT nombre, correo, rol 
@@ -508,7 +516,7 @@ def perfil():
                         WHERE id_usuario_externo = %s
                     """, (user_id,))
                     datos_usuario_db = cur.fetchone()
-                    
+
                     if datos_usuario_db:
                         nombre = datos_usuario_db['nombre']
                         correo = datos_usuario_db['correo']
@@ -517,12 +525,12 @@ def perfil():
                 if not datos_usuario_db:
                     return jsonify({"Mensaje": "Usuario no encontrado"}), 404
 
-
         perfil_data = {
             "nombre": nombre,
             "correo": correo,
             "rol": rol,
             "es_google": es_google,
+            "dietas_creadas": dietas_creadas,
         }
 
         if numero_identificacion is not None and not es_google:
@@ -3838,7 +3846,7 @@ def obtener_dieta(id_dieta):
 
 
 @app.route("/PDF_dieta/<int:id_dieta>")
-
+@token_requerido
 def PDF_dieta(id_dieta):
     try:
         # ================================
@@ -4443,6 +4451,436 @@ def actualizar_usuario():
             "success": False,
             "Mensaje": str(e)
         }), 500
+
+# ------------------------------
+# SECCION DE GENERAR REPORTES
+# ------------------------------
+
+@app.route("/alimentos/reporte", methods=["GET"])
+@token_requerido
+@rol_requerido('Admin')
+def informe_alimentos():
+    filtro = request.args.get("filtro", "todos")   
+    nombre = request.args.get("nombre", "").strip()
+
+    with config['development'].conn() as conn:
+      with conn.cursor() as cur:
+        query = """
+            SELECT 
+                a.id_alimento,
+                a.nombre AS nombre_alimento,
+                SUM(dta.cantidad) AS total_usado,
+                AVG(dta.cantidad) AS promedio_usado
+            FROM alimentos a
+            JOIN dieta_tiene_alimentos dta ON a.id_alimento = dta.id_alimento
+        """
+        params = []
+
+        if nombre:
+            query += " WHERE a.nombre LIKE %s"
+            params.append(f"%{nombre}%")
+
+        query += " GROUP BY a.id_alimento, a.nombre"
+
+        if filtro == "mayor":
+            query += " ORDER BY total_usado DESC LIMIT 1"
+        elif filtro == "menor":
+            query += " ORDER BY total_usado ASC LIMIT 1"
+        else:
+            query += " ORDER BY total_usado DESC"
+
+        cur.execute(query, params)
+        filas = cur.fetchall()
+
+    resultado = [
+        {
+            "id_alimento": fila["id_alimento"],
+            "nombre": fila["nombre_alimento"],
+            "total_usado": float(fila["total_usado"] or 0),
+            "promedio_usado": float(fila["promedio_usado"] or 0)
+        }
+        for fila in filas
+    ]
+
+    return jsonify({"mensaje": resultado})
+
+@app.route("/alimentos/reporte/pdf", methods=["GET"])
+@token_requerido
+@rol_requerido('Admin')
+def reporte_alimentos_pdf():
+    try:
+        with config['development'].conn() as conn:
+          with conn.cursor() as cur:
+            query = """
+                SELECT 
+                    a.id_alimento,
+                    a.nombre AS nombre_alimento,
+                    SUM(dta.cantidad) AS total_usado,
+                    AVG(dta.cantidad) AS promedio_usado
+                FROM alimentos a
+                JOIN dieta_tiene_alimentos dta ON a.id_alimento = dta.id_alimento
+                GROUP BY a.id_alimento, a.nombre
+                ORDER BY total_usado DESC
+            """
+            cur.execute(query)
+            filas = cur.fetchall()
+
+        if not filas:
+            return jsonify({"mensaje": "No se encontraron alimentos"})
+        mayor = max(filas, key=lambda f: f["total_usado"])
+        menor = min(filas, key=lambda f: f["total_usado"])
+
+        # ================================
+        # CREAR PDF
+        # ================================
+        buffer = io.BytesIO()
+        pdf = SimpleDocTemplate(buffer, pagesize=landscape(letter))
+        elementos = []
+        codigo = random.randint(0,9999)
+        styles = getSampleStyleSheet()
+
+        # ================================================
+        #               ENCABEZADO PERSONALIZADO
+        # ================================================
+        ruta_logo = os.path.join("src/static/iconos/", "Logo_edupork.png")
+
+        if os.path.exists(ruta_logo):
+            logo = Image(ruta_logo, width=140, height=60)
+        else:
+            logo = Paragraph("LOGO", styles["Title"])
+
+        titulo_central = [
+            Paragraph('<font color="#333333"><b>Edupork: Gestion de Alimentacion Porcina</b></font>', styles["Title"]),
+            Paragraph('<para align="center"><font color="#333333">Informe de alimentos más usados y menos usados</font></para>',styles["Normal"])
+        ]
+
+        info_derecha = [
+            Paragraph(f'<font color="#333333"><b>CÓDIGO:</b> {codigo}</font>', styles["Normal"]),
+            Paragraph('<font color="#333333"><b>VERSIÓN:</b> 1</font>', styles["Normal"]),
+        ]
+
+        ruta_logo_sena = os.path.join("src/static/iconos/", "logo_sena.png")
+
+        if os.path.exists(ruta_logo_sena):
+            logo_sena = Image(ruta_logo_sena, width=60, height=60)
+        else:
+            logo_sena = Paragraph("LOGO_SENA", styles["Title"])
+
+        tabla_encabezado = Table(
+            [
+                [logo, titulo_central, info_derecha, logo_sena]
+            ],
+            colWidths=[120, 270, 100, 80]
+        )
+
+        tabla_encabezado.setStyle(TableStyle([
+            ("BOX", (0, 0), (-1, -1), 1, "#333333"),
+            ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
+            ("ALIGN", (1, 0), (1, 0), "CENTER"),
+            ("LEFTPADDING", (1, 0), (1, 0), 10),
+            ("RIGHTPADDING", (2, 0), (2, 0), 10),
+        ]))
+
+        elementos.append(tabla_encabezado)
+        elementos.append(Spacer(1, 20))
+
+        # ================================
+        # TABLA DE ALIMENTOS
+        # ================================
+        elementos.append(Paragraph('<font color="#333333"><b>Listado de Alimentos más usados y menos usados</b></font>', styles["Title"]))
+        tabla_data = [["ID", "Alimento", "Total usado (KG)", "Promedio usado (KG)"]]
+        for f in filas:
+            tabla_data.append([
+                f["id_alimento"],
+                f["nombre_alimento"],
+                f"{float(f['total_usado'] or 0):.2f}",
+                f"{float(f['promedio_usado'] or 0):.2f}"
+            ])
+
+        tabla = Table(tabla_data, colWidths=[60,200,120,120])
+        tabla.setStyle(TableStyle([
+            ('BACKGROUND', (0,0), (-1,0), colors.HexColor("#62804B")),
+            ('TEXTCOLOR', (0,0), (-1,0), colors.white),
+            ('FONTNAME', (0,0), (-1,0), 'Helvetica-Bold'),
+            ('GRID', (0,0), (-1,-1), 0.5, colors.HexColor("#AACF96")),
+            ('ALIGN', (0,0), (-1,-1), 'CENTER'),
+        ]))
+        elementos.append(tabla)
+        elementos.append(PageBreak())
+        
+        # ================================
+        # TABLA RESUMEN MAYOR Y MENOR
+        # ================================
+        elementos.append(Paragraph('<font color="#333333"><b>Resumen de consumo</b></font>', styles["Title"]))
+        tabla_resumen = [
+            ["Categoría", "Alimento", "Total usado (KG)"],
+            ["Más consumido", mayor["nombre_alimento"], f"{float(mayor['total_usado'] or 0):.2f}"],
+            ["Menos consumido", menor["nombre_alimento"], f"{float(menor['total_usado'] or 0):.2f}"]
+        ]
+
+        tabla_mym = Table(tabla_resumen, colWidths=[150, 250, 150])
+        tabla_mym.setStyle(TableStyle([
+            ('BACKGROUND', (0,0), (-1,0), colors.HexColor("#62804B")),
+            ('TEXTCOLOR', (0,0), (-1,0), colors.white),
+            ('FONTNAME', (0,0), (-1,0), 'Helvetica-Bold'),
+            ('BACKGROUND', (0,1), (-1,-1), colors.HexColor("#E7F6DD")),
+            ('TEXTCOLOR', (0,1), (-1,-1), colors.black),
+            ('GRID', (0,0), (-1,-1), 0.5, colors.HexColor("#AACF96")),
+            ('ALIGN', (0,0), (-1,-1), 'CENTER'),
+            ('VALIGN', (0,0), (-1,-1), 'MIDDLE'),
+        ]))
+        elementos.append(tabla_mym)
+        elementos.append(Spacer(1, 20))
+
+
+        # ================================
+        # GRÁFICA DE BARRAS
+        # ================================
+        cantidades = [float(f["total_usado"] or 0) for f in filas]
+        labels = [f["nombre_alimento"] for f in filas]
+
+        if cantidades:
+            fig, ax = plt.subplots(figsize=(8,5))
+            ax.bar(labels, cantidades, color="skyblue")
+            ax.set_title("Consumo de alimentos (KG)")
+            ax.set_ylabel("Total usado (KG)")
+            plt.xticks(rotation=45, ha="right")
+
+            img_buf = io.BytesIO()
+            plt.savefig(img_buf, format='png', dpi=100, bbox_inches='tight')
+            plt.close()
+            img_buf.seek(0)
+
+            elementos.append(Paragraph("<b>Gráfica de consumo</b>", styles["Title"]))
+            elementos.append(Image(img_buf, width=500, height=300))
+
+        # --- GENERAR PDF ---
+        pdf.build(elementos)
+        pdf_value = buffer.getvalue()
+        buffer.close()
+
+        response = make_response(pdf_value)
+        response.headers["Content-Type"] = "application/pdf"
+        response.headers["Content-Disposition"] = 'inline; filename="Reporte_AlimentosMyM.pdf"'
+        return response
+
+    except Exception as e:
+        return jsonify({"error": str(e)})
+
+# ------------------------------
+# SECCION DE GENERAR REPORTES
+# ------------------------------
+
+@app.route("/alimentos/reporte", methods=["GET"])
+@token_requerido
+@rol_requerido('Admin')
+def informe_alimentos():
+    filtro = request.args.get("filtro", "todos")   
+    nombre = request.args.get("nombre", "").strip()
+
+    with config['development'].conn() as conn:
+      with conn.cursor() as cur:
+        query = """
+            SELECT 
+                a.id_alimento,
+                a.nombre AS nombre_alimento,
+                SUM(dta.cantidad) AS total_usado,
+                AVG(dta.cantidad) AS promedio_usado
+            FROM alimentos a
+            JOIN dieta_tiene_alimentos dta ON a.id_alimento = dta.id_alimento
+        """
+        params = []
+
+        if nombre:
+            query += " WHERE a.nombre LIKE %s"
+            params.append(f"%{nombre}%")
+
+        query += " GROUP BY a.id_alimento, a.nombre"
+
+        if filtro == "mayor":
+            query += " ORDER BY total_usado DESC LIMIT 1"
+        elif filtro == "menor":
+            query += " ORDER BY total_usado ASC LIMIT 1"
+        else:
+            query += " ORDER BY total_usado DESC"
+
+        cur.execute(query, params)
+        filas = cur.fetchall()
+
+    resultado = [
+        {
+            "id_alimento": fila["id_alimento"],
+            "nombre": fila["nombre_alimento"],
+            "total_usado": float(fila["total_usado"] or 0),
+            "promedio_usado": float(fila["promedio_usado"] or 0)
+        }
+        for fila in filas
+    ]
+
+    return jsonify({"mensaje": resultado})
+
+@app.route("/alimentos/reporte/pdf", methods=["GET"])
+@token_requerido
+@rol_requerido('Admin')
+def reporte_alimentos_pdf():
+    try:
+        with config['development'].conn() as conn:
+          with conn.cursor() as cur:
+            query = """
+                SELECT 
+                    a.id_alimento,
+                    a.nombre AS nombre_alimento,
+                    SUM(dta.cantidad) AS total_usado,
+                    AVG(dta.cantidad) AS promedio_usado
+                FROM alimentos a
+                JOIN dieta_tiene_alimentos dta ON a.id_alimento = dta.id_alimento
+                GROUP BY a.id_alimento, a.nombre
+                ORDER BY total_usado DESC
+            """
+            cur.execute(query)
+            filas = cur.fetchall()
+
+        if not filas:
+            return jsonify({"mensaje": "No se encontraron alimentos"})
+        mayor = max(filas, key=lambda f: f["total_usado"])
+        menor = min(filas, key=lambda f: f["total_usado"])
+
+        # ================================
+        # CREAR PDF
+        # ================================
+        buffer = io.BytesIO()
+        pdf = SimpleDocTemplate(buffer, pagesize=landscape(letter))
+        elementos = []
+        codigo = random.randint(0,9999)
+        styles = getSampleStyleSheet()
+
+        # ================================================
+        #               ENCABEZADO PERSONALIZADO
+        # ================================================
+        ruta_logo = os.path.join("src/static/iconos/", "Logo_edupork.png")
+
+        if os.path.exists(ruta_logo):
+            logo = Image(ruta_logo, width=140, height=60)
+        else:
+            logo = Paragraph("LOGO", styles["Title"])
+
+        titulo_central = [
+            Paragraph('<font color="#333333"><b>Edupork: Gestion de Alimentacion Porcina</b></font>', styles["Title"]),
+            Paragraph('<para align="center"><font color="#333333">Informe de alimentos más usados y menos usados</font></para>',styles["Normal"])
+        ]
+
+        info_derecha = [
+            Paragraph(f'<font color="#333333"><b>CÓDIGO:</b> {codigo}</font>', styles["Normal"]),
+            Paragraph('<font color="#333333"><b>VERSIÓN:</b> 1</font>', styles["Normal"]),
+        ]
+
+        ruta_logo_sena = os.path.join("src/static/iconos/", "logo_sena.png")
+
+        if os.path.exists(ruta_logo_sena):
+            logo_sena = Image(ruta_logo_sena, width=60, height=60)
+        else:
+            logo_sena = Paragraph("LOGO_SENA", styles["Title"])
+
+        tabla_encabezado = Table(
+            [
+                [logo, titulo_central, info_derecha, logo_sena]
+            ],
+            colWidths=[120, 270, 100, 80]
+        )
+
+        tabla_encabezado.setStyle(TableStyle([
+            ("BOX", (0, 0), (-1, -1), 1, "#333333"),
+            ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
+            ("ALIGN", (1, 0), (1, 0), "CENTER"),
+            ("LEFTPADDING", (1, 0), (1, 0), 10),
+            ("RIGHTPADDING", (2, 0), (2, 0), 10),
+        ]))
+
+        elementos.append(tabla_encabezado)
+        elementos.append(Spacer(1, 20))
+
+        # ================================
+        # TABLA DE ALIMENTOS
+        # ================================
+        elementos.append(Paragraph('<font color="#333333"><b>Listado de Alimentos más usados y menos usados</b></font>', styles["Title"]))
+        tabla_data = [["ID", "Alimento", "Total usado (KG)", "Promedio usado (KG)"]]
+        for f in filas:
+            tabla_data.append([
+                f["id_alimento"],
+                f["nombre_alimento"],
+                f"{float(f['total_usado'] or 0):.2f}",
+                f"{float(f['promedio_usado'] or 0):.2f}"
+            ])
+
+        tabla = Table(tabla_data, colWidths=[60,200,120,120])
+        tabla.setStyle(TableStyle([
+            ('BACKGROUND', (0,0), (-1,0), colors.HexColor("#62804B")),
+            ('TEXTCOLOR', (0,0), (-1,0), colors.white),
+            ('FONTNAME', (0,0), (-1,0), 'Helvetica-Bold'),
+            ('GRID', (0,0), (-1,-1), 0.5, colors.HexColor("#AACF96")),
+            ('ALIGN', (0,0), (-1,-1), 'CENTER'),
+        ]))
+        elementos.append(tabla)
+        elementos.append(PageBreak())
+        
+        # ================================
+        # TABLA RESUMEN MAYOR Y MENOR
+        # ================================
+        elementos.append(Paragraph('<font color="#333333"><b>Resumen de consumo</b></font>', styles["Title"]))
+        tabla_resumen = [
+            ["Categoría", "Alimento", "Total usado (KG)"],
+            ["Más consumido", mayor["nombre_alimento"], f"{float(mayor['total_usado'] or 0):.2f}"],
+            ["Menos consumido", menor["nombre_alimento"], f"{float(menor['total_usado'] or 0):.2f}"]
+        ]
+
+        tabla_mym = Table(tabla_resumen, colWidths=[150, 250, 150])
+        tabla_mym.setStyle(TableStyle([
+            ('BACKGROUND', (0,0), (-1,0), colors.HexColor("#62804B")),
+            ('TEXTCOLOR', (0,0), (-1,0), colors.white),
+            ('FONTNAME', (0,0), (-1,0), 'Helvetica-Bold'),
+            ('BACKGROUND', (0,1), (-1,-1), colors.HexColor("#E7F6DD")),
+            ('TEXTCOLOR', (0,1), (-1,-1), colors.black),
+            ('GRID', (0,0), (-1,-1), 0.5, colors.HexColor("#AACF96")),
+            ('ALIGN', (0,0), (-1,-1), 'CENTER'),
+            ('VALIGN', (0,0), (-1,-1), 'MIDDLE'),
+        ]))
+        elementos.append(tabla_mym)
+        elementos.append(Spacer(1, 20))
+
+
+        # ================================
+        # GRÁFICA DE BARRAS
+        # ================================
+        cantidades = [float(f["total_usado"] or 0) for f in filas]
+        labels = [f["nombre_alimento"] for f in filas]
+
+        if cantidades:
+            fig, ax = plt.subplots(figsize=(8,5))
+            ax.bar(labels, cantidades, color="skyblue")
+            ax.set_title("Consumo de alimentos (KG)")
+            ax.set_ylabel("Total usado (KG)")
+            plt.xticks(rotation=45, ha="right")
+
+            img_buf = io.BytesIO()
+            plt.savefig(img_buf, format='png', dpi=100, bbox_inches='tight')
+            plt.close()
+            img_buf.seek(0)
+
+            elementos.append(Paragraph("<b>Gráfica de consumo</b>", styles["Title"]))
+            elementos.append(Image(img_buf, width=500, height=300))
+
+        # --- GENERAR PDF ---
+        pdf.build(elementos)
+        pdf_value = buffer.getvalue()
+        buffer.close()
+
+        response = make_response(pdf_value)
+        response.headers["Content-Type"] = "application/pdf"
+        response.headers["Content-Disposition"] = 'inline; filename="Reporte_AlimentosMyM.pdf"'
+        return response
+
+    except Exception as e:
+        return jsonify({"error": str(e)})
 
 if __name__ == '__main__':
     app.run(debug=True)
