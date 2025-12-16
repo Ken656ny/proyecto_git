@@ -2896,3 +2896,42 @@ RESPONSIVE BAR
         width: 28vw;
     }
 }
+
+/* ===============================
+   MODO TOUR
+   =============================== */
+.tour-activo .barra-lateral {
+    z-index: 1000;
+}
+
+/* ITEM ACTIVO DEL TOUR */
+.tour-activo .driver-active-element a {
+    background-color: #2C3D31 !important; /* verde Edupork */
+    border-radius: 8px;
+    padding: 8px 12px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+/* TEXTO */
+.tour-activo .driver-active-element span {
+    color: #ffffff !important;
+    font-weight: 600;
+}
+
+/* ICONOS SVG (img) */
+.tour-activo .driver-active-element img {
+    filter: brightness(0) invert(1) !important;
+}
+
+/* Overlay más suave */
+.driver-overlay {
+    background: rgba(0, 0, 0, 0.35) !important;
+}
+
+/* Popover siempre arriba */
+.driver-popover,
+.driver-stage {
+    z-index: 999999 !important;
+}

@@ -5040,14 +5040,14 @@ function mostrarNombreUsuario() {
 // FUNCIONES DE NAVEGACIÓN Y UI
 // =============================================
 
-// FUNCIONALIDAD PARA LA BARRA DE NAVEGACION
-const nav_bar = document.querySelectorAll('.nav__item')
-function bar_funct(){
-    nav_bar.forEach((item) => 
-    item.classList.remove('active'));
-    this.classList.add('active');
-}
-nav_bar.forEach((item) => item.addEventListener('click',bar_funct));
+// // FUNCIONALIDAD PARA LA BARRA DE NAVEGACION
+// const nav_bar = document.querySelectorAll('.nav__item')
+// function bar_funct(){
+//     nav_bar.forEach((item) => 
+//     item.classList.remove('active'));
+//     this.classList.add('active');
+// }
+// nav_bar.forEach((item) => item.addEventListener('click',bar_funct));
 
 // CONTROL DEL MENU DESPLEGABLE
 document.addEventListener("DOMContentLoaded", () => {
@@ -5084,45 +5084,35 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 });
 
-const cerdo = document.getElementById("cerdo");
+
 const barralateral = document.querySelector(".barra-lateral");
 const spans = document.querySelectorAll("span");
-const menu=document.querySelector(".menu")
+const menu = document.querySelector(".menu");
 
-menu.children[1].style.display="none"
-menu.addEventListener("click",()=>{
-    barralateral.classList.toggle("max-barra-lateral")
-    if(barralateral.classList.contains("max-barra-lateral")){
-        menu.children[0].style.display="none"
-        menu.children[1].style.display="block"
-    }
-    else{
-        menu.children[0].style.display="block"
-        menu.children[1].style.display="none"
-    }
-})
+// Estado inicial: barra mini
+barralateral.classList.add("mini-barra-lateral");
+spans.forEach(span => span.classList.add("oculto"));
 
-document.addEventListener("click", (e) => {
-    if (
-        !barralateral.contains(e.target) &&
-        !menu.contains(e.target)
-    ){
-        if (barralateral.classList.contains("max-barra-lateral")) {
-            barralateral.classList.remove("max-barra-lateral");
-
-            // Actualiza íconos
-            menu.children[0].style.display = "block";
-            menu.children[1].style.display = "none";
-        }
-    }
+// HOVER EN TODA LA BARRA
+barralateral.addEventListener("mouseenter", () => {
+    barralateral.classList.remove("mini-barra-lateral");
+    spans.forEach(span => span.classList.remove("oculto"));
 });
 
+barralateral.addEventListener("mouseleave", () => {
+    barralateral.classList.add("mini-barra-lateral");
+    spans.forEach(span => span.classList.add("oculto"));
+});
+
+
+// Mini barra (se mantiene con click si la quieres)
 cerdo.addEventListener("click", () => {
     barralateral.classList.toggle("mini-barra-lateral");
-    spans.forEach((span) => {
+    spans.forEach(span => {
         span.classList.toggle("oculto");
     });
 });
+
 
 // Función para verificar si es aprendiz
 function esAprendiz() {
@@ -5652,54 +5642,56 @@ async function generar_informe() {
 }
 
 
-// function bloquearSiEsMovil() {
-//     const maxWidth = 768;
+function bloquearSiEsMovil() {
+    const maxWidth = 768;
 
-//     // Detectar celular por userAgent
-//     const esMovilPorUserAgent = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i
-//         .test(navigator.userAgent);
+    // Detectar celular por userAgent
+    const esMovilPorUserAgent = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i
+        .test(navigator.userAgent);
 
-//     // Detectar celular por ancho de pantalla
-//     const esMovilPorResolucion = window.innerWidth <= maxWidth;
+    // Detectar celular por ancho de pantalla
+    const esMovilPorResolucion = window.innerWidth <= maxWidth;
 
-//     // Si NO es celular → desbloquear
-//     if (!esMovilPorUserAgent && !esMovilPorResolucion) {
-//         const overlay = document.getElementById("overlay-bloqueo");
-//         if (overlay) overlay.remove();
-//         Swal.close();
-//         return;
-//     }
+    // Si NO es celular → desbloquear
+    if (!esMovilPorUserAgent && !esMovilPorResolucion) {
+        const overlay = document.getElementById("overlay-bloqueo");
+        if (overlay) overlay.remove();
+        Swal.close();
+        return;
+    }
 
-//     // Si es celular → crear overlay negro si no existe
-//     if (!document.getElementById("overlay-bloqueo")) {
-//         const overlay = document.createElement("div");
-//         overlay.id = "overlay-bloqueo";
-//         overlay.style.cssText = `
-//             position: fixed;
-//             top: 0;
-//             left: 0;
-//             width: 100%;
-//             height: 100%;
-//             background-color: black;
-//             z-index: 999998; /* menos que Swal */
-//         `;
-//         document.body.appendChild(overlay);
-//     }
+    // Si es celular → crear overlay negro si no existe
+    if (!document.getElementById("overlay-bloqueo")) {
+        const overlay = document.createElement("div");
+        overlay.id = "overlay-bloqueo";
+        overlay.style.cssText = `
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: black;
+            z-index: 999998; /* menos que Swal */
+        `;
+        document.body.appendChild(overlay);
+    }
 
-//     // Mostrar modal SweetAlert encima del overlay
-//     Swal.fire({
-//         title: "Acceso restringido",
-//         text: "Este proyecto es muy complejo y completo por lo que se necesita un PC Por favor ingresa desde un computador.",
-//         icon: "error",
-//         allowOutsideClick: false,
-//         allowEscapeKey: false,
-//         allowEnterKey: false,
-//         showConfirmButton: false,
-//         customClass: {
-//             popup: 'swal-popup-sobre-overlay'
-//         }
-//     });
-// }
+    // Mostrar modal SweetAlert encima del overlay
+    Swal.fire({
+        title: "Acceso restringido",
+        text: "Este proyecto es muy complejo y completo por lo que se necesita un PC Por favor ingresa desde un computador.",
+        icon: "error",
+        allowOutsideClick: false,
+        allowEscapeKey: false,
+        allowEnterKey: false,
+        showConfirmButton: false,
+        customClass: {
+            popup: 'swal-popup-sobre-overlay'
+        }
+    });
+}
+
+
 
 // Ejecutar al cargar
 document.addEventListener('DOMContentLoaded', function() {

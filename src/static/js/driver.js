@@ -17,6 +17,7 @@ function iniciarTourPorcinos() {
     const btnEye = primeraFila.querySelector(".icon-eye");
     const btnEdit = primeraFila.querySelector(".icon-edit");
     const btnDelete = primeraFila.querySelector(".icon-delete");
+    const btnChart = primeraFila.querySelector('.icon-chart')
 
     driver.defineSteps([
         {
@@ -64,6 +65,14 @@ function iniciarTourPorcinos() {
             popover: {
                 title: 'Botón de consulta',
                 description: 'Haz clic aquí para aplicar el filtro o buscar un porcino por ID.',
+                position: 'bottom'
+            }
+        },
+        {
+            element: '#btn_consultar_todo',
+            popover: {
+                title: 'Botón de consultar todo',
+                description: 'Haz clic aquí para consultar todos los porcinos registrados.',
                 position: 'bottom'
             }
         },
@@ -138,11 +147,124 @@ function iniciarTourPorcinos() {
                 description: 'Elimina este registro permanentemente. Úsalo con precaución.',
                 position: 'left'
             }
+        },
+        {
+            element: btnChart,
+            popover: {
+                title: 'Grafica de evolución de peso',
+                description: 'Muestra una grafica con la evolucion del peso del porcino',
+                position: 'left'
+            }
         }
     ]);
 
     driver.start();
 }
+
+function iniciarTourAgregarPorcino() {
+    const driver = new Driver({
+        showProgress: true,
+        allowClose: false,
+        overlayOpacity: 0.45,
+        nextBtnText: 'Siguiente',
+        prevBtnText: 'Anterior',
+        doneBtnText: 'Finalizar'
+    });
+
+    driver.defineSteps([
+        {
+            element: '.icon__back',
+            popover: {
+                title: 'Volver',
+                description: 'Haz clic aquí para regresar a la lista de porcinos.',
+                position: 'right'
+            }
+        },
+        {
+            element: '.container__title h1',
+            popover: {
+                title: 'Agregar Porcinos',
+                description: 'En esta sección puedes registrar un nuevo porcino en el sistema.',
+                position: 'bottom'
+            }
+        },
+        {
+            element: '#id_porcino',
+            popover: {
+                title: 'ID del porcino',
+                description: 'Ingresa un identificador único para el porcino.',
+                position: 'bottom'
+            }
+        },
+        {
+            element: '#peso_inicial',
+            popover: {
+                title: 'Peso inicial',
+                description: 'Introduce el peso inicial del porcino. Este valor se usa para calcular la etapa de vida.',
+                position: 'bottom'
+            }
+        },
+        {
+            element: '#peso_final',
+            popover: {
+                title: 'Peso final',
+                description: 'Este campo se completa automáticamente con el peso inicial.',
+                position: 'bottom'
+            }
+        },
+        {
+            element: '#fecha',
+            popover: {
+                title: 'Fecha de nacimiento',
+                description: 'Selecciona la fecha de nacimiento del porcino.',
+                position: 'bottom'
+            }
+        },
+        {
+            element: '#raza_add',
+            popover: {
+                title: 'Raza',
+                description: 'Selecciona la raza del porcino desde la lista disponible.',
+                position: 'bottom'
+            }
+        },
+        {
+            element: '#sexo',
+            popover: {
+                title: 'Sexo',
+                description: 'Indica si el porcino es macho o hembra.',
+                position: 'bottom'
+            }
+        },
+        {
+            element: '#etapa_add',
+            popover: {
+                title: 'Etapa de vida',
+                description: 'Este campo se asigna automáticamente según el peso ingresado.',
+                position: 'bottom'
+            }
+        },
+        {
+            element: '#descripcion',
+            popover: {
+                title: 'Descripción',
+                description: 'Puedes agregar información adicional u observaciones del porcino.',
+                position: 'top'
+            }
+        },
+        {
+            element: '.btn--guardar',
+            popover: {
+                title: 'Agregar porcino',
+                description: 'Haz clic aquí para guardar el porcino en el sistema.',
+                position: 'top'
+            }
+        }
+    ]);
+
+    driver.start();
+}
+
 
 function iniciarTourAlimentos() {
     const driver = new Driver({
@@ -238,162 +360,178 @@ function iniciarTourAlimentos() {
 
     driver.start();
 }
+
 function iniciarTourHome() {
     const driver = new Driver({
-        showProgress: true,   // muestra la barra de progreso
-        allowClose: false,    // evita que el usuario cierre el tour antes de terminar
-        overlayOpacity: 0.4   // opacidad del fondo oscuro
+        showProgress: true,
+        allowClose: false,
+        overlayOpacity: 0.5,
+        nextBtnText: 'Siguiente',
+        prevBtnText: 'Anterior',
+        doneBtnText: 'Finalizar'
     });
 
     driver.defineSteps([
         {
-            element: '#usuario',
+            element: '.logo-edupork',
             popover: {
-                title: 'botom de usuario',
-                description: 'Este boton te facilitara el modo para ir a tu cuenta o cerrar sesione',
-                position: 'left',
-                clasname: "tour-modal-onbackground"
+                title: 'Bienvenido a EduPork',
+                description: 'Este es el logo del sistema. Desde aquí reconoces que estás en EduPork.',
+                position: 'right'
             }
         },
         {
-            element: '#id_alimento',
+            element: '.barra-lateral',
             popover: {
-                title: 'Buscar un alimento',
-                description: 'Esta casilla permite digitar el nombre de un alimento.',
-                position: 'bottom',
-                clasname: "tour-modal-onbackground"
+                title: 'Menú principal',
+                description: 'Este es el menú lateral. Desde aquí puedes acceder a todos los módulos del sistema.',
+                position: 'right'
             }
         },
         {
-            element: '#enviar_consulta',
+            element: '.ul-navegacion',
             popover: {
-                title: 'Botón de consulta',
-                description: 'Presiona este botón para buscar el alimento escrito.',
+                title: 'Opciones de navegación',
+                description: 'Usa estas opciones para ir a Porcinos, Alimentos, Dietas, Informes y más.',
+                position: 'right'
+            }
+        },
+        {
+            element: '.container__user__btn',
+            popover: {
+                title: 'Perfil de usuario',
+                description: 'Aquí puedes ver tu perfil y cerrar sesión.',
+                position: 'left'
+            }
+        },
+        {
+            element: '.titulo__home h1',
+            popover: {
+                title: 'Pantalla de inicio',
+                description: 'Esta es la página principal de EduPork, donde comienzas a usar el sistema.',
                 position: 'bottom'
             }
         },
         {
-
-            element: '#consultar_todo',
+            element: '.Parrafo__home',
             popover: {
-                title: 'consultar todo',
-                description: 'este botom ayuda a consultar todo luego de hacer una consulta individua',
-                position: 'top'
+                title: 'Propósito del sistema',
+                description: 'Edupork fue creado para ayudarte a aprender y gestionar dietas nutricionales para porcinos.',
+                position: 'bottom'
             }
         },
         {
-
-            element: '#head_alimento',
+            element: '.PorcinoTwo',
             popover: {
-                title: 'Información general',
-                description: 'Aquí se muestran los datos de los alimentos.',
-                position: 'top'
-            }
-        },
-        {
-            element: '#alimento_tour',
-            popover: {
-                title: 'Alimento_tour',
-                description: 'este es un alimento que fue regitrado, tiene informacion general como su id, unos requerimientos nutricionales y unas funciones adicionales ',
-                position: 'top'
-            }
-        },
-        {
-            element: '#acciones',
-            popover: {
-                title: 'acciones',
-                description: 'lista de acciones mencionadas',
-                position: 'top'
-            }
-        },
-        {
-            element: '.icon-eye',
-            popover: {
-                title: 'visualizar',
-                description: 'este bottom permite ver por completo la informacion del alimento que esta en su misma ilera ',
+                title: 'Identidad visual',
+                description: 'Esta imagen representa el enfoque educativo del sistema.',
                 position: 'left'
             }
         },
-        {
-            element: '.icon-edit',
-            popover: {
-                title: 'editar',
-                description: 'este bottom permite ver por completo la informacion del alimento que esta en su misma ilera ',
-                position: 'left'
-            }
-        },
-        {
-            element: '.icon-delete',
-            popover: {
-                title: 'eliminar',
-                description: 'este bottom permite ver por completo la informacion del alimento que esta en su misma ilera ',
-                position: 'left'
-            }
-        }
+        
     ]);
 
     driver.start();
 }
-function iniciarTourAgregar_alimento() {
+
+
+function iniciarTourHome() {
+
+    document.body.classList.add('tour-activo');
+
     const driver = new Driver({
-        showProgress: true,   // muestra la barra de progreso
-        allowClose: false,    // no deja cerrar el tour antes de terminar
-        overlayOpacity: 0.4
+        showProgress: true,
+        overlayOpacity: 0.35,
+        allowClose: false,
+        stageBackground: 'rgba(0, 0, 0, 0.2)', // color del recuadro
+
+        nextBtnText: 'Siguiente',
+        prevBtnText: 'Anterior',
+        doneBtnText: 'Finalizar',
+
+        
     });
 
     driver.defineSteps([
         {
-            element: '.section__add__por header h1',
+            element: '.logo-edupork',
             popover: {
-                title: 'Título de la página',
-                description: 'Aquí se indica que estás registrando un nuevo alimento.',
-                position: 'bottom'
-            }
-        },
-        {
-            element: '#columna1',
-            popover: {
-                title: 'Columna 1: Imagen y Proteínas',
-                description: 'Aquí puedes subir la imagen del alimento y registrar proteína cruda, fósforo y metionina.',
+                title: 'Edupork',
+                description: 'Logo de la plataforma.',
                 position: 'right'
             }
         },
         {
-            element: '#columna2',
+            element: '.ul-navegacion li:nth-child(1)',
             popover: {
-                title: 'Columna 2: Nombre y Fibra',
-                description: 'Escribe el nombre del alimento y registra fibra cruda, sodio y metionina + cisteína.',
+                title: 'Home',
+                description: 'Página principal.',
                 position: 'right'
             }
         },
         {
-            element: '#columna3',
+            element: '.ul-navegacion li:nth-child(2)',
             popover: {
-                title: 'Columna 3: Materia seca y aminoácidos',
-                description: 'Aquí se registran materia seca, extracto etéreo, arginina y treonina.',
+                title: 'Notificaciones',
+                description: 'Alertas del sistema.',
                 position: 'right'
             }
         },
         {
-            element: '#columna4',
+            element: '.ul-navegacion li:nth-child(3)',
             popover: {
-                title: 'Columna 4: Energía y minerales',
-                description: 'Registra energía metabolizable, calcio, lisina y triptófano.',
-                position: 'left'
+                title: 'Porcinos',
+                description: 'Gestión de porcinos.',
+                position: 'right'
             }
         },
         {
-            element: '.input_add1',
+            element: '.ul-navegacion li:nth-child(4)',
             popover: {
-                title: 'Guardar alimento',
-                description: 'Cuando completes todos los campos, presiona este botón para guardar el alimento.',
-                position: 'top'
+                title: 'Alimentos',
+                description: 'Administración de alimentos.',
+                position: 'right'
+            }
+        },
+        {
+            element: '.ul-navegacion li:nth-child(5)',
+            popover: {
+                title: 'Dietas',
+                description: 'Gestión de dietas.',
+                position: 'right'
+            }
+        },
+        {
+            element: '.ul-navegacion li:nth-child(6)',
+            popover: {
+                title: 'Informes',
+                description: 'Reportes y estadísticas.',
+                position: 'right'
+            }
+        },
+        {
+            element: '.ul-navegacion li:nth-child(7)',
+            popover: {
+                title: 'Perfil',
+                description: 'Información del usuario.',
+                position: 'right'
+            }
+        },
+        {
+            element: '.ul-navegacion li:nth-child(8)',
+            popover: {
+                title: 'Configuración',
+                description: 'Opciones del sistema.',
+                position: 'right'
             }
         }
     ]);
 
     driver.start();
 }
+
+
+
 function iniciarTourAgregarDietas() {
     const driver = new Driver({
         showProgress: true,
