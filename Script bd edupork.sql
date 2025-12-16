@@ -1,200 +1,265 @@
-create database if not exists edupork;
+-- MySQL Workbench Forward Engineering
 
-use edupork;
+SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0;
+SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0;
+SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION';
 
--- ========================================
--- TABLA: tipo_identificacion
--- ========================================
-create table if not exists tipo_identificacion(
-id_tipo_identificacion int auto_increment primary key,
-descripcion varchar(20) not null
-);
+-- -----------------------------------------------------
+-- Schema mydb
+-- -----------------------------------------------------
+-- -----------------------------------------------------
+-- Schema edupork_4
+-- -----------------------------------------------------
 
--- ========================================
--- TABLA: usuario
--- ========================================
-create table if not exists usuario(
-id_usuario int auto_increment primary key,
-nombre varchar(200) not null,
-numero_identificacion CHAR(10) NOT NULL,
-correo varchar(80) not null unique key,
-contrasena varchar(555) not null,
-estado enum('Activo','Inactivo') not null,
-rol ENUM('Admin','Aprendiz') not NULL,
-id_tipo_identificacion int not null,
-intentos_fallidos int default 0,
-bloqueado_hasta datetime null ,
-reset_token VARCHAR(255) NULL,
-reset_token_expira DATETIME NULL,
-tipo enum('Interno'),
-foreign key (id_tipo_identificacion) references tipo_identificacion(id_tipo_identificacion)
-);
+-- -----------------------------------------------------
+-- Schema edupork_4
+-- -----------------------------------------------------
+CREATE SCHEMA IF NOT EXISTS `edupork_4` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci ;
+USE `edupork_4` ;
 
--- ========================================
--- TABLA: usuario_externo
--- ========================================
-CREATE TABLE IF NOT EXISTS usuario_externo (
-   id_usuario_externo INT AUTO_INCREMENT PRIMARY KEY,
-   correo VARCHAR(80) UNIQUE NOT NULL,
-   nombre VARCHAR(200),
-   proveedor ENUM('Google'),
-   rol enum("Admin","Aprendiz") not null,
-   estado enum('Activo','Inactivo'),
-   tipo enum('Externo')
-);
-
--- ========================================
--- TABLA: raza
--- ========================================
-create table if not exists raza(
-id_raza int auto_increment primary key,
-nombre varchar(20) not null,
-descripcion varchar(100) not null
-);
-
--- ========================================
--- TABLA: etapa_vida
--- ========================================
-create table if not exists etapa_vida(
-id_etapa int auto_increment primary key,
-nombre varchar(20) not null unique,
-peso_min int not null,
-peso_max int not null,
-duracion_dias int not null,
-duracion_semanas int not null,
-descripcion varchar(100) not null
-);
-
--- ========================================
--- TABLA: elementos
--- ========================================
-create table if not exists elementos(
-	id_elemento int auto_increment primary key,
-	nombre varchar(20) not null
-);
-
--- ========================================
--- TABLA: requerimientos_nutricionales
--- ========================================
-CREATE TABLE requerimientos_nutricionales (
-    id_requerimiento INT AUTO_INCREMENT PRIMARY KEY,
-    id_etapa INT NOT NULL,
-    id_elemento INT NOT NULL,
-    porcentaje DECIMAL(10,2) NOT NULL,
-    FOREIGN KEY (id_etapa) REFERENCES etapa_vida(id_etapa),
-    FOREIGN KEY (id_elemento) REFERENCES elementos(id_elemento)
-);
+-- -----------------------------------------------------
+-- Table `edupork_4`.`alimentos`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `edupork_4`.`alimentos` (
+  `id_alimento` INT NOT NULL AUTO_INCREMENT,
+  `nombre` VARCHAR(30) NOT NULL,
+  `estado` ENUM('Activo', 'Inactivo') NOT NULL,
+  `imagen` VARCHAR(150) NULL DEFAULT NULL,
+  `usuario_id` INT NOT NULL,
+  `usuario_tipo` ENUM('Interno', 'Externo') NULL DEFAULT NULL,
+  PRIMARY KEY (`id_alimento`))
+ENGINE = InnoDB
+AUTO_INCREMENT = 1
+DEFAULT CHARACTER SET = utf8mb4
+COLLATE = utf8mb4_0900_ai_ci;
 
 
--- ========================================
--- TABLA: porcinos
--- ========================================
-create table if not exists porcinos(
-id_porcino int auto_increment primary key,
-peso_inicial float not null,
-peso_final float not null,
-fecha_nacimiento date not null,
-sexo enum('Hembra','Macho') not null,
-id_raza int not null,
-id_etapa int not null,
-estado enum('Activo','Inactivo') not null,
-descripcion varchar(100) not null,
-fecha_creacion datetime default current_timestamp,
-
-foreign key (id_raza) references raza(id_raza),
-foreign key (id_etapa) references etapa_vida(id_etapa)
-);
-
--- ========================================
--- TABLA: transaccion_peso
--- ========================================
-create table if not exists transaccion_peso(
-id_documento INT AUTO_INCREMENT PRIMARY KEY,
-fecha_documento DATETIME DEFAULT CURRENT_TIMESTAMP,
-fecha_pesaje DATE NOT NULL,
-id_porcino INT NOT NULL,
-peso_final INT NOT NULL,
-id_usuario INT NOT NULL,
-descripcion VARCHAR(400) NULL,
-
-FOREIGN KEY (id_porcino) REFERENCES porcinos(id_porcino)
-);
+-- -----------------------------------------------------
+-- Table `edupork_4`.`elementos`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `edupork_4`.`elementos` (
+  `id_elemento` INT NOT NULL AUTO_INCREMENT,
+  `nombre` VARCHAR(20) NOT NULL,
+  PRIMARY KEY (`id_elemento`))
+ENGINE = InnoDB
+AUTO_INCREMENT = 1
+DEFAULT CHARACTER SET = utf8mb4
+COLLATE = utf8mb4_0900_ai_ci;
 
 
--- ========================================
--- TABLA: alimentos
--- ========================================
-CREATE TABLE IF NOT EXISTS alimentos (
-    id_alimento INT AUTO_INCREMENT PRIMARY KEY,
-    nombre VARCHAR(30) NOT NULL,
-    estado ENUM('Activo','Inactivo') NOT NULL,
-    imagen VARCHAR(150),
-    usuario_id INT NOT NULL,
-    usuario_tipo enum('Interno','Externo') not null
-);
+-- -----------------------------------------------------
+-- Table `edupork_4`.`alimento_tiene_elemento`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `edupork_4`.`alimento_tiene_elemento` (
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `id_alimento` INT NOT NULL,
+  `id_elemento` INT NOT NULL,
+  `valor` DOUBLE NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  INDEX `id_alimento` (`id_alimento` ASC) VISIBLE,
+  INDEX `id_elemento` (`id_elemento` ASC) VISIBLE,
+  CONSTRAINT `alimento_tiene_elemento_ibfk_1`
+    FOREIGN KEY (`id_alimento`)
+    REFERENCES `edupork_4`.`alimentos` (`id_alimento`),
+  CONSTRAINT `alimento_tiene_elemento_ibfk_2`
+    FOREIGN KEY (`id_elemento`)
+    REFERENCES `edupork_4`.`elementos` (`id_elemento`))
+ENGINE = InnoDB
+AUTO_INCREMENT = 1
+DEFAULT CHARACTER SET = utf8mb4
+COLLATE = utf8mb4_0900_ai_ci;
 
--- ========================================
--- TABLA: alimento_tiene_elemento
--- ========================================
-CREATE TABLE IF NOT EXISTS alimento_tiene_elemento (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    id_alimento INT NOT NULL,
-    id_elemento INT NOT NULL,
-    valor DOUBLE,
-    FOREIGN KEY (id_alimento) REFERENCES alimentos(id_alimento),
-    FOREIGN KEY (id_elemento) REFERENCES elementos(id_elemento)
-);
 
--- ========================================
--- TABLA: dietas
--- ========================================
-CREATE TABLE IF NOT EXISTS dietas (
-    id_dieta INT AUTO_INCREMENT PRIMARY KEY,
-    usuario_id INT NOT NULL,
-    usuario_tipo enum('Interno','Externo') not null,
-    fecha_creacion DATE NOT NULL,
-    id_etapa_vida int not null,
-    estado ENUM('Activo','Inactivo') NOT NULL,
-    descripcion VARCHAR(200),
-    mezcla_nutricional json,
-    foreign key (id_etapa_vida) references etapa_vida(id_etapa)
-);
+-- -----------------------------------------------------
+-- Table `edupork_4`.`etapa_vida`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `edupork_4`.`etapa_vida` (
+  `id_etapa` INT NOT NULL AUTO_INCREMENT,
+  `nombre` VARCHAR(20) NOT NULL,
+  `descripcion` VARCHAR(100) NOT NULL,
+  `peso_min` INT NOT NULL,
+  `peso_max` INT NOT NULL,
+  `duracion_dias` INT NOT NULL,
+  `duracion_semanas` INT NOT NULL,
+  PRIMARY KEY (`id_etapa`),
+  UNIQUE INDEX `nombre` (`nombre` ASC) VISIBLE)
+ENGINE = InnoDB
+AUTO_INCREMENT = 1
+DEFAULT CHARACTER SET = utf8mb4
+COLLATE = utf8mb4_0900_ai_ci;
 
--- ========================================
--- TABLA: dieta_tiene_alimentos
--- ========================================
-CREATE TABLE IF NOT EXISTS dieta_tiene_alimentos (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    id_dieta INT NOT NULL,
-    id_alimento INT NOT NULL,
-    cantidad FLOAT,
-    FOREIGN KEY (id_dieta) REFERENCES dietas(id_dieta),
-    FOREIGN KEY (id_alimento) REFERENCES alimentos(id_alimento)
-);
 
--- ========================================
--- TABLA: notificaciones
--- ========================================
-CREATE TABLE notificaciones (
-  id_notificacion INT AUTO_INCREMENT PRIMARY KEY,
+-- -----------------------------------------------------
+-- Table `edupork_4`.`dietas`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `edupork_4`.`dietas` (
+  `id_dieta` INT NOT NULL AUTO_INCREMENT,
+  `usuario_id` INT NOT NULL,
+  `fecha_creacion` DATE NOT NULL,
+  `id_etapa_vida` INT NOT NULL,
+  `estado` ENUM('Activo', 'Inactivo') NOT NULL,
+  `descripcion` VARCHAR(200) NULL DEFAULT NULL,
+  `mezcla_nutricional` JSON NULL DEFAULT NULL,
+  `usuario_tipo` ENUM('Interno', 'Externo') NOT NULL,
+  PRIMARY KEY (`id_dieta`),
+  INDEX `id_etapa_vida` (`id_etapa_vida` ASC) VISIBLE,
+  CONSTRAINT `dietas_ibfk_2`
+    FOREIGN KEY (`id_etapa_vida`)
+    REFERENCES `edupork_4`.`etapa_vida` (`id_etapa`))
+ENGINE = InnoDB
+AUTO_INCREMENT = 1
+DEFAULT CHARACTER SET = utf8mb4
+COLLATE = utf8mb4_0900_ai_ci;
 
-  destinatario_id INT NOT NULL,
-  destinatario_tipo ENUM('interno','externo') NOT NULL,
 
-  origen_id INT NOT NULL,
-  origen_tipo ENUM('Interno','Externo') NOT NULL,
+-- -----------------------------------------------------
+-- Table `edupork_4`.`dieta_tiene_alimentos`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `edupork_4`.`dieta_tiene_alimentos` (
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `id_dieta` INT NOT NULL,
+  `id_alimento` INT NOT NULL,
+  `cantidad` FLOAT NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  INDEX `id_dieta` (`id_dieta` ASC) VISIBLE,
+  INDEX `id_alimento` (`id_alimento` ASC) VISIBLE,
+  CONSTRAINT `dieta_tiene_alimentos_ibfk_1`
+    FOREIGN KEY (`id_dieta`)
+    REFERENCES `edupork_4`.`dietas` (`id_dieta`),
+  CONSTRAINT `dieta_tiene_alimentos_ibfk_2`
+    FOREIGN KEY (`id_alimento`)
+    REFERENCES `edupork_4`.`alimentos` (`id_alimento`))
+ENGINE = InnoDB
+AUTO_INCREMENT = 1
+DEFAULT CHARACTER SET = utf8mb4
+COLLATE = utf8mb4_0900_ai_ci;
 
-  titulo VARCHAR(100) NOT NULL,
-  mensaje TEXT NOT NULL,
-  tipo ENUM('General','Pesaje','Ingreso','Actualización','Eliminación'),
-  url_referencia VARCHAR(255),
-  leida TINYINT(1) DEFAULT 0,
-  fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 
-  INDEX idx_destinatario (destinatario_tipo, destinatario_id),
-  INDEX idx_origen (origen_tipo, origen_id),
-  INDEX idx_leida (leida)
-);
+-- -----------------------------------------------------
+-- Table `edupork_4`.`notificaciones`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `edupork_4`.`notificaciones` (
+  `id_notificacion` INT NOT NULL AUTO_INCREMENT,
+  `destinatario_id` INT NOT NULL,
+  `destinatario_tipo` ENUM('Interno', 'Externo') NOT NULL,
+  `origen_id` INT NULL DEFAULT NULL,
+  `origen_tipo` ENUM('Interno', 'Externo') NOT NULL,
+  `titulo` VARCHAR(100) NOT NULL,
+  `mensaje` TEXT NOT NULL,
+  `tipo` ENUM('General', 'Pesaje', 'Ingreso', 'Actualización', 'Eliminación') NULL DEFAULT NULL,
+  `url_referencia` VARCHAR(255) NULL DEFAULT NULL,
+  `leida` TINYINT(1) NULL DEFAULT '0',
+  `fecha_creacion` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id_notificacion`),
+  INDEX `idx_destinatario` (`destinatario_tipo` ASC, `destinatario_id` ASC) VISIBLE,
+  INDEX `idx_origen` (`origen_tipo` ASC, `origen_id` ASC) VISIBLE,
+  INDEX `idx_leida` (`leida` ASC) VISIBLE)
+ENGINE = InnoDB
+AUTO_INCREMENT = 1
+DEFAULT CHARACTER SET = utf8mb4
+COLLATE = utf8mb4_0900_ai_ci;
+
+
+-- -----------------------------------------------------
+-- Table `edupork_4`.`raza`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `edupork_4`.`raza` (
+  `id_raza` INT NOT NULL AUTO_INCREMENT,
+  `nombre` VARCHAR(20) NOT NULL,
+  `descripcion` VARCHAR(100) NOT NULL,
+  PRIMARY KEY (`id_raza`))
+ENGINE = InnoDB
+AUTO_INCREMENT = 1
+DEFAULT CHARACTER SET = utf8mb4
+COLLATE = utf8mb4_0900_ai_ci;
+
+
+-- -----------------------------------------------------
+-- Table `edupork_4`.`porcinos`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `edupork_4`.`porcinos` (
+  `id_porcino` INT NOT NULL AUTO_INCREMENT,
+  `peso_inicial` FLOAT NOT NULL,
+  `peso_final` FLOAT NOT NULL,
+  `fecha_nacimiento` DATE NOT NULL,
+  `sexo` ENUM('Hembra', 'Macho') NOT NULL,
+  `id_raza` INT NOT NULL,
+  `id_etapa` INT NOT NULL,
+  `estado` ENUM('Activo', 'Inactivo') NOT NULL,
+  `descripcion` VARCHAR(100) NOT NULL,
+  `fecha_creacion` DATETIME NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id_porcino`),
+  INDEX `id_raza` (`id_raza` ASC) VISIBLE,
+  INDEX `id_etapa` (`id_etapa` ASC) VISIBLE,
+  CONSTRAINT `porcinos_ibfk_1`
+    FOREIGN KEY (`id_raza`)
+    REFERENCES `edupork_4`.`raza` (`id_raza`),
+  CONSTRAINT `porcinos_ibfk_2`
+    FOREIGN KEY (`id_etapa`)
+    REFERENCES `edupork_4`.`etapa_vida` (`id_etapa`))
+ENGINE = InnoDB
+AUTO_INCREMENT = 1
+DEFAULT CHARACTER SET = utf8mb4
+COLLATE = utf8mb4_0900_ai_ci;
+
+
+-- -----------------------------------------------------
+-- Table `edupork_4`.`requerimientos_nutricionales`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `edupork_4`.`requerimientos_nutricionales` (
+  `id_requerimiento` INT NOT NULL AUTO_INCREMENT,
+  `id_etapa` INT NOT NULL,
+  `id_elemento` INT NOT NULL,
+  `porcentaje` DECIMAL(5,2) NOT NULL,
+  PRIMARY KEY (`id_requerimiento`),
+  INDEX `id_etapa` (`id_etapa` ASC) VISIBLE,
+  INDEX `id_elemento` (`id_elemento` ASC) VISIBLE,
+  CONSTRAINT `requerimientos_nutricionales_ibfk_1`
+    FOREIGN KEY (`id_etapa`)
+    REFERENCES `edupork_4`.`etapa_vida` (`id_etapa`),
+  CONSTRAINT `requerimientos_nutricionales_ibfk_2`
+    FOREIGN KEY (`id_elemento`)
+    REFERENCES `edupork_4`.`elementos` (`id_elemento`))
+ENGINE = InnoDB
+AUTO_INCREMENT = 1
+DEFAULT CHARACTER SET = utf8mb4
+COLLATE = utf8mb4_0900_ai_ci;
+
+
+-- -----------------------------------------------------
+-- Table `edupork_4`.`tipo_identificacion`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `edupork_4`.`tipo_identificacion` (
+  `id_tipo_identificacion` INT NOT NULL AUTO_INCREMENT,
+  `descripcion` VARCHAR(20) NOT NULL,
+  PRIMARY KEY (`id_tipo_identificacion`))
+ENGINE = InnoDB
+AUTO_INCREMENT = 1
+DEFAULT CHARACTER SET = utf8mb4
+COLLATE = utf8mb4_0900_ai_ci;
+
+
+-- -----------------------------------------------------
+-- Table `edupork_4`.`transaccion_peso`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `edupork_4`.`transaccion_peso` (
+  `id_documento` INT NOT NULL AUTO_INCREMENT,
+  `fecha_documento` DATETIME NULL DEFAULT CURRENT_TIMESTAMP,
+  `fecha_pesaje` DATE NOT NULL,
+  `id_porcino` INT NOT NULL,
+  `peso_final` INT NOT NULL,
+  `usuario_id` INT NOT NULL,
+  `descripcion` VARCHAR(400) NULL DEFAULT NULL,
+  `usuario_tipo` ENUM('Interno', 'Externo') NOT NULL,
+  PRIMARY KEY (`id_documento`),
+  INDEX `id_porcino` (`id_porcino` ASC) VISIBLE,
+  CONSTRAINT `transaccion_peso_ibfk_1`
+    FOREIGN KEY (`id_porcino`)
+    REFERENCES `edupork_4`.`porcinos` (`id_porcino`))
+ENGINE = InnoDB
+AUTO_INCREMENT = 1
+DEFAULT CHARACTER SET = utf8mb4
+COLLATE = utf8mb4_0900_ai_ci;
 
 -- ==========================================
 -- Procedimientos: Actualizar_peso_historial
@@ -306,11 +371,64 @@ BEGIN
 END $$
 DELIMITER ;
 
+
+-- -----------------------------------------------------
+-- Table `edupork_4`.`usuario`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `edupork_4`.`usuario` (
+  `id_usuario` INT NOT NULL AUTO_INCREMENT,
+  `nombre` VARCHAR(200) NOT NULL,
+  `numero_identificacion` CHAR(10) NOT NULL,
+  `correo` VARCHAR(80) NOT NULL,
+  `contrasena` VARCHAR(555) NOT NULL,
+  `estado` ENUM('Activo', 'Inactivo') NOT NULL,
+  `rol` ENUM('Admin', 'Aprendiz') NULL DEFAULT NULL,
+  `id_tipo_identificacion` INT NOT NULL,
+  `intentos_fallidos` INT NULL DEFAULT '0',
+  `bloqueado_hasta` DATETIME NULL DEFAULT NULL,
+  `reset_token` VARCHAR(255) NULL DEFAULT NULL,
+  `reset_token_expira` DATETIME NULL DEFAULT NULL,
+  `tipo` ENUM('Interno') NULL DEFAULT NULL,
+  PRIMARY KEY (`id_usuario`),
+  UNIQUE INDEX `correo` (`correo` ASC) VISIBLE,
+  UNIQUE INDEX `numero_identificacion_UNIQUE` (`numero_identificacion` ASC) VISIBLE,
+  INDEX `id_tipo_identificacion` (`id_tipo_identificacion` ASC) VISIBLE,
+  CONSTRAINT `usuario_ibfk_1`
+    FOREIGN KEY (`id_tipo_identificacion`)
+    REFERENCES `edupork_4`.`tipo_identificacion` (`id_tipo_identificacion`))
+ENGINE = InnoDB
+AUTO_INCREMENT = 1
+DEFAULT CHARACTER SET = utf8mb4
+COLLATE = utf8mb4_0900_ai_ci;
+
+
+-- -----------------------------------------------------
+-- Table `edupork_4`.`usuario_externo`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `edupork_4`.`usuario_externo` (
+  `id_usuario_externo` INT NOT NULL AUTO_INCREMENT,
+  `correo` VARCHAR(80) NOT NULL,
+  `nombre` VARCHAR(200) NULL DEFAULT NULL,
+  `proveedor` ENUM('Google') NULL DEFAULT NULL,
+  `rol` ENUM('Admin', 'Aprendiz') NOT NULL,
+  `estado` ENUM('Activo', 'Inactivo') NULL DEFAULT NULL,
+  `tipo` ENUM('Externo') NULL DEFAULT NULL,
+  PRIMARY KEY (`id_usuario_externo`),
+  UNIQUE INDEX `correo` (`correo` ASC) VISIBLE)
+ENGINE = InnoDB
+AUTO_INCREMENT = 1
+DEFAULT CHARACTER SET = utf8mb4
+COLLATE = utf8mb4_0900_ai_ci;
+
+
+SET SQL_MODE=@OLD_SQL_MODE;
+SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS;
+SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS;
+
 insert into tipo_identificacion(descripcion) values ('Cedula de Cuidania');
 insert into tipo_identificacion(descripcion) VALUES ('Tarjeta de identidad');
 
 insert into raza (id_raza,nombre,descripcion) VALUES (1,'Landrace',''),(2,'Duroc',''),(3,'Pietrain',''),(4,'Large White','');
-
 INSERT INTO elementos (nombre) VALUES
 ('Proteina_cruda'),
 ('Fosforo'),
@@ -326,3 +444,7 @@ INSERT INTO elementos (nombre) VALUES
 ('Calcio'),
 ('Lisina'),
 ('Triptofano');
+
+select * from elementos;
+
+select * from usuario_externo;
