@@ -765,7 +765,7 @@ def historial_pesos():
           return jsonify({'Mensaje': 'No hay historial de pesos registrados'})
   except Exception as err:
     print(err)
-    return jsonify({'Mensaje': 'Error'}), 500
+    return jsonify({'Mensaje': f'error en historial: {err}'}), 500
 
 @app.route("/porcino/historial_pesos/transaccion/<int:id>", methods = ['GET'])
 @token_requerido
@@ -4262,7 +4262,7 @@ def consultar_usuarios():
                     FROM 
                       usuario
                     """)
-        usuarios_internos = cur.fetchall()
+        usuarios_internos = list(cur.fetchall())
         cur.execute("""
                     SELECT
                       id_usuario_externo,
@@ -4274,7 +4274,8 @@ def consultar_usuarios():
                     FROM
                     usuario_externo
                     """)
-        usuarios_externos = cur.fetchall()
+        usuarios_externos = list(cur.fetchall())
+    
     usuarios = []
     usuarios = usuarios_internos + usuarios_externos
     if len(usuarios) > 0:
@@ -4285,10 +4286,9 @@ def consultar_usuarios():
     else:
       return jsonify({'Mensaje': 'No hay Usuarios registrados'})
   
-  
   except Exception as err:
-    print(err)
-    return jsonify({'Mensaje' : 'Error en la base de datos'})
+    print('error en la consulta de usuarios: ',err)
+    return jsonify({'Mensaje' : f'Error en la base de datos: {err}'})
 
 @app.route('/usuario/<tipo_usuario>/<int:id_usuario>', methods=['GET'])
 @token_requerido
@@ -4366,14 +4366,14 @@ def usuario_filtros():
         if filtro == 'tipo':
             if valor == 'Interno':
                 query = """
-                    SELECT id_usuario AS usuario_id,
+                    SELECT id_usuario AS id_usuario,
                            'Interno' AS usuario_tipo,
                            nombre, correo, estado, rol
                     FROM usuario
                 """
             elif valor == 'Externo':
                 query = """
-                    SELECT id_usuario_externo AS usuario_id,
+                    SELECT id_usuario_externo AS id_usuario,
                            'Externo' AS usuario_tipo,
                            nombre, correo, estado, rol
                     FROM usuario_externo
@@ -4384,7 +4384,7 @@ def usuario_filtros():
         # ---------------- OTROS FILTROS ----------------
         else:
             query = """
-                SELECT id_usuario AS usuario_id,
+                SELECT id_usuario AS id_usuario,
                        'Interno' AS usuario_tipo,
                        nombre, correo, estado, rol
                 FROM usuario
@@ -4392,7 +4392,7 @@ def usuario_filtros():
 
                 UNION ALL
 
-                SELECT id_usuario_externo AS usuario_id,
+                SELECT id_usuario_externo AS id_usuario,
                        'Externo' AS usuario_tipo,
                        nombre, correo, estado, rol
                 FROM usuario_externo

@@ -4562,6 +4562,7 @@ async function filtrarUsuarios() {
         const data = await resp.json();
 
         if (Object.keys(data).length != 1){
+                console.log(data)
                 paginacion_usuarios(data)
             } else{
                 Swal.fire({
@@ -4570,6 +4571,7 @@ async function filtrarUsuarios() {
                 icon: "error",
             });
         }
+
         return data
     } catch (error) {
         Swal.fire("Error", "No se pudo conectar con el servidor", "error");
