@@ -1,5 +1,1 @@
-Edupork
-
-Aplicación web para la formulación y análisis de dietas porcinas
-
 EduPork es una plataforma diseñada para optimizar la gestión de dietas porcinas, integrando procesos técnicos del área agropecuaria con soluciones tecnológicas. Permite formular dietas balanceadas, analizar nutrientes y registrar información de manera sencilla y organizada.
